@@ -155,7 +155,7 @@ class soopfw_install {
 			}
 		}
 
-		$username = get_string_input('Please select the administration username', 'prdatur');
+		$username = get_string_input('Please select the administration username', 'admin');
 		$email = get_string_input('Please choose an email address', $this->config['core']['debug_email']);
 		$password = prompt_silent('Please choose a password: ', '');
 		$password2 = prompt_silent('Please re-type the choosen password: ', '');
