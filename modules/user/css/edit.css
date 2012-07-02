@@ -1,0 +1,42 @@
+/*
+.ui_tabs {
+	margin:10px;
+}
+.ui_tabs ul.tabs li.ui-state-hover,
+.ui_tabs ul.tabs li.ui-state-active {
+	border: 1px solid #9199a1;
+	background-color: #f4f4f4;
+}
+
+.ui_tabs, .ui_tabs ul.tabs, .ui_tabs ul.tabs li {
+	background: none;
+	border: none;
+}
+
+.ui_tabs ul.tabs li {
+	border: 1px solid white;
+	background-color: #273753;
+
+}
+
+
+#content .ui_tabs ul.tabs li a:link, #content .ui_tabs ul.tabs li a:visited, #content .ui_tabs ul.tabs li a:active {
+	color: white;
+}
+
+#content .ui_tabs ul.tabs li.ui-state-active a:link,
+#content .ui_tabs ul.tabs li.ui-state-active a:visited,
+#content .ui_tabs ul.tabs li.ui-state-active a:active,
+#content .ui_tabs ul.tabs li.ui-state-hover a:link,
+#content .ui_tabs ul.tabs li.ui-state-hover a:visited,
+#content .ui_tabs ul.tabs li.ui-state-hover a:active {
+	color: #1C67B8;
+}
+
+
+
+.ui-tabs > div.ui-tabs-panel {
+	background: #f6f6f6;
+	border: 1px solid #9199a1;
+}
+*/

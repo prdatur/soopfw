@@ -1,0 +1,17 @@
+; Configuration of Module user
+version = 1
+
+;Define rights rights[] = "example.right.view"
+rights[] = "admin.user.group.add"
+rights[] = "admin.user.group.change"
+rights[] = "admin.user.group.delete"
+rights[] = "admin.user.group.view"
+rights[] = "admin.user.add"
+rights[] = "admin.user.change"
+rights[] = "admin.user.delete"
+rights[] = "admin.user.view"
+rights[] = "admin.user.rights.change"
+
+;this should NEVER be set within right manager, it just determines that the user is logged in
+rights[] = "user.loggedin"
+

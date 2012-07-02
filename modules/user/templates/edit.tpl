@@ -1,0 +1,1 @@
+<%include file="tabs.tpl" tabs=$tabs%>

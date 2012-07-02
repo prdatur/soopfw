@@ -1,0 +1,7 @@
+; Configuration of Module menu
+version = 1
+
+;Define rights rights[] = "example.right.view"
+rights[] = "admin.menu.manage"
+rights[] = "admin.menu.view_inactive_entries"
+

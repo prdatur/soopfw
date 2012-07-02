@@ -1,0 +1,1 @@
+<div id="title"><%if !empty($title)%><h1><%$title|unescape%></h1><%/if%><div><%$description|unescape%></div></div>

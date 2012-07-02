@@ -1,0 +1,1183 @@
+<?php
+/**
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package modules.content
+ */
+
+class content extends ActionModul {
+
+	 //Default method
+	protected $default_methode = "list_content_types";
+
+	/**
+	 * Implementation of get_admin_menu()
+	 * @return array the menu
+	 */
+	public function get_admin_menu() {
+
+
+		$content_types = $create_types = array();
+		foreach($this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
+			$content_types[] = array(
+				'#title' => $content_type['description'], //The main title
+				'#link' => "/content/manage_content_type/".$content_type['content_type'], // The main link
+		#		'#perm' => $content_type['permission'], //Perm needed
+				'#childs' => array(
+					array(
+						'#title' => t("manage fields"), //The main title
+						'#link' => "/content/manage_content_type_fields/".$content_type['content_type'], // The main link
+					)
+				)
+			);
+			$create_types[] = array(
+				'#title' => $content_type['description'], //The main title
+				'#link' => "/content/create/".$content_type['content_type'] // The main link
+			);
+		}
+		return array(
+			1 => array(//Order id, same order ids will be unsorted placed behind each
+				'#id' => 'soopfw_content_type', //A unique id which will be needed to generate the submenu
+				'#title' => t("content"), //The main title
+				'#link' => "/content", // The main link
+				'#perm' => 'admin.content', //Perm needed
+				'#childs' => array(
+					array(
+						'#title' => t("content types"), //The main title
+						'#link' => "/content/list_content_types", // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+						'#childs' => $content_types
+					),
+					array(
+						'#title' => t("create content"), //The main title
+						'#link' => "/content/create", // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+						'#childs' => $create_types
+					),
+					array(
+						'#title' => t("list content"), //The main title
+						'#link' => "/content/list_content", // The main link
+						'#perm' => 'admin.content.create', //Perm needed
+						'#childs' => array(
+							array(
+								'#title' => t("unreachable content"), //The main title
+								'#link' => "/content/list_unreachable_content_types", // The main link
+								'#perm' => 'admin.content.create', //Perm needed
+							)
+						)
+					),
+
+				)
+			)
+		);
+	}
+
+	public function __init() {
+		parent::__init();
+
+		if($this->action != 'view') {
+			//Need to be logged in
+			$this->session->require_login();
+		}
+
+	}
+
+	/**
+	 * Action: view
+	 * View a content page
+	 * Revision can be provided but then the current user must have the permission to create content
+	 *
+	 * @param int $page_id the page id
+	 * @param int $revision the revision to show (optional, default = '')
+	 */
+	public function view($page_id, $revision = '') {
+
+		$page_data_array = explode("|", $page_id, 2);
+		if(!isset($page_data_array[1])) {
+			$page_data_array[1] = '';
+		}
+
+		//Check if we have called this page with default content/view/{page_id} and if so check if we have an alias which is the better choice
+		if(preg_match("/content\/view\/[0-9]+/i", $_SERVER['REQUEST_URI'])) {
+			$alias = $this->get_alias_for_page_id($page_data_array[0], $page_data_array[1]);
+			if(!empty($alias)) {
+				$this->core->location('/'.$alias.'.html');
+			}
+		}
+		$page_id = $page_data_array[0];
+		$page = new PageObj($page_data_array[0], $page_data_array[1]);
+		if(!$page->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+
+		if($page->deleted == 'yes'  && !$this->right_manager->has_perm("admin.content.delete", false)) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+		if((empty($page->last_revision) || !empty($revision)) && !$this->right_manager->has_perm("admin.content.create", false)) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+		$page_revision = new PageRevisionObj($page_data_array[0], $page_data_array[1], $revision);
+		if(!$page_revision->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+		$page->view_count++;
+		$page->last_access = date(DB_DATETIME, TIME_NOW);
+		$page->save();
+		$values = array_merge($page->get_values(), $page_revision->get_values());
+
+		$this->title($values['title']);
+
+		$data_array = json_decode($values['serialized_data'], true);
+
+		$content_type_tpl = $this->module_tpl_dir.'/field_groups/'.$values['content_type'].".tpl";
+
+		$content_smarty = new Smarty();
+		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
+		$content_smarty->init();
+		$content_smarty->set_tpl($this->module_tpl_dir.'/field_groups/');
+
+		$content = "";
+		if(file_exists($content_type_tpl)) {
+			$content_smarty->assign_by_ref("data", $data_array);
+			$content = $content_smarty->fetch($content_type_tpl);
+		}
+		else {
+			foreach($data_array AS $field_group_id => $field_group_values) {
+				$field_group_tpl = $this->module_tpl_dir.'/field_groups/'.$field_group_id.".tpl";
+				if(!file_exists($field_group_tpl)) {
+					$group_obj = new ContentTypeFieldGroupObj($field_group_id);
+					$field_group_tpl = $this->module_tpl_dir.'/field_groups/'.$group_obj->field_group.".tpl";
+				}
+				$content_smarty->clearAllAssign();
+				$content_smarty->assign_by_ref("data", $field_group_values);
+				$content .= $content_smarty->fetch($field_group_tpl);
+			}
+		}
+
+		$view_links = array();
+
+		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
+		if($this->right_manager->has_perm("admin.content.create", false)) {
+			$view_links[] = array(
+				'href' => '/content/view/'.$page_id,
+				'title' => t("view")
+			);
+			$view_links[] = array(
+				'href' => '/content/edit/'.$page_id,
+				'title' => t("edit")
+			);
+			$view_links[] = array(
+				'href' => '/content/revision_list/'.$page_id,
+				'title' => t("revisions")
+			);
+		}
+
+		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
+		if($this->right_manager->has_perm("admin.translate", false)) {
+			$view_links[] = array(
+				'href' => '/content/translate_list/'.$page_id,
+				'title' => t("translate")
+			);
+		}
+
+		$this->smarty->assign_by_ref("data", $content);
+		$this->smarty->assign_by_ref("view_links", $view_links);
+	}
+
+	public function content_menu_chooser() {
+
+		//Need to be logged in
+		$this->session->require_login();
+
+		$this->title(t("Select a menu entry"), t("Please select the parent entry for this content page. Click on the +/- to show/hide subentries"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create")) {
+			return $this->no_permission();
+		}
+
+		$entries = array();
+		foreach($this->db->query_slave_all("SELECT * FROM `".MenuObj::TABLE."`") AS $menu) {
+			$menu_obj = new MenuObj($menu['menu_id']);
+			$entries[] = array(
+				'#title' => $menu_obj->title,
+				'menu_id' => $menu_obj->menu_id,
+				'#childs' => $menu_obj->get_menu_tree()
+			);
+		}
+
+		$this->core->add_css('/css/jquery.treeview.css');
+		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
+		$this->smarty->assign_by_ref("data", $entries);
+
+	}
+
+	/**
+	 * Action: list_content
+	 * Lists all content pages, provide filter functionality to search for content
+	 */
+	public function list_content() {
+		//Need to be logged in
+		$this->session->require_login();
+
+		$this->title(t("list/search content"), t("Here we can search for content pages"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create")) {
+			return $this->no_permission();
+		}
+
+		//Setup search form
+		$form = new Form("search_content", t("search:"));
+		$form->add(new Textfield("title", '', t("Title")));
+
+		$this->lng->load_language_list('', array(), true);
+		$form->add(new Selectfield('language', $this->lng->languages, $this->core->current_language, t("Language")));
+
+		$options = array(
+			'' => t('All')
+		);
+
+		foreach($this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
+			$options[$content_type['content_type']] = $content_type['description'];
+		}
+
+		$form->add(new Selectfield('content_type', $options, '', t("Content type")));
+
+		$form->add(new Submitbutton("searchSoap", t("Search"), "form_button"));
+		$form->assign_smarty("search_form");
+
+		//Check form and add errors if form is not valid
+		$form->check_form();
+		if ($form->is_submitted()) { //Search was submited
+			//Set session key for server search values so a reload of a page will use the session values
+			$this->session->set("search_content_overview", $form->get_values());
+		}
+		else {
+			//Form was not submited so try to load session values
+			$form->set_values($this->session->get("search_content_overview", array()));
+		}
+		$where = array();
+		//Build up where statement
+		foreach ($this->session->get("search_content_overview", array()) AS $field => $val) {
+			if (empty($val)) {
+				continue;
+			}
+			$where[] = "`".sql_escape($field)."` LIKE '".$this->db->get_sql_string_search($val, "%{v}%")."'";
+		}
+
+		if (empty($where)) {
+			$where[] = "`language` = '".strtoupper(safe($this->core->current_language))."'";
+		}
+
+		$where = " WHERE ".implode(" AND ", $where);
+
+		//Build query string for pager
+		$query_string = "SELECT 1 FROM `".PageObj::TABLE."`".$where;
+
+		//Init pager
+		$max = $this->db->query_slave_count($query_string);
+		$pager = new Pager(50, $max);
+		$pager->assign_smarty("pager");
+
+		//Build query string
+		$query_string = "SELECT `page_id`,`deleted`,`last_revision` FROM `".PageObj::TABLE."`".$where;
+
+		//Search in DB
+		$pages = $this->db->query_slave_all($query_string, $pager->max_entries_per_page(), $pager->get_offset());
+
+		foreach($pages AS &$page) {
+			$revision_object = new PageRevisionObj($page['page_id'], $this->core->current_language);
+			if($revision_object->load_success()) {
+				$page = array_merge($page, $revision_object->get_values());
+			}
+		}
+
+		//Assign found servers
+		$this->smarty->assign_by_ref("pages", $pages);
+	}
+	/**
+	 * Action: list_unreachable_content_types
+	 * Lists all content pages, provide filter functionality to search for content
+	 */
+	public function list_unreachable_content() {
+		//Need to be logged in
+		$this->session->require_login();
+
+		$this->title(t("list unreachable content"), t("Here we see all content pages which are not reachable by a normal user if he do not know the direct link"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create")) {
+			return $this->no_permission();
+		}
+
+		$menu_entry_obj = new MenuEntryObj();
+		$unreachable_menus = $menu_entry_obj->get_all_deactivated_menu_entries();
+		foreach($unreachable_menus AS &$val) {
+			$val = safe($val);
+		}
+		$unreachable_pages = $this->db->query_slave_all("
+			SELECT *
+			FROM `".PageObj::TABLE."` p
+			WHERE p.`deleted` != '".PageObj::DELETED_YES."' AND p.`current_menu_entry_id` IN (".implode(",", $unreachable_menus).")");
+
+		foreach($unreachable_pages AS &$page) {
+			$revision_object = new PageRevisionObj($page['page_id'], $this->core->current_language);
+			if($revision_object->load_success()) {
+				$page = array_merge($page, $revision_object->get_values());
+			}
+		}
+
+		//Assign found servers
+		$this->smarty->assign_by_ref("pages", $unreachable_pages);
+	}
+
+	/**
+	 * Action: revision_list
+	 * show a list for revisions for this page
+	 */
+	public function revision_list($page_id) {
+		//Need to be logged in
+		$this->session->require_login();
+
+		$page = new PageObj($page_id);
+		if(!$page->load_success()) {
+			return $this->wrong_params(t("no such page"));
+		}
+		$this->title(t("revision overview: @title", array("@title" => $page->title)), t("this displays all available revisions for this page"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
+			return $this->no_permission();
+		}
+
+		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `last_modified`, `last_modified_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
+			'ipage_id' => $page_id,
+			'@language' => $this->core->current_language
+		));
+
+		foreach($revisions AS &$revision) {
+			$user_obj = new UserObj($revision['last_modified_by']);
+			if($user_obj->load_success()) {
+				$revision['last_modified_by'] = $user_obj->get_values();
+			}
+			else {
+				unset($revision['last_modified_by']);
+			}
+		}
+		//Assign found revisions
+		$this->smarty->assign_by_ref("revisions", $revisions);
+	}
+
+
+	/**
+	 * Action: edit
+	 * Save the page
+	 * If revision is not provided it will use the latest revision.
+	 *
+	 * @param int $page_id the page id
+	 * @param int $revision the revision id (optional, default = '')
+	 */
+	public function edit($page_id, $revision = '') {
+
+
+		$this->title(t("change content"), t('Please fill out all required fields to create this content page'));
+
+		$page = new PageObj($page_id);
+		if(!$page->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+		$page_revision = new PageRevisionObj($page_id, '', $revision);
+		if(!$page_revision->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+		$this->title(t("change content: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page'));
+
+
+		$values = array_merge($page->get_values(true), $page_revision->get_values(true));
+		$values['serialized_data'] = json_decode($values['serialized_data'], true);
+
+		$this->change_content($values);
+	}
+
+	/**
+	 * Action: create
+	 * Creates a page based up on the given content type,
+	 * if content type is empty or not provided it will show up a list with all possible content types
+	 *
+	 * @param string $content_type the content type (optional, default = '')
+	 */
+	public function create($content_type = "") {
+		$this->title(t("create content: @content_type", array("@content_type" => $content_type)), t('Please fill out all required fields to create this content page'));
+
+		if(!empty($content_type)) {
+			$this->change_content($content_type);
+		}
+		else {
+			//Check perms
+			if (!$this->right_manager->has_perm("admin.content.create")) {
+				return $this->no_permission();
+			}
+
+			$this->smarty->assign_by_ref("list", $this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`"));
+		}
+	}
+
+	/**
+	 * Action: translate
+	 * translate a page, the prefilled data will be taken from the provided language
+	 *
+	 * @param int $page_id the page id
+	 * @param string $language the language from which we want to translate
+	 */
+	public function translate($page_id, $language) {
+
+		$this->title(t("translate"), t('Please fill out all required fields to create this content page'));
+
+		if (!$this->right_manager->has_perm("admin.translate")) {
+			return $this->no_permission();
+		}
+
+		$page = new PageObj($page_id, $language);
+		if(!$page->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+
+		$page_revision = new PageRevisionObj($page_id, $language);
+		if(!$page_revision->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+		$this->title(t("translate: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page'));
+
+		$values = array_merge($page->get_values(true), $page_revision->get_values(true));
+		$values['serialized_data'] = json_decode($values['serialized_data'], true);
+
+		$this->change_content($values, true);
+	}
+
+
+	public function list_content_types() {
+		$this->title(t("content types"), t('add or change content types'));
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.manage")) {
+			return $this->no_permission();
+		}
+		//Get content types and assign it
+		$this->smarty->assign_by_ref("values", $this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`"));
+	}
+
+
+	/**
+	 * Action: translate_list
+	 * show a list for translateable options for this page
+	 */
+	public function translate_list($page_id) {
+		//Need to be logged in
+		$this->session->require_login();
+
+		$this->title(t("translate overview"), t("choose what to translate"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
+			return $this->no_permission();
+		}
+
+		$already_translated = $this->db->query_slave_all("
+			SELECT cp.`page_id`,cpt.`title`, cpt.`language`
+			FROM `".PageObj::TABLE."` cp
+			JOIN `".PageRevisionObj::TABLE."` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
+			WHERE cp.`page_id` = ipage_id", array(
+			'ipage_id' => $page_id
+		),0,0, 'language');
+		$this->lng->load_language_list('', array(), true);
+
+		$translations = $this->lng->languages;
+		foreach($translations AS $key => &$language) {
+			$language = array(
+				'language' => $language,
+				'title' => t('create translation'),
+				'link' => '/'.$key.'/content/translate/'.$page_id.'/'.$this->core->current_language
+			);
+			if(isset($already_translated[$key])) {
+				$language['title'] = $already_translated[$key]['title'];
+				$language['link'] = '/'.$key.'/content/edit/'.$page_id;
+			}
+		}
+
+		//Assign found servers
+		$this->smarty->assign_by_ref("translations", $translations);
+	}
+
+	/**
+	 * Action: manage_content_type
+	 * Insert or add a content type
+	 * if $menu_id is provided, it will change this menu (save), else insert a new menu
+	 *
+	 * @param int $menu_id the menu_id(optional, default = 0)
+	 */
+	public function manage_content_type($content_type = "") {
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.manage")) {
+			return $this->no_permission();
+		}
+		$force_loaded = false;
+		$config_array = array();
+		//Save variables
+		if (!empty($content_type)) { //edit mode
+			$this->title(t("Save content type"));
+
+			//Load object
+			$obj = new ContentTypeObj($content_type);
+			$obj->get_dbstruct()->set_field_hidden("content_type");
+			//Add save button
+			$submit_button = new Submitbutton("save", t("save"));
+
+			//Set form title
+			$message = t("content type changed");
+
+			$config_array = array(
+				'content_type' => array(
+					'title' => ''
+				)
+			);
+		}
+		else {
+			$this->title(t("add content type"));
+
+			//Add insert button
+			$submit_button = new Submitbutton("add", t("add"));
+
+			//Set form title
+			$message = t("content type added");
+
+			//Create empty object
+			$obj = new ContentTypeObj();
+
+			//Set the force loaded to true, else the objForm will fill out the the default values
+			$force_loaded = true;
+		}
+
+		$this->static_tpl = 'form.tpl';
+
+		//Init objForm
+		$obj_form = new ObjForm($obj, '', $config_array, $force_loaded);
+
+		//Enable ajax
+		$obj_form->set_ajax(true);
+
+		//Add the button
+		$obj_form->add($submit_button);
+
+		//Add success ajax call to close the dialog
+		$obj_form->add_js_success_callback("close_dialog");
+		if (empty($content_type)) { //Insert mode
+			$obj_form->add_js_success_callback("add_new_content_type_row");
+		}
+		else { //edit mode
+			$obj_form->add_js_success_callback("replace_new_content_type_row");
+		}
+
+		//Assign form to smarty
+		$obj_form->assign_smarty("form");
+
+		//Check if form was submitted
+		if ($obj_form->check_form()) {
+
+			//If we are within insert mode, check if the entry already exists, if yes display the error
+			if(empty($content_type)) {
+				$obj_test = new ContentTypeObj($obj_form->get_value("content_type"));
+				if($obj_test->load_success()) {
+					return $this->core->message(t("Could not insert content type, content type already exists"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
+				}
+			}
+
+			//Check if the insert command returned true
+			if ($obj_form->save_or_insert()) {
+				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+				$this->core->message($message, Core::MESSAGE_TYPE_SUCCESS, $obj_form->is_ajax(), $obj_form->get_object()->get_values(true));
+			}
+			else {
+				//Setup error message to display
+				$this->core->message(t("Could not save content type"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
+			}
+		}
+
+	}
+
+	public function manage_content_type_fields($content_type) {
+		$this->title(t('"@content_type" fields', array("@content_type" => $content_type)), t('add or change content type fields'));
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.manage")) {
+			return $this->no_permission();
+		}
+		$this->core->js_config("content_type", $content_type);
+
+		//Get content type field groups
+		$this->smarty->assign_by_ref("field_groups", $this->db->query_slave_all("SELECT * FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)));
+	}
+
+	/**
+	 * Action: change_content_type_field
+	 * Insert or add a content type field group
+	 * if $field_group_id is provided, it will change this field group (save), else insert a new field group
+	 *
+	 * @param string $content_type the content type
+	 * @param string $field_group_id the field group id (optional, default = "")
+	 */
+	public function change_content_type_field($content_type, $field_group_id = "") {
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.manage")) {
+			return $this->no_permission();
+		}
+		$force_loaded = false;
+		$config_array = array();
+		//Save variables
+		if (!empty($field_group_id)) { //edit mode
+			$this->title(t("Save field"));
+
+			//Load object
+			$obj = new ContentTypeFieldGroupObj($field_group_id);
+			$obj->get_dbstruct()->set_field_hidden("id");
+
+			//Add save button
+			$submit_button = new Submitbutton("save", t("save"));
+
+			//Set form title
+			$message = t("field changed");
+
+		}
+		else {
+			$this->title(t("add field"));
+
+			//Add insert button
+			$submit_button = new Submitbutton("add", t("add"));
+
+			//Set form title
+			$message = t("field added");
+
+			//Create empty object and prefill with primary key
+			$obj = new ContentTypeFieldGroupObj();
+
+			//Set the force loaded to true, else the objForm will fill out the the default values
+			$force_loaded = true;
+		}
+
+		$obj->content_type = $content_type;
+
+		$this->static_tpl = 'form.tpl';
+
+		//Init objForm
+		$obj_form = new ObjForm($obj, '', array(), $force_loaded);
+
+
+
+		$options = array();
+
+		$dir = new Dir('modules/content/field_groups');
+		$dir->just_files();
+		foreach($dir AS $entry) {
+			$filename = $entry->filename;
+			if(!preg_match("/^(FieldGroup(.+))\.class\.php$/", $filename, $matches)) {
+				continue;
+			}
+			$options[$matches[1]] = $matches[2];
+		}
+		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_".$obj->get_dbstruct()->get_table()."_field_group");
+		$input->add_validator(new RequiredValidator());
+		$input->config('label', t('field type'));
+		$obj_form->add($input);
+
+		//Enable ajax
+		$obj_form->set_ajax(true);
+
+		//Add the button
+		$obj_form->add($submit_button);
+
+		//Add success ajax call to close the dialog
+		$obj_form->add_js_success_callback("entry_changed");
+
+
+		//Assign form to smarty
+		$obj_form->assign_smarty("form");
+
+		//Check if form was submitted
+		if ($obj_form->check_form()) {
+
+			//If we are within insert mode, check if the entry already exists, if yes display the error
+			if(empty($content_type)) {
+				$obj_test = new ContentTypeObj($obj_form->get_value("id"));
+				if($obj_test->load_success()) {
+					return $this->core->message(t("Could not insert field, field already exists"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
+				}
+			}
+
+			//Check if the insert command returned true
+			if ($obj_form->save_or_insert()) {
+				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+				$this->core->message($message, Core::MESSAGE_TYPE_SUCCESS, $obj_form->is_ajax(), $obj_form->get_object()->get_values(true));
+			}
+			else {
+				//Setup error message to display
+				$this->core->message(t("Could not save field"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
+			}
+		}
+	}
+
+	/**
+	 * Returns the alias for a page_id
+	 *
+	 * @param int $page_id the page id
+	 * @return string the alias, or if alias not exist returns false
+	 */
+	public function get_alias_for_page_id($page_id, $language = '') {
+		if(empty($language)) {
+			$language = $this->core->current_language;
+		}
+		$language = strtoupper($language);
+		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $page_id, 'current_language' => $language));
+		if(!empty($alias_entry)) {
+			return $alias_entry['alias'];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the translated link for the current content page
+	 *
+	 * @param string $language_key the language key
+	 * @return string the translated url
+	 */
+	public function get_translation_link($language_key) {
+		static $cache = array();
+		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
+
+		$url = preg_replace('/^\/+/is','', $url);
+		$url = preg_replace('/^[a-z]{2}\//is','', $url);
+		$url = preg_replace('/\.html?$/is','', $url);
+		if(!isset($cache[$url."|".$language_key])) {
+			if(!isset($cache[$url])) {
+				$alias_url = new UrlAliasObj();
+				$alias_url->db_filter->add_where("alias", $url);
+				$alias_url->load();
+				if(!$alias_url->load_success()) {
+					$cache[$url] = false;
+					$cache[$url."|".$language_key] = false;
+					return parent::get_translation_link($language_key);
+				}
+				$cache[$url] = $alias_url->params;
+			} else if($cache[$url] == false) {
+				return parent::get_translation_link($language_key);
+			}
+			$data_array = explode("|", $cache[$url], 2);
+
+			$alias = $this->get_alias_for_page_id($data_array[0], $language_key);
+			if(empty($alias)) {
+
+				$alias = 'content/view/'.$data_array[0];
+			}
+			$cache[$url."|".$language_key] = '/'.strtolower($language_key).'/'.$alias.'.html';
+		}
+		else if($cache[$url."|".$language_key] == false) {
+			return parent::get_translation_link($language_key);
+		}
+		return $cache[$url."|".$language_key];
+	}
+
+	/**
+	 * create or change a content page
+	 * if $values is an array it will think it is within edit mode and therfore a hole page content value array must be present
+	 * else within create mode just provide the content type as a string
+	 *
+	 * @param mixed $values the content type in create mode or the prefilled values within edit mode
+	 * @param boolean $force_create if we want to force the create mode instead of save/insert (optional, default = false)
+	 */
+	private function change_content($values, $force_create = false) {
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.create")) {
+			return $this->no_permission();
+		}
+
+		$this->static_tpl = $this->module_tpl_dir.'/change_content.tpl';
+
+		$this->core->add_js('/modules/content/js/change_content.js');
+
+		$title_value = "";
+		$menu_value = "";
+		$old_menu_title = "";
+		$old_menu_entry_id = "";
+		$fill_values = array();
+		$provided_load_values = $values;
+		$create_mode = !is_array($values);
+
+		if(!$create_mode) {
+			$content_type = $values['content_type'];
+			$fill_values = $values['serialized_data'];
+			$title_value = $values['title'];
+
+			if(!empty($values['current_menu_entry_id'])) {
+				$menu_entry_obj = new MenuEntryObj($values['current_menu_entry_id']);
+				$menu_entry_translation_obj = new MenuEntryTranslationObj($values['current_menu_entry_id']);
+
+				if($menu_entry_obj->parent_id == 0) {
+					$menu_parent_obj = new MenuObj($menu_entry_obj->menu_id);
+				}
+				else {
+					$menu_parent_obj = new MenuEntryTranslationObj($menu_entry_obj->parent_id, $this->core->current_language);
+				}
+
+				$menu_value = $menu_entry_obj->menu_id.":".$menu_entry_obj->parent_id.": ".$menu_parent_obj->title;
+				$old_menu_entry_id = $menu_entry_obj->entry_id;
+				$old_menu_title = $menu_entry_translation_obj->title;
+			}
+		}
+		else {
+			$content_type = $values;
+			$values = array();
+		}
+
+		$content_type_obj = new ContentTypeObj($content_type);
+		if(!$content_type_obj->load_success()) {
+			return $this->wrong_params(t("No such content type"));
+		}
+		$form_content = "";
+
+		$form = new Form("create_content_form");
+
+		$title = new Textfield("title", $title_value, t("title"), t("the page title"));
+		$title->add_validator(new RequiredValidator());
+		$form_content .= $title->fetch();
+		$form->add($title);
+
+
+
+		$menu_chooser = new Textfield("menu_chooser", $menu_value, t("menu settings"), t("select the parent menu"));
+		$menu_chooser->config('other', 'disabled="disabled"');
+		$form_content .= $menu_chooser->fetch();
+		$form->add($menu_chooser);
+
+		$menu_title = new Textfield("menu_title", $old_menu_title, t("menu title"), t("choose a good title for the menu entry, short is always better"));
+		$form_content .= $menu_title->fetch();
+		$form->add($menu_title);
+
+		$menu_chooser_hidden = new Hiddeninput("menu_chooser_hidden", $menu_value);
+		$form->add($menu_chooser_hidden);
+		$form->add(new Hiddeninput("force_create", $force_create));
+
+		$form->add(new Textfield("content_type", $content_type));
+
+
+		$field_groups = array();
+		foreach($this->db->query_slave_all("SELECT * FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)) AS $field_group) {
+			/* @var $field_object AbstractFieldGroup */
+			$field_object = new $field_group['field_group']($fill_values);
+
+			$field_object->set_label($field_group['name']);
+			$field_object->set_prefix($field_group['id'], '', ($field_group['max_value'] == 1) ? true : false);
+			$field_object->set_max_value($field_group['max_value']);
+			$field_object->set_required($field_group['required']);
+			$field_object->add_elementy_to_form($form);
+			$field_groups[] = $field_object;
+			$form_content .= $field_object->get_html();
+		}
+
+		if($create_mode) {
+			$submit_button = new Submitbutton("submit", t("create content"));
+		}
+		else {
+			$submit_button = new Submitbutton("submit", t("save content"));
+		}
+		$form->add($submit_button);
+
+		$publish = new Checkbox("publish", 1,($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
+		$form_content .= $publish->fetch();
+		$form->add($publish);
+		if(!$create_mode) {
+
+			$form->add(new Submitbutton("cancel", t("cancel"), 'form_button'));
+			$form->add(new Submitbutton("delete", t("delete"), 'form_button'));
+			if($this->right_manager->has_perm("admin.content.delete")) {
+				$form->add(new Submitbutton("really_delete", t("delete (really delete)!!!!")));
+			}
+
+		}
+
+		$this->smarty->assign_by_ref("form_content", $form_content);
+		$form->assign_smarty();
+
+		if($form->is_submitted("cancel")) {
+			$alias = $this->get_alias_for_page_id($values['page_id']);
+			if(empty($alias)) {
+				$this->core->location("/content/list_content");
+			}
+			$this->core->location("/".$alias.".html");
+		}
+		else if($form->is_submitted("delete") || $form->is_submitted("really_delete")) {
+			$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
+
+			if($page_obj->delete($form->is_submitted("really_delete"))) {
+				$this->core->message(t("page deleted", Core::MESSAGE_TYPE_SUCCESS));
+				$this->core->location("/content/list_content");
+			}
+			else {
+				$this->core->message(t("page could not be deleted"), Core::MESSAGE_TYPE_ERROR);
+			}
+		}
+
+		$groups_valid = true;
+		foreach($field_groups AS &$field_grp) {
+			if(!$field_grp->is_valid()) {
+				$groups_valid = false;
+			}
+		}
+
+		if($groups_valid && $form->check_form()) {
+
+
+
+			$values = $form->get_array_values(true);
+
+
+			$title = $values['title'];
+			$new_menu_title = $values['menu_title'];
+			$new_menu = $values['menu_chooser_hidden'];
+			$content_type = $values['content_type'];
+			$force_create = $values['force_create'];
+			if(isset($values['publish'])) {
+				$publish = $values['publish'];
+			}
+			unset($values['create_content_form_submit']);
+			unset($values['save_content_form_submit']);
+			unset($values['submit']);
+			unset($values['cancel']);
+			unset($values['delete']);
+			unset($values['publish']);
+			unset($values['really_delete']);
+			unset($values['content_type']);
+			unset($values['title']);
+			unset($values['menu_chooser']);
+			unset($values['menu_chooser_hidden']);
+			unset($values['menu_title']);
+			unset($values['force_create']);
+
+
+			$this->db->transaction_begin();
+			#$this->db->set_debug(true);
+			$force_insert_page_translation = false;
+			if($create_mode) {
+				$page_obj = new PageObj();
+				$page_obj->page_id = $page_obj->get_free_id();
+				$page_obj->language = $this->core->current_language;
+				$page_obj->content_type = $content_type;
+
+				$page_revision_obj = new PageRevisionObj();
+
+				$page_revision_obj->page_id = $page_obj->page_id;
+				$page_revision_obj->language = $this->core->current_language;
+				$page_revision_obj->created_by = $this->session->current_user()->user_id;
+			}
+			else {
+				$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
+				$force_insert_page_translation = ($page_obj->deleted == 'yes') ? true : false;
+				$page_obj->language = $this->core->current_language;
+				$page_obj->deleted = 'no';
+				$page_revision_obj = new PageRevisionObj($provided_load_values['page_id'], $provided_load_values['language'], $provided_load_values['revision']);
+				$page_revision_obj->language = $this->core->current_language;
+
+
+				if($form->is_submitted("cancel")) {
+					$this->core->location("/".$this->get_alias_for_page_id($page_obj->page_id).".html");
+					return;
+				}
+
+			}
+			$page_obj->last_modified_by = $this->session->current_user()->user_id;
+			$page_obj->last_modified = date(DB_DATETIME, TIME_NOW);
+			$page_obj->edit_count++;
+
+			$page_revision_obj->title = $title;
+			$page_revision_obj->serialized_data = json_encode($values);
+
+			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation);
+			if($revision_inserted) {
+				$page_obj->last_revision = $page_revision_obj->revision;
+			}
+
+			if(empty($publish)) {
+				$page_obj->last_revision = "";
+			}
+
+			$inserted = false;
+			if($revision_inserted) {
+				if($force_create) {
+					$inserted = $page_obj->insert();
+				}
+				else {
+					$inserted = $page_obj->save_or_insert();
+				}
+			}
+			if($inserted) {
+
+				$alias = "/".$this->get_alias_for_page_id($page_obj->page_id).".html";
+				//Just insert the content type fields and setup menu entry/alias if we have changed some values
+				if($force_create || $create_mode || $page_revision_obj->has_values_changed()) {
+					//Insert all content type field values
+					foreach($values AS $content_type_field_group_id => $value_array) {
+						if(!is_array($value_array)) {
+							$value_array = array($value_array);
+						}
+						foreach($value_array AS $index => $elements) {
+							foreach($elements AS $field_type => $value) {
+								if(empty($value)) {
+									continue;
+								}
+								$value_obj = new ContentTypeFieldGroupFieldValueObj();
+								$value_obj->page_id = $page_obj->page_id;
+								$value_obj->language = $page_obj->language;
+								$value_obj->revision = $page_revision_obj->revision;
+								$value_obj->content_type_field_group_id = $content_type_field_group_id;
+								$value_obj->field_type = $field_type;
+								$value_obj->index = $index;
+								$value_obj->value = $value;
+								if(!$value_obj->insert()) {
+									$this->core->message(t("Could not store value entries"), Core::MESSAGE_TYPE_ERROR);
+									$this->db->transaction_rollback();
+									return;
+								}
+							}
+						}
+					}
+				}
+
+				//Add menu
+				if($menu_value != $new_menu || $old_menu_title != $new_menu_title) {
+
+					/**
+					 * If we want to change the menu but let the menu title empty or cleared it we must
+					 * use the page title to have a title to do not get an empty menu entry
+					 */
+					if(empty($new_menu_title) && !empty($new_menu)) {
+						$new_menu_title = $page_revision_obj->title;
+					}
+
+					$old_menu_values = array();
+					if(!empty($menu_value)) {
+						$old_menu_values = explode(":", $menu_value, 3);
+					}
+
+					$new_menu_values = array();
+					if(!empty($new_menu)) {
+						$new_menu_values = explode(":", $new_menu, 3);
+					}
+
+					$entry_id = "";
+					//Delete old menu entry
+					if(!empty($old_menu_values) && empty($new_menu_values)) {
+						$menu_obj = new MenuEntryTranslationObj($old_menu_entry_id, $this->core->current_language);
+						if($menu_obj->has_childs()) {
+							$message_type = Core::MESSAGE_TYPE_NOTICE;
+							$message = t("The menu entry \"@menu_entry\" was just disabled, because it has child elements, please look at the menu configuration to choose what to do with the menu entry", array('@menu_entry' => $menu_obj->title));
+						}
+						else {
+							$message_type = Core::MESSAGE_TYPE_SUCCESS;
+							$message = t("The menu entry \"@menu_entry\" is removed", array('@menu_entry' => $menu_obj->title));
+						}
+						if(!$menu_obj->save_delete()) {
+							$this->core->message(t("Could not delete old menu entry"), Core::MESSAGE_TYPE_ERROR);
+							$this->db->transaction_rollback();
+							return;
+						}
+
+						$this->core->message($message, $message_type);
+					}
+					//Insert new entry
+					else if(empty($old_menu_values) && !empty($new_menu_values)) {
+						$menu_obj = new MenuEntryObj();
+						$menu_obj->menu_id = $new_menu_values[0];
+						$menu_obj->parent_id = $new_menu_values[1];
+
+						if(!$menu_obj->insert()) {
+							$this->core->message(t("Could not create menu entry"), Core::MESSAGE_TYPE_ERROR);
+							$this->db->transaction_rollback();
+							return;
+						}
+						$entry_id = $menu_obj->entry_id;
+						$menu_translation_obj = new MenuEntryTranslationObj();
+						$menu_translation_obj->entry_id = $menu_obj->entry_id;
+						$menu_translation_obj->language = $this->core->current_language;
+						$menu_translation_obj->title = $new_menu_title;
+						$menu_translation_obj->destination = $alias;
+						if(empty($publish) || $publish == 'no') {
+							$menu_translation_obj->active = 'no';
+						}
+
+						if(!$menu_translation_obj->insert()) {
+							$this->core->message(t("Could not create menu entry"), Core::MESSAGE_TYPE_ERROR);
+							$this->db->transaction_rollback();
+							return;
+						}
+
+					}
+					//Update current one
+					else if(!empty($old_menu_values) && !empty($new_menu_values)) {
+
+						$menu_obj = new MenuEntryObj($old_menu_entry_id);
+						$menu_obj->menu_id = $new_menu_values[0];
+						$menu_obj->parent_id = $new_menu_values[1];
+						if(!$menu_obj->save()) {
+							$this->core->message(t("Could not save menu entry"), Core::MESSAGE_TYPE_ERROR);
+							$this->db->transaction_rollback();
+							return;
+						}
+						$entry_id = $menu_obj->entry_id;
+						$menu_translation_obj = new MenuEntryTranslationObj($old_menu_entry_id, $this->core->current_language);
+						$menu_translation_obj->destination = $alias;
+						$menu_translation_obj->title = $new_menu_title;
+						if(empty($publish) || $publish == 'no') {
+							$menu_translation_obj->active = 'no';
+						}
+
+						if(!$menu_translation_obj->save()) {
+							$this->core->message(t("Could not save menu entry"), Core::MESSAGE_TYPE_ERROR);
+							$this->db->transaction_rollback();
+							return;
+						}
+					}
+
+					//Save the current menu entry if we changed it.
+					$page_obj->current_menu_entry_id = $entry_id;
+					$page_obj->save();
+
+				}
+
+
+				if($force_create || $create_mode) {
+					$this->core->message(t("Page created"), Core::MESSAGE_TYPE_SUCCESS);
+				}
+				else {
+					$this->core->message(t("Page saved, new revision created"), Core::MESSAGE_TYPE_SUCCESS);
+				}
+				$this->db->transaction_commit();
+
+				//Go to the created / edited page
+				$this->core->location($alias);
+
+			}
+			else {
+				$this->core->message(t("Could not store page"), Core::MESSAGE_TYPE_ERROR);
+				$this->db->transaction_rollback();
+			}
+
+		}
+
+	}
+
+}
+?>

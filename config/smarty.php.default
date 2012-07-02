@@ -1,0 +1,4 @@
+<?php
+$secure_dir = array(
+);
+?>

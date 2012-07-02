@@ -1,0 +1,233 @@
+/* ################## BASE         #########################################  */
+* {
+	font:12px/17px Arial, Verdana;
+}
+
+root {
+    height: 100%;
+	display:block;
+}
+
+html, body {
+	height: 100%;
+	min-height: 100%;
+}
+
+
+body {
+	color: #555555;
+	margin:0;
+	padding:0;
+	text-align:left;
+	background-color: #E6E6E6;
+}
+
+body, caption, th, td, input, textarea, select, option, legend, fieldset {
+    
+}
+
+img { 
+	border:0px; 
+}
+
+b, 
+strong {
+	font-weight: bold;
+}
+
+h1 {
+	border-bottom: 2px solid #d3d3d3;
+    color: #075DC2;
+    font-weight: normal;
+    text-decoration: none;
+	font-size: 24px;
+	margin-bottom: 5px;
+	padding: 6px 0 11px;
+}
+
+h2 {
+	color: #333333;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 21px;
+    padding: 10px 10px 5px 0;
+	font-weight: bold;
+}
+
+.clearfix:after {
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: block;
+}
+
+.linkedElement {
+    cursor: pointer;
+}
+
+/* ################## LAYOUT PLACEMENT #####################################  */
+#header-background {
+	background-color: #6b6b6b;
+	position:absolute; 
+	top:0px; 
+	left:0px; 
+	height: 130px;
+	width: 100%;
+}
+
+#header {
+	background-color: #444444;
+	color: #F7F7F7;
+	position: relative;
+	top: 0px;
+	margin: 0px auto;
+	width: 1280px;
+	height: 130px;
+}
+
+#title div {
+	color: #555555;
+	margin-bottom: 10px;
+}
+
+#leftcolumn {
+    position: absolute;
+	margin: 5px;
+	margin-top:0px;
+    width: 195px;
+	height: 100%;
+	border-right: 1px solid #d3d3d3;
+	padding-top: 5px;
+	padding-right: 5px;
+}
+
+#content {
+    min-height: 500px;
+	width: 1280px;
+	margin: 0px auto;
+	min-width: 505px;
+	overflow: hidden;
+	position: relative;
+	background-color: #fefefe;
+}
+
+.widecolumn {
+    float: left;
+	margin-top: 5px;
+    padding-left: 220px;
+	
+    width: 1050px;
+	height: 100%;
+}
+
+
+#content_wrapper {
+	height: 100%;
+	padding-right: 5px;
+	padding-bottom: 15px;
+}
+
+/* ################## Admin table multi action #############################  */
+div.multi_action { margin-bottom: 2px; }
+div.multi_action select { margin-top: 2px; display: inline; }
+div.multi_action select { vertical-align: top; }
+
+/* ################## PROGRESS BAR #########################################  */
+.progress_bar {
+	padding:5px;
+	margin:5px;
+	background-color: #fcfcfc;
+	border: 1px solid #8c8c8c;
+}
+
+.progress_bar > div.progressbar_bar_bg {
+	position:relative;
+	border-left: 1px solid #8c8c8c;
+	border-right: 1px solid #8c8c8c;
+	background-image: url('../images/progressbar_background.gif');
+	height: 13px;
+	text-align: center;
+}
+.progress_bar > div.progressbar_bar_bg > div.progressbar_bar {
+	position: absolute;
+	width: 0%;
+	height:13px;
+	background-image: url('../images/progressbar_foreground.gif');
+}
+.progress_bar > div.progressbar_bar_bg > span.progressbar_percent {
+	top: 0px;
+	line-height: 11px;
+	font-size:11px;
+	position: absolute;
+	text-align: center;
+}
+
+/* ################## AJAX LOADER  #########################################  */
+.ajaxLoader {
+	padding: 10px;
+	width: 300px;
+	background-color: #F7F7F7;
+	border: 1px solid #959595;
+	margin: 10px auto;
+}
+.ajaxLoader img {
+	vertical-align: bottom;
+	margin-right: 5px;
+}
+
+#content a.form_button {
+	min-width: inherit;
+	color: #fff;
+}
+
+.option_links {
+	margin-left: 2px;
+}
+
+
+
+/* ################## LANGUAGES SELECTOR ###################################  */
+#language-wrapper {
+	position: absolute;
+	top: 130px;
+	right: 0;
+	z-index: 10;
+}
+
+#language-wrapper > #select-language {
+	color: #22569c;
+	padding-right: 10px;
+	
+}
+
+#language-wrapper > #select-language li {
+	float: right;
+	list-style-type: none;
+}
+
+#language-wrapper > #select-language li a {
+	color: #22569c;
+	line-height: 28px;
+}
+
+/* ################## CUSTOM CHANGES     ###################################  */
+#header-title {
+	position: absolute;
+	bottom: 15px;
+	left: 20px;
+	
+	font-size: 40px;
+	display: block;
+}
+
+#header-title > #header-slogan {
+	margin-top: 15px;
+	margin-left: 2px;
+	font-size: 14px;
+	display: block;
+}

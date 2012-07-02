@@ -1,0 +1,204 @@
+#!/usr/bin/php
+<?php
+
+ob_implicit_flush();
+error_reporting(E_ALL);
+header('Content-Type: text/html; charset=utf-8');
+if(!defined('SITEPATH')) {
+	define('SITEPATH',  dirname(__FILE__));
+}
+
+chdir(SITEPATH);
+
+require_once 'lib/functions.php';
+
+class soopfw_install {
+
+	private $config;
+
+	public function __construct() {
+		consoleLog('Soopfw installation script.', 'plain');
+
+		if(!get_boolean_input("Do you really want to install soopfw?", true)) {
+			exit;
+		}
+
+		if(!get_boolean_input("!!! Please run this installation with the same user as the webserver would run.!!! continue?", true)) {
+			exit;
+		}
+		$this->main_check();
+		$this->main_configuration();
+	}
+
+	/**
+	 * Checks if the base is setup correctly (write permissions ...)
+	 */
+	private function main_check() {
+		consoleLog('Main check', 'plain');
+
+		$this->check_writeable('uploads');
+		$this->check_writeable('templates_c');
+
+		if(!file_exists('config/core.php')) {
+			consoleLog('Could not find main configuration file, try to get it', 'info');
+			if(!file_exists('config/core.php.default')) {
+				consoleLog('Could not find default configuration file, aborting...', 'error');
+				exit;
+			}
+			$this->check_writeable('config');
+			if(copy('config/core.php.default', 'config/core.php')) {
+				consoleLog('Recovered config/core.php', 'ok');
+			}
+		}
+		else {
+			consoleLog('config/core.php exists', 'ok');
+		}
+
+		if(!file_exists('config/classes.php')) {
+			consoleLog('Could not find classes, try to get it', 'info');
+			if(!file_exists('config/classes.php.default')) {
+				consoleLog('Could not find default classes, aborting...', 'error');
+				exit;
+			}
+			$this->check_writeable('config');
+			if(copy('config/classes.php.default', 'config/classes.php')) {
+				consoleLog('Recovered config/classes.php', 'ok');
+			}
+		}
+		else {
+			consoleLog('config/classes.php exists', 'ok');
+		}
+
+		if(!file_exists('config/smarty.php')) {
+			consoleLog('Could not find smarty secure directory configuration file, try to get it', 'info');
+			if(!file_exists('config/smarty.php.default')) {
+				consoleLog('Could not find default smarty secure directory configuration file, aborting...', 'error');
+				exit;
+			}
+			$this->check_writeable('config');
+			if(copy('config/smarty.php.default', 'config/smarty.php')) {
+				consoleLog('Recovered config/smarty.php', 'ok');
+			}
+		}
+		else {
+			consoleLog('config/smarty.php exists', 'ok');
+		}
+	}
+
+	private function main_configuration() {
+		consoleLog('Main configuration', 'plain');
+
+		include 'config/core.php';
+
+
+		if(!empty($this->config['db']['host'])) {
+			$res = mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
+			if(mysql_select_db($this->config['db']['database'], $res)) {
+				$r = @mysql_fetch_assoc(@mysql_query("SELECT value FROM core_modul_config WHERE modul='system' AND `key`='installed'"));
+				if(!empty($r) && $r['value'] == '1') {
+					consoleLog('Soopfw is already installed, can not install it twice.', 'error');
+					exit;
+				}
+			}
+		}
+
+		foreach($this->config AS $section => &$section_values) {
+			consoleLog('	Section:'. $section, 'plain');
+			foreach ($section_values AS $k => $default) {
+				$section_values[$k] = get_string_input('		'.$k.':', $default);
+			}
+		}
+
+		if($this->config['db']['use'] == '1') {
+			$res = mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
+			if(empty($res)) {
+				consoleLog('Database connection could not be established, please try again.', 'error');
+				$this->main_configuration();
+				return;
+			}
+			else if(!mysql_select_db($this->config['db']['database'], $res)) {
+				consoleLog('Database could not be selected, please try again.', 'error');
+				$this->main_configuration();
+				return;
+			}
+		}
+
+		if(file_put_contents('config/core.php', "<?php\n\n \$this->config = ".var_export($this->config, true) . ';')) {
+			consoleLog('Configuration saved', 'ok');
+			$this->install_system();
+		}
+	}
+
+	private function install_system() {
+		global $classes, $core, $_SESSION;
+		require_once 'lib/Core.php';
+		require_once 'cli/generate_classlist.php';
+		require_once 'cli/generate_smartylist.php';
+		require_once 'modules/system/system.php';
+
+		$core = new Core('', true, true);
+		$obj = new cli_generate_classlist($core);
+		$obj->start();
+
+		$obj = new cli_generate_smartylist($core);
+		$obj->start();
+
+		$core = new Core('', true);
+		$core->boot();
+		$system = new system($core);
+		$system->install();
+		$system->install('user');
+
+		foreach($_SESSION['message'] AS $type => $messages) {
+			foreach($messages AS $message) {
+				consoleLog($message, $type);
+			}
+		}
+
+		$username = get_string_input('Please select the administration username', 'prdatur');
+		$email = get_string_input('Please choose an email address', $this->config['core']['debug_email']);
+		$password = prompt_silent('Please choose a password: ', '');
+		$password2 = prompt_silent('Please re-type the choosen password: ', '');
+
+		while($password != $password2) {
+			consoleLog('You misstyped the two passwords, both must be equals...please try again', 'plain');
+			$password = prompt_silent('Please choose a password: ', '');
+			$password2 = prompt_silent('Please re-type the choosen password: ', '');
+		}
+
+		$user_obj = new UserObj();
+		$user_obj->username = $username;
+		$user_obj->password = $password;
+		$user_obj->active = 'yes';
+		$user_obj->insert();
+
+		$user_right_obj = new UserRightObj();
+		$user_right_obj->user_id = $user_obj->user_id;
+		$user_right_obj->permissions = "*";
+		$user_right_obj->insert();
+
+		$user_address_obj = new UserAddressObj();
+		$user_address_obj->email = $email;
+		$user_address_obj->user_id = $user_obj->user_id;
+		$user_address_obj->insert();
+
+		$core->dbconfig("system", "installed", "1");
+
+		consoleLog('Soopfw is now installed. You can no navigate to http://'.$this->config['core']['domain'].'/user/login', 'ok');
+	}
+
+	private function check_writeable($dir) {
+		$type = 'ok';
+		if(!is_dir($dir) || !is_readable($dir) || !is_writable($dir) || !is_executable($dir)) {
+			$type = 'error';
+		}
+		if(!consoleLog('Directory writeable: ' . $dir, $type)) {
+			echo "\n";
+			exit;
+		}
+	}
+}
+
+new soopfw_install();
+
+?>

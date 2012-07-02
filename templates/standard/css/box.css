@@ -1,0 +1,53 @@
+/* Default box */
+
+div.defaultDialog div.dialogBody { padding: 5px; }
+div.defaultDialog { min-width: 100px; border: 1px solid #696969; background-color: #f5f5f2; }
+div.defaultDialog div.dialogButtons { border-top: 1px solid #696969; padding: 5px; text-align: center; }
+div.defaultDialog div.dialogTitle { padding: 5px; color: #696969; font-weight: bold; border-bottom: 1px solid #696969; background-color: #ccd5dc; }
+
+.defaultBox {
+
+	border-width: 2px;
+	border-style: solid;
+	border-color: black;
+	margin		: 0px auto;
+	background-color: #FAFAFA;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.defaultBox #title {
+	font-weight			: bold;
+	padding				: 5px;
+	border-bottom-width	: 2px;
+	border-bottom-style	: solid;
+	border-bottom-color	: black;
+}
+
+.defaultBox #description ul { margin-left: 3px; }
+.defaultBox #description { padding				: 15px; }
+
+
+
+.defaultBox #title div, .defaultTable thead tr td div, .defaultTable_no_hover thead tr td div { display: table-cell; vertical-align: middle; }
+.defaultBox #title div.title-cell, .defaultTable thead tr td div.title-cell, .defaultTable_no_hover thead tr td div.title-cell { padding-left: 5px; }
+
+.defaultBox_success #title { border-bottom-color: green; background-color: #25910F; color: #FFFFFF; }
+.defaultBox_success #description { background-color: #DAFFBF; }
+.defaultBox_success		{	border-color: green;	}
+
+.defaultBox_error #title { border-bottom-color: #CC0000; background-color: #FFEEEE; color: #990000; }
+.defaultBox_error #description { background-color: #FFEEEE; color: #990000;}
+.defaultBox_error		{	border-color: #CC0000; 	}
+
+.defaultBox_information #title { border-bottom-color: #FFCC00; background-color: #FFE886; color: #000000; }
+.defaultBox_information #description { background-color: #FFF1B3; }
+.defaultBox_information		{	border-color: #FFCC00;	}
+
+ul.error_box {
+	margin-top: 10px;
+	margin-left: 10px;
+	padding-left: 10px;
+	color:#A70500;
+	font-weight:bold;
+}

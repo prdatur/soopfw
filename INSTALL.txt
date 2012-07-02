@@ -1,0 +1,34 @@
+
+Howto install SoopFW.
+
+----------------- DEPENDS -----------------------------------------------------
+Soopfw depends on the following third-party software:
+
+ - mysql server
+ - apache2
+	module: rewrite, 
+	vhost NEED allowOverwrite: all, 
+	module: ssl if ssl is used)
+ - php5
+	modules: 
+		php5-mcrypt, 
+		php5-mysql, 
+		php5-imageick
+
+ - java jre (for generating javascript cache files with yuicompressor)
+
+for better performance you should install memcached
+	debian/ubuntu: sudo apt-get install memcached php5-memcached
+
+
+For security reason, you should deactivate Indexes in apache2 vhost "-Indexes"
+
+------------------ INSTALL ----------------------------------------------------
+In order to install soopfw please execute the install script
+
+	php -f install
+
+or if you chmod it to +x
+	./install
+
+Follow the instructions within the installation script.

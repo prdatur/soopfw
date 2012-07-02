@@ -1,0 +1,8 @@
+; Configuration of Module content
+version = 1
+
+;Define rights rights[] = "example.right.view"
+rights[] = "admin.content.manage"
+rights[] = "admin.content.create"
+rights[] = "admin.content.delete"
+

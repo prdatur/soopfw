@@ -1,0 +1,29 @@
+#!/usr/bin/php
+<?php
+	/**
+	 * Executes a "drush" command (Command line).
+	 * The name "drush" was inspired by Drupal.
+	 * Beware you can not run commands with the Drupal command line tool "drush".
+	 * You need to execute it with ./drush
+	 */
+	if(preg_match("/^\//", $_SERVER['SCRIPT_FILENAME'])) {
+       $path = $_SERVER['SCRIPT_FILENAME'];
+    }
+    else {
+        $path = $_SERVER['PWD']."/".$_SERVER['SCRIPT_FILENAME'];
+    }
+    $path = str_replace("/./", "/", $path);
+    $path = str_replace("./", "/", $path);
+    preg_match("/(.*)\/[^\/]+/is", $path, $matches);
+
+    define("SITEPATH",$matches[1]);
+
+    define("CURRENT_TIME",time());
+    define("BUILD_START",microtime(true));
+
+    require("lib/Core.php");
+    $core = new Core('', true, (in_array("--install", $argv) ||in_array("--generate_classlist", $argv)));
+
+    $core->run_cli();
+	
+?>

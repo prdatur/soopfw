@@ -1,0 +1,19 @@
+/*
+    Document   : userdata.
+    Created on : 16.10.2011, 13:17:02
+    Author     : prdatur
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/*
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+div.userinfos .ui-widget-header {
+	padding: 3px;
+}
+div.userinfos .ui-widget-content > div {
+	padding: 5px;
+}

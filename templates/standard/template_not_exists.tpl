@@ -1,0 +1,1 @@
+<strong style="font-weight: bold; color: red">The module template: <br /><span style="color: black;font-weight: bold;">file:"<%$module_tpl_old%>"</span><br />does not exist</strong>

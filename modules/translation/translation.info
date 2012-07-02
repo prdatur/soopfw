@@ -1,0 +1,6 @@
+; Configuration of Translation modul
+version = 1
+
+;Define rights
+rights[] = "admin.translate"
+

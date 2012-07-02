@@ -1,0 +1,9 @@
+; Configuration of System-Module
+version = 1
+
+;Define rights
+rights[] = "admin.system.view_admin_menu"
+rights[] = "admin.system.modules"
+rights[] = "admin.system.updatedb"
+rights[] = "admin.system.config"
+

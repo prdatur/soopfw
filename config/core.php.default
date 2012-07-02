@@ -1,0 +1,20 @@
+<?php
+
+//Database configuration
+$this->config['db']['use'] = true;
+$this->config['db']['host'] = "localhost";
+$this->config['db']['user'] = "dbuser";
+$this->config['db']['pass'] = "dbpass";
+$this->config['db']['database'] = "db";
+$this->config['db']['debug'] = false;
+
+//Core configuration
+$this->config['core']['debug_email'] = 'debug@mail.com';
+$this->config['core']['default_module'] = 'user';
+$this->config['core']['default_language'] = 'de';
+$this->config['core']['domain'] = 'domain';
+$this->config['core']['xhprof_domain'] = 'xhprof domain'; // Can be left empty
+
+//Memcache configuration
+$this->config['memcache']['host'] = 'localhost';
+$this->config['memcache']['port'] = 11211;

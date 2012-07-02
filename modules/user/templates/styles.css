@@ -1,0 +1,79 @@
+#my_account_menu span
+{
+	display: inline-block;
+	border: 1px solid #AAAAAA;
+	border-left: 0px;;
+	background-color: #C7D4D8;
+}
+
+#my_account_menu span:first-child
+{
+	border-left: 1px solid #AAAAAA;
+}
+
+#my_account_menu span:hover
+{
+	background-color: #91ADE0;
+}
+
+#my_account_menu span a
+{
+	line-height: 32px;
+	font-size: 12px;
+	padding: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#my_account_menu span a:link,
+#my_account_menu span a:visited,
+#my_account_menu span a:active
+{
+	color: #565656;
+}
+
+#my_account_menu span:hover a:link,
+#my_account_menu span a:hover
+{
+	text-decoration: none;
+	color: #FFFFFF;
+}
+
+#my_settings tr td
+{
+	border-bottom: 1px solid #AAAAAA;
+}
+
+#my_settings tr:last-child td
+{
+	border: 0;
+}
+
+#my_settings
+{
+	border: 1px solid #AAAAAA;
+	width: 100%;
+	margin-top: 20px;
+}
+
+#my_settings thead td
+{
+	background-color: #C7D4D8;
+	color: #353535;
+	font-weight: bold;
+	padding: 5px;
+}
+
+#my_settings tbody td
+{
+	padding: 5px;
+}
+
+#my_settings tbody td:first-child
+{
+	border-right: 1px solid #AAAAAA;
+	width: 100px;
+	font-weight: bold;
+	color: #353535;
+	background-color: #EDEDED;
+}

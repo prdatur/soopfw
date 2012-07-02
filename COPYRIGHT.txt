@@ -1,0 +1,31 @@
+
+All SoopFW code is Copyright 2010 - 2012 by the original authors.
+
+Author: Christian Ackermann <prdatur at gmail dot com>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program as the file LICENSE.txt; if not, please see
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+SoopFW includes works under other copyright notices and distributed
+according to the terms of the GNU General Public License or a compatible
+license, including:
+
+ - jQuery - Copyright (c) 2008 - 2009 John Resig
+ - PHPMailer - PHP email class - Copyright (c) 2004-2009, Andy Prevost. All Rights Reserved. - Copyright (c) 2001-2003, Brent R. Matzelle 
+ - quickerUbb (c)2004 Roönaän
+ - classlist auto generator - Copyright (c) 2009, Roman Drapeko
+ - recaptcha - Copyright (c) 2007 reCAPTCHA
+ - yuicompressor-2.4.7
+ - Smarty 3.0 RC1 - Author: Monte Ohrt <monte at ohrt dot com > - Author: Uwe Tews
+ - Thread - Author: Tudor Barbu <miau@motane.lu> - copyright MIT

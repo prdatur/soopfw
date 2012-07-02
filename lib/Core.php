@@ -1,0 +1,1539 @@
+<?php
+
+/**
+ * Main Core, It will initialize all needed classes (Smarty, Memcache, DB, ...)
+ * Also it Provides several useful methods for quick accessing within classes
+ * which extends Object
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib
+ */
+if (isset($error_reporting)) {
+	error_reporting($error_reporting);
+}
+else {
+	error_reporting(E_ALL);
+}
+
+define("TIME_NOW", time());
+define("DB_DATE", "Y-m-d");
+define("DB_DATETIME", "Y-m-d H:i:s");
+define("DB_TIME", "H:i:s");
+
+mb_internal_encoding('UTF-8');
+
+/**
+ * Determines if we use the original memcached class
+ * @var boolean
+ */
+$memcached_use = true;
+
+/**
+ * If we have not a memcached class we must define it, and define needed constances
+ * This is used within DBMemcached, MemcachedWrapper and where we need to check if a returning memcached result succeed
+ */
+if (!class_exists("Memcached")) {
+	/**
+	 * We had no memcached class so we do not use the original memcached class, this is need by memcache_init so it can decide if the found
+	 * Memcached class is the original correct one or just the constances wrapper
+	 */
+	$memcached_use = false;
+
+	class Memcached {
+
+		const OPT_PREFIX_KEY = '';
+		const OPT_COMPRESSION = TRUE;
+		const OPT_LIBKETAMA_COMPATIBLE = FALSE;
+		const OPT_BUFFER_WRITES = FALSE;
+		const OPT_BINARY_PROTOCOL = FALSE;
+		const OPT_NO_BLOCK = FALSE;
+		const OPT_TCP_NODELAY = FALSE;
+		const OPT_SOCKET_RECV_SIZE = 1000;
+		const OPT_RETRY_TIMEOUT = 0;
+		const OPT_SEND_TIMEOUT = 0;
+		const OPT_RECV_TIMEOUT = 0;
+		const OPT_POLL_TIMEOUT = 1000;
+		const OPT_CACHE_LOOKUPS = FALSE;
+		const OPT_SERVER_FAILURE_LIMIT = 0;
+		const RES_SUCCESS = 0;
+		const RES_FAILURE = 1;
+
+	}
+
+}
+
+/**
+ * Defince our primitive datatypes, these are used in several ways.
+ * Most use is within parameter type checks.
+ */
+$i = 1;
+define("PDT_INT", $i++, true);
+define("PDT_FLOAT", $i++, true);
+define("PDT_STRING", $i++, true);
+define("PDT_DECIMAL", $i++, true);
+define("PDT_DATE", $i++, true);
+define("PDT_OBJ", $i++, true);
+define("PDT_ARR", $i++, true);
+define("PDT_BOOL", $i++, true);
+define("PDT_INET", $i++, true);
+define("PDT_SQLSTRING", $i++, true);
+define("PDT_JSON", $i++, true);
+define("PDT_PASSWORD", $i++, true);
+define("PDT_ENUM", $i++, true);
+define("PDT_TEXT", $i++, true);
+define("PDT_TINYINT", $i++, true);
+define("PDT_MEDIUMINT", $i++, true);
+define("PDT_BIGINT", $i++, true);
+define("PDT_SMALLINT", $i++, true);
+define("PDT_DATETIME", $i++, true);
+define("PDT_TIME", $i++, true);
+define("PDT_FILE", $i++, true);
+define("PDT_LANGUAGE", $i++, true);
+define("PDT_LANGUAGE_ENABLED", $i++, true);
+define("PDT_SERIALIZED", $i++, true);
+
+/**
+ * This is not a primitive datatype but it can be used as a real not set variable, so if we realy want to check if a
+ * parameter was provided to a function/method we can default assign NS so if we pass "", null or something similar to empty
+ * it is also a allowed "provided" value. The value behind NS is choosen with a string which should never be a value provided by a user
+ */
+define("NS", "-||notset||-");
+
+//Include important standalone functions
+require_once (SITEPATH . '/lib/functions.php');
+
+//Import our classlist, this is needed by the auto classloader
+require_once (SITEPATH . '/config/classes.php');
+
+//Register the classloader, it is defined within functions.php
+spl_autoload_register("class_loader");
+
+//Set our error_reporting to E_ALL as default, if $error_reporting exists, we use this instead.
+if (isset($error_reporting)) {
+	set_error_handler('cc_error_handler', $error_reporting);
+}
+else {
+	set_error_handler('cc_error_handler', E_ALL);
+}
+
+class Core {
+	/**
+	 * Define global return codes
+	 */
+
+	const GLOBEL_RETURN_CODE_SUCCESS = 200;
+
+	/**
+	 * Define message types
+	 */
+	const MESSAGE_TYPE_SUCCESS = "success";
+	const MESSAGE_TYPE_ERROR = "error";
+	const MESSAGE_TYPE_NOTICE = "information";
+
+	/**
+	 * Define Javascript scopes
+	 */
+	const JS_SCOPE_SYSTEM = 'system';
+	const JS_SCOPE_USER = 'user';
+
+	/**
+	 * Define initializing type
+	 */
+	const INIT_TYPE_HTML = 'html';
+	const INIT_TYPE_AJAXHTML = 'ajaxhtml';
+	const INIT_TYPE_AJAX = 'ajax';
+
+	/**
+	 * @var array the core config
+	 */
+	public $config;
+
+	/**
+	 * @var boolean should we debug ?
+	 */
+	private $debug;
+
+	/**
+	 * @var boolean logged in true, else false
+	 */
+	public $logged_in = false;
+
+	/**
+	 * The database object
+	 *
+	 * @var Db
+	 */
+	public $db = null;
+
+	/**
+	 * The Language object
+	 *
+	 * @var Language
+	 */
+	public $lng = null;
+
+	/**
+	 * hold the current language key
+	 * @var string
+	 */
+	public $current_language = "";
+
+	/**
+	 * hold the default language key
+	 * @var string
+	 */
+	public $default_language = "";
+
+	/**
+	 * Smarty
+	 * @var Smarty
+	 */
+	public $smarty = null;
+
+	/**
+	 * The template file which will be displayed after processing
+	 * @var string
+	 */
+	public $template = "index.tpl";
+
+	/**
+	 * Holds the memcached obj if enabled, else it will be null
+	 * @var Memcached
+	 */
+	public $memcache_obj = null;
+
+	/**
+	 * Hold cache vars (just within the current runtime)
+	 *
+	 * @var array
+	 */
+	public $cache = array();
+
+	/**
+	 * The meta object (meta title and so on)
+	 * @var Meta
+	 */
+	public $meta = null;
+
+	/**
+	 * JS-Files which will be included within template
+	 * @var array
+	 */
+	public $js_files = array();
+
+	/**
+	 * CSS-Files which will be included within template
+	 * @var array
+	 */
+	private $css_files = array();
+
+	/**
+	 * This variables will be provided within javascript code
+	 * @var array
+	 */
+	private $js_config = array();
+
+	/**
+	 * Holds the session object
+	 * @var Session
+	 */
+	public $session = null;
+
+	/**
+	 * Holds the RightManager
+	 * @var RightManager
+	 */
+	public $right_manager = null;
+
+	/**
+	 * the inizializing type use one of Core::INIT_TYPE_*
+	 * @var string
+	 */
+	public $init_type = self::INIT_TYPE_HTML;
+
+	/**
+	 * Constructor which reads configs, and setting up Database connection and creating an empty language  object
+	 * if $install is set to true it will no objects will be created, if $is_shell is set to true smarty will not be initialized,
+	 * also no session will be started
+	 *
+	 * @param string $language The language to be used
+	 * @param bool $is_shell Whether we're running from the shell (and not in a webserver environment) default: false
+	 * @param bool $install Whether we're want to install default: false
+	 */
+	function __construct($language = '', $is_shell = false, $install = false) {
+
+		//If we run as a shell command define the global constance is_shell
+		if ($is_shell == true && !defined('is_shell')) {
+			define('is_shell', $is_shell);
+		}
+
+		//Include core config
+		require(SITEPATH . "/config/core.php");
+
+		//Setup the default language
+		$this->default_language = $this->config['core']['default_language'];
+
+		//If we want to use a database connection initialize the database object
+		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
+			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $this->config['db']['debug']);
+		}
+
+		$db_default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
+		if (!empty($db_default_language)) {
+			$this->default_language = strtoupper($db_default_language);
+		}
+		//Only do a normal startup if we do not install the core system
+		if ($install == false) {
+
+			//Start the session only if we are not in shell mode
+			if (!$is_shell) {
+				//Initialize our session
+				$this->session = new Session($this);
+			}
+
+			//If we have not setup a language set the current language to the default language
+			if (empty($language) && empty($_SESSION['language'])) {
+				$_SESSION['language'] = $this->default_language;
+			}
+
+			//Set the provided $language if it is not empty
+			if (!empty($language)) {
+				$_SESSION['language'] = strtoupper($language);
+			}
+
+
+
+			//Set our current language
+			$this->current_language = $_SESSION['language'];
+
+			//Init smarty and meta information if we are not in shell mode
+			if (!$is_shell) {
+				$this->meta = new Meta();
+				$this->init_smarty();
+			}
+
+			//Init always memcache
+			$this->init_memcached();
+
+			//Read all available modules
+			//We need to include the dir class because it can happend that we are in a fresh install
+			require_once 'Dir.class.php';
+			$dir = new Dir("modules", false);
+			$dir->just_dirs();
+			foreach ($dir AS $directory) {
+				if (file_exists(SITEPATH . "/modules/" . $directory->filename . "/" . $directory->filename . ".php")) {
+					$this->modules[$directory->filename] = $directory->filename;
+				}
+			}
+
+			//If CSRF Token is empty create a unique one
+			if (empty($_SESSION['CSRFtoken'])) {
+				$_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
+			}
+		}
+	}
+
+	/**
+	 * Boot up the core, this is need because with creating the core object
+	 * no $GLOBALS['core'] exist and therefore the Object class can not get the
+	 * core from GLOBALS
+	 * This will be called near after creating the core class
+	 */
+	public function boot() {
+
+		//Check if we should redirect
+		if (!empty($this->session)) {
+			$reload_page = $this->session->get("next_load_redirect", "");
+			if (!empty($reload_page)) {
+				$this->session->set("next_load_redirect", "");
+				$this->location($reload_page);
+			}
+		}
+
+		//If translation module is activated load the language class
+		if ($this->module_enabled("translation")) {
+			$this->lng = new Language($this->current_language, $this);
+		}
+
+		if (!empty($this->db)) {
+			$this->db->init_mysql_table();
+		}
+
+		//Initialize the right manager object
+		$this->right_manager = new RightManager($this);
+	}
+
+	/**
+	 * Provide a method to run a shell (cli) command
+	 */
+	public function run_cli() {
+		global $classes;
+		$cmds = array();
+
+		//Search cli commands and setup long options array
+		$c = 1;
+		foreach ($classes['classes'] AS $class => $v) {
+			if (preg_match("/^cli_(.*)$/", $class, $matches)) {
+				$cmds[$c++] = $matches[1];
+			}
+		}
+		//Provide help options
+		$options_array = getopt('h', array("help") + $cmds);
+
+		//Display help information if h, help or no options provided
+		if (empty($options_array) || isset($options_array['h']) || isset($options_array['help'])) {
+
+			if (empty($options_array)) {
+				echo "Missing parameters.\n";
+			}
+			echo "\n\nOptions:\n";
+			echo " -h, --help\t\tDisplay this Help\n";
+			foreach ($cmds AS $cmd) {
+				$class = "cli_" . $cmd;
+				$obj = new $class();
+				echo " --" . $cmd . "\t\t" . $obj->get_description() . "\n";
+			}
+			echo "Example:\n";
+			echo "php -f drush.php -- --help\n";
+			echo "./drush.php -h\n";
+		}
+		//Run all provided commands
+		else {
+			foreach ($options_array AS $command => $isset) {
+				$class = "cli_" . $command;
+				$obj = new $class();
+				$obj->start();
+			}
+		}
+	}
+
+	/**
+	 * function will redirect to https page if we are currently on http mode
+	 */
+	public function need_ssl() {
+		if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
+			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+		}
+	}
+
+	/**
+	 * Initialize the memcached object or an equivalent wrapper
+	 * @global boolean $memcached_use This is defined at the top of this file, it determines if we want to use the original memcached or if we must search for the best wrapper
+	 */
+	public function init_memcached() {
+		global $memcached_use;
+
+		//Only create the memcached object if we do not have it already
+		if (is_null($this->memcache_obj)) {
+			//Init original memcached object
+			if ($memcached_use) {
+				$this->memcache_obj = new memcached();
+				$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config("core", "domain") . ":");
+			}
+			//Memcached not exist, try to get memcache with the wrapper for memcached
+			else if (class_exists("memcache")) {
+				$this->memcache_obj = new MemcachedWrapper();
+				$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config("core", "domain") . ":");
+			}
+			//Memcache also not exist, try to use database memcached wrapper
+			else if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
+				$this->memcache_obj = new DBMemcached($this);
+			}
+			//We use no database connection so we have no realy cache, we use a static memcached wrapper
+			else {
+				$this->memcache_obj = new StaticMemcached($this);
+			}
+
+			//Add the current server to memcached object / wrapper
+			$this->memcache_obj->addServer($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
+		}
+	}
+
+	/**
+	 * Get or set a configuration for a given module
+	 * this is only static so it can not be read out after page reload
+	 * If $value is not provided or NS it will try to return the current value for that module and key
+	 * Special not on $key as array
+	 * for example we have a core config array like
+	 * 	$this->config['module']['container1']['subcontainer']['field1']
+	 * and want to get exactly the value for that field1 we must provide and array as key with the full path as array values
+	 * example:
+	 * 	$this->core_config('module', array('container1','subcontainer','field1'));
+	 *
+	 *
+	 * @param string $modul the module name
+	 * @param mixed $key the config key for that module or an array with the path of the config value (just in get mode)
+	 * @param string $value the value if we want to set the config key (optional, default = NS)
+	 * @return mixed in set mode we return true if we could get the value or false if the key was an array, in get mode we return the value or null if not exist
+	 */
+	public function core_config($modul, $key, $value = NS) {
+		if ($value == NS) {
+			//Get mode
+			$return = null;
+
+			//Transform the provided key into an array if it is not already one
+			if (!is_array($key)) {
+				$key = array($key);
+			}
+			//Get the complete module config
+			$return = $this->config[$modul];
+
+			//Loop through our $key "path" and try to get the value for that path
+			foreach ($key AS $k) {
+				if (isset($return[$k])) {
+					$return = $return[$k];
+				}
+				else {
+					return null;
+				}
+			}
+
+			return $return;
+		}
+		//Set mode
+		//return false if $key is an array couse this can just be within get mode
+		if (is_array($key)) {
+			return false;
+		}
+
+		//Pre init the config array for that module if it is ot set
+		if (!isset($this->config[$modul])) {
+			$this->config[$modul] = array();
+		}
+
+		//Set the value
+		$this->config[$modul][$key] = $value;
+		return true;
+	}
+
+	/**
+	 * Set or get a memcached stored value
+	 *
+	 * @param string $key the key
+	 * @param mixed $value The value , if param not provided it will try to return the value for the given key (optional, default = NS)
+	 * @param int $expire The expire time for the memcache key (optional, default = 0)
+	 * @return mixed within set mode return true, else return the value or null if value is not present
+	 */
+	public function mcache($key, $value = NS, $expire = 0) {
+		if ($value == NS) {
+			return $this->memcache_obj->get($key);
+		}
+		$this->memcache_obj->set($key, $value, $expire);
+		return true;
+	}
+
+	/**
+	 * Set or get a static cache value
+	 *
+	 * @param string $modul the module name
+	 * @param string $key the config key
+	 * @param mixed $value the value to be stored (optional, default = NS)
+	 * @return mixed return null or the value within get mode, or true on set mode
+	 */
+	public function cache($modul, $key, $value = NS) {
+		if ($value == NS) {
+			$return = null;
+			if (isset($this->cache[$modul][$key])) {
+				$return = $this->cache[$modul][$key];
+			}
+			return $return;
+		}
+
+		if (!isset($this->cache[$modul])) {
+			$this->cache[$modul] = array();
+		}
+		$this->cache[$modul][$key] = $value;
+		return true;
+	}
+
+	/**
+	 * Getmodule configuration within database
+	 * If $key and $value is provided with NS the hole module configuration will be returnd
+	 *
+	 * if a module / key is not found it will return the default value
+	 *
+	 * @param string $modul the module name
+	 * @param mixed $key the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
+	 * @param mixed $default_value the default value if the module/key not found (optional, default = NS)
+	 * @param boolean $use_cache if we want to use a static cache (for multi read outs within one request) (optional, default = false)
+	 * @param boolean $strict_array set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @return mixed
+	 * 		- return a single string value if $strict_array is set to false and just one value found
+	 * 		- returns an array if $strict_array is set to true or it has more than one value <br />
+	 */
+	public function get_dbconfig($modul, $key = NS, $default_value = NS, $use_cache = false, $strict_array = false) {
+		$value = $this->dbconfig($modul, $key, NS, $use_cache, $strict_array);
+		if ($value == null) {
+			return $default_value;
+		}
+		return $value;
+	}
+
+	/**
+	 * Get or set module configuration within database
+	 * If $key and $value is provided with NS the hole module configuration will be returnd
+	 * $key NS and value NOT NS (set mode) is not provided
+	 *
+	 *
+	 * @param string $modul the module name
+	 * @param mixed $key the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
+	 * @param mixed $value the value (optional, default = NS)
+	 * @param boolean $use_cache if we want to use a static cache (for multi read outs within one request) (optional, default = false)
+	 * @param boolean $strict_array set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @return mixed
+	 * 	Get mode
+	 * 		- return a single string value if $strict_array is set to false and just one value found
+	 * 		- returns an array if $strict_array is set to true or it has more than one value <br />
+	 *  Set mode
+	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
+	 */
+	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false) {
+		if ($value == NS) {
+			//Get mode
+			if ($key == NS) {
+				//Hole module config will be returned
+				$where = " WHERE `modul` = '" . safe($modul) . "'";
+
+				$return = array();
+				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
+					$return[$v['key']] = $v['value'];
+				}
+				return $return;
+			}
+
+			if (!is_array($key)) {
+				$key = array($key);
+			}
+			$use_cache = false;
+			//Return cached value if we want cache mode and the variable was already cached
+			if ($use_cache == true && !is_null(($return = $this->cache($modul, implode("::", $key))))) {
+				return $return;
+			}
+
+			//Build up all wanted options (sql where statement)
+			$where = array();
+			foreach ($key AS $key_value) {
+				$where[] = "`key` = '" . safe($key_value) . "'";
+			}
+
+			//Get the data from database
+			$return = array();
+			$rows = $this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "` WHERE " . implode(" OR ", $where));
+
+			if (!empty($rows)) {
+				foreach ($rows AS $row) {
+					$return[$row['key']] = $row['value'];
+				}
+
+				//If we do not want a strict array and have just one value left, return just the value
+				if ($strict_array == false && count($return) <= 1) {
+					if ($use_cache == true) {
+						$this->cache($modul, implode("::", $key), current($return));
+					}
+					return current($return);
+				}
+			}
+			else {
+				$return = null;
+			}
+
+			if ($use_cache == true) {
+				$this->cache($modul, implode("::", $key), $return);
+			}
+			return $return;
+		}
+
+		//Insert mode
+		$return = $this->db->query_master("INSERT INTO `" . CoreModulConfigObj::TABLE . "` (`modul`, `key`, `value`) VALUES (@modul,@key,@value)
+				ON DUPLICATE KEY UPDATE `value` = @value", array("@modul" => $modul, "@key" => $key, "@value" => $value));
+		if ($return) {
+			$this->cache($modul, $key, $value);
+		}
+		return false;
+	}
+
+	/**
+	 * Init Smarty and set the default template directory
+	 */
+	public function init_smarty() {
+		$this->smarty = new Smarty();
+		$this->smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
+		$this->smarty->init();
+		$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->get_dbconfig("system", system::CONFIG_DEFAULT_THEME, 'standard') . "/");
+	}
+
+	/**
+	 * Create the smarty secure directory index, only templates in this directories can be used within smarty
+	 *
+	 * @return boolean true if smartylist could be written successfully, else false
+	 */
+	public function create_smarty_sdi() {
+		//If the config file is not writeable, return false
+		if (!is_writable(SITEPATH . "/config/smarty.php")) {
+			return false;
+		}
+		//Init dir array with default template directory
+		$secure_dir = array(SITEPATH . "/templates");
+
+		//Get all templates directories within modules
+		$secure_dir = array_merge($secure_dir, $this->get_template_dirs("modules"));
+
+		//Build the secure directory variable
+		$content = "<?php\n\$secure_dir = " . var_export($secure_dir, true) . ";\n?>";
+
+		//Store the file
+		$fp = fopen(SITEPATH . "/config/smarty.php", "w+");
+		$return = ( fwrite($fp, $content) !== false) ? true : false;
+		fclose($fp);
+		return $return;
+	}
+
+	/**
+	 * Reindex the alias menu
+	 */
+	public function reindex_menu() {
+		//First clean the url alias table
+		$this->db->query_master("DELETE FROM`" . UrlAliasObj::TABLE . "` WHERE type = 'module_menu'");
+
+		//Loop through all modules
+		foreach ($this->modules AS $module) {
+
+			//Build up filepath to main module file
+			$dir = SITEPATH . '/modules/' . $module . '/' . $module . '.php';
+
+			//Check if the file exists
+			if (file_exists($dir)) {
+				//Initialize the module object
+				include_once $dir;
+				$obj = new $module();
+
+				//Check if the menu method exist
+				if (method_exists($obj, "menu")) {
+
+					//Get the menu
+					$menu_array = $obj->menu();
+
+					//Loop through the menu entries
+					foreach ($menu_array AS $alias => $data) {
+
+						//the array does not have a menu key, continue
+						if (empty($data['menu'])) {
+							continue;
+						}
+
+						//Transform a non array menu into an array
+						if (!is_array($data['menu'])) {
+							$data['menu'] = array($data['menu']);
+						}
+
+						//Setup the alias object with the menu values
+						$alias_obj = new UrlAliasObj();
+						$alias_obj->alias = $alias;
+						$alias_obj->type = 'module_menu';
+						if (isset($data['#perm'])) {
+							$alias_obj->perm = $data['#perm'];
+						}
+						if (count($data['menu']) > 1) {
+							$alias_obj->module = $data['menu'][0];
+							$alias_obj->action = $data['menu'][1];
+						}
+						else {
+							$alias_obj->module = $module;
+							$alias_obj->action = $data['menu'][0];
+						}
+
+						$alias_obj->insert();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generate the classlist for spl auto class loader
+	 *
+	 * @global array $classes The classlist, we need to use the global one to override the current one
+	 */
+	public function generate_classlist() {
+		global $classes;
+		$argv = array(null,
+			SITEPATH . '/', // root directory
+			'true', // recursive?
+			SITEPATH . '/config/classes.php', // filename or 'false' to display results
+			'classes'   // variable name of Array
+		);
+
+		$argc = count($argv);
+
+		$_SERVER['argc'] = $argc;
+		$_SERVER['argv'] = $argv;
+
+		require_once(SITEPATH . '/plugins/classlist_autogenerator.php');
+
+		require(SITEPATH . '/config/classes.php');
+	}
+
+	/**
+	 * Assign the admin menu to smarty
+	 * TODO must be re-thinked and re-designed to have a good menu structure
+	 */
+	public function assign_menus() {
+
+		$menu = array();
+		if ($this->right_manager->has_perm("admin.system.view_admin_menu", false)) {
+			$modules = $this->modules;
+			$modules[] = "system";
+
+			//loop through all modules
+			foreach ($this->modules AS $module) {
+
+				//If module is not enabled continue (system module is always be enabled)
+				if ($module != "system" && !$this->module_enabled($module)) {
+					continue;
+				}
+
+				//Load the module and check if it has the get_admin_menu method
+				$module_obj = new $module();
+				if (!method_exists($module_obj, "get_admin_menu")) {
+					continue;
+				}
+
+				//Get the menu (key = order of this menu, value = menu_entries)
+				$tmpmenu = $module_obj->get_admin_menu();
+				$index = key($tmpmenu);
+				//Get the menu entries for the menu
+				$currentmenu = current($tmpmenu);
+
+
+				//Check permissions if #perm key exists
+				if (isset($currentmenu['#perm'])) {
+					if (!$this->get_session()->is_logged_in() || !$this->get_right_manager()->has_perm($currentmenu['#perm'])) {
+						continue;
+					}
+				}
+
+				//Check permissions on subentries
+				if (isset($currentmenu['#childs'])) {
+					$this->unset_menu_entries_with_no_permission($currentmenu);
+				}
+
+				//Init the menu with the current order index
+				if (!isset($menu[$index])) {
+					$menu[$index] = array();
+				}
+				//Add the menu
+				$menu[$index][] = $currentmenu;
+			}
+
+			ksort($menu);
+			$this->smarty->assign_by_ref("admin_menu", $menu);
+		}
+
+
+		$current_module = $this->cache("core", "current_module");
+
+		if (!empty($current_module)) {
+			$menu_obj = new MenuObj($current_module);
+			if (!$menu_obj->load_success()) {
+				$menu_obj = new MenuObj("main_menu");
+			}
+		}
+		else {
+			$menu_obj = new MenuObj("main_menu");
+		}
+		
+		$this->smarty->assign_by_ref("main_menu", $menu_obj->get_menu_tree(true));
+	}
+
+	/**
+	 * Set the given $page as the redirect url on next page reload (useful for login system)
+	 * @param string $page the url
+	 */
+	public function request_next_time_refresh($page) {
+		$this->session->set("next_load_redirect", $page);
+	}
+
+	public function smarty_assign_default_vars() {
+
+		//Assign current template path
+		$this->smarty->assign("TEMPLATE_PATH", $this->smarty->get_tpl());
+		$this->js_config('template_path', $this->smarty->get_tpl());
+		//Assign the user id if an user is logged in
+		$current_user = $this->session->current_user();
+		if (!empty($current_user)) {
+			$this->smarty->assign("user_id", $current_user->user_id);
+			$this->smarty->assign_by_ref("current_user", $this->session->current_user());
+		}
+
+		//If we have a translation object, assign language variables for javascript
+		if ($this->lng) {
+			$this->smarty->assign_json_no_reference("JS_LANG", $this->lng->get_all_js());
+		}
+		//Assign the current language
+		$this->smarty->assign("current_language", $this->current_language);
+
+		$this->js_config("current_language", $this->current_language);
+
+		//Assign meta object
+		$this->smarty->assign_by_ref("meta", $this->meta);
+
+		//Read out all previous setup messages and reset the session message array
+		$messages = array();
+
+		if (!empty($_SESSION['message'])) {
+			$messages = $_SESSION['message'];
+			$_SESSION['message'] = array();
+		}
+		//Assign the messages
+		$this->smarty->assign("main_messages", $messages);
+
+		$this->cache_js_css();
+		
+		//Add needed css/js files
+		$this->smarty->assign("additional_css_files", $this->css_files);
+		$this->smarty->assign("additional_js_files", $this->js_files);
+
+		//Add configured javascript configuration keys
+		$this->smarty->assign_json("js_variable_config", $this->js_config);
+
+
+
+		//get the configured profile, login and logout url for the current login handler
+		$login_url = $this->session->get_login_handler()->get_login_url();
+		$logout_url = $this->session->get_login_handler()->get_logout_url();
+		$profile_url = $this->session->get_login_handler()->get_profile_url();
+
+
+		//If a user is currently logged in replace @userid and @username with the user information
+		if ($this->get_session()->is_logged_in()) {
+			$profile_url = str_replace("@userid", $this->get_session()->current_user()->user_id, $profile_url);
+			$profile_url = str_replace("@username", $this->get_session()->current_user()->username, $profile_url);
+		}
+
+		//Assign the logout and profile url
+		$this->smarty->assign_by_ref("logout_url", $logout_url);
+		$this->smarty->assign_by_ref("profile_url", $profile_url);
+		$this->smarty->assign_by_ref("login_url", $login_url);
+
+		if (!empty($this->lng)) {
+			$this->lng->load_language_list('', array(), true);
+			$current_module = $this->cache("core", "current_module");
+			if (empty($current_module)) {
+				list($url) = explode('?', $_SERVER['REQUEST_URI'], 2);
+				$base_link = '/' . preg_replace('/^\/[a-z]{2}(\/|$)/is', '', $url);
+			}
+
+			$languages = $this->lng->languages;
+			foreach ($languages AS $key => &$language) {
+				if (empty($current_module)) {
+					$link = '/' . strtolower($key) . $base_link;
+				}
+				else {
+					$mod_obj = new $current_module();
+					$link = $mod_obj->get_translation_link($key);
+				}
+				$language = array(
+					'language' => $language,
+					'link' => preg_replace('/\/$/', '', preg_replace('/\/+/', '/', $link))
+				);
+			}
+		}
+		if ($this->session->is_logged_in()) {
+			$this->smarty->assign("user_fullname", $this->session->current_user()->username);
+		}
+
+		$this->smarty->assign_by_ref("enabled_languages", $languages);
+		if (!empty($this->lng)) {
+			$this->lng->load_language_list();
+		}
+	}
+
+	/**
+	 * Add a message
+	 * The message will be shown if the next time a html output occures, so if a pure ajax request
+	 * will be started it will not clear the message queue couse it would not be visible to the user.
+	 *
+	 * We can provide the $ajax parameter if we want to display an alert box with the error message
+	 * if the ajax get an error
+	 *
+	 * With $ajax set to true be aware it will print out ALL messages which are previous queued, the returning message type
+	 * will be the most worst one, so if 10 times a message was a success and want time an notice will be added the information
+	 * state is more bad than the success so it will get this state at the end.
+	 *
+	 * Order: success -> notice -> error
+	 *
+	 * @param string $msg
+	 * @param string $type use one of Core::MESSAGE_TYPE_* (optional, default = Core::MESSAGE_TYPE_SUCCES)
+	 * @param boolean $ajax if this is set to true it will be handled as an AjaxReturn (optional, default = false)
+	 * @param mixed $ajax_data if $ajax is set to true we can provide additional data send back to the browser within the current ajax request (optional, default = null)
+	 */
+	public function message($msg, $type = self::MESSAGE_TYPE_SUCCESS, $ajax = false, $ajax_data = null) {
+
+		//Check if we are in ajax mode
+		if ($ajax) {
+
+			//Initialize the most bad message type variable
+			$most_bad_type = "";
+
+			//Check if we have error's
+			if (!empty($_SESSION['message']['error'])) {
+				//Get all previous errors and append it to the message
+				$msg = implode("\n", $_SESSION['message']['error']) . "\n" . $msg;
+
+				//set the most bad message type
+				$most_bad_type = AjaxModul::ERROR_DEFAULT;
+
+				//Clear all current error messages
+				unset($_SESSION['message']['error']);
+			}
+
+			//Check if we have notices's
+			if (!empty($_SESSION['message']['notice'])) {
+				//Get all previous notices and append it to the message
+				$msg = implode("\n", $_SESSION['message']['notice']) . "\n" . $msg;
+
+				//set the most bad message type only if the previous higher type was not set
+				if (empty($most_bad_type)) {
+					$most_bad_type = self::MESSAGE_TYPE_SUCCESS;
+				}
+
+				//Clear all current notice messages
+				unset($_SESSION['message']['notice']);
+			}
+
+			//Check if we have success's
+			if (!empty($_SESSION['message']['success'])) {
+				//Get all previous success's and append it to the message
+				$msg = implode("\n", $_SESSION['message']['success']) . "\n" . $msg;
+
+				//set the most bad message type only if the previous higher type was not set
+				if (empty($most_bad_type)) {
+					$most_bad_type = Core::MESSAGE_TYPE_SUCCESS;
+				}
+
+				//Clear all current success messages
+				unset($_SESSION['message']['success']);
+			}
+
+			//Set the current message type only if we have not set it previous so the given message type is the most bad one
+			if (empty($most_bad_type)) {
+				$most_bad_type = $type;
+			}
+
+			//Switch the message type, based upon the message type we set the returning ajax type
+			switch ($type) {
+				case self::MESSAGE_TYPE_SUCCESS:
+					$most_bad_type = Core::GLOBEL_RETURN_CODE_SUCCESS;
+					break;
+				default:
+					$most_bad_type = AjaxModul::ERROR_DEFAULT;
+					break;
+			}
+
+			//Return the ajax message, this function dies at this moment.
+			AjaxModul::return_code($most_bad_type, $ajax_data, true, $msg);
+		}
+
+		//Check if we have an message array, if not create it
+		if (!isset($_SESSION['message'])) {
+			$_SESSION['message'] = array();
+		}
+
+		//Check if the given type is already within the message type array, if not create it with an empty array
+		if (!isset($_SESSION['message'][$type])) {
+			$_SESSION['message'][$type] = array();
+		}
+
+		//Add the message
+		$_SESSION['message'][$type][] = $msg;
+	}
+
+	/**
+	 * Checks if a the given $module is enabled or not.
+	 *
+	 * @param string $module The module to be checked
+	 * @return boolean true if enabled, else false
+	 */
+	public function module_enabled($module) {
+
+		//If module is unknown, return false
+		if (!isset($this->modules[$module])) {
+			return false;
+		}
+
+		//Load the module config of the given $module
+		$modconfig = new ModulConfigObj($module);
+
+		//If module is not installed return false
+		if (!$modconfig->load_success()) {
+			return false;
+		}
+
+		//Return if it is enabled
+		return ($modconfig->enabled == 1);
+	}
+
+	/**
+	 * Enable or disable debug mode
+	 *
+	 * @param boolean $val
+	 */
+	public function set_debug($val) {
+		$this->debug = $val;
+		$this->db->set_debug($val);
+		$this->smarty->debugging = true;
+	}
+
+	/**
+	 * Returns the current debug mode
+	 *
+	 * @return boolean
+	 */
+	public function get_debug() {
+		return $this->debug;
+	}
+
+	/**
+	 * Returns the current session object by reference
+	 *
+	 * @return Session
+	 */
+	public function &get_session() {
+		return $this->session;
+	}
+
+	/**
+	 * Returns the right manager object by reference
+	 *
+	 * @return RightManager
+	 */
+	public function &get_right_manager() {
+		return $this->right_manager;
+	}
+
+	/**
+	 * Redirects direct to the given Location through header information
+	 * If more than one slashes in series appears it will be replaced with just one (url cleanup)
+	 *
+	 * @param string $string The location to be redirected
+	 */
+	public function location($string) {
+		$scheme = "";
+		if (preg_match("/^(https?:\/\/)(.*)/is", $string, $matches)) {
+			$scheme = $matches[1];
+			$string = $matches[2];
+		}
+		header("Location: " . $scheme . preg_replace("/\/+/is", "/", $string));
+		exit();
+	}
+
+	/**
+	 * Request a redirect through javascript with the given timeout
+	 * It will provide smarty the variable $header_redirect which is array with configuration
+	 * if this redirect request.
+	 * The template ("standard/header.tpl") will check if this variable exist and creates
+	 * a javascript timeout with the redirection.
+	 *
+	 * @param stirng $location the location to be redirected
+	 * @param int $seconds the number of seconds to wait before redirecting (optional, default = 5)
+	 * @return boolean true if request succeed, else false
+	 */
+	public function request_redirect($location, $seconds = 5) {
+		if (empty($this->smarty)) {
+			return false;
+		}
+		$this->smarty->assign("header_redirect", array("location" => $location, "timeout" => ($seconds * 1000)));
+		return true;
+	}
+
+	/**
+	 * Provide javascript the $value parameter within the Javascript variable Soopfw.config.{$var}
+	 *
+	 * If $as_array is set to true the config key given in $var will not be just set, it will first check
+	 * if an entry already exists which is not an array if so it will be transformed to array($value)
+	 * Then it will add all future calls just to the config key array
+	 * For example:
+	 * js_config('foo','bar', true);
+	 * js_config('foo','bar2', true);
+	 *
+	 * Javascript will have
+	 * Soopfw.config.foo[0] = 'bar';
+	 * Soopfw.config.foo[1] = 'bar2';
+	 *
+	 * example of transforming previous added non-array value
+	 *
+	 * js_config('foo','bar'); => Soopfw.config.foo = 'bar';
+	 * js_config('foo','bar2', true);
+	 *
+	 * will transform it to:
+	 * Soopfw.config.foo[0] = 'bar';
+	 * Soopfw.config.foo[1] = 'bar2';
+	 *
+	 * @param string $var The variable name for the config key.
+	 * @param mixed $value Any variable which should be provided within javascript Soopfw.config.*
+	 * @param boolean $as_array If the value should be added as a config array (optional, default = false)
+	 */
+	public function js_config($var, $value, $as_array = false) {
+		//Check if we want to just set the value to the config key or if we want
+		//to add it to an config array
+		if ($as_array == false) {  //Set
+			$this->js_config[$var] = $value;
+		}
+		else { //We want to add an value to the specified config array
+			//If key not exists create it
+			if (!isset($this->js_config[$var])) {
+				$this->js_config[$var] = array();
+			}
+			//If exists but is not an array, transform it to an array
+			else if (!is_array($this->js_config[$var])) {
+				$this->js_config[$var] = array($this->js_config[$var]);
+			}
+
+			//Add the value to the config array
+			$this->js_config[$var][] = $value;
+		}
+	}
+
+	/**
+	 * Returns the current javascript configuration keys
+	 *
+	 * @return array
+	 */
+	public function get_js_config() {
+		return $this->js_config;
+	}
+
+	/**
+	 * Load a css file (full path after docroot)
+	 *
+	 * @param string $file The filepath to the css file which should be loaded
+	 */
+	public function add_css($file) {
+		$check_template_file = $this->smarty->get_tpl() . $file;
+		if (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
+			$file = $check_template_file;
+		}
+		$this->css_files[] = $file;
+	}
+
+	/**
+	 * Load a javascript file (full path after docroot)
+	 *
+	 * @param string $file The filepath to the javascript file which should be loaded
+	 * @param string $type The javascript scope, use one of Core::JS_SCOPE_* (optional, default = Core::JS_SCOPE_USER)
+	 */
+	public function add_js($file, $type = self::JS_SCOPE_USER) {
+		if (!isset($this->js_files[$type])) {
+			$this->js_files[$type] = array();
+		}
+		$check_template_file = $this->smarty->get_tpl() . $file;
+		if (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
+			$file = $check_template_file;
+		}
+		$this->js_files[$type][] = $file;
+	}
+
+	/**
+	 * This method will call all method for the specific hook.
+	 *
+	 * A hook is defined if a method exists hook_{hookname}
+	 *
+	 * @param string $name
+	 * 	 The hookname
+	 * @param array $args
+	 * 	 an array with all arguments which will be passed to the hooks
+	 */
+	public function hook($name, $args) {
+		static $cache = null;
+
+		if ($cache == null) {
+			$cache = array();
+			foreach ($this->modules AS $module) {
+				$class = new ReflectionClass($module);
+				$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
+				foreach ($methods AS $method) {
+					if (preg_match("/^hook_(.*)$/", $method->name, $match)) {
+						$hook_name = $match[1];
+						if (!isset($cache[$hook_name])) {
+							$cache[$hook_name] = array();
+						}
+						$cache[$hook_name][$module] = $module;
+					}
+				}
+			}
+		}
+
+		if (!isset($cache[$name])) {
+			return;
+		}
+
+		$hook_method = "hook_" . $name;
+		$return_results = array();
+		foreach ($cache[$name] AS $module) {
+			$return_results[$module] = call_user_func_array(array(new $module(), $hook_method), $args);
+		}
+		return $return_results;
+	}
+
+	/**
+	 * Unset all menu entries where the user should not see based up on the #perm permission check.
+	 * Function is recrusive.
+	 *
+	 * @param array &$menu the menu array
+	 */
+	private function unset_menu_entries_with_no_permission(&$menu) {
+		//Check if we have childs
+		if (isset($menu['#childs']) && is_array($menu['#childs'])) {
+
+			//Found childs, loop through it
+			foreach ($menu['#childs'] AS $k => &$subchild) {
+				//If a #perm entry is configured, check if the user is logged in and have the right, else unset the entry
+				if (isset($subchild['#perm'])) {
+					if (!$this->get_session()->is_logged_in() || !$this->get_right_manager()->has_perm($subchild['#perm'])) {
+						unset($menu['#childs'][$k]);
+						continue;
+					}
+				}
+
+				//recrusive call with subchilds
+				$this->unset_menu_entries_with_no_permission($subchild);
+			}
+		}
+	}
+
+	/**
+	 * Checks if the direct or an child entry matches to the $checklink, if so return true
+	 *
+	 * @param string $checklink the link which we want to check
+	 * @param array $menu the menu array
+	 * @return boolean true if selected, else false
+	 */
+	private function check_if_menu_subentry_is_selected($checklink, $menu) {
+		if (isset($menu['#link']) && $menu['#link'] == $checklink) {
+			return true;
+		}
+		if (isset($menu['childs']) && is_array($menu['childs'])) {
+			if ($this->check_if_menu_subentry_is_selected($checklink, $menu['childs'])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 *
+	 * @param string $current_dir current / start directory
+	 * @return array a list of all path which has a templates directory
+	 */
+	private function get_template_dirs($current_dir) {
+		$tmp_array = array();
+		$dir = new Dir($current_dir);
+		$dir->just_dirs();
+		$dir->file_regexp('.*templates');
+		foreach ($dir AS $entry) {
+			$tmp_array[] = $entry->path;
+		}
+		return $tmp_array;
+	}
+
+	/**
+	 * Cache javascript files if wanted and removes all cached js file loads and replace it with the cached one
+	 */
+	private function cache_js_css() {
+
+		//If caching disabled by system configuration, do not cache, default caching is disabled
+		$should_cache_js = $this->dbconfig("system", system::CONFIG_CACHE_JS);
+		$should_cache_css = $this->dbconfig("system", system::CONFIG_CACHE_CSS);
+
+		if (!empty($should_cache_css) && $should_cache_css == 'yes' && !empty($this->css_files)) {
+			//This variable holds the last modified file within the current scope
+			$scope_latest_modified_file = 0;
+
+			//This will have a md5 hash of all files which we want to load so the same loaded files will get the same md5 unique hash
+			$md5_check = "";
+
+			//This will be the end array which files will be loaded
+			$files_to_add = array();
+
+			//Init yui compressor
+			$yui = new YUICompressor();
+			
+			$original_css_files = $this->css_files;
+			foreach ($this->css_files AS $file) {
+
+				//Get just the filename without get params
+				$file = preg_replace("/\?.+$/", "", $file);
+
+				//Skip already minified files, but add them to the load list
+				if (preg_match("/\.min\./", $file)) {
+					$files_to_add[] = $file;
+					continue;
+				}
+
+				//Get the current absolute filepath to the javascript file
+				$file_path = SITEPATH . $file;
+
+				//Append the filepath to the md5 sum
+				$md5_check .= $file_path;
+
+				/**
+				* Get the last modified filetime for this file and check if it is newer
+				* than the old newest modified file time, so at the end we have the newest
+				* modified file time
+				*/
+				$modified_time = filemtime($file_path);
+				if ($modified_time > $scope_latest_modified_file) {
+					$scope_latest_modified_file = $modified_time;
+				}				
+			}
+			
+			//Get the md5 sum of the file loads
+			$md5_check = md5($md5_check);
+
+			//get the cache file path
+			$cache_file_path = "/uploads/css_cache/" . $md5_check . ".css";
+
+			$cache_css_file = true;
+			//Check if already the cache file exists
+			if (file_exists(SITEPATH . $cache_file_path)) {
+
+				//Get the last modified time of the cache file
+				$cache_last_modified = filemtime(SITEPATH . $cache_file_path);
+
+				//If the modified file times equals the cached file is up to date, so we can skip this scope
+				if ($scope_latest_modified_file == $cache_last_modified) {
+					$files_to_add[] = $cache_file_path;
+					$this->css_files = $files_to_add;
+					$cache_css_file = false;
+				}
+			}
+			
+			if ($cache_css_file == true) {
+				//At this point we need to generate the cache file
+				
+				foreach($original_css_files AS $file) {
+					$search_replace = array();
+					$src = file_get_contents(SITEPATH . $file);
+					preg_match_all('~\bbackground(-image)?\s*:(.*?)url\(\s*(\'|")?(?<image>.*?)\3?\s*\)~i', $src, $matches);
+
+					if(!empty($matches['image'])) {
+						$path = dirname($file);
+						foreach($matches['image'] AS $image_url) {
+							$search_replace[$image_url] = str_replace('//', '/', $path . '/' . $image_url);
+						}
+						ksort($search_replace);
+						$search = $replace = array();
+						foreach($search_replace as $s => $r) {
+							$src = preg_replace("/\((\"|')?" . preg_quote($s, "/") . "(\"|')?\)/", "(\$1".$r."\$2)", $src);
+						}
+					}
+					
+					$yui->add_string($src);
+				}
+				
+				//Create needed directories for storing cache files
+				if (!file_exists(SITEPATH . '/uploads/css_cache')) {
+					mkdir(SITEPATH . '/uploads/css_cache', 0777);
+				}
+				
+				//compress the wanted files and write the compressed output to the cache file
+				file_put_contents(SITEPATH . $cache_file_path, $yui->compress('css'));
+
+				//Set the last modified time of the cache file to our newest modified file from our scope
+				touch(SITEPATH . $cache_file_path, $scope_latest_modified_file);
+
+				//set the cache file to be loaded instead of the original not compressed one.
+				$files_to_add[] = $cache_file_path;
+				$this->css_files = $files_to_add;
+			}
+		}
+		
+		if (!empty($should_cache_js) && $should_cache_js == 'yes' && !empty($this->js_files)) {		
+			//Loop through every file scope
+			foreach ($this->js_files AS $scope => $file_array) {
+
+				//This variable holds the last modified file within the current scope
+				$scope_latest_modified_file = 0;
+
+				//This will have a md5 hash of all files which we want to load so the same loaded files will get the same md5 unique hash
+				$md5_check = "";
+
+				//This will be the end array which files will be loaded
+				$files_to_add = array();
+
+				//Init yui compressor
+				$yui = new YUICompressor();
+
+				//Loop through all js files which we want to load within the current scope
+				foreach ($file_array AS $original_javascript_file) {
+
+					//Get just the filename without get params
+					$original_javascript_file = preg_replace("/\?.+$/", "", $original_javascript_file);
+
+					//Skip already minified files, but add them to the load list
+					if (preg_match("/\.min\./", $original_javascript_file)) {
+						$files_to_add[] = $original_javascript_file;
+						continue;
+					}
+
+					//Get the current absolute filepath to the javascript file
+					$file_path = SITEPATH . $original_javascript_file;
+
+					//Append the filepath to the md5 sum
+					$md5_check .= $file_path;
+
+					/**
+					* Get the last modified filetime for this file and check if it is newer
+					* than the old newest modified file time, so at the end we have the newest
+					* modified file time
+					*/
+					$modified_time = filemtime($file_path);
+					if ($modified_time > $scope_latest_modified_file) {
+						$scope_latest_modified_file = $modified_time;
+					}
+					//Add the js file to the yui to compress it if needed
+					$yui->add_file($file_path);
+				}
+				//Get the md5 sum of the file loads
+				$md5_check = md5($md5_check);
+
+				//get the cache file path
+				$cache_file_path = "/uploads/js_cache/" . $md5_check . ".js";
+
+				//Check if already the cache file exists
+				if (file_exists(SITEPATH . $cache_file_path)) {
+
+					//Get the last modified time of the cache file
+					$cache_last_modified = filemtime(SITEPATH . $cache_file_path);
+
+					//If the modified file times equals the cached file is up to date, so we can skip this scope
+					if ($scope_latest_modified_file == $cache_last_modified) {
+						$files_to_add[] = $cache_file_path;
+						$this->js_files[$scope] = $files_to_add;
+						continue;
+					}
+				}
+
+				//At this point we need to generate the cache file
+				//
+				//Create needed directories for storing cache files
+				if (!file_exists(SITEPATH . '/uploads/js_cache')) {
+					mkdir(SITEPATH . '/uploads/js_cache', 0777);
+				}
+				
+				//compress the wanted files and write the compressed output to the cache file
+				file_put_contents(SITEPATH . $cache_file_path, $yui->compress());
+
+				//Set the last modified time of the cache file to our newest modified file from our scope
+				touch(SITEPATH . $cache_file_path, $scope_latest_modified_file);
+
+				//set the cache file to be loaded instead of the original not compressed one.
+				$files_to_add[] = $cache_file_path;
+				$this->js_files[$scope] = $files_to_add;
+			}
+		}
+	}
+}
+
+?>
