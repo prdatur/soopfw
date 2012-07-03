@@ -2,3 +2,6 @@ language/*
 !language/countries
 !language/currencies
 !language/languages
+
+templates_c/*
+!templates_c/.htaccess
