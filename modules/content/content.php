@@ -133,13 +133,29 @@ class content extends ActionModul {
 
 		$data_array = json_decode($values['serialized_data'], true);
 
-		$content_type_tpl = $this->module_tpl_dir.'/field_groups/'.$values['content_type'].".tpl";
+		
 
 		$content_smarty = new Smarty();
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$content_smarty->init();
-		$content_smarty->set_tpl($this->module_tpl_dir.'/field_groups/');
-
+		
+		
+		// Provide template overrides.
+		$template_override_field_groups_path = $this->smarty->get_tpl(true). '/content/field_groups';
+		$field_groups_path = $this->module_tpl_dir.'field_groups';
+		
+		
+		$content_type_tpl = $template_override_field_groups_path. '/' . $values['content_type'].".tpl";
+		if(file_exists($content_type_tpl)) {
+			$tpl_path = $template_override_field_groups_path. '/';
+		}
+		else {
+			$content_type_tpl = $field_groups_path . $values['content_type'].".tpl";
+			$tpl_path = $field_groups_path . '/';
+		}
+		
+		$content_smarty->set_tpl($tpl_path);
+		
 		$content = "";
 		if(file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
@@ -147,10 +163,22 @@ class content extends ActionModul {
 		}
 		else {
 			foreach($data_array AS $field_group_id => $field_group_values) {
-				$field_group_tpl = $this->module_tpl_dir.'/field_groups/'.$field_group_id.".tpl";
+				
+				if(file_exists($template_override_field_groups_path. '/' . $field_group_id . ".tpl")) {
+					$field_group_tpl = $template_override_field_groups_path. '/' . $field_group_id . ".tpl";
+				}
+				else {
+					$field_group_tpl = $field_groups_path . '/' . $field_group_id . ".tpl";
+				}
 				if(!file_exists($field_group_tpl)) {
 					$group_obj = new ContentTypeFieldGroupObj($field_group_id);
-					$field_group_tpl = $this->module_tpl_dir.'/field_groups/'.$group_obj->field_group.".tpl";
+					
+					if(file_exists($template_override_field_groups_path. '/' . $group_obj->field_group . ".tpl")) {
+						$field_group_tpl = $template_override_field_groups_path . '/' . $group_obj->field_group . ".tpl";
+					}
+					else {
+						$field_group_tpl = $field_groups_path . '/' . $group_obj->field_group . ".tpl";
+					}
 				}
 				$content_smarty->clearAllAssign();
 				$content_smarty->assign_by_ref("data", $field_group_values);
@@ -348,25 +376,30 @@ class content extends ActionModul {
 		if(!$page->load_success()) {
 			return $this->wrong_params(t("no such page"));
 		}
-		$this->title(t("revision overview: @title", array("@title" => $page->title)), t("this displays all available revisions for this page"));
+		
+		$page_revision = new PageRevisionObj($page_id);
+		if(!$page_revision->load_success()) {
+			return $this->wrong_params(t("No such page"));
+		}
+		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("this displays all available revisions for this page"));
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
 			return $this->no_permission();
 		}
-
-		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `last_modified`, `last_modified_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
+		$this->db->set_debug(true);
+		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
 			'ipage_id' => $page_id,
 			'@language' => $this->core->current_language
 		));
 
 		foreach($revisions AS &$revision) {
-			$user_obj = new UserObj($revision['last_modified_by']);
+			$user_obj = new UserObj($revision['created_by']);
 			if($user_obj->load_success()) {
-				$revision['last_modified_by'] = $user_obj->get_values();
+				$revision['created_by'] = $user_obj->get_values();
 			}
 			else {
-				unset($revision['last_modified_by']);
+				unset($revision['created_by']);
 			}
 		}
 		//Assign found revisions
@@ -899,7 +932,7 @@ class content extends ActionModul {
 		$form->add($submit_button);
 
 		$publish = new Checkbox("publish", 1,($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
-		$form_content .= $publish->fetch();
+		$form_content .= '<br />' . $publish->fetch();
 		$form->add($publish);
 		if(!$create_mode) {
 

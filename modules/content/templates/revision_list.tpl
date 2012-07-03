@@ -2,8 +2,8 @@
 	<thead>
 		<tr class="ui-widget-header">
 			<td  style="text-align:left"><%t key='title'%></td>
-			<td  style="text-align:right;width:140px;"><%t key='last modified'%></td>
-			<td  style="text-align:left;width:120px;"><%t key='last modified by'%></td>
+			<td  style="text-align:right;width:140px;"><%t key='created'%></td>
+			<td  style="text-align:right;width:120px;"><%t key='created by'%></td>
 			<td  style="text-align:right"><%t key='options'%></td>
 		</tr>
 	</thead>
@@ -11,10 +11,10 @@
 		<%foreach $revisions AS $revision%>
 		<tr>
 			<td style="text-align:left"><%$revision.title%></td>
-			<td style="text-align:right"><%$revision.last_modified|format_date%></td>
-			<td style="text-align:left">
-				<%if !empty($revision.last_modified_by)%>
-				<%$revision.last_modified_by.username%>
+			<td style="text-align:right"><%$revision.created|format_date%></td>
+			<td style="text-align:right">
+				<%if !empty($revision.created_by)%>
+				<%$revision.created_by.username%>
 				<%else%><%t key='user not found'%><%/if%></td>
 			<td style="text-align:right">
 				<a href="/content/view/<%$revision.page_id%>/<%$revision.revision%>" target="_blank"><%t key='view'%></a> -
