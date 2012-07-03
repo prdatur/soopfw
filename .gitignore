@@ -9,3 +9,11 @@ templates_c/*
 templates/*
 !templates/.htaccess
 !templates/standard
+
+modules/*
+!modules/.htaccess
+!modules/content
+!modules/translation
+!modules/user
+!modules/system
+!modules/menu
