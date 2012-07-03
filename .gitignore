@@ -5,3 +5,7 @@ language/*
 
 templates_c/*
 !templates_c/.htaccess
+
+templates/*
+!templates/.htaccess
+!templates/standard
