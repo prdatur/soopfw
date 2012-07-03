@@ -386,11 +386,13 @@ class Db
 		if ($this->_debug) {
 			echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">".$query_string."</div>\n";
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
-				$sql = mysql_query("EXPLAIN ".$query_string, $this->link_id);
-				$res = mysql_fetch_assoc($sql);
-				foreach ($res AS $key => $val) {
-					if (is_numeric($key)) {
-						unset($res[$key]);
+				$sql = @mysql_query("EXPLAIN ".$query_string, $this->link_id);
+				$res = @mysql_fetch_assoc($sql);
+				if (!empty($res)) {
+					foreach ($res AS $key => $val) {
+						if (is_numeric($key)) {
+							unset($res[$key]);
+						}
 					}
 				}
 				print_r($res);
