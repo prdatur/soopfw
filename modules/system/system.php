@@ -53,20 +53,85 @@ class system extends ActionModul
 						'#link' => "/system/config", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
+					array(
+						'#title' => t("Generate classlist"), //The main title
+						'#link' => "/system/generate_classlist", // The main link
+						'#perm' => "admin.system.config", // perms needed
+					),
+					array(
+						'#title' => t("Generate smartylist"), //The main title
+						'#link' => "/system/generate_smartylist", // The main link
+						'#perm' => "admin.system.config", // perms needed
+					),
+					array(
+						'#title' => t("Reindex menu alias"), //The main title
+						'#link' => "/system/reindex_menu", // The main link
+						'#perm' => "admin.system.config", // perms needed
+					),
 				)
 			)
 		);
 	}
 
 	/**
+	 *  Generates the classlist new
+	 */
+	public function generate_classlist() {
+		
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+			return $this->no_permission();
+		}
+		
+		$this->core->generate_classlist();
+		$this->core->message(t('classlist generated'), Core::MESSAGE_TYPE_SUCCESS);
+		
+		$this->clear_output();
+	}
+
+	/**
+	 *  Generates the smartylist new
+	 */
+	public function generate_smartylist() {
+		
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+			return $this->no_permission();
+		}
+		
+		if ($this->core->create_smarty_sdi()) {
+			$this->core->message(t('smartylist generated'), Core::MESSAGE_TYPE_SUCCESS);
+		}
+		else {
+			$this->core->message(t('could not generated smartylist'), Core::MESSAGE_TYPE_ERROR);
+		}
+		
+		$this->clear_output();
+	}
+
+	/**
+	 *  Reindex the menu alias
+	 */
+	public function reindex_menu() {
+		
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+			return $this->no_permission();
+		}
+		
+		if ($this->core->reindex_menu());
+		$this->core->message(t('menu re-indexed'), Core::MESSAGE_TYPE_SUCCESS);
+		
+		$this->clear_output();
+	}
+	
+	/**
 	 * Action: config
 	 * Configurate the system main settings.
 	 */
 	public function config() {
-		$this->session->require_login();
-
 		//Check perms
-		if (!$this->right_manager->has_perm('admin.system.config')) {
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			return $this->no_permission();
 		}
 
