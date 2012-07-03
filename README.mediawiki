@@ -1,6 +1,6 @@
 == SoopFW Readme ==
 
-<span style="text-decoration: underline;">What is SoopFw?</span>
+=== What is SoopFw? ===
 
 SoopFw is a PHP-Framework which has the goal to reduce development time while 
 not losing performance.
@@ -18,10 +18,10 @@ It has the power to work as a content management system (some modules are
 development to have a modular content on the page) but it can also be used as
 a little backend framework to do other things.
 
-<span style="text-decoration: underline;">How to install?</span>
+=== How to install? ===
 Please look to the INSTALL.txt
 
-<span style="text-decoration: underline;">Need help?</span>
+=== Need help? ===
 Checkout out http://soopfw.org/documentation
 
 Information: The homepage will be created in the next month, do not hesitate

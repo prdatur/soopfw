@@ -61,7 +61,7 @@
 <div id="wrapper" style="position: relative;">
 	<div id="header-background"></div>
 	<div id="header">
-		<span id="header-title">SoopFw<span id="header-slogan">Simple object oriented Framework</span></span>
+		<span id="header-title">SoopFw<span id="header-slogan">Simple object oriented PHP-Framework</span></span>
 		
 	</div>
 	<div id="language-wrapper">

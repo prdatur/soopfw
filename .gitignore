@@ -1,1 +1,4 @@
 language/*
+!language/countries
+!language/currencies
+!language/languages
