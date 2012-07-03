@@ -807,6 +807,8 @@ class content extends ActionModul {
 
 		$this->static_tpl = $this->module_tpl_dir.'/change_content.tpl';
 
+		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
+		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');
 		$this->core->add_js('/modules/content/js/change_content.js');
 
 		$title_value = "";

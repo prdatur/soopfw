@@ -59,6 +59,7 @@ $.extend(Soopfw, {
 				}
 			}
 		}
+		Soopfw.system_footer_behaviour();
 	},
 	
 	/**
@@ -301,7 +302,7 @@ $.extend(Soopfw, {
 	}
 });
 
-Soopfw.behaviors.system_footer = function() {
+Soopfw.system_footer_behaviour = function() {
 	$(".disabledSelection :not(.enabledSelection)").disableSelection();
 	$.datepicker.setDefaults( $.datepicker.regional[ "<%$current_language%>" ] );
 	$('input[type="text"].datepicker').datepicker();

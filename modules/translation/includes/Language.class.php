@@ -626,7 +626,10 @@ class Language extends Object
 	 */
 	public function get_enabled_languages() {
 		$return = array();
-		$this->load_language_list();
+		$this->load_language_list();#
+		if (empty($this->languages)) {
+			return array();
+		}
 		foreach ($this->db->query_slave_all("SELECT UPPER(`lang`) as lang FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $row) {
 			$return[$row['lang']] = $this->languages[$row['lang']];
 		}
