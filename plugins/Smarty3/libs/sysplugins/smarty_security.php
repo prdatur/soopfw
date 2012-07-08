@@ -68,7 +68,7 @@ class Smarty_Security {
 								   'is_int', 'intval',
 								   'true', 'false', 'null',
 								   'stripos', 'strpos',
-								   'substr', 'isAdmin', 'constant','var_dump');
+								   'substr', 'isAdmin', 'constant','var_dump', 'has_perm');
 
     /**
     * This is an array of trusted modifers.

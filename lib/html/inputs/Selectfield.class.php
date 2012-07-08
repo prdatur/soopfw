@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Selectfield extends AbstractHtmlInput
 {
@@ -20,15 +21,22 @@ class Selectfield extends AbstractHtmlInput
 	/**
 	 * Construct
 	 *
-	 * @param string $name the input name
-	 * @param array $options the options as array(key => value, ...)
-	 * @param string $selected the selected key (optional, default = '')
-	 * @param string $label the input label (optional, default='')
-	 * @param string $description the input description (optional, default = '')
-	 * @param string $class the input css class (optional, default = '')
-	 * @param string $id the input id (optional, default = '')
+	 * @param string $name 
+	 *   the input name
+	 * @param array $options 
+	 *   the options as array(key => value, ...)
+	 * @param string $selected 
+	 *   the selected key (optional, default = '')
+	 * @param string $label 
+	 *   the input label (optional, default='')
+	 * @param string $description 
+	 *   the input description (optional, default = '')
+	 * @param string $class 
+	 *   the input css class (optional, default = '')
+	 * @param string $id 
+	 *   the input id (optional, default = '')
 	 */
-	function __construct($name, $options, $selected = "", $label = "", $description = "", $class = "", $id = "") {
+ 	public function __construct($name, $options, $selected = "", $label = "", $description = "", $class = "", $id = "") {
 
 		//Call normal construct but provide an empty value
 		parent::__construct($name, '', $label, $description, $class, $id);
@@ -47,9 +55,12 @@ class Selectfield extends AbstractHtmlInput
 	/**
 	 * Adds an options to the selectfield
 	 *
-	 * @param string $value the input value
-	 * @param string $content the content
-	 * @param boolean $checked_param true or false if input is checked
+	 * @param string $value
+	 *   the input value
+	 * @param string $content 
+	 *   the content
+	 * @param boolean $checked_param 
+	 *   true or false if input is checked
 	 */
 	public function add_option($value, $content, $checked_param) {
 		$checked = false;

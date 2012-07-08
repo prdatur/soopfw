@@ -5,6 +5,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 require("plugins/recaptchalib.php");
 
@@ -28,10 +29,12 @@ class Captcha extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $publickey The public key
-	 * @param string $privatekey The private key
+	 * @param string $publickey 
+	 *   The public key
+	 * @param string $privatekey 
+	 *   The private key
 	 */
-	function __construct($publickey, $privatekey) {
+ 	public function __construct($publickey, $privatekey) {
 		$this->privatekey = $privatekey;
 		$this->publickey = $publickey;
 		$this->init();

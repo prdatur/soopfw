@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Filefield extends AbstractHtmlInput
 {
@@ -74,15 +75,22 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name the input name
-	 * @param string $value the input value
-	 * @param string $label the input label (optional, default='')
-	 * @param string $description the input description (optional, default = '')
-	 * @param string $class the input css class (optional, default = '')
-	 * @param string $id the input id (optional, default = '')
-	 * @param boolean $handle_upload wether this element handles the upload directly or not (optional, default = true)
+	 * @param string $name 
+	 *   the input name
+	 * @param string $value 
+	 *   the input value
+	 * @param string $label 
+	 *   the input label (optional, default='')
+	 * @param string $description 
+	 *   the input description (optional, default = '')
+	 * @param string $class 
+	 *   the input css class (optional, default = '')
+	 * @param string $id 
+	 *   the input id (optional, default = '')
+	 * @param boolean $handle_upload 
+	 *   wether this element handles the upload directly or not (optional, default = true)
 	 */
-	function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "", $handle_upload = true) {
+ 	public function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "", $handle_upload = true) {
 		parent::__construct($name, $value, $label, $description, $class, $id);
 		$this->config("id", (empty($id)) ? "form_id_".$name : $id);
 		$this->config("handle_upload", $handle_upload);
@@ -92,7 +100,8 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Set the allowed file extensions
 	 *
-	 * @param mixed $extensions The allowed extensions, can be a single string value or an array holding all allowed values
+	 * @param mixed $extensions 
+	 *   The allowed extensions, can be a single string value or an array holding all allowed values
 	 */
 	public function extensions($extensions) {
 		if (!empty($extensions) && !is_array($extensions)) {
@@ -104,7 +113,8 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Set the maximum size which can have a file
 	 *
-	 * @param int $size_limit the size in bytes
+	 * @param int $size_limit 
+	 *   the size in bytes
 	 */
 	public function size_limit($size_limit) {
 		$this->size_limit = (int)$size_limit;
@@ -114,6 +124,7 @@ class Filefield extends AbstractHtmlInput
 	 * Set the javascript-function name which will be called on a successfull upload
 	 *
 	 * @param string $on_complete_functions
+	 *   the function name
 	 */
 	public function on_complete($on_complete_functions) {
 		$this->config('on_complete', $on_complete_functions);
@@ -122,7 +133,8 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Wether to set this field to an ajax upload or not
 	 *
-	 * @param boolean $is_ajax set this filefield to an ajax upload or not
+	 * @param boolean $is_ajax
+	 *   set this filefield to an ajax upload or not
 	 */
 	public function set_ajax($is_ajax) {
 		$this->is_ajax = $is_ajax;
@@ -169,8 +181,11 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Get or set config values, we must override this for filefield couse we have additional special variables
 	 *
-	 * @param string $val the key
-	 * @param string $val the value as a string, if not set, current value will be returned (optional, defualt = NS)
+	 * @param string $val 
+	 *   the key
+	 * @param string $val 
+	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
+	 * 
 	 * @return mixed the value for the key as a string or if in set-mode return true, if you return a value which are not set, return false
 	 */
 	function config($k, $v = NS) {

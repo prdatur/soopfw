@@ -14,7 +14,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	 * else it will a direct header location event
 	 *
 	 * @param int $time set the redirection timeout after logout (optional, default = 0)
-	 * @param boolean $justreturn if we just want to logout the current user with no redirect (optiona, default = false)
+	 * @param boolean $justreturn if we just want to logout the current user with no redirect (optional, default = false)
 	 */
 	public function logout($time = 0, $justreturn = false) {
 

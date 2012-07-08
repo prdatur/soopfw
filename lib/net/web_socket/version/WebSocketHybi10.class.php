@@ -1,14 +1,11 @@
 <?php
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of WebSocketHybi10
- *
- * @author prdatur
+ * Websocket Handshake version Hybi10
+ * 
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib.html.inputs
+ * @category Websocket
  */
 class WebSocketHybi10 extends WebSocketHandshake {
 

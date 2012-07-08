@@ -6,9 +6,13 @@
  */
 
 /**
- * Description of WebSocketHandshake
- *
- * @author prdatur
+ * Class to handle the handshake. 
+ * decrypt/encrypt methods must be implemented within the "version" of websocket.
+ * 
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib.html.inputs
+ * @category Websocket
  */
 abstract class WebSocketHandshake {
 
@@ -35,10 +39,9 @@ abstract class WebSocketHandshake {
 	 * @param string $data
 	 * 	 incoming request data
 	 * @param mixed $check_origin
-	 *   If left empty, no origin check will be performed, else it will check it
+	 *   If left empty, no origin check will be performed, else it will check it (optional, default = false)
 	 *
-	 * @return boolean
-	 * 	 Wether the handshake succeed or not, false on error
+	 * @return boolean Wether the handshake succeed or not, false on error
 	 */
 	public function handshake($data, $check_origin = false) {
 		WebSocket::log_console('Performing handshake');
@@ -98,8 +101,7 @@ abstract class WebSocketHandshake {
 	 * @param string $domain
 	 *   The origin-domain from websocket handshake.
 	 *
-	 * @return bool
-	 *   If domain is allowed to connect method returns true.
+	 * @return bool If domain is allowed to connect method returns true.
 	 */
 	private function check_origin($domain) {
 		if (empty($this->allowed_origins)) {
@@ -132,8 +134,7 @@ abstract class WebSocketHandshake {
 	 * @param string $data
 	 * 	 The data
 	 *
-	 * @return mixed
-	 * 	 The data on success, else false
+	 * @return mixed The data on success, else false
 	 */
 	abstract public static function decode($data);
 
@@ -143,12 +144,11 @@ abstract class WebSocketHandshake {
 	 * @param string $data
 	 * 	 The string to be encoded
 	 * @param string $type
-	 * 	 The data type
+	 * 	 The data type (optional, default = 'text')
 	 * @param boolean $masked
-	 * 	 Wether we want to mask it or not
+	 * 	 Wether we want to mask it or not (optional, default = true)
 	 *
-	 * @return string
-	 * 	 If success it returns the encoded string, else false
+	 * @return string If success it returns the encoded string, else false
 	 */
 	abstract public static function encode($data, $type = 'text', $masked = true);
 

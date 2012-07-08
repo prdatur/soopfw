@@ -11,6 +11,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.validators
+ * @category Form.Validators
  */
 class NotExistValidator extends ExistValidator
 {
@@ -18,7 +19,7 @@ class NotExistValidator extends ExistValidator
 	/**
 	 * Returns true if the value NOT exists
 	 *
-	 * @return if valid true, else false
+	 * @return boolean if valid true, else false
 	 */
 	function is_valid() {
 		if ($this->is_always_valid()) {

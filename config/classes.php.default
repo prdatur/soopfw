@@ -526,7 +526,7 @@ $classes = array (
       array (
       ),
     ),
-    'YUICompressor' => 
+    'YuiCompressor' => 
     array (
       'path' => '/lib/YuiCompressor.class.php',
       'extends' => 

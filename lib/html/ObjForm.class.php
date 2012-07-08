@@ -8,6 +8,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form
  */
 class ObjForm extends Form
 {
@@ -28,12 +29,16 @@ class ObjForm extends Form
 	/**
 	 * Construct
 	 *
-	 * @param AbstractDataManager $obj the object from which we build up the form
-	 * @param string $title The title for this form, this must be a translated string, it will not translate. (optional, default = '')
-	 * @param array $element_config A configuration array in form array('field_name' => array('option'  => 'value')) (optional, default = array())
-	 * @param boolean $force_load_success  Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
+	 * @param AbstractDataManager $obj 
+	 *   the object from which we build up the form
+	 * @param string $title 
+	 *   The title for this form, this must be a translated string, it will not translate. (optional, default = '')
+	 * @param array $element_config 
+	 *   A configuration array in form array('field_name' => array('option'  => 'value')) (optional, default = array())
+	 * @param boolean $force_load_success  
+	 *   Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
 	 */
-	function __construct(AbstractDataManagment &$obj, $title = "", $element_config = array(), $force_load_success = false) {
+ 	public function __construct(AbstractDataManagment &$obj, $title = "", $element_config = array(), $force_load_success = false) {
 
 		//Init parent construct and provde the form_{table} as the form name
 		parent::__construct("form_".$obj->get_dbstruct()->get_table(), $title);
@@ -58,7 +63,8 @@ class ObjForm extends Form
 
 	/**
 	 * returns the object
-	 * @return AbstractDataManagment
+	 * 
+	 * @return AbstractDataManagment the object
 	 */
 	public function get_object() {
 		return $this->object;
@@ -66,7 +72,9 @@ class ObjForm extends Form
 
 	/**
 	 * Sets the Object
+	 * 
 	 * @param AbstractDataManagment $obj
+	 *   the object
 	 */
 	public function set_object(AbstractDataManagment &$obj) {
 		$this->object = $obj;
@@ -162,6 +170,7 @@ class ObjForm extends Form
 
 	/**
 	 * Insert the object if form is valid
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert() {
@@ -183,7 +192,8 @@ class ObjForm extends Form
 	}
 
 	/**
-	 * Save or insert the object if form is valid,
+	 * Save or insert the object if form is valid.
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save_or_insert() {
@@ -198,7 +208,7 @@ class ObjForm extends Form
 	}
 
 	/**
-	 * Save the object if form is valid
+	 * Save the object if form is valid.
 	 *
 	 * @return boolean true on success, else false
 	 */

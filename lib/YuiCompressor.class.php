@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
  */
-class YUICompressor
+class YuiCompressor
 {
 
 	/**
@@ -47,7 +47,7 @@ class YUICompressor
 	 * construct
 	 * @param array $options the options (optional, default = array())
 	 */
-	function __construct($options = array()) {
+ 	public function __construct($options = array()) {
 		foreach ($options as $option => $value) {
 			$this->set_option($option, $value);
 		}

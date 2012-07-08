@@ -8,6 +8,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Model
  */
 abstract class AbstractDataManagment extends Object
 {
@@ -78,19 +79,22 @@ abstract class AbstractDataManagment extends Object
 	private $last_inserted_id = null;
 
 	/**
-	 *
-	 * @param Core $core The Core Object
-	 * @param mixed $value The value
+	 * Constructor.
+	 * 
+	 * @param Core $core 
+	 *   The Core Object (optional, default = null)
 	 */
-	function __construct() {
-		parent::__construct();
+	public function __construct(Core &$core = null) {
+		parent::__construct($core);
 		$this->db_filter = new DatabaseFilter();
 	}
 
 	/**
 	 * Returns the original key for this object, the values will be filled after loading and will not change until a save operation occurs
 	 *
-	 * @param string $key the key
+	 * @param string $key 
+	 *   the key
+	 * 
 	 * @return mixed the value for the key, if key not exists returns null
 	 */
 	public function get_original_value($key) {
@@ -100,14 +104,10 @@ abstract class AbstractDataManagment extends Object
 		return $this->old_values[$key];
 	}
 
-	public function has_perm($type = "") {
-		return false;
-	}
-
 	/**
 	 * Get the object db struct
 	 *
-	 * @return DbStruct
+	 * @return DbStruct returns the database struct
 	 */
 	public function &get_dbstruct() {
 		return $this->db_struct;
@@ -115,7 +115,8 @@ abstract class AbstractDataManagment extends Object
 
 	/**
 	 * Returns an object form for the current AbstractDataManagment object
-	 * @return ObjForm
+	 * 
+	 * @return ObjForm the object_form
 	 */
 	public function get_form() {
 		return new ObjForm($this);
@@ -124,9 +125,10 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set the value of given name
 	 *
-	 * @param string $name The name
-	 * @param mixed $value The value
-	 * @param boolean $ignore_values_changed Set to true if you do not want to put the current key into the changed state value (optional, default = false)
+	 * @param string $name 
+	 *   The name
+	 * @param mixed $value 
+	 *   The value
 	 */
 	public function __set($name, $value) {
 		if (!$this->db_struct->has_field($name)) {
@@ -147,8 +149,8 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set values
 	 *
-	 * @param array $field_arr The Data
-	 * @param boolean $ignore_values_changed If we not want to put the provided values into the changed state (optional, default = false)
+	 * @param array $field_arr 
+	 *   The Data
 	 */
 	public function set_fields(Array $field_arr) {
 		foreach ($field_arr as $k => $v) {
@@ -177,7 +179,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get the value from given key
 	 *
-	 * @param string $key The key
+	 * @param string $key 
+	 *   The key
+	 * 
 	 * @return mixed the value or if not exists returns null
 	 */
 	public function &get_value($key) {
@@ -191,6 +195,12 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get all values
 	 *
+	 * @param boolean $force_all_fields
+	 *   Wether we want to force all fields (including hidden ones) (optional, default = false)
+	 * @param array $fields
+	 *   If provided we do only get back the provided fields
+	 *   fields are the values within this array (optional, default = array())
+	 * 
 	 * @return array The values
 	 */
 	public function &get_values($force_all_fields = false, $fields = array()) {
@@ -238,7 +248,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Whether or not the field exist within the struct or not
 	 *
-	 * @param string $name The name of the field
+	 * @param string $name 
+	 *   The name of the field
+	 * 
 	 * @return boolean true if the field exist, else false
 	 */
 	public function has_field($name) {
@@ -248,7 +260,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Whether or not the field has changed since this object was loaded
 	 *
-	 * @param string $name The name of the field
+	 * @param string $name 
+	 *   The name of the field
+	 * 
 	 * @return boolean true if changed, else false
 	 */
 	public function has_changed($name) {
@@ -258,7 +272,7 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get the last inserted id
 	 *
-	 * @return int
+	 * @return int the last inserted id
 	 */
 	public function get_last_inserted_id() {
 		return $this->last_inserted_id;
@@ -298,7 +312,8 @@ abstract class AbstractDataManagment extends Object
 	 * Set values (bulk)
 	 * use only for fast setting (loading) all values / does not check for correct keys
 	 *
-	 * @param array $field_array The Data
+	 * @param array $field_array 
+	 *   The Data
 	 */
 	public function set_fields_bulk(Array $field_array) {
 		$this->values = $field_array;
@@ -308,8 +323,10 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * load the given data
 	 *
-	 * @param mixed $val The reference key value to be selected
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param mixed $val 
+	 *   The reference key value to be selected
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function load($val = "", $force_db = false) {
 
@@ -403,11 +420,14 @@ abstract class AbstractDataManagment extends Object
 		return false;
 	}
 
-	/**´
+	/**
 	 * Load multiple records into an array
 	 *
-	 * @param array $keys Array with primary keys to be loaded
-	 * @param int $return_as determines the return value type  use PDT_OBJ or PDT_ARR (optional, defualt = PDT_OBJ)
+	 * @param array $keys 
+	 *   Array with primary keys to be loaded
+	 * @param int $return_as 
+	 *   determines the return value type  use PDT_OBJ or PDT_ARR (optional, default = PDT_OBJ)
+	 * 
 	 * @return array with objects/array as values
 	 */
 	public function &load_multiple($keys, $return_as = PDT_OBJ) {
@@ -531,7 +551,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Save the given Data
 	 *
-	 * @param boolean $save_if_unchanged Save this object even if no changes to it's values were made
+	 * @param boolean $save_if_unchanged 
+	 *   Save this object even if no changes to it's values were made (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -574,7 +596,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Insert the current data
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $ignore 
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
@@ -660,7 +684,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Save current data to cache
 	 *
-	 * @param int $expire The time when cache item expired (optional, default=null)
+	 * @param int $expire 
+	 *   The time when cache item expired (optional, default=null)
+	 * 
 	 * @return boolean true on success , else false
 	 */
 	public function save_cache($expire = null) {
@@ -711,7 +737,10 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get the next auto increment value for the given table
 	 *
-	 * @return mixed if table does not exist within the status report, return 1, if exist but auto increment field does not exist return false, else return the auto increment value as an int
+	 * @return mixed 
+	 *   if table does not exist within the status report, return 1, 
+	 *   if exist but auto increment field does not exist return false, 
+	 *   else return the auto increment value as an int
 	 */
 	public function get_next_id() {
 		$row = $this->db->query_slave_first("SHOW TABLE STATUS WHERE `Name` = @table", array("@table" => $this->db_struct->get_table()));
@@ -769,9 +798,12 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set an element as "changed" to our struct
 	 *
-	 * @param string $key the key (database field)
-	 * @param mixed $value the value
-	 * @param boolean $ignore_values_changed wether if we want to ignore that this value is changed
+	 * @param string $key 
+	 *   the key (database field)
+	 * @param mixed $value 
+	 *   the value
+	 * @param boolean $ignore_values_changed 
+	 *   wether if we want to ignore that this value is changed (optional, default = false)
 	 */
 	protected function set_values_changed($key, &$value, $ignore_values_changed = false) {
 		if (!$ignore_values_changed && (!isset($this->values[$key]) || $this->values[$key] != $value)) {
@@ -785,8 +817,11 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get a memached key
 	 *
-	 * @param mixed $values the values as an array or NS for current values (optional, default = NS)
-	 * @param string $table the table name or NS for current table name (optional, default = NS)
+	 * @param mixed $values 
+	 *   the values as an array or NS for current values (optional, default = NS)
+	 * @param string $table 
+	 *   the table name or NS for current table name (optional, default = NS)
+	 * 
 	 * @return string the memcached key
 	 */
 	protected function get_memcached_key($values = NS, $table = NS) {
@@ -834,8 +869,11 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Parse a given value to a given type, this can also be used to determine the default value, if you provide '' within $value
 	 *
-	 * @param mixed $value the value which will be parsed
-	 * @param int $type const use one of T_*
+	 * @param mixed $value 
+	 *   the value which will be parsed
+	 * @param int $type 
+	 *   const use one of PDT_*
+	 * 
 	 * @return mixed the parsed value
 	 */
 	protected function parse_value($value, $type) {

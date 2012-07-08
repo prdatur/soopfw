@@ -7,6 +7,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Tools
  */
 class Email extends Object
 {
@@ -31,7 +32,9 @@ class Email extends Object
 
 	/**
 	 * Add an error to the error array and set the provided $msg as the last error
-	 * @param string $msg The error message
+	 * 
+	 * @param string $msg 
+	 *   The error message
 	 */
 	public function error($msg) {
 		//Set the last error
@@ -47,14 +50,22 @@ class Email extends Object
 	 * if $need_confirmation is set, the receiver get a request to confirm the reading of this email
 	 * it must be a valid email address provided couse there the confirmation will be send.
 	 *
-	 * @param string $template the Template key
-	 * @param string $language the language
-	 * @param mixed $receiver the user object, an array with ('email', 'name') or the plain email where to send the email
-	 * @param array $tpl_vals the Template replace vars as an array (optional, default = array())
-	 * @param string $attachments attach files (optional) provide only filepathes in an array(file1,file2,file3,....)
-	 * @param string $need_confirmation Set the confirmation email(optional, default = '')
+	 * @param string $template 
+	 *   the Template key
+	 * @param string $language 
+	 *   the language
+	 * @param mixed $receiver 
+	 *   the user object, an array with ('email', 'name') or the plain email where to send the email
+	 * @param array $tpl_vals 
+	 *   the Template replace vars as an array (optional, default = array())
+	 * @param string $attachments 
+	 *   attach files provide only filepathes in an array(file1,file2,file3,....)  (optional, default = array())
+	 * @param string $need_confirmation 
+	 *   Set the confirmation email (optional, default = '')
+	 * 
 	 * @return true on success, else false
-	 * @uses send($receiver, $from, $subject, $body, $attachments = array())
+	 * 
+	 * @uses send($receiver, $from, $subject, $body, $attachments = array(), $need_confirmation)
 	 */
 	public function send_tpl($template, $language, $receiver, Array $tpl_vals = array(), $attachments = array(), $need_confirmation = '') {
 		//try to load the given $template with the given $language
@@ -91,15 +102,22 @@ class Email extends Object
 	 * if $need_confirmation is set, the receiver get a request to confirm the reading of this email
 	 * it must be a valid email address provided couse there the confirmation will be send.
 	 *
-	 * @param string $receiver the receiver email as a string or array("email","name")
-	 * @param string $from the sender email as a string or array("email","name")
-	 * @param string $subject the email subject
-	 * @param string $body the email body
-	 * @param string $attachments attach files (optional) provide only filepathes in an array(file1,file2,file3,....)
-	 * @param string $need_confirmation Set the confirmation email(optional, default = '')
+	 * @param string $receiver 
+	 *   the receiver email as a string or array("email","name")
+	 * @param string $from 
+	 *   the sender email as a string or array("email","name")
+	 * @param string $subject 
+	 *   the email subject
+	 * @param string $body 
+	 *   the email body
+	 * @param string $attachments 
+	 *   attach files provide only filepathes in an array(file1,file2,file3,....)  (optional, default = array())
+	 * @param string $need_confirmation 
+	 *   Set the confirmation email(optional, default = '')
+	 * 
 	 * @return true on success, else false, if false, error messages will be stored in $errors array
 	 */
-	public function send($receiver, $from, $subject, $body, $attachments = array(), $need_confirmation = true) {
+	public function send($receiver, $from, $subject, $body, $attachments = array(), $need_confirmation = '') {
 		//initialize the phpmailer the bool parameter true tells the phpmailer to throw exceptions so we can abort if something went wrong
 		$mail = new PHPMailer(true);
 		try {

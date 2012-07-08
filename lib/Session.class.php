@@ -5,7 +5,7 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib
+ * @category Security
  */
 class Session extends Object
 {
@@ -57,9 +57,10 @@ class Session extends Object
 	 *
 	 * Creating a session object will always creates a session if not already exist
 	 *
-	 * @param Core $core the core object to setup (This is needed because globals core maybe does not exists
+	 * @param Core &$core 
+	 *  the core object to setup (This is needed because globals core maybe does not exists (optional, default = null)
 	 */
-	function __construct(&$core = null) {
+ 	public function __construct(&$core = null) {
 		parent::__construct($core);
 		$this->current_user = new UserObj();
 		$this->start_session();
@@ -71,6 +72,11 @@ class Session extends Object
 		$this->login_handler = new $login_handler($core);
 	}
 
+	/**
+	 * Returns all session keys for the login
+	 * 
+	 * @return array the session keys
+	 */
 	public function get_login_session_keys() {
 		return $this->session_keys;
 	}
@@ -78,8 +84,10 @@ class Session extends Object
 	 * Log the current user out, if $time is higher than 0 than the request_redirection will be used,
 	 * else it will a direct header location event
 	 *
-	 * @param int $time set the redirection timeout after logout (optional, default = 0)
-	 * @param boolean $justreturn if we just want to logout the current user with no redirect (optiona, default = false)
+	 * @param int $time 
+	 *   set the redirection timeout after logout (optional, default = 0)
+	 * @param boolean $justreturn 
+	 *   if we just want to logout the current user with no redirect (optional, default = false)
 	 */
 	public function logout($time = 0, $justreturn = false) {
 		//Loop through all user session keys and unset it
@@ -102,8 +110,11 @@ class Session extends Object
 	/**
 	 * Checks if the user is logged in, if not we will redirect him to the login page
 	 *
-	 * @param boolean $force_not_loggedin force not logged in that the user will be redirected to the user login page
-	 * @param boolean $need_direct_handler the can be set to true to tell the handler that we NEED to be logged in through the third-party login handler, normal login is wrong (optional, default = false)
+	 * @param boolean $force_not_loggedin 
+	 *   force not logged in that the user will be redirected to the user login page (optional, default = false)
+	 * @param boolean $need_direct_handler 
+	 *   the can be set to true to tell the handler that we NEED to be logged in through the third-party login handler, 
+	 *   normal login is wrong (optional, default = false)
 	 */
 	public function require_login($force_not_loggedin = false, $need_direct_handler = false) {
 
@@ -151,11 +162,13 @@ class Session extends Object
 
 	/**
 	 * Returns the current login handler
-	 * @return LoginHandler
+	 * 
+	 * @return LoginHandler the current login handler
 	 */
 	public function get_login_handler() {
 		return $this->login_handler;
 	}
+	
 	/**
 	 * Check if the given credentials are valid and if so setup a new session object
 	 * or update the old one, also update the last login time
@@ -164,12 +177,11 @@ class Session extends Object
 	 * @param string $username
 	 *   the username
 	 * @param string $password
-	 *	 the plain password to check (optional, default = null)
+	 *	 the plain password to check
 	 *   optional only if a valid $username is provided as a UserObj, this will determine
-	 *   that the user is logged in
+	 *   that the user is logged in (optional, default = null)
 	 *
-	 * @return boolean
-	 *   return true if provided credentials are valid, else false
+	 * @return boolean return true if provided credentials are valid, else false
 	 */
 	public function validate_login($username, $password = null) {
 
@@ -215,6 +227,7 @@ class Session extends Object
 
 	/**
 	 * Returns wether the user is logged in or not
+	 * 
 	 * @return boolean true if the user is logged in, else false
 	 */
 	public function is_logged_in() {
@@ -225,7 +238,9 @@ class Session extends Object
 	 * Return or set the current user object
 	 * If $user_obj is provided set mode is active, else current user will be returned
 
-	 * @param UserObj $user_obj The user object (optional, default = null)
+	 * @param UserObj $user_obj 
+	 *   The user object (optional, default = null)
+	 * 
 	 * @return UserObj return the user object on get mode, else nothing will be returned
 	 */
 	public function current_user(UserObj $user_obj = null) {
@@ -240,9 +255,12 @@ class Session extends Object
 	/**
 	 * Set session variable keys
 	 *
-	 * @param string $key the array key
-	 * @param string $value the value to be set
-	 * @return boolean true
+	 * @param string $key 
+	 *   the array key
+	 * @param string $value 
+	 *   the value to be set
+	 * 
+	 * @return boolean static true
 	 */
 	public function set($key, $value) {
 		$_SESSION[$key] = $value;
@@ -251,8 +269,12 @@ class Session extends Object
 
 	/**
 	 * Get session variable keys
-	 * @param string $key the array key
-	 * @param string $default_value return this value if key not found (optional, default = null)
+	 * 
+	 * @param string $key 
+	 *   the array key
+	 * @param string $default_value 
+	 *   return this value if key not found (optional, default = null)
+	 * 
 	 * @return mixed return the value from given key, if key not exists return $default_value
 	 */
 	public function get($key, $default_value = null) {
@@ -261,7 +283,9 @@ class Session extends Object
 
 	/**
 	 * Deletes the given key from session
-	 * @param string $key The session key
+	 * 
+	 * @param string $key 
+	 *   The session key
 	 */
 	public function delete($key) {
 		if (isset($_SESSION[$key])) {
@@ -286,7 +310,7 @@ class Session extends Object
 	/**
 	 * Returns the current session id
 	 *
-	 * @return string
+	 * @return string the current session id
 	 */
 	public function get_session_id() {
 		return $this->session_id;

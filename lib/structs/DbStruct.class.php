@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib/structs
+ * @category Database
  */
 class DbStruct extends Object
 {
@@ -70,9 +71,10 @@ class DbStruct extends Object
 	private $struct_count = 0;
 	/**
 	 * constructor
-	 * @param string $table_name The sql table
+	 * @param string $table_name 
+	 *   The sql table
 	 */
-	function __construct($table_name) {
+ 	public function __construct($table_name) {
 		parent::__construct();
 		$this->table_name = $table_name;
 	}
@@ -80,7 +82,9 @@ class DbStruct extends Object
 	/**
 	 * Set or get the default cache time
 	 *
-	 * @params mixed $default_cache_time The cache time, provide NS to get the current value (optional, default = NS)
+	 * @param mixed $default_cache_time 
+	 *   The cache time, provide NS to get the current value (optional, default = NS)
+	 * 
 	 * @return mixed returns the default cache time as an integer in get mode or null in set mode
 	 */
 	public function default_cache_time($default_cache_time = NS) {
@@ -93,6 +97,7 @@ class DbStruct extends Object
 
 	/**
 	 * Getter for cacheable
+	 * 
 	 * @return boolean return true if object is cacheable, else false
 	 */
 	public function is_cacheable() {
@@ -105,7 +110,8 @@ class DbStruct extends Object
 	/**
 	 * Setter for cacheable
 	 *
-	 * @param boolean $val if struct is cacheable
+	 * @param boolean $val 
+	 *   if struct is cacheable
 	 */
 	public function set_cache($val) {
 		$this->is_cacheable = $val;
@@ -114,7 +120,7 @@ class DbStruct extends Object
 	/**
 	 * Getter for auto_increment
 	 *
-	 * @return return the key as a string
+	 * @return string return the field as a string
 	 */
 	public function get_auto_increment() {
 		return $this->auto_increment;
@@ -123,7 +129,7 @@ class DbStruct extends Object
 	/**
 	 * Return if this struct has a autoincrement field
 	 *
-	 * @return boolean
+	 * @return boolean true if struct has an auto increment field, else false
 	 */
 	public function has_auto_increment() {
 		return!empty($this->auto_increment);
@@ -132,7 +138,8 @@ class DbStruct extends Object
 	/**
 	 * Setter for auto_increment
 	 *
-	 * @param string $val the db field which has auto increment
+	 * @param string $val 
+	 *   the db field which has auto increment
 	 */
 	public function set_auto_increment($val) {
 		$this->auto_increment = $val;
@@ -161,8 +168,17 @@ class DbStruct extends Object
 
 	/**
 	 * Add a hidden field, so dont return it by default
-	 *
-	 * @param string $field The DB Field
+	 * 
+	 * @param string $name 
+	 *   The database field
+	 * @param string $title 
+	 *   The title which will be used for an objectForm for example
+	 * @param int $typ 
+	 *   The database field typ ( use Constant for PDT_*)
+	 * @param mixed $default_value 
+	 *   Default value for this field (optional, default = '')
+	 * @param mixed $additional 
+	 *   additional params like for PDT_INT 'UNSIGNED' (optional, default = '')
 	 */
 	public function add_hidden_field($name, $title, $typ, $default_value = "", $additional = "") {
 		$this->hidden_values[$name] = true;
@@ -173,7 +189,9 @@ class DbStruct extends Object
 	 * Returns if the field is a hidden field, normaly a hidden field
 	 * should not be returnd with get_values or something similar
 	 *
-	 * @param string $field The DB Field
+	 * @param string $field 
+	 *   The DB Field
+	 * 
 	 * @return boolean return true if field is hidden, else false
 	 */
 	public function is_hidden_field($field) {
@@ -192,7 +210,9 @@ class DbStruct extends Object
 	/**
 	 * Check if struct has db field
 	 *
-	 * @param string $field The DB Field
+	 * @param string $field 
+	 *   The DB Field
+	 * 
 	 * @return boolean if exist return true, else false
 	 */
 	public function has_field($field) {
@@ -202,7 +222,9 @@ class DbStruct extends Object
 	/**
 	 * Returns the db struct field
 	 *
-	 * @param string $field The DB Field
+	 * @param string $field 
+	 *   The DB Field
+	 * 
 	 * @return mixed if exist return the field, else false
 	 */
 	public function get_field($field) {
@@ -236,15 +258,18 @@ class DbStruct extends Object
 	/**
 	 * returns wether the $field is a reference key or not
 	 * @param string $field
-	 * @return boolean
+	 *   the DB Field
+	 * 
+	 * @return boolean true if this field is a reference field within this struct, else false
 	 */
 	public function is_reference_key($field) {
 		return in_array($field, $this->reference_key);
 	}
 
 	/**
-	 *   returns the database type for that field
-	 *   @return the type as an integer, based on constants PDT_*
+	 * returns the database type for that field
+	 * 
+	 * @return int the type as an integer, based on constants PDT_*
 	 */
 	public function get_field_type($key) {
 		if (!isset($this->struct[$key])) {
@@ -256,8 +281,10 @@ class DbStruct extends Object
 	/**
 	 * Add a description to an element (for form handling)
 	 *
-	 * @param mixed $field the struct field name or an array with fieldname => description
-	 * @param string $description if field is an array description is optional, else it is mandatory (optional, default = '')
+	 * @param mixed $field 
+	 *   the struct field name or an array with fieldname => description
+	 * @param string $description 
+	 *   if field is an array description is optional, else it is mandatory (optional, default = '')
 	 */
 	public function add_description($field, $description = '') {
 		//If $field is not an array we transform it to one
@@ -277,11 +304,16 @@ class DbStruct extends Object
 	/**
 	 * Add a struct field
 	 *
-	 * @param string $name The database field
-	 * @param string $title The title which will be used for an objectForm for example
-	 * @param int $typ The database field typ ( use Constant for PDT_*)
-	 * @param mixed $default_value Default value for this field (optional, default = '')
-	 * @param mixed $additional additional params like for PDT_INT 'UNSIGNED' (optional, default = '')
+	 * @param string $name 
+	 *   The database field
+	 * @param string $title 
+	 *   The title which will be used for an objectForm for example
+	 * @param int $typ 
+	 *   The database field typ ( use Constant for PDT_*)
+	 * @param mixed $default_value 
+	 *   Default value for this field (optional, default = '')
+	 * @param mixed $additional 
+	 *   additional params like for PDT_INT 'UNSIGNED' (optional, default = '')
 	 */
 	public function add_field($name, $title, $typ, $default_value = "", $additional = '') {
 		$this->struct[$name]['typ'] = $typ;
@@ -299,11 +331,16 @@ class DbStruct extends Object
 	/**
 	 * Add a required struct field
 	 *
-	 * @param string $name The Database field
-	 * @param string $title The title which will be used for an objectForm for example
-	 * @param int $typ The fatabase field typ ( use Constant for STRING, INT, FLOAT....)
-	 * @param mixed $default_value Default value for this field (optional, default = '')
-	 * @param mixed $additionaladditional params like for PDT_INT 'UNSIGNED' (optional, default = '')
+	 * @param string $name 
+	 *   The Database field
+	 * @param string $title 
+	 *   The title which will be used for an objectForm for example
+	 * @param int $typ 
+	 *   The fatabase field typ ( use Constant for STRING, INT, FLOAT....)
+	 * @param mixed $default_value 
+	 *   Default value for this field (optional, default = '')
+	 * @param mixed $additionaladditional 
+	 *   params like for PDT_INT 'UNSIGNED' (optional, default = '')
 	 */
 	public function add_required_field($name, $title, $typ, $default_value = "", $additional = '') {
 		$this->add_field($name, $title, $typ, $default_value, $additional);
@@ -313,7 +350,8 @@ class DbStruct extends Object
 	/**
 	 * Set the given field to a hidden one
 	 *
-	 * @param string $name the field name
+	 * @param string $name 
+	 *   the field name
 	 */
 	public function set_field_hidden($name) {
 		if(!isset($this->struct[$name])) {
@@ -326,7 +364,9 @@ class DbStruct extends Object
 	/**
 	 * Get the default value for the given param
 	 *
-	 * @param string $name The Database field
+	 * @param string $name 
+	 *   The Database field
+	 * 
 	 * @return mixed The default value, if value doesnt exist or no default value exist return FALSE
 	 */
 	public function get_default_value($name) {

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.database
+ * @category Database
  */
 class Db
 {
@@ -119,7 +120,7 @@ class Db
 	 * @param int $debug Debug mod (optional, default = false)
 	 * @param string $servername Servername (optional, default = 'default')
 	 */
-	function __construct($server, $user, $password, $database, $debug = false, $servername = "default") {
+	public function __construct($server, $user, $password, $database, $debug = false, $servername = "default") {
 		$this->add_server($servername, $server, $user, $password, $database);
 		$this->set_server();
 
@@ -129,7 +130,7 @@ class Db
 	/**
 	 * Destructor: Rollback open transactions
 	 */
-	function __destruct() {
+	public function __destruct() {
 		if ($this->transaction_is_active()) {
 			$this->transaction_rollback();
 		}
@@ -160,6 +161,9 @@ class Db
 	 * @param string $var description (optional, default = 'default')
 	 */
 	public function set_server($var = "default") {
+		if ($this->transaction_is_active()) {
+			$this->transaction_rollback();
+		}
 		$this->link_id = $this->get_server($var);
 	}
 
@@ -219,7 +223,7 @@ class Db
 	 * @param string $default the default value if $val have no * (optional, default = '')
 	 * @return string The escaped and replaced String
 	 */
-	function get_sql_string_search($val, $default = "") {
+	public function get_sql_string_search($val, $default = "") {
 		$return_arr = array();
 		foreach (explode("*", $val) AS $sub_string) {
 			$return_arr[] = sql_escape($sub_string);
@@ -297,14 +301,14 @@ class Db
 	 * @param string $query_string Querystring
 	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
 	 * @param int $type Type (optional ,default = MYSQL_ASSOC)
-	 * @return array the first result row
+	 * @return mixed the first result row
 	 */
 	public function query_slave_first($query_string, $args = array(), $type = MYSQL_ASSOC) {
 		return $this->fetch_array($this->query_slave($query_string, $args, 1), $type);
 	}
 
 	/**
-	 * Sending a Mysql Query to a SLAVE and return if the a row exists for this query
+	 * Sending a Mysql Query to a SLAVE and return if a row exists for this query
 	 *
 	 * @param string $query_string Querystring
 	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
@@ -316,15 +320,21 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query and get ALL the results from a SLAVE server
-	 * as an array back
-	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (Optional, default = array())
-	 * @param int $limit The limit (optional, default = 0)
-	 * @param int $offset The offset (optional, default = 0)
-	 * @param int $array_key returned array key as a table field (optional, default=0)
-	 * @param int $type Type (optional ,default = MYSQL_ASSOC)
+	 * Sends a mysql-query and get ALL the results from a SLAVE server as an array back
+	 * 
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (Optional, default = array())
+	 * @param int $limit 
+	 *   The limit (optional, default = 0)
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
+	 * @param int $array_key
+	 *   returned array key as a table field (optional, default=0)
+	 * @param int $type
+	 *   The result type (use one of MYSQL_*)
+	 *	 (optional, default = MYSQL_ASSOC)
 	 * @return array The Results
 	 */
 	public function query_slave_all($query_string, $args = array(), $limit = 0, $offset = 0, $array_key = 0, $type = MYSQL_ASSOC) {

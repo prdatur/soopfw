@@ -10,6 +10,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.validators
+ * @category Form.Validators
  */
 class ExistValidator extends AbstractHtmlValidator
 {
@@ -17,7 +18,7 @@ class ExistValidator extends AbstractHtmlValidator
 	/**
 	 * Returns true if the value exists
 	 *
-	 * @return if valid true, else false
+	 * @return boolean if valid true, else false
 	 */
 	function is_valid() {
 		if ($this->is_always_valid()) {

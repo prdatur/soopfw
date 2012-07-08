@@ -164,7 +164,7 @@ class Language extends Object
 	 *
 	 * @param string $language if set we load the list within this language else the current language will be used (optional, default = "")
 	 * @param array $push_countries_to_front Wether to get specified elements at the top of the list
-	 * @param boolean $only_enabled wether we want just enabled languages or all (optiona, default = false)
+	 * @param boolean $only_enabled wether we want just enabled languages or all (optional, default = false)
 	 */
 	public function load_language_list($language = '', $push_countries_to_front = array(), $only_enabled = false) {
 

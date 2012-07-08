@@ -8,8 +8,9 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.database.filter
+ * @category Database
  */
-class DatabaseWhereGroup extends Object
+class DatabaseWhereGroup
 {
 	/**
 	 * Define constances
@@ -31,29 +32,34 @@ class DatabaseWhereGroup extends Object
 	private $conditions = array();
 
 	/**
-	 * construct
-	 * @param string $type the link type use one of DatabaseWhereGroup::TYPE_*
+	 * Construct.
+	 * 
+	 * @param string $type 
+	 *   the link type use one of DatabaseWhereGroup::TYPE_* (optional, default = DatabaseWhereGroup::TYPE_AND)
 	 */
-	function __construct($type = self::TYPE_AND) {
-		parent::__construct();
+ 	public function __construct($type = DatabaseWhereGroup::TYPE_AND) {
 		$this->type = $type;
 	}
 
 	/**
 	 * Adds a field or a complete DatabaseWhereGroup object to this group
 	 *
-	 * @param mixed $key the table field as a string, could also be a DatabaseWhereGroup object
-	 * @param string $value the condition value, it is only optional if key is a DatabaseWhereGroup object (optional, default = NS)
-	 * @param string $condition_type like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
+	 * @param mixed $key 
+	 *   the table field as a string, could also be a DatabaseWhereGroup object
+	 * @param string $value 
+	 *   the condition value, it is only optional if key is a DatabaseWhereGroup object (optional, default = NS)
+	 * @param string $condition_type 
+	 *   like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
 	 *
-	 * @return DatabaseWhereGroup
+	 * @return DatabaseWhereGroup 
+	 *   The where group
 	 */
 	public function add_where($key, $value = NS, $condition_type = '=') {
 		//If we just provided a database where group object, add this
 		if ($value === NS && $key instanceof DatabaseWhereGroup) {
 			$this->conditions[] = $key;
 		}
-		//Else we need to havbe setp a value
+		//Else we need to have setup a value
 		else if ($value !== NS) {
 			//Add the condition
 			$this->conditions[$key] = array(
@@ -67,7 +73,8 @@ class DatabaseWhereGroup extends Object
 	/**
 	 * Returns wether the database where group is empty or not
 	 *
-	 * @return boolean true if empty, else false
+	 * @return boolean 
+	 *   true if empty, else false
 	 */
 	public function is_empty() {
 		return empty($this->conditions);
@@ -77,8 +84,11 @@ class DatabaseWhereGroup extends Object
 	 * Return the sql where statement, normaly we should just call without parameter, the $first will be called within the method self
 	 * if the condition is a database where group object to get not more than one WHERE prefix within the returning string
 	 *
-	 * @params boolean $first if set to true it will place in front of the string the WHERE prefix (optiona, default = true)
-	 * @return string
+	 * @param boolean $first
+	 *   if set to true it will place in front of the string the WHERE prefix (optional, default = true)
+	 * 
+	 * @return string 
+	 *   the sql statement string
 	 */
 	public function get_sql($first = true) {
 		$tmp_array = array();

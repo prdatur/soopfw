@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Fieldset extends AbstractHtmlInput
 {
@@ -21,12 +22,16 @@ class Fieldset extends AbstractHtmlInput
 	 * so for current 4 and want to 2, provide 2, current 6 and want to 1 provide 5.
 	 * 0 will just place it within the current depth after the last one.
 	 *
-	 * @param string $id the fieldset id
-	 * @param string $label the label  (optional, default = '')
-	 * @param string $description the description for this fieldset (optional, default = '')
-	 * @param mixed $inner int for depth change and true to place it within the previous one (optional, default = 0)
+	 * @param string $id 
+	 *   the fieldset id
+	 * @param string $label 
+	 *   the label  (optional, default = '')
+	 * @param string $description 
+	 *   the description for this fieldset (optional, default = '')
+	 * @param mixed $inner 
+	 *   int for depth change and true to place it within the previous one (optional, default = 0)
 	 */
-	function __construct($id, $label = "", $description = "", $inner = 0) {
+ 	public function __construct($id, $label = "", $description = "", $inner = 0) {
 		parent::__construct($id);
 		$this->config("id", $id);
 		$this->config("label", $label);

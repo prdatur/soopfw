@@ -7,6 +7,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Ajax
  */
 class AjaxModul
 {
@@ -33,10 +34,15 @@ class AjaxModul
 	 * if $die is set to true it will print out the json encoded string for that array
 	 * and directly die
 	 *
-	 * @param int $code the return code, use one AjaxModul::*
-	 * @param mixed $data the additional data to be returned (optional, default = null)
-	 * @param boolean $die wether to output the data and die or to return the data (optional, default = true)
-	 * @param string $desc the error description (optional, default = '')
+	 * @param int $code 
+	 *   the return code, use one AjaxModul::*
+	 * @param mixed $data 
+	 *   the additional data to be returned (optional, default = null)
+	 * @param boolean $die 
+	 *   wether to output the data and die or to return the data (optional, default = true)
+	 * @param string $desc 
+	 *   the error description (optional, default = '')
+	 * 
 	 * @return array the returning array with format array("code" => $code, "desc" => $desc, "data" => $data)
 	 */
 	static function return_code($code, $data = null, $die = true, $desc = "") {

@@ -7,6 +7,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form
  */
 class SystemConfigForm extends Form
 {
@@ -20,13 +21,20 @@ class SystemConfigForm extends Form
 	/**
 	 * Constructor
 	 *
-	 * @param ActionModul $action_module the action module for which the config is.
-	 * @param string $form_name the form name used for smarty
-	 * @param string $title The title for this form, this must be a translated string, it will not translate. (optional, default = '')
-	 * @param string $submit value if a post element with this string exist the form is submitted, can be set to "auto" as a special string that will setup a unique hidden submit handler field (optional, default = 'auto')
-	 * @param string $is_post Set to false if you do not want to check the $submit value against the $_POST value, only check if $submit is not empty (optional, default = true)
+	 * @param ActionModul $action_module 
+	 *   the action module for which the config is.
+	 * @param string $form_name 
+	 *   the form name used for smarty
+	 * @param string $title 
+	 *   The title for this form, this must be a translated string, it will not translate. (optional, default = '')
+	 * @param string $submit 
+	 *   if a post element with this string exist the form is submitted, 
+	 *   can be set to "auto" as a special string that will setup a unique hidden submit handler field (optional, default = 'auto')
+	 * @param string $is_post 
+	 *   Set to false if you do not want to check the $submit value against the $_POST value, 
+	 *   only check if $submit is not empty (optional, default = true)
 	 */
-	function __construct(ActionModul &$action_module, $form_name, $title = '', $submit = 'auto', $is_post = true) {
+ 	public function __construct(ActionModul &$action_module, $form_name, $title = '', $submit = 'auto', $is_post = true) {
 		parent::__construct($form_name, $title, $submit, $is_post);
 
 		//Set the action module
@@ -40,7 +48,9 @@ class SystemConfigForm extends Form
 	 * Checks if the form was submitted and valid, if so it will save the configurations into the database
 	 * for the specified module
 	 *
-	 * @param mixed $user_callback_function if provided the function will be called after success (optional, default = "")
+	 * @param mixed $user_callback_function 
+	 *   if provided the function will be called after success (optional, default = "")
+	 * 
 	 * @return boolean true if form is submitted and valid or not
 	 */
 	public function execute($user_callback_function = "") {

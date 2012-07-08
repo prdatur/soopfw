@@ -116,11 +116,16 @@ class MenuObj extends AbstractDataManagment
 	}
 
 	/**
-	 *
-	 * @param boolean $just_active if set to true the active childs will be marked as active and only the #childs will be filled with the active ones (optional, default = false)
+	 * Get the menu tree
+	 * 
+	 * @param boolean $just_active 
+	 *   if set to true the active childs will be marked as active and only the #childs will be filled with the active ones (optional, default = false)
+	 * @param array $alter_menu
+	 *   if provided it will be merged to the original array, old existing will be overriden (optional, default = array())
+	 * 
 	 * @return array the menu array
 	 */
-	public function get_menu_tree($just_active = false) {
+	public function get_menu_tree($just_active = false, array $alter_menu = array()) {
 		if(!$this->load_success()) {
 			return array();
 		}
@@ -135,6 +140,8 @@ class MenuObj extends AbstractDataManagment
 			$this->core->mcache('MenuObj:get_menu_tree:'.$this->values['menu_id'], $menu_entries);
 		}
 
+		$menu_entries = array_merge_recursive($menu_entries, $alter_menu);
+		
 		foreach($menu_entries AS $menu_entry) {
 
 			if(isset($skip_entries[$menu_entry['parent_id']])) {
@@ -142,22 +149,22 @@ class MenuObj extends AbstractDataManagment
 				continue;
 			}
 
-			$menu_translation = new MenuEntryTranslationObj($menu_entry['entry_id'], $this->core->current_language);
-			$translations = $menu_translation->get_values();
+			if (!isset($menu_entry['#id'])) {
+				$menu_translation = new MenuEntryTranslationObj($menu_entry['entry_id'], $this->core->current_language);
+				$translations = $menu_translation->get_values();
 
-			if(empty($translations) || ($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO && !$this->right_manager->has_perm("admin.menu.view_inactive_entries", false)) || (!empty($translations['perm']) && !$this->right_manager->has_perm($translations['perm'], false))) {
-				$skip_entries[$menu_entry['entry_id']] = true;
-				continue;
+				if(empty($translations) || ($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO && !$this->right_manager->has_perm("admin.menu.view_inactive_entries", false)) || (!empty($translations['perm']) && !$this->right_manager->has_perm($translations['perm'], false))) {
+					$skip_entries[$menu_entry['entry_id']] = true;
+					continue;
+				}
+
+				$menu_entry['#id'] = 'soopfw_'.$this->values['menu_id']."_".$menu_entry['entry_id']; //A unique id which will be needed to generate the submenu
+				$menu_entry['#title'] = $translations['title']; //The main title
+				if($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO) {
+					$menu_entry['#inactive'] = true; //The main title
+				}
+				$menu_entry['#link'] = $translations['destination']; // The main link
 			}
-
-
-			$menu_entry['#id'] = 'soopfw_'.$this->values['menu_id']."_".$menu_entry['entry_id']; //A unique id which will be needed to generate the submenu
-			$menu_entry['#title'] = $translations['title']; //The main title
-			if($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO) {
-				$menu_entry['#inactive'] = true; //The main title
-			}
-			$menu_entry['#link'] = $translations['destination']; // The main link
-
 			$array_2_tree->add_item($menu_entry);
 		}
 		return $array_2_tree->get_tree(0, $just_active);

@@ -8,6 +8,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Page
  */
 class ActionModul extends Object
 {
@@ -110,8 +111,10 @@ class ActionModul extends Object
 	 * This method is called everytime we call an method which does not exists
 	 * This will call our default method every time if it is not empty.
 	 *
-	 * @param string $name the method name
-	 * @param array $arguments the method arguments
+	 * @param string $name 
+	 *   the method name
+	 * @param array $arguments 
+	 *   the method arguments (optional, default = array())
 	 */
 	function __call($name, array $arguments = array()) {
 		$default_method = $this->default_methode;
@@ -124,8 +127,10 @@ class ActionModul extends Object
 	/**
 	 * Set the content title and description
 	 *
-	 * @param string $title the title
-	 * @param string $description the description (optional, default = '')
+	 * @param string $title 
+	 *   the title
+	 * @param string $description 
+	 *   the description (optional, default = '')
 	 */
 	public function title($title, $description = "") {
 		//Provide smarty the title and the description
@@ -140,7 +145,8 @@ class ActionModul extends Object
 	/**
 	 * Set the content description
 	 *
-	 * @param string $description the description
+	 * @param string $description 
+	 *   the description
 	 */
 	public function description($description) {
 		//Set just the description (We get the old title to not override previous one)
@@ -154,6 +160,13 @@ class ActionModul extends Object
 	/**
 	 * This function should be overriden if we want to do not just insert database tables and rights
 	 * also we must set the static template dir couse this method will be called from system/install
+	 * 
+	 * Within the overriden method we should then call this as the parent method like:
+	 * if(!parent::install()) { return false; }
+	 * 
+	 * Because this checks for us if the install was called in a secure way.
+	 * 
+	 * @return boolean true on success, else false
 	 */
 	public function install() {
 		$trace = debug_backtrace();
@@ -187,7 +200,9 @@ class ActionModul extends Object
 	 * also we must set the static template dir couse this method will be called from system/install
 	 *
 	 * Updates the modul for given version
-	 * @param int $version the version
+	 * 
+	 * @param int $version 
+	 *   the version
 	 */
 	public function update($version) {
 		return true;
@@ -235,7 +250,8 @@ class ActionModul extends Object
 	/**
 	 * Load the configuration for this module and if $assign is set to true we also assign it to smarty
 	 *
-	 * @param boolean $assign If we want to assign the config to smarty (optional, default = false)
+	 * @param boolean $assign 
+	 *   If we want to assign the config to smarty (optional, default = false)
 	 */
 	public function load_config($assign = false) {
 		foreach ($this->db->query_slave_all("SELECT `key`, `value` FROM `".CoreModulConfigObj::TABLE."` WHERE `modul` = @modul", array("@modul" => $this->modulname)) AS $data) {
@@ -250,9 +266,12 @@ class ActionModul extends Object
 	 * Call this method if a user provide wrong params, it will print out the message
 	 * and if needed clear the output of further template processing
 	 *
-	 * @param string $message The message (optional, default = '')
-	 * @param boolean $clear_output if we want to clear the output (optional, default = true)
-	 * @return boolean false
+	 * @param string $message 
+	 *   The message (optional, default = '')
+	 * @param boolean $clear_output 
+	 *   if we want to clear the output (optional, default = true)
+	 * 
+	 * @return boolean static false
 	 */
 	public function wrong_params($message = '', $clear_output = true) {
 		if (empty($message) || $message == NS) {
@@ -267,10 +286,11 @@ class ActionModul extends Object
 	}
 
 	/**
-	 * Call this method if a permission denied, will print out a message
-	 * No Permission and clear the output
+	 * Call this method if a permission denied.
+	 * will print out a message
+	 * "No Permission" and clear the output
 	 *
-	 * @return boolean false
+	 * @return boolean static false
 	 */
 	public function no_permission() {
 		$this->core->message(t("No permission"), Core::MESSAGE_TYPE_ERROR);
@@ -282,7 +302,9 @@ class ActionModul extends Object
 	 * Returns the translated link for the current url
 	 * If you can be more preciser override it.
 	 *
-	 * @param string $language_key the language key
+	 * @param string $language_key 
+	 *   the language key
+	 * 
 	 * @return string the translated url
 	 */
 	public function get_translation_link($language_key) {
@@ -290,9 +312,9 @@ class ActionModul extends Object
 		return preg_replace('/\/+/','/', '/'.strtolower($language_key).'/'.preg_replace('/^\/[a-z]{2}(\/|$)/is','', $url));
 	}
 	/**
-	 * Clear output so display no inner content html
+	 * Clear output the display no inner content html
 	 *
-	 * @return boolean false
+	 * @return boolean static false
 	 */
 	protected function clear_output() {
 		$this->static_tpl = NS;

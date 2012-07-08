@@ -1,9 +1,11 @@
 <?php
-
-// Usage: $master=new WebSocket("localhost",12345);
-
 /**
- * Provides the base class for a websocket service.
+ * Provides an abstract class which could be extended to provide a websocket server.
+ * 
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib.html.inputs
+ * @category Websocket
  */
 abstract class WebSocketServer extends WebSocketListener {
 
@@ -32,7 +34,7 @@ abstract class WebSocketServer extends WebSocketListener {
 	 * @param int $port
 	 *	 The server port to listen.
 	 */
-	function __construct($address, $port) {
+ 	public function __construct($address, $port) {
 		parent::__construct();
 		error_reporting(E_ALL);
 		ob_implicit_flush(true);

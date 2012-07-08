@@ -29,7 +29,7 @@ class DBMemcached extends Object
 	 *
 	 * @param Core $core
 	 */
-	function __construct(&$core) {
+ 	public function __construct(&$core) {
 		parent::__construct($core);
 		$this->last_result_code = Memcached::RES_SUCCESS;
 	}

@@ -28,6 +28,7 @@ class ContentTypeObj extends AbstractDataManagment
 		$this->db_struct->add_reference_key(array("content_type"));
 		$this->db_struct->add_required_field("content_type", t("content type"), PDT_STRING, '', 70);
 		$this->db_struct->add_field("permission", t("permission"), PDT_STRING, '', 70);
+		$this->db_struct->add_field("create_alias", t("create alias"), PDT_ENUM, 'yes', array('no', 'yes'));
 		$this->db_struct->add_required_field("description", t("description"), PDT_STRING, '', 70);
 
 		if (!empty($content_type)) {

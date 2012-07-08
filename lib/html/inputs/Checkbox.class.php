@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Checkbox extends AbstractHtmlInput
 {
@@ -27,15 +28,22 @@ class Checkbox extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name the input name
-	 * @param string $value the input value
-	 * @param string $checkvalue the check value wether to preselect this element or not
-	 * @param string $label the input label (optional, default='')
-	 * @param string $description the input description (optional, default = '')
-	 * @param string $class the input css class (optional, default = '')
-	 * @param string $id the input id (optional, default = '')
+	 * @param string $name 
+	 *   the input name
+	 * @param string $value 
+	 *   the input value
+	 * @param string $checkvalue 
+	 *   the check value wether to preselect this element or not
+	 * @param string $label 
+	 *   the input label (optional, default='')
+	 * @param string $description 
+	 *   the input description (optional, default = '')
+	 * @param string $class 
+	 *   the input css class (optional, default = '')
+	 * @param string $id 
+	 *   the input id (optional, default = '')
 	 */
-	function __construct($name, $value, $checkvalue, $label = "", $description = "", $class = "", $id = "") {
+ 	public function __construct($name, $value, $checkvalue, $label = "", $description = "", $class = "", $id = "") {
 
 		/**
 		 * Set the label before parent construct is called, because the construct will call the init function
@@ -64,7 +72,7 @@ class Checkbox extends AbstractHtmlInput
 	/**
 	 * Returns the own element value
 	 *
-	 * @return string
+	 * @return string the value
 	 */
 	public function get_value() {
 		return $this->value;

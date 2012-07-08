@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 abstract class AbstractHtmlInput extends Object
 {
@@ -34,14 +35,20 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * constructor
 	 *
-	 * @param string $name the input name
-	 * @param string $value the value for this input (optional, default='')
-	 * @param string $label the input label (optional, default='')
-	 * @param string $description the input description (optional, default = '')
-	 * @param string $class the input css class (optional, default = '')
-	 * @param string $id the input id (optional, default = '')
+	 * @param string $name 
+	 *   the input name
+	 * @param string $value 
+	 *   the value for this input (optional, default='')
+	 * @param string $label 
+	 *   the input label (optional, default='')
+	 * @param string $description 
+	 *   the input description (optional, default = '')
+	 * @param string $class 
+	 *   the input css class (optional, default = '')
+	 * @param string $id 
+	 *   the input id (optional, default = '')
 	 */
-	function __construct($name, $value = '', $label = '', $description = '', $class = "", $id = '') {
+	public function __construct($name, $value = '', $label = '', $description = '', $class = "", $id = '') {
 
 		parent::__construct();
 
@@ -92,7 +99,7 @@ abstract class AbstractHtmlInput extends Object
 	}
 
 	/**
-	 * re init the check if the element was posted.
+	 * re-init the check if the element was posted.
 	 */
 	public function reinit() {
 		/*
@@ -128,7 +135,8 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Disable an element
 	 *
-	 * @param boolean $boolean wether this element is disabled or not
+	 * @param boolean $boolean 
+	 *   wether this element is disabled or not
 	 */
 	public function disabled($boolean = true) {
 
@@ -138,8 +146,10 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Add a validator
 	 *
-	 * @param string &$validator the validator
-	 * @param boolean $is_valid if this validator is always be valid
+	 * @param AbstractHtmlValidator &$validator 
+	 *   the validator
+	 * @param boolean $is_valid 
+	 *   if this validator is always be valid (optional, default = false)
 	 */
 	public function add_validator(AbstractHtmlValidator &$validator, $is_valid = false) {
 
@@ -163,7 +173,9 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * check if input has the given validator
 	 *
-	 * @param string $validator validator name
+	 * @param string $validator 
+	 *   validator name
+	 * 
 	 * @return true if yes, else false
 	 */
 	public function has_validator($validator) {
@@ -178,7 +190,7 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Checks if all validators are valid
 	 *
-	 * @return on success true, else false
+	 * @return boolean on success true, else false
 	 */
 	public function is_valid() {
 
@@ -339,8 +351,11 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * get or set config values
 	 *
-	 * @param string $k the key
-	 * @param string $v the value as a string, if not set current value will be returned (optional, default = NS)
+	 * @param string $k 
+	 *   the key
+	 * @param string $v 
+	 *   the value as a string, if not set current value will be returned (optional, default = NS)
+	 * 
 	 * @return mixed the value for the key as a string or if in set-mode return true, if a key is not set, return false
 	 */
 	public function config($k, $v = NS) {
@@ -422,7 +437,9 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Returns the given validator
 	 *
-	 * @param string $validator_name the validator name
+	 * @param string $validator_name 
+	 *   the validator name
+	 * 
 	 * @return AbstractHtmlValidator the validator or null if validator not exists
 	 */
 	public function &get_validator($validator_name) {
@@ -436,9 +453,13 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Get or add config values to the config as an array, duplicate entries will be ignored by default
 	 *
-	 * @param string $key the key
-	 * @param string $val the value as a string, if not set, current value will be returned (optional, default = NS)
-	 * @param boolean $add_duplicates if this setting is set to true, the value will be added twice also if it was in the array before (optional, default = false)
+	 * @param string $key 
+	 *   the key
+	 * @param string $val 
+	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
+	 * @param boolean $add_duplicates 
+	 *   if this setting is set to true, the value will be added twice also if it was in the array before (optional, default = false)
+	 * 
 	 * @return mixed the values for the key as an array or if in set-mode return true, if you return a value which are not set, return false
 	 */
 	public function config_array($key, $val = NS, $add_duplicates = false) {
@@ -496,6 +517,7 @@ abstract class AbstractHtmlInput extends Object
 	 * Returns the label field if label configuration is not empty
 	 *
 	 * @return string
+	 *   the label html code
 	 */
 	public function get_label() {
 		if($this->config("type") == "fieldset") {
@@ -512,6 +534,7 @@ abstract class AbstractHtmlInput extends Object
 	 * Returns the field description
 	 *
 	 * @return string
+	 *   the description html code
 	 */
 	public function get_description() {
 		$description = $this->config("description");
@@ -533,8 +556,11 @@ abstract class AbstractHtmlInput extends Object
 	 *
 	 * This array will be checked against the $value_array if this key is also set in $value_array
 	 *
-	 * @param mixed $search_array can be an array or a key
-	 * @param array $value_array the value array (optional, default = $_POST)
+	 * @param mixed $search_array 
+	 *   can be an array or a key
+	 * @param array $value_array 
+	 *   the value array , if left empty $_POST will be used (optional, default = array())
+	 * 
 	 * @return mixed if key is set the value is returned if not it will return null
 	 */
 	protected function key_is_set($search_array, Array $value_array = array()) {
@@ -587,6 +613,7 @@ abstract class AbstractHtmlInput extends Object
 	 * Reset the validator error message
 	 *
 	 * @param AbstractHtmlValidator $validator
+	 *   the validator
 	 */
 	private function set_validator_error_message(AbstractHtmlValidator &$validator) {
 		//Add default invalid messages for specific validators

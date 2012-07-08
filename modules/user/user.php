@@ -564,7 +564,7 @@ class user extends ActionModul
 	/**
 	 * Get all right groups
 	 *
-	 * @param boolean $without_rights wether we want to include the rights which the group owns or not (optiona, default = false)
+	 * @param boolean $without_rights wether we want to include the rights which the group owns or not (optional, default = false)
 	 * @return array
 	 */
 	private function get_right_groups($without_rights = false) {

@@ -16,6 +16,27 @@ function get_line($question) {
 }
 
 /**
+ * Check a permission against the current user
+ * 
+ * @param string $perm 
+ *   the permission to check
+ * @return boolean true if current user has the permission, else false
+ */
+function has_perm($perm) {
+	if (empty($GLOBALS['core'])) {
+		return false;
+	}
+	$core = $GLOBALS['core'];
+	/* @var $core Core */
+	
+	if (empty($core->right_manager)) {
+		return false;
+	}
+	
+	return $core->right_manager->has_perm($params['perm']);
+}
+
+/**
  * Reads the user input and validate it against a "yes" input.
  *
  * The following values will be return true:

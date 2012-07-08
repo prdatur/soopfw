@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Radiobuttons extends Checkboxes
 {
@@ -13,11 +14,16 @@ class Radiobuttons extends Checkboxes
 	/**
 	 * Construct
 	 *
-	 * @param string $name The main name for this radiobutton container (the radiobuttons will inhire the name)
-	 * @param array $values The values as an array in format ('value' => 'label') for every radiobutton
-	 * @param array $default_value The default value to preselect radiobutton if needed, its just the key within the $values (optional, default = '0')
-	 * @param string $class the input css class (optional, default = '')
-	 * @param string $id the input id (optional, default = '')
+	 * @param string $name 
+	 *   The main name for this radiobutton container (the radiobuttons will inhire the name)
+	 * @param array $values 
+	 *   The values as an array in format ('value' => 'label') for every radiobutton
+	 * @param array $default_value 
+	 *   The default value to preselect radiobutton if needed, its just the key within the $values (optional, default = '0')
+	 * @param string $class 
+	 *   the input css class (optional, default = '')
+	 * @param string $id 
+	 *   the input id (optional, default = '')
 	 */
 	public function __construct($name, $values, $default_value = "0", $class = '', $id = '') {
 
@@ -62,9 +68,12 @@ class Radiobuttons extends Checkboxes
 	/**
 	 * Get or set config values
 	 *
-	 * @param string $k the key
-	 * @param string $v the value as a string, if not set, current value will be returned (optional, default = NS)
-	 * @return mixed the value for the key as a string or if in set-mode return true, if a key is not set, return false
+	 * @param string $k 
+	 *   the key
+	 * @param string $v 
+	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
+	 * @return mixed 
+	 *   the value for the key as a string or if in set-mode return true, if a key is not set, return false
 	 */
 	public function config($key, $val = NS) {
 		//If we want to return the value we need to override the normal function

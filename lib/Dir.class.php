@@ -7,6 +7,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Tools
  */
 class Dir implements Iterator
 {
@@ -86,11 +87,14 @@ class Dir implements Iterator
 	/**
 	 * Scans a directory for files or folders
 	 *
-	 * @param string $path the directory to scan, this is the directory under chroot
-	 * @param boolean $recrusive (optional, default = true)
-	 * @param string $chroot This is the main directory, the scan goes not below this dir (optional, default = SITEPATH)
+	 * @param string $path 
+	 *   the directory to scan, this is the directory under chroot
+	 * @param boolean $recrusive 
+	 *   Set to false if you do not want recrusion (optional, default = true)
+	 * @param string $chroot 
+	 *   This is the main directory, the scan goes not below this dir (optional, default = SITEPATH)
 	 */
-	function __construct($path, $recrusive = true, $chroot = SITEPATH) {
+ 	public function __construct($path, $recrusive = true, $chroot = SITEPATH) {
 
 		//Replace all possibles to get under the chroot directory (security issue)
 		$path = preg_replace("/\.\.+\//is", "", $path);
@@ -107,7 +111,8 @@ class Dir implements Iterator
 	 * Include file extension
 	 * Apply a file extension filter, just plaintext string
 	 *
-	 * @param string $ext the extension
+	 * @param string $ext 
+	 *   the extension
 	 */
 	public function file_extension($ext) {
 		$this->incl_files[] = "/.*\.".preg_quote($ext, "/")."$/iUs";
@@ -119,7 +124,8 @@ class Dir implements Iterator
 	 * this is just the filename without extension, a file extension is needed
 	 * to match this filter
 	 *
-	 * @param string $filename the filename
+	 * @param string $filename 
+	 *   the filename
 	 */
 	public function file_name($filename) {
 		$this->incl_files[] = "/^".preg_quote($filename, "/")."\.[a-z]+$/iUs";
@@ -130,7 +136,8 @@ class Dir implements Iterator
 	 * Apply a file  filter, just plaintext string
 	 * This is the same as file_name but here the file extension is not need
 	 *
-	 * @param string $filename the filename
+	 * @param string $filename 
+	 *   the filename
 	 */
 	public function file($filename) {
 		$this->incl_files[] = "/^".preg_quote($filename, "/")."$/iUs";
@@ -140,7 +147,8 @@ class Dir implements Iterator
 	 * Include the file expression
 	 * Apply a file filter pure regexp allowed
 	 *
-	 * @param string $regexp the regular expression
+	 * @param string $regexp 
+	 *   the regular expression
 	 */
 	public function file_regexp($regexp) {
 		$this->incl_files[] = "/".$regexp."/iUs";
@@ -150,7 +158,8 @@ class Dir implements Iterator
 	 * Skip file extension
 	 * Apply a file extension filter, just plaintext string
 	 *
-	 * @param string $ext the extension
+	 * @param string $ext 
+	 *   the extension
 	 */
 	public function skip_extensions($ext) {
 		$this->skip_files[] = "/.*\.".preg_quote($ext, "/")."$/iUs";
@@ -162,7 +171,8 @@ class Dir implements Iterator
 	 * this is just the filename without extension, a file extension is needed
 	 * to match this filter
 	 *
-	 * @param string $filename the filename
+	 * @param string $filename 
+	 *   the filename
 	 */
 	public function skip_filename($filename) {
 		$this->skip_files[] = "/^".preg_quote($filename, "/")."\.[a-z]+$/iUs";
@@ -173,7 +183,8 @@ class Dir implements Iterator
 	 * Apply a file  filter, just plaintext string
 	 * This is the same as skip_filename but here the file extension is not need
 	 *
-	 * @param string $filename the filename
+	 * @param string $filename 
+	 *   the filename
 	 */
 	public function skip($filename) {
 		$this->skip_files[] = "/^".preg_quote($filename, "/")."$/iUs";
@@ -183,7 +194,8 @@ class Dir implements Iterator
 	 * Skip the file expression
 	 * Apply a file filter pure regexp allowed
 	 *
-	 * @param string $regexp the regular expression
+	 * @param string $regexp 
+	 *   the regular expression
 	 */
 	public function skip_regexp($regexp) {
 		$this->skip_files[] = "/".$regexp."/iUs";
@@ -193,7 +205,8 @@ class Dir implements Iterator
 	 * Skip a directory
 	 * Apply a directoriy filter, just plaintext string
 	 *
-	 * @param string $dir the directory
+	 * @param string $dir 
+	 *   the directory
 	 */
 	public function skip_dirs($dir) {
 		$this->skip_dirs[] = "/^".preg_quote($dir, "/")."/iUs";
@@ -203,7 +216,8 @@ class Dir implements Iterator
 	 * Skip a directory
 	 * Apply a directoriy filter pure regexp allowed
 	 *
-	 * @param string $regexp the directory as a regular expression
+	 * @param string $regexp 
+	 *   the directory as a regular expression
 	 */
 	public function skip_dirs_regexp($regexp) {
 		$this->skip_dirs[] = "/".$regexp."/iUs";
@@ -213,7 +227,8 @@ class Dir implements Iterator
 	 * Include a directory
 	 * Apply a directoriy filter pure regexp allowed
 	 *
-	 * @param string $regexp the directory as a regular expression
+	 * @param string $regexp 
+	 *   the directory as a regular expression
 	 */
 	public function dir_regexp($regexp) {
 		$this->incl_dirs[] = "/".$regexp."/iUs";
@@ -222,7 +237,8 @@ class Dir implements Iterator
 	/**
 	 * Set that we want only files within returning output
 	 *
-	 * @param boolean $bool set to true if your want only files within output (optional, default = true)
+	 * @param boolean $bool 
+	 *   set to true if your want only files within output (optional, default = true)
 	 */
 	public function just_files($bool = true) {
 		if ($bool !== true) {
@@ -234,7 +250,8 @@ class Dir implements Iterator
 	/**
 	 * Set that we want only directories within returning output
 	 *
-	 * @param boolean $bool set to true if your want only directories within output (optional, default = true)
+	 * @param boolean $bool 
+	 *   set to true if your want only directories within output (optional, default = true)
 	 */
 	public function just_dirs($bool = true) {
 		if ($bool !== true) {
@@ -272,17 +289,20 @@ class Dir implements Iterator
 	/**
 	 * Main search engine
 	 *
-	 * @param string $dir the dir where we want to start search
+	 * @param string $dir 
+	 *   the dir where we want to start search
+	 * 
 	 * @return array the result array
 	 */
 	private function readdir($dir) {
 		//If we have no directories or the provided one is not a directory return an empty array
 		$chk_dir = str_replace('//', '/', $this->chroot."/".$dir);
+		$chk_dir = preg_replace("/\/+$/", "", $chk_dir );
 		if (empty($dir) || !is_dir($chk_dir)) {
 			return array();
 		}
 		$entries = array();
-
+		
 		//Loop through all current entries within the directory
 		if ($handle = opendir($chk_dir)) {
 			while (false !== ($entry = readdir($handle))) {
@@ -292,12 +312,11 @@ class Dir implements Iterator
 					$check_dir .= $dir.'/';
 				}
 				$check_dir .= $entry;
-
+				
 				//If the directory should not handle by a skip / include directory or the handle is not a ressource, skip this entry
 				if (empty($handle) || $this->validate_dir($check_dir) == false) {
 					continue;
 				}
-
 				//Setup the current full path for the entry
 				$path = preg_replace("/\/\/+/is", "/", $chk_dir."/".$entry);
 				//Check if the validation of the file succeed.
@@ -332,7 +351,9 @@ class Dir implements Iterator
 	/**
 	 * Validates a directory against the filters
 	 *
-	 * @param string $entry the directory
+	 * @param string $entry 
+	 *   the directory
+	 * 
 	 * @return boolean true if directory is valid, else false
 	 */
 	public function validate_dir($entry) {
@@ -356,8 +377,11 @@ class Dir implements Iterator
 	/**
 	 * Validates a file through all file filters
 	 *
-	 * @param string $entry the entry name
-	 * @param string $dir the complete path to the entry but without chroot
+	 * @param string $entry 
+	 *   the entry name
+	 * @param string $dir 
+	 *   the complete path to the entry but without chroot
+	 * 
 	 * @return boolean true if valid, else false
 	 */
 	public function validate($entry, $dir) {
@@ -395,7 +419,8 @@ class Dir implements Iterator
 
 	/**
 	 * Implements iterator key()
-	 * @return int
+	 * 
+	 * @return int the key
 	 */
 	public function key() {
 		return $this->key;
@@ -403,7 +428,8 @@ class Dir implements Iterator
 
 	/**
 	 * Implements iterator current()
-	 * @return mixed
+	 * 
+	 * @return mixed the current element
 	 */
 	public function current() {
 		return $this->files[$this->key];
@@ -500,6 +526,11 @@ class DirEntry
 	 */
 	public $created = 0;
 
+	/**
+	 * Returns the complete file path.
+	 * 
+	 * @return string the complete file path 
+	 */
 	function __toString() {
 		return $this->path;
 	}

@@ -1,9 +1,11 @@
 <?php
-
-// Usage: $master=new WebSocket("localhost",12345);
-
 /**
- * Provides the base class for a websocket service.
+ * Provides the base class for a websocket.
+ * 
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib.html.inputs
+ * @category Websocket
  */
 abstract class WebSocket extends Object {
 
@@ -63,8 +65,7 @@ abstract class WebSocket extends Object {
 	 * @param WebSocketUser &$client
 	 *   The client from which we got the data.
 	 *
-	 * @return boolean
-	 *   on error return false, else true
+	 * @return boolean on error return false, else true
 	 */
 	protected function handle($data, WebSocketUser &$client) {
 		if ($this->waiting_for_data === true) {
@@ -126,8 +127,8 @@ abstract class WebSocket extends Object {
 	 *
 	 * @param resource $resource
 	 *	 the resource
-	 * @return string
-	 *	 the result or FALSE on error
+	 * 
+	 * @return string the result or FALSE on error
 	 */
 	public static function read_buffer($resource) {
 		$buffer = '';
@@ -191,8 +192,7 @@ abstract class WebSocket extends Object {
 	 * @param string $string
 	 *	 The string to send
 	 *
-	 * @return int
-	 *	 returns the length of written bytes or false on error
+	 * @return int returns the length of written bytes or false on error
 	 */
 	public static function write_buffer($resource, $string) {
 		$string_length = strlen($string);
@@ -213,8 +213,8 @@ abstract class WebSocket extends Object {
 	 *
 	 * @param resource $socket
 	 *	 The socket resource
-	 * @return WebSocketUser
-	 *   The user by reference
+	 * 
+	 * @return WebSocketUser The user by reference
 	 */
 	protected function &get_user_by_socket($socket) {
 		$found = null;
@@ -233,8 +233,8 @@ abstract class WebSocket extends Object {
 	 * @param string $message
 	 *	 The message to log
 	 * @param string $type
-	 *	 The message type (use one of WebSocket::log_console_*)
-	 *   (optional, default = WebSocket::log_console_INFO)
+	 *	 The message type (use one of WebSocket::LOG_*)
+	 *   (optional, default = WebSocket::LOG_INFO)
 	 */
 	public static function log_console($message = "", $type = self::LOG_INFO) {
 		if (WebSocket::$debug) {

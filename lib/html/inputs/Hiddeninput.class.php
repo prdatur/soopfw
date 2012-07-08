@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form.Inputs
  */
 class Hiddeninput extends AbstractHtmlInput
 {
@@ -15,14 +16,20 @@ class Hiddeninput extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param String $name the input name
-	 * @param String $value the value for this input (optional, default = "")
-	 * @param String $label the label (optional, default = "")
-	 * @param String $description the description (optional, default = "")
-	 * @param String $class the css class (optional, default = "")
-	 * @param String $id the input id (optional, default = "")
+	 * @param string $name 
+	 *   the input name
+	 * @param string $value 
+	 *   the value for this input (optional, default = "")
+	 * @param string $label 
+	 *   the label (optional, default = "")
+	 * @param string $description 
+	 *   the description (optional, default = "")
+	 * @param string $class 
+	 *   the css class (optional, default = "")
+	 * @param string $id 
+	 *   the input id (optional, default = "")
 	 */
-	function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "") {
+	public function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "") {
 		parent::__construct($name, $value, $label, $description, $class, $id);
 		$this->label = $label;
 	}

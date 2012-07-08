@@ -11,6 +11,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.validators
+ * @category Form.Validators
  */
 class IsNumberValidator extends AbstractHtmlValidator
 {
@@ -18,7 +19,7 @@ class IsNumberValidator extends AbstractHtmlValidator
 	/**
 	 * Validates the value against the rules
 	 *
-	 * @return if valid true, else false
+	 * @return boolean if valid true, else false
 	 */
 	function is_valid() {
 		if ($this->is_always_valid()) {

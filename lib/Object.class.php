@@ -8,6 +8,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Core
  */
 class Object
 {
@@ -56,8 +57,11 @@ class Object
 
 	/**
 	 * Constructor which sets the Core Object by using $GLOBALS['core'] if isset
+	 * 
+	 * @param Core &$core
+	 *   The core object (optional, default = null)
 	 */
-	function __construct(&$core = null) {
+ 	public function __construct(&$core = null) {
 		if (!is_null($core)) {
 			$this->core = &$core;
 		}
@@ -76,7 +80,8 @@ class Object
 
 	/**
 	 * Returns the Session object.
-	 * @return Session
+	 * 
+	 * @return Session the session object
 	 */
 	public function &get_session() {
 		return $this->session;
@@ -84,7 +89,8 @@ class Object
 
 	/**
 	 * Returns the Smarty object.
-	 * @return Smarty
+	 * 
+	 * @return Smarty the smarty object
 	 */
 	public function &get_smarty() {
 		return $this->smarty;
@@ -92,7 +98,8 @@ class Object
 
 	/**
 	 * Returns the Language object.
-	 * @return Language
+	 * 
+	 * @return Language the language object
 	 */
 	public function &get_language() {
 		return $this->lng;
@@ -100,7 +107,8 @@ class Object
 
 	/**
 	 * Returns the Database object.
-	 * @return Db
+	 * 
+	 * @return Db the database object
 	 */
 	public function &get_db() {
 		return $this->db;
@@ -108,7 +116,8 @@ class Object
 
 	/**
 	 * Returns the Core object.
-	 * @return Core
+	 * 
+	 * @return Core the core object
 	 */
 	public function &get_core() {
 		return $this->core;
@@ -145,8 +154,10 @@ class Object
 	/**
 	 * print out messages if core is != null and core debug = true
 	 *
-	 * @param mixed $msg the value. if it is not a string we will do print_r
-	 * @param boolean $newline if we print out a br and \n or not
+	 * @param mixed $msg 
+	 *   the value. if it is not a string we will do print_r
+	 * @param boolean $newline 
+	 *   if we print out a br and \n or not (optional, default = true)
 	 */
 	public function log($msg, $newline = true) {
 		if (empty($this->core) || $this->core->get_debug() == false) {

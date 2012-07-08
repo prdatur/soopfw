@@ -139,7 +139,17 @@ class content extends ActionModul {
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$content_smarty->init();
 		
-		
+		$implemented_field_groups = array();
+		$additional_field_groups = $this->core->hook('content_add_field_groups');
+		if(!empty($additional_field_groups)) {
+			foreach($additional_field_groups AS $return_values) {
+				if(!empty($return_values) && is_array($return_values)) {
+					foreach($return_values AS $id => $tmp_values) {
+						$implemented_field_groups[$id] = $tmp_values;
+					}
+				}
+			}
+		}
 		// Provide template overrides.
 		$template_override_field_groups_path = $this->smarty->get_tpl(true). '/content/field_groups';
 		$field_groups_path = $this->module_tpl_dir.'field_groups';
@@ -156,6 +166,9 @@ class content extends ActionModul {
 		
 		$content_smarty->set_tpl($tpl_path);
 		
+		// Let other modules the chance to change the data array
+		$this->core->hook('content_view_alter_data', array($values['content_type'], &$data_array));
+		
 		$content = "";
 		if(file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
@@ -163,7 +176,6 @@ class content extends ActionModul {
 		}
 		else {
 			foreach($data_array AS $field_group_id => $field_group_values) {
-				
 				if(file_exists($template_override_field_groups_path. '/' . $field_group_id . ".tpl")) {
 					$field_group_tpl = $template_override_field_groups_path. '/' . $field_group_id . ".tpl";
 				}
@@ -173,13 +185,21 @@ class content extends ActionModul {
 				if(!file_exists($field_group_tpl)) {
 					$group_obj = new ContentTypeFieldGroupObj($field_group_id);
 					
-					if(file_exists($template_override_field_groups_path. '/' . $group_obj->field_group . ".tpl")) {
+					if(isset($implemented_field_groups[$group_obj->field_group]) && file_exists(SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'])) {
+						$field_group_tpl = SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'];
+					}
+					elseif (file_exists($template_override_field_groups_path. '/' . $group_obj->field_group . ".tpl")) {
 						$field_group_tpl = $template_override_field_groups_path . '/' . $group_obj->field_group . ".tpl";
 					}
 					else {
 						$field_group_tpl = $field_groups_path . '/' . $group_obj->field_group . ".tpl";
 					}
 				}
+				
+				if(!file_exists($field_group_tpl)) {
+					continue;
+				}
+				
 				$content_smarty->clearAllAssign();
 				$content_smarty->assign_by_ref("data", $field_group_values);
 				$content .= $content_smarty->fetch($field_group_tpl);
@@ -316,7 +336,7 @@ class content extends ActionModul {
 		$query_string = "SELECT `page_id`,`deleted`,`last_revision` FROM `".PageObj::TABLE."`".$where;
 
 		//Search in DB
-		$pages = $this->db->query_slave_all($query_string, $pager->max_entries_per_page(), $pager->get_offset());
+		$pages = $this->db->query_slave_all($query_string, array(), $pager->max_entries_per_page(), $pager->get_offset());
 
 		foreach($pages AS &$page) {
 			$revision_object = new PageRevisionObj($page['page_id'], $this->core->current_language);
@@ -387,7 +407,7 @@ class content extends ActionModul {
 		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
 			return $this->no_permission();
 		}
-		$this->db->set_debug(true);
+		
 		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
 			'ipage_id' => $page_id,
 			'@language' => $this->core->current_language
@@ -721,6 +741,18 @@ class content extends ActionModul {
 			}
 			$options[$matches[1]] = $matches[2];
 		}
+		
+		$additional_field_groups = $this->core->hook('content_add_field_groups');
+		if(!empty($additional_field_groups)) {
+			foreach($additional_field_groups AS $module => $return_values) {
+				if(!empty($return_values) && is_array($return_values)) {
+					foreach($return_values AS $id => $values) {
+						$options[$id] = $values['label'];
+					}
+				}
+			}
+		}
+		
 		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_".$obj->get_dbstruct()->get_table()."_field_group");
 		$input->add_validator(new RequiredValidator());
 		$input->config('label', t('field type'));
@@ -933,7 +965,13 @@ class content extends ActionModul {
 
 		$publish = new Checkbox("publish", 1,($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
 		$form_content .= '<br />' . $publish->fetch();
+		
+		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0 , t("create auto alias?"));
+		$form_content .= '<br />' . $create_alias->fetch();
+		
+		
 		$form->add($publish);
+		$form->add($create_alias);
 		if(!$create_mode) {
 
 			$form->add(new Submitbutton("cancel", t("cancel"), 'form_button'));
@@ -988,12 +1026,17 @@ class content extends ActionModul {
 			if(isset($values['publish'])) {
 				$publish = $values['publish'];
 			}
+			$create_alias = 1;
+			if(isset($values['create_alias'])) {
+				$create_alias = $values['create_alias'];
+			}
 			unset($values['create_content_form_submit']);
 			unset($values['save_content_form_submit']);
 			unset($values['submit']);
 			unset($values['cancel']);
 			unset($values['delete']);
 			unset($values['publish']);
+			unset($values['create_alias']);
 			unset($values['really_delete']);
 			unset($values['content_type']);
 			unset($values['title']);
@@ -1028,7 +1071,12 @@ class content extends ActionModul {
 
 
 				if($form->is_submitted("cancel")) {
-					$this->core->location("/".$this->get_alias_for_page_id($page_obj->page_id).".html");
+					if($create_alias == true) {
+						$this->core->location("/" . $this->get_alias_for_page_id($page_obj->page_id) . ".html");
+					}
+					else {
+						$this->core->location("/content/view/" . $page_obj->page_id);
+					}
 					return;
 				}
 
@@ -1040,7 +1088,7 @@ class content extends ActionModul {
 			$page_revision_obj->title = $title;
 			$page_revision_obj->serialized_data = json_encode($values);
 
-			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation);
+			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias);
 			if($revision_inserted) {
 				$page_obj->last_revision = $page_revision_obj->revision;
 			}
@@ -1202,7 +1250,12 @@ class content extends ActionModul {
 				$this->db->transaction_commit();
 
 				//Go to the created / edited page
-				$this->core->location($alias);
+				if($create_alias == true) {
+					$this->core->location($alias);
+				}
+				else {
+					$this->core->location("/content/view/" . $page_obj->page_id);
+				}
 
 			}
 			else {

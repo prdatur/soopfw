@@ -52,7 +52,7 @@ class qqFileUploader extends Object
 	 * @param array $allowed_extensions The allowed file extensions (optional, default = array())
 	 * @param int $size_limit The maximum file size in bytes (optional, default = 2097152)
 	 */
-	function __construct(array $allowed_extensions = array(), $size_limit = 2097152) {
+ 	public function __construct(array $allowed_extensions = array(), $size_limit = 2097152) {
 		parent::__construct();
 		$allowed_extensions = array_map("strtolower", $allowed_extensions);
 		$this->allowed_extensions = $allowed_extensions;

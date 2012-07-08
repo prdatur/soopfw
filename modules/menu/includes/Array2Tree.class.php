@@ -67,7 +67,7 @@ class Array2Tree {
 
 		}
 
-		if($just_active == true && $parent_id == 0) {
+		if($just_active == true && $parent_id === 0) {
 			$this->get_only_active($result);
 		}
 		return $result;
@@ -77,13 +77,13 @@ class Array2Tree {
 	 * Removes all entries which are inactive
 	 *
 	 * @param array &$array the array which will be processed
-	 * @param boolean $onetime_add_all if set to true it will pass the unset behaviour (optiona, default = false)
+	 * @param boolean $onetime_add_all if set to true it will pass the unset behaviour (optional, default = false)
 	 */
 	private function get_only_active(&$array, $onetime_add_all = false) {
 
 		foreach($array AS $k => &$childs) {
 
-			if($onetime_add_all == false && $childs['parent_id'] != 0 && empty($childs['#active']) && !$this->check_if_a_child_is_direct_selected($array)) {
+			if($onetime_add_all == false && $childs['parent_id'] !== "0" && empty($childs['#active']) && !$this->check_if_a_child_is_direct_selected($array)) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {

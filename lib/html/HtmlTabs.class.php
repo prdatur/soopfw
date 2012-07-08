@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.inputs
+ * @category Form
  */
 class HtmlTabs extends AbstractHtmlElement
 {
@@ -34,9 +35,10 @@ class HtmlTabs extends AbstractHtmlElement
 	/**
 	 * Construct
 	 *
-	 * @param string $id The container id
+	 * @param string $id 
+	 *   The container id
 	 */
-	function __construct($id) {
+ 	public function __construct($id) {
 		parent::__construct();
 		$this->id = $id;
 	}
@@ -46,7 +48,8 @@ class HtmlTabs extends AbstractHtmlElement
 	 * It will also assign a javascript configuration key that can jquery use
 	 * to laod the tabs (provide the id and effect)
 	 *
-	 * @param string $name the smarty variable
+	 * @param string $name 
+	 *   the smarty variable
 	 */
 	public function assign_smarty($name) {
 		$this->core->js_config("load_tabs", array(
@@ -59,10 +62,14 @@ class HtmlTabs extends AbstractHtmlElement
 	/**
 	 * Adds a tab to this container
 	 *
-	 * @param string $title the title of the tab
-	 * @param string $name the internal name
-	 * @param string $link the link to navigate
-	 * @param string $right the right which is needed to show this tab (optional, default = '')
+	 * @param string $title 
+	 *   the title of the tab
+	 * @param string $name 
+	 *   the internal name
+	 * @param string $link 
+	 *   the link to navigate
+	 * @param string $right 
+	 *   the right which is needed to show this tab (optional, default = '')
 	 */
 	public function add($title, $name, $link, $right = "") {
 

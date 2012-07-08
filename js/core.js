@@ -77,8 +77,8 @@ $.extend(Soopfw, {
 	
 	/**
 	 * Translation function, key as an english text, args as an object {search => replace}
-	 * @params String key
-	 * @params Object args
+	 * @param String key
+	 * @param Object args
 	 */
 	t: function(key, args) {
 		var translation = key;
@@ -96,7 +96,7 @@ $.extend(Soopfw, {
 
 	/**
 	 * Init a ajax queue with given identifier
-	 * @params String identifier
+	 * @param String identifier
 	 */
 	ajax_queue_init: function(identifier) {
 		soopfw_ajax_queue[identifier] = [];
@@ -105,8 +105,8 @@ $.extend(Soopfw, {
 	/**
 	 * Adds to the given identifier queue an ajax call with the ajax options see Jquery ajax options for a complete list
 	 * of ajax_options
-	 * @params String identifier
-	 * @params Object ajax_options
+	 * @param String identifier
+	 * @param Object ajax_options
 	 */
 	ajax_queue: function(identifier, ajax_options) {
 		soopfw_ajax_queue[identifier].push(ajax_options);
@@ -114,7 +114,7 @@ $.extend(Soopfw, {
 
 	/**
 	 * Start the queue
-	 * @params String identifier
+	 * @param String identifier
 	 */
 	ajax_queue_start: function(identifier) {
 		Soopfw.ajax_queue_worker(identifier);
@@ -124,7 +124,7 @@ $.extend(Soopfw, {
 	 * Should not be called directly, will process the queue and on complete it will fetch next
 	 * queue item and process until queue is empty
 	 *
-	 * @params String identifier
+	 * @param String identifier
 	 */
 	ajax_queue_worker: function(identifier) {
 		if(!empty(soopfw_ajax_queue[identifier])) {
@@ -145,10 +145,10 @@ $.extend(Soopfw, {
 
 	/**
 	 * Append a progress bar to append_element
-	 * @params String identifier
-	 * @params int max_value the max value
-	 * @params String init_text The text which will be displayed while first run is active
-	 * @params Mixed append_element can be an jquery string or element object
+	 * @param String identifier
+	 * @param int max_value the max value
+	 * @param String init_text The text which will be displayed while first run is active
+	 * @param Mixed append_element can be an jquery string or element object
 	 */
 	progress: function(identifier, max_value, init_text, append_element) {
 		$(append_element).append(
@@ -169,9 +169,9 @@ $.extend(Soopfw, {
 
 	/**
 	 * Updates the progressbar
-	 * @params String identifier
-	 * @params String init_text the Text to be written
-	 * @params int percent_override Normaly it will self calculate the percent, but on finish it is usefull to override it to 100
+	 * @param String identifier
+	 * @param String init_text the Text to be written
+	 * @param int percent_override Normaly it will self calculate the percent, but on finish it is usefull to override it to 100
 	 */
 	progress_update: function(identifier, init_text, percent_override) {
 		if(!empty(init_text)) {
@@ -193,8 +193,8 @@ $.extend(Soopfw, {
 	/**
 	 * Append an ajax load to the given div
 	 *
-	 * @params Mixed div can be an jquery string or element object
-	 * @params String id an unique identifier for this ajax_loader
+	 * @param Mixed div can be an jquery string or element object
+	 * @param String id an unique identifier for this ajax_loader
 	 */
 	ajax_loader: function(div, id) {
 		if(document.getElementById("ajax_loader_"+id) != undefined) {
@@ -213,10 +213,10 @@ $.extend(Soopfw, {
 	 * call an ajax_html ajax request to the given module, action with args and display the output html in a dialog
 	 * After successfull load the ajax behaviours will be reloaded
 	 *
-	 * @params String title the title of the dialog
-	 * @params String module The module
-	 * @params String the action to be called
-	 * @params Array args The arguments for the action
+	 * @param String title the title of the dialog
+	 * @param String module The module
+	 * @param String the action to be called
+	 * @param Array args The arguments for the action
 	 */
 	default_action_dialog: function(title, module, action, args, options) {
 		if(args != undefined && args != null) {

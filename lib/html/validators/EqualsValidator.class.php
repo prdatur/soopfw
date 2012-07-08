@@ -10,6 +10,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.validators
+ * @category Form.Validators
  */
 class EqualsValidator extends AbstractHtmlValidator
 {
@@ -17,15 +18,13 @@ class EqualsValidator extends AbstractHtmlValidator
 	/**
 	 * Return if the first value equals the second value
 	 *
-	 * @return if valid true, else false
+	 * @return boolean if valid true, else false
 	 */
 	function is_valid() {
 		if ($this->is_always_valid()) {
 			return true;
 		}
-		if ($this->get_value() == $this->get_options())
-			return true;
-		return false;
+		return ($this->get_value() == $this->get_options());
 	}
 
 }

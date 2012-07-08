@@ -1,4 +1,9 @@
 <?php
+
+if (!class_exists('memcache')) {
+	class memcache {}
+}
+
 /**
  * Provide an memcached wrapper for the memcache class
  *

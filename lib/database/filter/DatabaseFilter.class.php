@@ -7,6 +7,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.database.filter
+ * @category Database
  */
 class DatabaseFilter
 {
@@ -42,7 +43,7 @@ class DatabaseFilter
 	/**
 	 * construct
 	 */
-	function __construct() {
+ 	public function __construct() {
 		$this->where = new DatabaseWhereGroup();
 	}
 
@@ -94,9 +95,9 @@ class DatabaseFilter
 
 	/**
 	 * add a where condition
-	 * @param mixed $field the field or the database where group
+	 * @param mixed $field the field as a string or an DatabaseWhereGroup object
 	 * @param string $value can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
-	 * @param string $condition_type (=, !=, LIKE)
+	 * @param string $condition_type (=, !=, LIKE) (optional, default = "=")
 	 */
 	public function add_where($field, $value = "", $condition_type = "=") {
 		$this->where->add_where($field, $value, $condition_type);

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Security
  */
 class SSL
 {
@@ -44,8 +45,12 @@ class SSL
 	 * 		"cert" => '...',
 	 * )
 	 *
-	 * @param mixed $key in single mode the key, can also be an array with all information
-	 * @param string $type A key type, use one of ssl::KEY_*
+	 * @param mixed $key 
+	 *   in single mode the key, can also be an array with all information
+	 * @param string $type 
+	 *   A key type, use one of ssl::KEY_* 
+	 *   Only optional if $key is an array which holds all needed keys
+	 *   (optional, default = '')
 	 */
 	public function set_keys($key, $type = '') {
 		//If $key is an array
@@ -87,7 +92,9 @@ class SSL
 	 * 			"emailAddress"				=> 'user@domain.com'
 	 * )
 	 *
-	 * @param array $values override the default values for the certificate (optional, default = array())
+	 * @param array $values 
+	 *   override the default values for the certificate (optional, default = array())
+	 * 
 	 * @return array an array with private=>key, public=>key, cert=>cert
 	 */
 	public function generate_ssl_keys(Array $values = array()) {
@@ -133,9 +140,13 @@ class SSL
 	 * normaly it will use the key which was setup with ssl::set_keys
 	 * but a key can be provided which will used instead.
 	 *
-	 * @param string $txt The text to be encrytped
-	 * @param string $key_type the key type to be used, (optional, default = KEY_PRIVATE)
-	 * @param string $key the key (optional, default = '')
+	 * @param string $txt 
+	 *   The text to be encrytped
+	 * @param string $key_type 
+	 *   the key type to be used, (optional, default = KEY_PRIVATE)
+	 * @param string $key 
+	 *   the key (optional, default = '')
+	 * 
 	 * @return string The encrypted string
 	 */
 	public function encrypt($txt, $key_type = self::KEY_PRIVATE, $key = "") {
@@ -163,9 +174,13 @@ class SSL
 	 * normaly it will use the key which was setup with ssl::set_keys
 	 * but a key can be provided which will used instead.
 	 *
-	 * @param string $txt The text to be decrypted
-	 * @param string $key_type the key type to be used, (optional, default = PUBLIC_KEY)
-	 * @param string $key the key (optional, default = '')
+	 * @param string $txt 
+	 *   The text to be decrypted
+	 * @param string $key_type 
+	 *   the key type to be used, (optional, default = PUBLIC_KEY)
+	 * @param string $key 
+	 *   the key (optional, default = '')
+	 * 
 	 * @return string The decrypted string
 	 */
 	public function decrypt($txt, $key_type = self::PUBLIC_KEY, $key = "") {

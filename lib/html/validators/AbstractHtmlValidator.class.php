@@ -5,6 +5,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib.html.validators
+ * @category Form.Validators
  */
 abstract class AbstractHtmlValidator extends Object
 {
@@ -39,10 +40,12 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * constructor
 	 *
-	 * @param string $error the error message
-	 * @param mixed $options the options
+	 * @param string $error 
+	 *   the error message (optional, default = "")
+	 * @param mixed $options 
+	 *   the options (optional, default = null)
 	 */
-	function __construct($error = "", $options = null) {
+	public function __construct($error = "", $options = null) {
 		parent::__construct();
 		$this->error = &$error;
 		$this->options = &$options;
@@ -60,7 +63,8 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the error message
 	 *
-	 * @param string &$val The error
+	 * @param string &$val 
+	 *   The error
 	 */
 	public function set_error(&$val) {
 		$this->error = &$val;
@@ -78,7 +82,8 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the value
 	 *
-	 * @param string &$val The value
+	 * @param string &$val 
+	 *   The value
 	 */
 	public function set_value(&$val) {
 		$this->value = $val;
@@ -96,7 +101,8 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the options
 	 *
-	 * @param string &$val The options
+	 * @param string &$val 
+	 *   The options
 	 */
 	public function set_options(&$val) {
 		$this->options = $val;
@@ -121,7 +127,7 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Returns wether the validator should be always valid or not
 	 *
-	 * @return boolean
+	 * @return boolean if this validator is always valid return true, else false
 	 */
 	public function is_always_valid() {
 		return $this->is_always_valid;
@@ -138,6 +144,7 @@ abstract class AbstractHtmlValidator extends Object
 	 * Returns the classname of the current object
 	 *
 	 * @return string
+	 *   the classname
 	 */
 	public function __tostring() {
 		return get_class($this);

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
+ * @category Security
  */
 class RightManager extends Object
 {
@@ -26,9 +27,10 @@ class RightManager extends Object
 
 	/**
 	 *
-	 * @param Core $core
+	 * @param Core &$core
+	 *   the core object (optional, default = null)
 	 */
-	function __construct(Core &$core = null) {
+ 	public function __construct(Core &$core = null) {
 		parent::__construct($core);
 
 		foreach ($this->db->query_slave_all("SELECT `right` FROM `".CoreRightObj::TABLE."` ORDER BY `right`") AS $right) {
@@ -40,8 +42,10 @@ class RightManager extends Object
 	 * Get all groups where the provided user is a member
 	 * if the $user_id is not provided it will use the current logged in one
 	 *
-	 * @param int $user_id the userid (optional, default = '')
-	 * @return array
+	 * @param int $user_id 
+	 *   the userid (optional, default = '')
+	 * 
+	 * @return array the user groups
 	 */
 	public function get_user_groups($user_id = "") {
 		//Get current logged in user id if no provided
@@ -68,7 +72,10 @@ class RightManager extends Object
 
 	/**
 	 * Returns all owned rights for the specified group
-	 * @param int $group_id the group id
+	 * 
+	 * @param int $group_id 
+	 *   the group id
+	 * 
 	 * @return array the parsed rights
 	 */
 	public function get_group_rights($group_id) {
@@ -84,9 +91,13 @@ class RightManager extends Object
 	 * Checks the given user if he has given permission(s)
 	 * if $user is not provided the current one is used
 	 *
-	 * @param string $right the right
-	 * @param boolean $login_check Wether we want to redirect the user to the login page if not logged in or not (optional, default = false)
-	 * @param UserObj $user the user obj (optional, default = null)
+	 * @param string $right 
+	 *   the right
+	 * @param boolean $login_check 
+	 *   Wether we want to redirect the user to the login page if not logged in or not (optional, default = false)
+	 * @param UserObj $user 
+	 *   the user obj (optional, default = null)
+	 * 
 	 * @return boolean if user has permission return true, else false
 	 */
 	public function has_perm($right, $login_check = false, UserObj $user = null) {
@@ -126,8 +137,11 @@ class RightManager extends Object
 	 * So returns true if one of the rights is present.
 	 * If you want that the user needs all additional permissions use .*
 	 *
-	 * @param string $right the right to check for as a string like user.view.* or user.change
-	 * @param array $user_rights the current user rights
+	 * @param string $right 
+	 *   the right to check for as a string like user.view.* or user.change
+	 * @param array $user_rights 
+	 *   the current user rights
+	 * 
 	 * @return boolean true if user has right, else false, if right is not found on global rights, return false
 	 */
 	public function has_rights($right, Array $user_rights) {
@@ -197,9 +211,13 @@ class RightManager extends Object
 	/**
 	 * Gets an array with all the user rights
 	 *
-	 * @param int $userid the userid to look for
-	 * @param int $filter the filter type use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_ALL)
-	 * @param boolean $raw do we remove negative rights or print raw data? (optional, default = false
+	 * @param int $userid 
+	 *   the userid to look for
+	 * @param int $filter 
+	 *   the filter type use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_ALL)
+	 * @param boolean $raw 
+	 *   do we remove negative rights or print raw data? (optional, default = false
+	 * 
 	 * @return array returns an array with user rights
 	 */
 	public function get_rights($userid, $filter = self::RIGHT_TYPE_ALL, $raw = false) {
@@ -231,8 +249,11 @@ class RightManager extends Object
 	 * if set to true it will just leave the minus right within the returning array and the "disallowed" right will be
 	 * still present if the user has this right
 	 *
-	 * @param array $permissions the permissions array
-	 * @param boolean $raw set to true to get the raw rights (optional, default = false)
+	 * @param array $permissions 
+	 *   the permissions array
+	 * @param boolean $raw 
+	 *   set to true to get the raw rights (optional, default = false)
+	 * 
 	 * @return array Returns an array with user rights
 	 */
 	public function parse_rights($permissions, $raw = false) {

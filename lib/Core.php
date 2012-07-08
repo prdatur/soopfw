@@ -1,14 +1,4 @@
 <?php
-
-/**
- * Main Core, It will initialize all needed classes (Smarty, Memcache, DB, ...)
- * Also it Provides several useful methods for quick accessing within classes
- * which extends Object
- *
- * @copyright Christian Ackermann (c) 2010 - End of life
- * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib
- */
 if (isset($error_reporting)) {
 	error_reporting($error_reporting);
 }
@@ -117,6 +107,16 @@ else {
 	set_error_handler('cc_error_handler', E_ALL);
 }
 
+/**
+ * Main Core, It will initialize all needed classes (Smarty, Memcache, DB, ...)
+ * Also it Provides several useful methods for quick accessing within classes
+ * which extends Object
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package lib
+ * @category Core
+ */
 class Core {
 	/**
 	 * Define global return codes
@@ -257,11 +257,14 @@ class Core {
 	 * if $install is set to true it will no objects will be created, if $is_shell is set to true smarty will not be initialized,
 	 * also no session will be started
 	 *
-	 * @param string $language The language to be used
-	 * @param bool $is_shell Whether we're running from the shell (and not in a webserver environment) default: false
-	 * @param bool $install Whether we're want to install default: false
+	 * @param string $language 
+	 *   The language to be used, if not provided it will try to auto get it (optional, default = '')
+	 * @param bool $is_shell 
+	 *   Whether we're running from the shell (and not in a webserver environment) (optional, default = false)
+	 * @param bool $install 
+	 *   Whether we're want to install (optional, default = false)
 	 */
-	function __construct($language = '', $is_shell = false, $install = false) {
+ 	public function __construct($language = '', $is_shell = false, $install = false) {
 
 		//If we run as a shell command define the global constance is_shell
 		if ($is_shell == true && !defined('is_shell')) {
@@ -419,7 +422,9 @@ class Core {
 
 	/**
 	 * Initialize the memcached object or an equivalent wrapper
-	 * @global boolean $memcached_use This is defined at the top of this file, it determines if we want to use the original memcached or if we must search for the best wrapper
+	 * 
+	 * @global boolean $memcached_use 
+	 *   This is defined at the top of this file, it determines if we want to use the original memcached or if we must search for the best wrapper
 	 */
 	public function init_memcached() {
 		global $memcached_use;
@@ -462,9 +467,13 @@ class Core {
 	 * 	$this->core_config('module', array('container1','subcontainer','field1'));
 	 *
 	 *
-	 * @param string $modul the module name
-	 * @param mixed $key the config key for that module or an array with the path of the config value (just in get mode)
-	 * @param string $value the value if we want to set the config key (optional, default = NS)
+	 * @param string $modul 
+	 *   the module name
+	 * @param mixed $key 
+	 *   the config key for that module or an array with the path of the config value (just in get mode)
+	 * @param string $value 
+	 *   the value if we want to set the config key (optional, default = NS)
+	 * 
 	 * @return mixed in set mode we return true if we could get the value or false if the key was an array, in get mode we return the value or null if not exist
 	 */
 	public function core_config($modul, $key, $value = NS) {
@@ -510,9 +519,13 @@ class Core {
 	/**
 	 * Set or get a memcached stored value
 	 *
-	 * @param string $key the key
-	 * @param mixed $value The value , if param not provided it will try to return the value for the given key (optional, default = NS)
-	 * @param int $expire The expire time for the memcache key (optional, default = 0)
+	 * @param string $key 
+	 *   the key
+	 * @param mixed $value 
+	 *   The value , if param not provided it will try to return the value for the given key (optional, default = NS)
+	 * @param int $expire 
+	 *   The expire time for the memcache key (optional, default = 0)
+	 * 
 	 * @return mixed within set mode return true, else return the value or null if value is not present
 	 */
 	public function mcache($key, $value = NS, $expire = 0) {
@@ -526,9 +539,13 @@ class Core {
 	/**
 	 * Set or get a static cache value
 	 *
-	 * @param string $modul the module name
-	 * @param string $key the config key
-	 * @param mixed $value the value to be stored (optional, default = NS)
+	 * @param string $modul 
+	 *   the module name
+	 * @param string $key 
+	 *   the config key
+	 * @param mixed $value 
+	 *   the value to be stored (optional, default = NS)
+	 * 
 	 * @return mixed return null or the value within get mode, or true on set mode
 	 */
 	public function cache($modul, $key, $value = NS) {
@@ -553,14 +570,20 @@ class Core {
 	 *
 	 * if a module / key is not found it will return the default value
 	 *
-	 * @param string $modul the module name
-	 * @param mixed $key the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
-	 * @param mixed $default_value the default value if the module/key not found (optional, default = NS)
-	 * @param boolean $use_cache if we want to use a static cache (for multi read outs within one request) (optional, default = false)
-	 * @param boolean $strict_array set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @param string $modul 
+	 *   the module name
+	 * @param mixed $key 
+	 *   the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
+	 * @param mixed $default_value 
+	 *   the default value if the module/key not found (optional, default = NS)
+	 * @param boolean $use_cache 
+	 *   if we want to use a static cache (for multi read outs within one request) (optional, default = false)
+	 * @param boolean $strict_array 
+	 *   set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * 
 	 * @return mixed
 	 * 		- return a single string value if $strict_array is set to false and just one value found
-	 * 		- returns an array if $strict_array is set to true or it has more than one value <br />
+	 * 		- returns an array if $strict_array is set to true or it has more than one value
 	 */
 	public function get_dbconfig($modul, $key = NS, $default_value = NS, $use_cache = false, $strict_array = false) {
 		$value = $this->dbconfig($modul, $key, NS, $use_cache, $strict_array);
@@ -576,15 +599,21 @@ class Core {
 	 * $key NS and value NOT NS (set mode) is not provided
 	 *
 	 *
-	 * @param string $modul the module name
-	 * @param mixed $key the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
-	 * @param mixed $value the value (optional, default = NS)
-	 * @param boolean $use_cache if we want to use a static cache (for multi read outs within one request) (optional, default = false)
-	 * @param boolean $strict_array set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @param string $modul 
+	 *   the module name
+	 * @param mixed $key 
+	 *   the key as a string or if we want multiple keys provide an array with the database fields as the array values (optional, default = NS)
+	 * @param mixed $value 
+	 *   the value (optional, default = NS)
+	 * @param boolean $use_cache 
+	 *   if we want to use a static cache (for multi read outs within one request) (optional, default = false)
+	 * @param boolean $strict_array 
+	 *   set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * 
 	 * @return mixed
 	 * 	Get mode
 	 * 		- return a single string value if $strict_array is set to false and just one value found
-	 * 		- returns an array if $strict_array is set to true or it has more than one value <br />
+	 * 		- returns an array if $strict_array is set to true or it has more than one value
 	 *  Set mode
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
@@ -776,7 +805,6 @@ class Core {
 
 	/**
 	 * Assign the admin menu to smarty
-	 * TODO must be re-thinked and re-designed to have a good menu structure
 	 */
 	public function assign_menus() {
 
@@ -843,17 +871,29 @@ class Core {
 			$menu_obj = new MenuObj("main_menu");
 		}
 		
-		$this->smarty->assign_by_ref("main_menu", $menu_obj->get_menu_tree(true));
+		$alter_menus = array();
+				
+		// Provide other modules to alter the main menu entries
+		foreach($this->hook('alter_menu', array('main_menu')) AS $alter_menu) {
+			$alter_menus = array_merge_recursive($alter_menus, $alter_menu);
+		}
+		
+		$this->smarty->assign_by_ref("main_menu", $menu_obj->get_menu_tree(true, $alter_menus));
 	}
 
 	/**
 	 * Set the given $page as the redirect url on next page reload (useful for login system)
-	 * @param string $page the url
+	 * 
+	 * @param string $page 
+	 *   the url
 	 */
 	public function request_next_time_refresh($page) {
 		$this->session->set("next_load_redirect", $page);
 	}
 
+	/**
+	 * Assign default variables to smarty 
+	 */
 	public function smarty_assign_default_vars() {
 
 		//Assign current template path
@@ -964,9 +1004,13 @@ class Core {
 	 * Order: success -> notice -> error
 	 *
 	 * @param string $msg
-	 * @param string $type use one of Core::MESSAGE_TYPE_* (optional, default = Core::MESSAGE_TYPE_SUCCES)
-	 * @param boolean $ajax if this is set to true it will be handled as an AjaxReturn (optional, default = false)
-	 * @param mixed $ajax_data if $ajax is set to true we can provide additional data send back to the browser within the current ajax request (optional, default = null)
+	 *   the message
+	 * @param string $type
+	 *   use one of Core::MESSAGE_TYPE_* (optional, default = Core::MESSAGE_TYPE_SUCCES)
+	 * @param boolean $ajax 
+	 *   if this is set to true it will be handled as an AjaxReturn (optional, default = false)
+	 * @param mixed $ajax_data 
+	 *   if $ajax is set to true we can provide additional data send back to the browser within the current ajax request (optional, default = null)
 	 */
 	public function message($msg, $type = self::MESSAGE_TYPE_SUCCESS, $ajax = false, $ajax_data = null) {
 
@@ -1044,15 +1088,22 @@ class Core {
 		if (!isset($_SESSION['message'][$type])) {
 			$_SESSION['message'][$type] = array();
 		}
-
-		//Add the message
-		$_SESSION['message'][$type][] = $msg;
+		
+		//Add the message if we are in html mode, on shell mode we call consoleLog
+		if (!defined('is_shell')) {
+			$_SESSION['message'][$type][] = $msg;
+		}
+		else {
+			consoleLog($msg, $type);
+		}
 	}
 
 	/**
 	 * Checks if a the given $module is enabled or not.
 	 *
-	 * @param string $module The module to be checked
+	 * @param string $module 
+	 *   The module to be checked
+	 * 
 	 * @return boolean true if enabled, else false
 	 */
 	public function module_enabled($module) {
@@ -1078,6 +1129,7 @@ class Core {
 	 * Enable or disable debug mode
 	 *
 	 * @param boolean $val
+	 *   true for enable, else false
 	 */
 	public function set_debug($val) {
 		$this->debug = $val;
@@ -1088,7 +1140,7 @@ class Core {
 	/**
 	 * Returns the current debug mode
 	 *
-	 * @return boolean
+	 * @return boolean true if debug is enabled, else false
 	 */
 	public function get_debug() {
 		return $this->debug;
@@ -1097,7 +1149,7 @@ class Core {
 	/**
 	 * Returns the current session object by reference
 	 *
-	 * @return Session
+	 * @return Session the session
 	 */
 	public function &get_session() {
 		return $this->session;
@@ -1106,7 +1158,7 @@ class Core {
 	/**
 	 * Returns the right manager object by reference
 	 *
-	 * @return RightManager
+	 * @return RightManager the right manager
 	 */
 	public function &get_right_manager() {
 		return $this->right_manager;
@@ -1116,7 +1168,8 @@ class Core {
 	 * Redirects direct to the given Location through header information
 	 * If more than one slashes in series appears it will be replaced with just one (url cleanup)
 	 *
-	 * @param string $string The location to be redirected
+	 * @param string $string 
+	 *   The location to be redirected
 	 */
 	public function location($string) {
 		$scheme = "";
@@ -1135,8 +1188,11 @@ class Core {
 	 * The template ("standard/header.tpl") will check if this variable exist and creates
 	 * a javascript timeout with the redirection.
 	 *
-	 * @param stirng $location the location to be redirected
-	 * @param int $seconds the number of seconds to wait before redirecting (optional, default = 5)
+	 * @param stirng $location 
+	 *   the location to be redirected
+	 * @param int $seconds 
+	 *   the number of seconds to wait before redirecting (optional, default = 5)
+	 * 
 	 * @return boolean true if request succeed, else false
 	 */
 	public function request_redirect($location, $seconds = 5) {
@@ -1170,9 +1226,12 @@ class Core {
 	 * Soopfw.config.foo[0] = 'bar';
 	 * Soopfw.config.foo[1] = 'bar2';
 	 *
-	 * @param string $var The variable name for the config key.
-	 * @param mixed $value Any variable which should be provided within javascript Soopfw.config.*
-	 * @param boolean $as_array If the value should be added as a config array (optional, default = false)
+	 * @param string $var 
+	 *   The variable name for the config key.
+	 * @param mixed $value 
+	 *   Any variable which should be provided within javascript Soopfw.config.*
+	 * @param boolean $as_array 
+	 *   If the value should be added as a config array (optional, default = false)
 	 */
 	public function js_config($var, $value, $as_array = false) {
 		//Check if we want to just set the value to the config key or if we want
@@ -1198,7 +1257,7 @@ class Core {
 	/**
 	 * Returns the current javascript configuration keys
 	 *
-	 * @return array
+	 * @return array the javascript config array
 	 */
 	public function get_js_config() {
 		return $this->js_config;
@@ -1207,7 +1266,8 @@ class Core {
 	/**
 	 * Load a css file (full path after docroot)
 	 *
-	 * @param string $file The filepath to the css file which should be loaded
+	 * @param string $file 
+	 *   The filepath to the css file which should be loaded
 	 */
 	public function add_css($file) {
 		$check_template_file = $this->smarty->get_tpl() . $file;
@@ -1220,8 +1280,10 @@ class Core {
 	/**
 	 * Load a javascript file (full path after docroot)
 	 *
-	 * @param string $file The filepath to the javascript file which should be loaded
-	 * @param string $type The javascript scope, use one of Core::JS_SCOPE_* (optional, default = Core::JS_SCOPE_USER)
+	 * @param string $file 
+	 *   The filepath to the javascript file which should be loaded
+	 * @param string $type 
+	 *   The javascript scope, use one of Core::JS_SCOPE_* (optional, default = Core::JS_SCOPE_USER)
 	 */
 	public function add_js($file, $type = self::JS_SCOPE_USER) {
 		if (!isset($this->js_files[$type])) {
@@ -1243,8 +1305,9 @@ class Core {
 	 * 	 The hookname
 	 * @param array $args
 	 * 	 an array with all arguments which will be passed to the hooks
+	 *   (optional, default = array())
 	 */
-	public function hook($name, $args) {
+	public function hook($name, $args = array()) {
 		static $cache = null;
 
 		if ($cache == null) {
@@ -1265,7 +1328,7 @@ class Core {
 		}
 
 		if (!isset($cache[$name])) {
-			return;
+			return array();
 		}
 
 		$hook_method = "hook_" . $name;
@@ -1280,7 +1343,8 @@ class Core {
 	 * Unset all menu entries where the user should not see based up on the #perm permission check.
 	 * Function is recrusive.
 	 *
-	 * @param array &$menu the menu array
+	 * @param array &$menu 
+	 *   the menu array
 	 */
 	private function unset_menu_entries_with_no_permission(&$menu) {
 		//Check if we have childs
@@ -1305,8 +1369,11 @@ class Core {
 	/**
 	 * Checks if the direct or an child entry matches to the $checklink, if so return true
 	 *
-	 * @param string $checklink the link which we want to check
-	 * @param array $menu the menu array
+	 * @param string $checklink 
+	 *   the link which we want to check
+	 * @param array $menu 
+	 *   the menu array
+	 * 
 	 * @return boolean true if selected, else false
 	 */
 	private function check_if_menu_subentry_is_selected($checklink, $menu) {
@@ -1323,7 +1390,9 @@ class Core {
 
 	/**
 	 *
-	 * @param string $current_dir current / start directory
+	 * @param string $current_dir 
+	 *   current / start directory
+	 * 
 	 * @return array a list of all path which has a templates directory
 	 */
 	private function get_template_dirs($current_dir) {
@@ -1357,7 +1426,7 @@ class Core {
 			$files_to_add = array();
 
 			//Init yui compressor
-			$yui = new YUICompressor();
+			$yui = new YuiCompressor();
 			
 			$original_css_files = $this->css_files;
 			foreach ($this->css_files AS $file) {
@@ -1463,7 +1532,7 @@ class Core {
 				$files_to_add = array();
 
 				//Init yui compressor
-				$yui = new YUICompressor();
+				$yui = new YuiCompressor();
 
 				//Loop through all js files which we want to load within the current scope
 				foreach ($file_array AS $original_javascript_file) {

@@ -51,11 +51,18 @@ class PageRevisionObj extends AbstractDataManagment
 	/**
 	 * Insert the current data and delete all previous revision except the last 20
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
-	 * @param boolean $force_insert normaly we just insert a new revision if we changed something, with this we can force it (usefull if we reactivate without a change the page) (optional, default=false)
+	 * @param boolean $ignore
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $force_insert
+	 *   normaly we just insert a new revision if we changed something, with this we can force it (usefull if we reactivate without a change the page) (optional, default=false)
+	 * @param boolean $create_alias
+	 *   If set to true, an url alias will be created for this page revision,
+	 *   if set to false it will not
+	 *   (optional, default = true)
+	 * 
 	 * @return boolean true on success, else false
 	 */
-	public function insert($ignore = false, $force_insert = false) {
+	public function insert($ignore = false, $force_insert = false, $create_alias = true) {
 		if(!$force_insert && $this->load_success && empty($this->values_changed)) {
 			return true;
 		}
@@ -69,51 +76,53 @@ class PageRevisionObj extends AbstractDataManagment
 				'@revision' => $this->values['revision']-20
 			));
 
-			$alias_title = UrlAliasObj::get_alias_string($this->values['title']);
-			$alias_match = $this->db->query_slave_first("SELECT `id`, `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $this->values['page_id'], "current_language" => $this->values['language']));
+			if ($create_alias) {
+				$alias_title = UrlAliasObj::get_alias_string($this->values['title']);
+				$alias_match = $this->db->query_slave_first("SELECT `id`, `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $this->values['page_id'], "current_language" => $this->values['language']));
 
 
-			if(empty($alias_match) || $alias_match['alias'] != $alias_title) {
-				$url_alias_object = new UrlAliasObj();
-				if(!empty($alias_match)) {
+				if(empty($alias_match) || $alias_match['alias'] != $alias_title) {
+					$url_alias_object = new UrlAliasObj();
+					if(!empty($alias_match)) {
 
-					$url_alias_object = new UrlAliasObj($alias_match['id']);
-				}
-				else {
-					$url_alias_object->module = 'content';
-					$url_alias_object->action = 'view';
-					$url_alias_object->params = $this->values['page_id']."|".$this->values['language'];
-				}
-
-				$change = true;
-				$alias_count = -1;
-				foreach($this->db->query_slave_all("SELECT `alias`,`params` FROM `".UrlAliasObj::TABLE."` WHERE `alias` LIKE 'alias_string%' ORDER BY `alias` ASC", array('alias_string' => $alias_title)) AS $row) {
-
-					if(!preg_match("/^".preg_quote($alias_title, "/")."(-([0-9]+))?$/", $row['alias'], $matches)) {
-						continue;
+						$url_alias_object = new UrlAliasObj($alias_match['id']);
 					}
-					if($row['params'] == $this->values['page_id']."|".$this->values['language']) {
-						$change = false;
-						break;
+					else {
+						$url_alias_object->module = 'content';
+						$url_alias_object->action = 'view';
+						$url_alias_object->params = $this->values['page_id']."|".$this->values['language'];
 					}
 
-					if(!isset($matches[2])) {
-						$matches[2] = 0;
+					$change = true;
+					$alias_count = -1;
+					foreach($this->db->query_slave_all("SELECT `alias`,`params` FROM `".UrlAliasObj::TABLE."` WHERE `alias` LIKE 'alias_string%' ORDER BY `alias` ASC", array('alias_string' => $alias_title)) AS $row) {
+
+						if(!preg_match("/^".preg_quote($alias_title, "/")."(-([0-9]+))?$/", $row['alias'], $matches)) {
+							continue;
+						}
+						if($row['params'] == $this->values['page_id']."|".$this->values['language']) {
+							$change = false;
+							break;
+						}
+
+						if(!isset($matches[2])) {
+							$matches[2] = 0;
+						}
+
+						if((int)$matches[2] > $alias_count) {
+							$alias_count = (int)$matches[2];
+						}
+
 					}
+					if($change == true) {
 
-					if((int)$matches[2] > $alias_count) {
-						$alias_count = (int)$matches[2];
+						$url_alias_object->alias = $alias_title;
+						if($alias_count != -1) {
+							$url_alias_object->alias .= '-'.($alias_count+1);
+						}
+
+						$url_alias_object->save_or_insert();
 					}
-
-				}
-				if($change == true) {
-
-					$url_alias_object->alias = $alias_title;
-					if($alias_count != -1) {
-						$url_alias_object->alias .= '-'.($alias_count+1);
-					}
-
-					$url_alias_object->save_or_insert();
 				}
 			}
 			return true;

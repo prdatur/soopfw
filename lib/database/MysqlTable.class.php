@@ -82,7 +82,7 @@ class MysqlTable extends Object
 
 	public $table = array();
 
-	function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNODB) {
+public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNODB) {
 		parent::__construct();
 		$this->table['engine'] = $engine;
 		$this->table['name'] = $table_name;
