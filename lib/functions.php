@@ -736,6 +736,7 @@ function safe($text, $type = PDT_STRING) {
  */
 function cc_error_handler($errno = E_NOTICE, $errstr = "", $errfile = "", $errline = "", $variables = "") {
 	global $core;
+	
 	/* @var $core Core */
 	// if error has been supressed with an @
 	if (error_reporting() == 0 || (($errno & error_reporting()) == 0 )) {
@@ -800,7 +801,7 @@ function cc_error_handler($errno = E_NOTICE, $errstr = "", $errfile = "", $errli
 		$_SERVER['HTTP_USER_AGENT'] = '(unknown)';
 
 	$current_user = "";
-	if(!empty($core)) {
+	if(!empty($core) && !empty($core->session)) {
 		$current_user = $core->session->current_user();
 	}
 	if(empty($current_user)) {
@@ -904,7 +905,12 @@ User's Browser......: " . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 		/* echo '<div><pre>';
 		  echo htmlspecialchars($errMsgPlain);
 		  echo '</pre></div>'; */
-		echo $errMsg;
+		if(defined('is_shell')) {
+			echo $errMsgPlain;
+		}
+		else {
+			echo $errMsg;
+		}
 	}
 
 	if (ini_get('log_errors')) {
@@ -978,6 +984,7 @@ function class_loader($classname) {
 		}
 		//throw new Exception("Error - class $classname is not available!");
 	}
+	$already_loaded[$classname] = true;
 }
 
 /** @function generatePW

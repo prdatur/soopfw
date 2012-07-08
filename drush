@@ -18,6 +18,7 @@
 
     define("SITEPATH",$matches[1]);
 
+    define("is_shell",true);
     define("CURRENT_TIME",time());
     define("BUILD_START",microtime(true));
 
