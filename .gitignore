@@ -9,6 +9,7 @@ templates_c/*
 templates/*
 !templates/.htaccess
 !templates/standard
+!templates/internal.tpl
 
 modules/*
 !modules/.htaccess
