@@ -397,7 +397,6 @@ class translation extends ActionModul
 
 		//Build up our translation form
 		$language_obj = new LanguagesObj();
-		$this->db->set_debug(true);
 		$form = new Form("translate", t("Translate: [b]@string[/b]", array("@string" => $translation->key)));
 		foreach ($this->lng->get_enabled_languages() AS $row => $language_string) {
 			$translation_objects[$row] = $translation_tmp = new TranslationObj($id, $row);

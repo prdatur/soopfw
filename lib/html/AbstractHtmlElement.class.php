@@ -20,6 +20,16 @@ abstract class AbstractHtmlElement extends Object
 	public function assign_smarty($name) {
 		$this->smarty->assign_by_ref($name, $this);
 	}
+	
+	/**
+	 * Assign the form to smarty
+	 *
+	 * @param string $name 
+	 *   The smarty variable
+	 */
+	public function append_smarty($name, $key) {
+		$this->smarty->append(array($name => array($key => &$this)), '', true);
+	}
 
 }
 

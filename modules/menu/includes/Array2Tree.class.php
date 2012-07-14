@@ -49,7 +49,7 @@ class Array2Tree {
 				$url = preg_replace('/\/[a-z][a-z]\//i', '/', $url);
 				$check_active_link = preg_replace('/\/[a-z][a-z]\//i', '/', $entry['#link']);
 
-				if($this->menu_selected == false && $url == $check_active_link) {
+				if($this->menu_selected == false && strtolower($url) == strtolower($check_active_link)) {
 					$entry['#active'] = true;
 					$entry['#active_direct'] = true;
 					$this->menu_selected = true;
@@ -67,7 +67,7 @@ class Array2Tree {
 
 		}
 
-		if($just_active == true && $parent_id === 0) {
+		if($just_active == true && $parent_id."" === "0") {
 			$this->get_only_active($result);
 		}
 		return $result;
@@ -83,7 +83,7 @@ class Array2Tree {
 
 		foreach($array AS $k => &$childs) {
 
-			if($onetime_add_all == false && $childs['parent_id'] !== "0" && empty($childs['#active']) && !$this->check_if_a_child_is_direct_selected($array)) {
+			if($onetime_add_all == false && $childs['parent_id']."" !== "0" && empty($childs['#active']) && !$this->check_if_a_child_is_direct_selected($array)) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {
@@ -119,7 +119,7 @@ class Array2Tree {
 	private function check_if_a_child_is_direct_selected(&$array) {
 		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
 		foreach($array AS &$child) {
-			if($url == $child['#link']) {
+			if(strtolower($url) == strtolower($child['#link'])) {
 				return true;
 			}
 			if(!empty($child['#childs'])) {

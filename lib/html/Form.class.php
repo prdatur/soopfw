@@ -270,6 +270,32 @@ class Form extends AbstractHtmlElement implements Iterator
 	}
 
 	/**
+	 * Append the form to smarty.
+	 * 
+	 * @param string $key 
+	 *   The key for the array
+	 * @param string $name 
+	 *   The smarty variable (optional, default = 'form')
+	 */
+	public function append_smarty($key, $name = "form") {		
+		if ($this->is_ajax) {
+			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
+			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
+				if ($elem->config("type") == "submit") {
+					$elem->config_array("css_class", "ajax_submit_handler");
+				}
+			}
+			//We need to find all filefields to set it also to ajax mode if the form is ajax.
+			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
+				if ($elem->config("type") == "Filefield") {
+					$elem->set_ajax(true);
+				}
+			}
+		}
+		parent::append_smarty($name, $key);
+	}
+
+	/**
 	 * Return if the form is an ajax
 	 *
 	 * @return boolean

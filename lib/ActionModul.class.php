@@ -18,6 +18,8 @@ class ActionModul extends Object
 	const LOGOUT_URL = "logout_url";
 	const LOGIN_URL = "login_url";
 	const PROFILE_URL = "profile_url";
+	
+	const NO_DEFAULT_METHOD = "|no_default|";
 
 	/**
 	 * This will be filled with the template file path which will be used as the template file to parse for this action
@@ -120,6 +122,10 @@ class ActionModul extends Object
 		$default_method = $this->default_methode;
 		if (empty($default_method)) {
 			trigger_error("NO DEFAULT METHOD DEFINED", E_USER_ERROR);
+		}
+		
+		if ($default_method == self::NO_DEFAULT_METHOD) {
+			return $this->clear_output();
 		}
 		$this->$default_method();
 	}
@@ -254,7 +260,10 @@ class ActionModul extends Object
 	 *   If we want to assign the config to smarty (optional, default = false)
 	 */
 	public function load_config($assign = false) {
-		foreach ($this->db->query_slave_all("SELECT `key`, `value` FROM `".CoreModulConfigObj::TABLE."` WHERE `modul` = @modul", array("@modul" => $this->modulname)) AS $data) {
+		$sql = $this->db->query_slave_all("SELECT `key`, `value` FROM `".CoreModulConfigObj::TABLE."` WHERE `modul` = @modul", array(
+			"@modul" => $this->modulname
+		));
+		foreach ($sql AS $data) {
 			$this->config[$data['key']] = $data['value'];
 		}
 		if ($assign == true) {
@@ -311,6 +320,7 @@ class ActionModul extends Object
 		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
 		return preg_replace('/\/+/','/', '/'.strtolower($language_key).'/'.preg_replace('/^\/[a-z]{2}(\/|$)/is','', $url));
 	}
+	
 	/**
 	 * Clear output the display no inner content html
 	 *

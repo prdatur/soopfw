@@ -1,7 +1,8 @@
 <?php
 /**
- * Provide an abstract data managment, this is the abstract class
- * which will be always used if we have a table within the database
+ * Provide an abstract data managment.
+ * Everytime we decide to create a new table we should create a Model object 
+ * which extends the AbstractDataManagment class.
  * The data manager will handle all save / load / change processes within the database.
  * It works also with memcached to have a better performance
  *

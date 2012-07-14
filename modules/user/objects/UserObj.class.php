@@ -39,7 +39,7 @@ class UserObj extends AbstractDataManagment
 		$this->db_struct->runtime_cache = true;
 		$this->db_struct->add_reference_key("user_id");
 		$this->db_struct->set_auto_increment("user_id");
-		$this->db_struct->add_field("user_id", t("User ID"), PDT_INT);
+		$this->db_struct->add_field("user_id", t("User ID"), PDT_INT, 0);
 		$this->db_struct->add_field("username", t("username"), PDT_STRING);
 		$this->db_struct->add_hidden_field("password", t("password"), PDT_STRING);
 		$this->db_struct->add_field("language", t("Language"), PDT_STRING, 'en');

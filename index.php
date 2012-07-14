@@ -156,7 +156,7 @@
 				aborting_loading();
 			}
 
-			$core->cache("core","current_module",$module->modulname);
+			$core->cache("core", "current_module",$module->modulname);
 			$core->cache("core", "current_action", $module->action);
 
 			$parent = get_parent_class($modulname);
@@ -273,6 +273,7 @@
 		
 		$core->add_css("/css/jquery_soopfw/jquery-ui-datetime-picker.css");
 		$core->add_css("/css/jquery_soopfw/jquery.qtip.css");
+		$core->add_css("/css/jquery_soopfw/jquery.sceditor.default.min.css");
 		$core->add_css("/css/jquery_overrides.css");
 		
 		$core->add_css("/css/soopfw_icons.css");
@@ -306,6 +307,8 @@
 		$core->add_js("/js/jquery_plugins/jquery.metadata.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.tablesorter.min.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.ui.tabs.js", Core::JS_SCOPE_SYSTEM);
+		$core->add_js("/js/jquery_plugins/jquery.sceditor.js", Core::JS_SCOPE_SYSTEM);
+		$core->add_js("/js/jquery_plugins/jquery.sceditor.bbcode.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/adminmenu.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/common.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/core.js", Core::JS_SCOPE_SYSTEM);
