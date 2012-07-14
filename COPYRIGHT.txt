@@ -29,3 +29,5 @@ license, including:
  - yuicompressor-2.4.7
  - Smarty 3.0 RC1 - Author: Monte Ohrt <monte at ohrt dot com > - Author: Uwe Tews
  - Thread - Author: Tudor Barbu <miau@motane.lu> - copyright MIT
+ - Net_DNS2-1.2.1 - http://www.opensource.org/licenses/bsd-license.php  BSD License - 2010 Mike Pultz <mike@mikepultz.com>
+ - Net_DNSBL-1.3.7 - http://www.php.net/license/3_01.txt  PHP License 3.01 - Sebastian Nohn <sebastian@nohn.net>

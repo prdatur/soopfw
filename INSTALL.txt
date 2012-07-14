@@ -9,6 +9,8 @@ Soopfw depends on the following third-party software:
 	module: rewrite, 
 	vhost NEED allowOverwrite: all, 
 	module: ssl if ssl is used)
+
+ - php5-cli
  - php5
 	modules: 
 		php5-mcrypt, 
