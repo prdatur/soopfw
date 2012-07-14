@@ -139,7 +139,7 @@
 		function parse ($text) {
 			$text = str_replace('[*]', '[li]', $text);
 			$text = str_replace('[/*]', '[/li]', $text);
-			$text = str_replace("\n", '<br />', $text);
+			#$text = str_replace("\n", '<br />', $text);
 			$basetree = new stackItem();
 			$basetree->build(''.trim($text));
 			return $basetree->parse($this, $this->usedTags);

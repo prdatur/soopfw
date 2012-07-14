@@ -314,6 +314,7 @@ Soopfw.system_footer_behaviour = function() {
 		$(this).find(".dropdownbox").hide();
 	});
 
+	$('.wysiwyg_bbcode').sceditorBBCodePlugin();
 	process_form_buttons();
 };
 

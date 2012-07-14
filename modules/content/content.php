@@ -816,42 +816,64 @@ class content extends ActionModul {
 	/**
 	 * Returns the translated link for the current content page
 	 *
-	 * @param string $language_key the language key
+	 * @param string $language_key
+	 *   the language key
+	 * 
 	 * @return string the translated url
 	 */
 	public function get_translation_link($language_key) {
 		static $cache = array();
 		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
-
+		
+		// Remove all starting slashes.
 		$url = preg_replace('/^\/+/is','', $url);
+		
+		// Replace a possible language indicator.
 		$url = preg_replace('/^[a-z]{2}\//is','', $url);
+		
+		// Remove the file ending
 		$url = preg_replace('/\.html?$/is','', $url);
+		
+		// Check if cache has already this entry.
 		if(!isset($cache[$url."|".$language_key])) {
+			
+			// Try to get the url alias for this url if cache was not setup.
 			if(!isset($cache[$url])) {
 				$alias_url = new UrlAliasObj();
 				$alias_url->db_filter->add_where("alias", $url);
 				$alias_url->load();
+				
+				// Check if the url alias exist, if not we must fallback to parent method.
 				if(!$alias_url->load_success()) {
 					$cache[$url] = false;
 					$cache[$url."|".$language_key] = false;
 					return parent::get_translation_link($language_key);
 				}
 				$cache[$url] = $alias_url->params;
-			} else if($cache[$url] == false) {
+			} 
+			// The url was cached but an alias could not be found, fallback to parent method.
+			else if($cache[$url] == false) {
 				return parent::get_translation_link($language_key);
 			}
 			$data_array = explode("|", $cache[$url], 2);
-
+			
+			// Try to get the alias for this page id
 			$alias = $this->get_alias_for_page_id($data_array[0], $language_key);
+			
+			// If nothing could be found use the page id fallback.
 			if(empty($alias)) {
-
 				$alias = 'content/view/'.$data_array[0];
 			}
+			
+			// Setup the cache key with the translated link.
 			$cache[$url."|".$language_key] = '/'.strtolower($language_key).'/'.$alias.'.html';
 		}
+		// The url and language was cached but an alias could not be found, fallback to parent method.
 		else if($cache[$url."|".$language_key] == false) {
 			return parent::get_translation_link($language_key);
 		}
+		
+		// Return the alias for this language.
 		return $cache[$url."|".$language_key];
 	}
 
