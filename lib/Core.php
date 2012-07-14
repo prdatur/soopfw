@@ -111,7 +111,13 @@ else {
  * Main Core, It will initialize all needed classes (Smarty, Memcache, DB, ...)
  * Also it Provides several useful methods for quick accessing within classes
  * which extends Object
+ * 
+ * In a default install/behavior we DO NOT need to initialize the Core.
  *
+ * Soopfw will do this for us within the default_index.php, also shell commands (drush) will initialize the core for us.
+ *
+ * So do this only if you have your own standalone file.
+ * 
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
@@ -251,6 +257,12 @@ class Core {
 	 * @var string
 	 */
 	public $init_type = self::INIT_TYPE_HTML;
+	
+	/**
+	 * Holds all registered widgets.
+	 * @var array
+	 */
+	private $widgets = array();
 
 	/**
 	 * Constructor which reads configs, and setting up Database connection and creating an empty language  object
@@ -457,9 +469,12 @@ class Core {
 
 	/**
 	 * Get or set a configuration for a given module
-	 * this is only static so it can not be read out after page reload
+	 * Be aware if you set some values manually it will be not permantent stored, only during current page request.
+	 * The only permanent configuration within this method will be the values within config/core.php
+	 * 
+	 * 
 	 * If $value is not provided or NS it will try to return the current value for that module and key
-	 * Special not on $key as array
+	 * Special note on $key as array
 	 * for example we have a core config array like
 	 * 	$this->config['module']['container1']['subcontainer']['field1']
 	 * and want to get exactly the value for that field1 we must provide and array as key with the full path as array values
@@ -474,7 +489,8 @@ class Core {
 	 * @param string $value 
 	 *   the value if we want to set the config key (optional, default = NS)
 	 * 
-	 * @return mixed in set mode we return true if we could get the value or false if the key was an array, in get mode we return the value or null if not exist
+	 * @return mixed in set mode we return true if we could set the value else false , in get mode we return the value or null if not exist the returning value can be an array or single value
+	 *
 	 */
 	public function core_config($modul, $key, $value = NS) {
 		if ($value == NS) {
@@ -804,7 +820,7 @@ class Core {
 	}
 
 	/**
-	 * Assign the admin menu to smarty
+	 * Assign the admin menu and if present the main_menu (id=main_menu) to smarty
 	 */
 	public function assign_menus() {
 
@@ -897,6 +913,7 @@ class Core {
 	public function smarty_assign_default_vars() {
 
 		//Assign current template path
+		$this->smarty->assign("SITEPATH", SITEPATH);
 		$this->smarty->assign("TEMPLATE_PATH", $this->smarty->get_tpl());
 		$this->js_config('template_path', $this->smarty->get_tpl());
 		//Assign the user id if an user is logged in
@@ -987,6 +1004,9 @@ class Core {
 		if (!empty($this->lng)) {
 			$this->lng->load_language_list();
 		}
+		
+		// Assign registered widgets
+		$this->smarty->assign_by_ref('core_widgets', $this->widgets);
 	}
 
 	/**
@@ -1271,7 +1291,12 @@ class Core {
 	 */
 	public function add_css($file) {
 		$check_template_file = $this->smarty->get_tpl() . $file;
-		if (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
+		
+		$module = $this->cache("core", "current_module");
+		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' .  $file) && is_readable(SITEPATH . '/' . $module . '/templates/' .  $file)) {
+			$file = '/' . $module . '/templates/' .  $file;
+		}
+		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
 		$this->css_files[] = $file;
@@ -1290,10 +1315,31 @@ class Core {
 			$this->js_files[$type] = array();
 		}
 		$check_template_file = $this->smarty->get_tpl() . $file;
-		if (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
+		
+		$module = $this->cache("core", "current_module");
+		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' .  $file) && is_readable(SITEPATH . '/' . $module . '/templates/' .  $file)) {
+			$file = '/' . $module . '/templates/' .  $file;
+		}
+		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
 		$this->js_files[$type][] = $file;
+	}
+
+	/**
+	 * Adds a additional template file.
+	 * The module action which want this widget must call the 
+	 * Framework smarty function <%get_widget type='type'%> where type is optional
+	 * if type is not provided it will get all widgets at this point which the action
+	 * created.
+	 *
+	 * @param string $name 
+	 *   the unique name for this widget
+	 * @param string $file 
+	 *   The filepath to the widget template file
+	 */
+	public function register_widget($name, $file) {
+		$this->widgets[$name] = $file;
 	}
 
 	/**
