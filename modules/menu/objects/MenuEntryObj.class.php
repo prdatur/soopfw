@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class MenuEntryObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class MenuEntryObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param int $entry_id the menu id (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $entry_id 
+	 *   the menu id (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($entry_id = "", $force_db = false) {
 		parent::__construct();
@@ -80,7 +83,9 @@ class MenuEntryObj extends AbstractDataManagment
 	/**
 	 * Save the given Data
 	 *
-	 * @param boolean $save_if_unchanged Save this object even if no changes to it's values were made
+	 * @param boolean $save_if_unchanged 
+	 *   Save this object even if no changes to it's values were made (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -95,8 +100,11 @@ class MenuEntryObj extends AbstractDataManagment
 
 	/**
 	 * Insert the current data
+	 * After we inserted the data, we also clear the menu cache for this menu id
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $ignore 
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
@@ -108,6 +116,11 @@ class MenuEntryObj extends AbstractDataManagment
 		return false;
 	}
 
+	/**
+	 * Returns a list of all deactivated menu entries.
+	 * 
+	 * @return array the menu entries
+	 */
 	public function get_all_deactivated_menu_entries() {
 		$result = array();
 
@@ -128,6 +141,14 @@ class MenuEntryObj extends AbstractDataManagment
 		return $this->get_flat_entry_id_list($treelist);
 	}
 
+	/**
+	 * Converts a tree into a flat list array.
+	 * 
+	 * @param array $treelist
+	 *   the entry tree list
+	 * 
+	 * @return array a flatten list where the tree will be restored.
+	 */
 	private function get_flat_entry_id_list($treelist) {
 		$result = array();
 		foreach($treelist AS $entry) {
@@ -142,8 +163,11 @@ class MenuEntryObj extends AbstractDataManagment
 
 	/**
 	 * Tries to invalidate the get menu tree cache for the given menu id
-	 * @param string $menu_id the menu id
-	 * @param string $old_menu_id the original menu id (optional, default = '')
+	 * 
+	 * @param string $menu_id 
+	 *   the menu id
+	 * @param string $old_menu_id 
+	 *   the original menu id (optional, default = '')
 	 */
 	private function clear_menu_tree_cache($menu_id, $old_menu_id = '') {
 		if(!empty($old_menu_id)) {

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.link.objects
+ * @category ModelObjects
  */
 class PageObj extends AbstractDataManagment
 {
@@ -20,10 +21,12 @@ class PageObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 *
-	 * @param int $page_id the page id (optional, default = "")
-	 * @param string $language the language, if not provided current language will be used (optional, default = '')
-	 * @param int $revision revision (optional, default = 0)
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $page_id 
+	 *   the page id (optional, default = "")
+	 * @param string $language 
+	 *   the language, if not provided current language will be used (optional, default = '')
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($page_id = "", $language = '', $force_db = false) {
 		parent::__construct();
@@ -48,14 +51,16 @@ class PageObj extends AbstractDataManagment
 		$this->db_struct->add_field("deleted", t("deleted"), PDT_ENUM, self::DELETED_NO, array(self::DELETED_YES, self::DELETED_NO));
 
 		if (!empty($page_id) && !empty($language)) {
-			$this->load(array($page_id, $language));
+			$this->load(array($page_id, $language), $force_db);
 		}
 	}
 
 	/**
 	 * Save the given Data, also de/re-activate the menu entry if we changed the publish status
 	 *
-	 * @param boolean $save_if_unchanged Save this object even if no changes to it's values were made
+	 * @param boolean $save_if_unchanged 
+	 *   Save this object even if no changes to it's values were made
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.language.objects
+ * @category ModelObjects
  */
 class LanguagesObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class LanguagesObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $lang the language key (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $lang 
+	 *   the language key (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($lang = "", $force_db = false) {
 		parent::__construct();

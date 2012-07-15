@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class DBMemcachedObj extends AbstractDataManagment
 {
@@ -16,8 +17,10 @@ class DBMemcachedObj extends AbstractDataManagment
 
 	/**
 	 * Constructor
-	 * @param string $key the memcache key (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $key 
+	 *   the memcache key (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($key = '', $force_db = false) {
 		parent::__construct();

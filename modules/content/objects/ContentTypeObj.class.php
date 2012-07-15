@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.content.objects
+ * @category ModelObjects
  */
 class ContentTypeObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class ContentTypeObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 *
-	 * @param string $content_type the content type (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $content_type 
+	 *   the content type (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($content_type = "", $force_db = false) {
 		parent::__construct();

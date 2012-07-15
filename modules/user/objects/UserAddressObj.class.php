@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.user.objects
+ * @category ModelObjects
  */
 class UserAddressObj extends AbstractDataManagment
 {
@@ -22,8 +23,10 @@ class UserAddressObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param int $id the address id (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $id 
+	 *   the address id (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();

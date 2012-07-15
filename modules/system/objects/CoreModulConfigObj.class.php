@@ -8,6 +8,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class CoreModulConfigObj extends AbstractDataManagment
 {
@@ -19,9 +20,12 @@ class CoreModulConfigObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $key the configuration key (optional, default = "")
-	 * @param string $modul the module name (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $key 
+	 *   the configuration key (optional, default = "")
+	 * @param string $modul 
+	 *   the module name (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($key = "", $modul = "", $force_db = false) {
 		parent::__construct();

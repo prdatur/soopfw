@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This object is a lock entry.
+ * With this object we lock a user if we want it. based up on a unique identifer
+ * for the given user.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package modules.system.objects
+ * @category ModelObjects
+ */
 class IPLockObj extends AbstractDataManagment
 {
 	/**
@@ -22,10 +32,15 @@ class IPLockObj extends AbstractDataManagment
 
 	/**
 	 * Constructor
-	 * @param int $locktime the locktime (optional, default = 0)
-	 * @param string $type the lock identifer (optional, default = "")
-	 * @param string $ip the ip, if left empty it will try to get the current user ip (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * 
+	 * @param int $locktime 
+	 *   the locktime (optional, default = 0)
+	 * @param string $type 
+	 *   the lock identifer (optional, default = "")
+	 * @param string $ip 
+	 *   the ip, if left empty it will try to get the current user ip (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($locktime = 0, $type = "", $ip = "", $force_db = false) {
 		parent::__construct();
@@ -52,7 +67,9 @@ class IPLockObj extends AbstractDataManagment
 	 * Remove all expired locks
 	 */
 	public function clean() {
-		$this->db->query_master("DELETE FROM `".IPLockObj::TABLE."` WHERE DATE_ADD(`time`, INTERVAL ".$this->locktime." MINUTE) > @date", array("@date" => date(DB_DATE, TIME_NOW)));
+		$this->db->query_master("DELETE FROM `".IPLockObj::TABLE."` WHERE DATE_ADD(`time`, INTERVAL ".$this->locktime." MINUTE) > @date", array(
+			"@date" => date(DB_DATE, TIME_NOW
+		)));
 	}
 
 	/**

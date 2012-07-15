@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.user.objects
+ * @category ModelObjects
  */
 class UserSessionObj extends AbstractDataManagment
 {
@@ -20,8 +21,9 @@ class UserSessionObj extends AbstractDataManagment
 	 * @param string $session_id
 	 *   the session id (optional, default = "")
 	 * @param string $ip
-	 *   the ip address (optional, default = getRealIp())
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 *   the ip address (optional, default = '')
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($session_id = "", $ip = '', $force_db = false) {
 		parent::__construct();

@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.content.objects
+ * @category ModelObjects
  */
 class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagment
 {
@@ -17,13 +18,20 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 *
-	 * @param int $page_id the page id (optional, default = "")
-	 * @param string $language the language (optional, default = "")
-	 * @param int $revision the revision (optional, default = 1)
-	 * @param string $content_type_field_group_id the id from ContentTypeFieldGroupObj (optional, default = "")
-	 * @param string $field_type the field type (optional, default = "")
-	 * @param int $index the value index for multi fields (optional, default = 0)
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $page_id 
+	 *   the page id (optional, default = "")
+	 * @param string $language 
+	 *   the language (optional, default = "")
+	 * @param int $revision 
+	 *   the revision (optional, default = 1)
+	 * @param string $content_type_field_group_id 
+	 *   the id from ContentTypeFieldGroupObj (optional, default = "")
+	 * @param string $field_type 
+	 *   the field type (optional, default = "")
+	 * @param int $index 
+	 *   the value index for multi fields (optional, default = 0)
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($page_id = "", $language = "", $revision = 1, $content_type_field_group_id = "", $field_type = "", $index = 0, $force_db = false) {
 		parent::__construct();
@@ -50,7 +58,9 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagment
 	/**
 	 * Insert the current data and delete all previous revision except the last 20
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $ignore 
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {

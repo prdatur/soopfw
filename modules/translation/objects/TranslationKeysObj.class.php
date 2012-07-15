@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.language.objects
+ * @category ModelObjects
  */
 class TranslationKeysObj extends AbstractDataManagment
 {
@@ -20,8 +21,10 @@ class TranslationKeysObj extends AbstractDataManagment
 	 * We have a special note on loading, if you provide not a fully md5 hash as the id, the id string will be made to an md5 sum and the be loaded.
 	 * So you can also load the object by passing the direct translation key string to it.
 	 *
-	 * @param string $id the translation id, its the md5 sum of the key (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $id 
+	 *   the translation id, its the md5 sum of the key (optional, default = "")
+	 * @param boolean $force_db
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();

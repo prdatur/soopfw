@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class UrlAliasObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param int $id the alias id (optional, default = false)
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $id 
+	 *   the alias id (optional, default = '')
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();
@@ -45,7 +48,9 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Save the given Data
 	 *
-	 * @param boolean $save_if_unchanged Save this object even if no changes to it's values were made
+	 * @param boolean $save_if_unchanged 
+	 *   Save this object even if no changes to it's values were made (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -59,7 +64,9 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Insert the current data
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $ignore 
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
@@ -88,7 +95,9 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Converts a given string in a string which an be used within url's
 	 *
-	 * @param string $string the string to convert
+	 * @param string $string 
+	 *   the string to convert
+	 * 
 	 * @return string the converted string
 	 */
 	public static function get_alias_string($string) {
@@ -104,7 +113,9 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Tries to get action call parameter array for the given alias string
 	 *
-	 * @param string $alias the alias to search for
+	 * @param string $alias 
+	 *   the alias to search for
+	 * 
 	 * @return array the array with module, action, and params for the action which is needed to call an action or false if nothing is found
 	 */
 	public static function get_params_from_alias($alias) {

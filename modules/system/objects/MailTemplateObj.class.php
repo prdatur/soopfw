@@ -5,6 +5,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class MailTemplateObj extends MessageTemplateObj
 {
@@ -26,8 +27,10 @@ class MailTemplateObj extends MessageTemplateObj
 	/**
 	 * Constructor
 	 *
-	 * @param string $id the mail template id (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $id 
+	 *   the mail template id (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	function __construct($id = "", $force_db = false) {
 		parent::__construct($id, $force_db);
@@ -36,7 +39,9 @@ class MailTemplateObj extends MessageTemplateObj
 
 	/**
 	 * Load the template if not already and replace all given key with the respective values
-	 * @param array $tplvars the template variable as an array in (key => value) the key is just the key without surrounding {}
+	 * 
+	 * @param array $tplvars 
+	 *   the template variable as an array in (key => value) the key is just the key without surrounding {}
 	 */
 	public function parse(Array $tplvars) {
 		$this->get_template_data();

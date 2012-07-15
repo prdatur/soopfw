@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class MenuObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class MenuObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $menu_id the menu id (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $menu_id 
+	 *   the menu id (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($menu_id = "", $force_db = false) {
 		parent::__construct();
@@ -35,9 +38,13 @@ class MenuObj extends AbstractDataManagment
 	}
 
 	/**
-	 * Save the given Data
+	 * Save the given Data.
+	 * Will also clean the menu cache for this menu id and if we changed
+	 * this menu we will also update the menu entries.
 	 *
-	 * @param boolean $save_if_unchanged Save this object even if no changes to it's values were made
+	 * @param boolean $save_if_unchanged 
+	 *   Save this object even if no changes to it's values were made
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {

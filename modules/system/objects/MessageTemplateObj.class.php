@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class MessageTemplateObj extends AbstractDataManagment
 {
@@ -17,9 +18,12 @@ class MessageTemplateObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 * 
-	 * @param string $id the message template id (optional, default = '')
-	 * @param string $language the language (optional, default = 'en')
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $id 
+	 *   the message template id (optional, default = '')
+	 * @param string $language 
+	 *   the language (optional, default = 'en')
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $language = 'en', $force_db = false) {
 		parent::__construct();

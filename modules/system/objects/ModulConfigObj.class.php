@@ -16,8 +16,10 @@ class ModulConfigObj extends AbstractDataManagment
 
 	/**
 	 *
-	 * @param type $modul
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $modul 
+	 *   the modul name (optional, default = '')
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($modul = "", $force_db = false) {
 		parent::__construct();

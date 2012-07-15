@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.user.objects
+ * @category ModelObjects
  */
 class UserObj extends AbstractDataManagment
 {
@@ -29,8 +30,10 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * constructor
 	 *
-	 * @param int $user_id the userid (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $user_id 
+	 *   the userid (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	function __construct($user_id = "", $force_db = false) {
 		parent::__construct();
@@ -60,9 +63,13 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * Save the user
 	 *
-	 * @param boolean $save_if_unchanged If we want to save the current values also if we do not changed anything (optional, default = false)
-	 * @param boolean $crypt_pw Wether we want to crypt the password or not (optional, default = true)
-	 * @param boolean $isplain wether the current password is plain text or not (optional, default = false)
+	 * @param boolean $save_if_unchanged 
+	 *   If we want to save the current values also if we do not changed anything (optional, default = false)
+	 * @param boolean $crypt_pw 
+	 *   Wether we want to crypt the password or not (optional, default = true)
+	 * @param boolean $isplain 
+	 *   wether the current password is plain text or not (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false, $crypt_pw = true, $isplain = false) {
@@ -75,8 +82,11 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * Save or insert the user
 	 *
-	 * @param boolean $crypt_pw Wether we want to crypt the password or not (optional, default = true)
-	 * @param boolean $save_if_unchanged If we want to save the current values also if we do not changed anything (optional, default = false)
+	 * @param boolean $crypt_pw 
+	 *   Wether we want to crypt the password or not (optional, default = true)
+	 * @param boolean $save_if_unchanged
+	 *   If we want to save the current values also if we do not changed anything (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function save_or_insert($crypt_pw = true, $save_if_unchanged = false) {
@@ -89,9 +99,13 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * Save the user
 	 *
-	 * @param boolean $ignore Don't throw an error if data is already there (optional, default=false)
-	 * @param boolean $crypt_pw Wether we want to crypt the password or not (optional, default = true)
-	 * @param boolean $isplain wether the current password is plain text or not (optional, default = false)
+	 * @param boolean $ignore 
+	 *   Don't throw an error if data is already there (optional, default=false)
+	 * @param boolean $crypt_pw 
+	 *   Wether we want to crypt the password or not (optional, default = true)
+	 * @param boolean $isplain 
+	 *   wether the current password is plain text or not (optional, default = false)
+	 * 
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false, $crypt_pw = true, $isplain = false) {
@@ -132,7 +146,9 @@ class UserObj extends AbstractDataManagment
 	 * returns the raw user rights
 	 * dont use this to check permissions, disallowed rights are not marked as permission denied.
 	 *
-	 * @param string $type filter the return rights, use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_USER);
+	 * @param string $type 
+	 *   filter the return rights, use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_USER);
+	 * 
 	 * @return array with all rights
 	 */
 	public function get_raw_rights($type = RightManager::RIGHT_TYPE_USER) {
@@ -147,9 +163,11 @@ class UserObj extends AbstractDataManagment
 	}
 
 	/**
-	 * 	Checks the user if he has given permission(s)
+	 * Checks the user if he has given permission(s)
 	 *
-	 * @param string $right the right
+	 * @param string $right 
+	 *   the right
+	 * 
 	 * @return boolean if user has permission return true, else false
 	 */
 	public function has_perm($right) {
@@ -160,7 +178,8 @@ class UserObj extends AbstractDataManagment
 	 * Add a right to the current user
 	 * Use this method with caution
 	 *
-	 * @param string $right add a string to the current rights
+	 * @param string $right 
+	 *   add a string to the current rights
 	 */
 	public function add_perm($right) {
 		if (empty($this->rights) && $this->rights_loaded == false) {
@@ -173,6 +192,7 @@ class UserObj extends AbstractDataManagment
 
 	/**
 	 * get the addresses of this user
+	 * 
 	 * @return returns an array with all the address information
 	 */
 	public function get_addresses() {
@@ -182,9 +202,15 @@ class UserObj extends AbstractDataManagment
 	}
 
 	/**
-	 * get the address of this user favored by group, if group is not default and result is empty default group will be returned, if after this the result is empty first address of this user will be returned
-	 * @param string $group the group, use one of UserConsts::USER_ADDRESS_GROUP_* (optional, default = UserConsts::USER_ADDRESS_GROUP_DEFAULT)
-	 * @param string $db_field only this databasefield will be returned (optional, default = '')
+	 * Get the address of this user favored by group, 
+	 * if group is not default and result is empty default group will be returned, 
+	 * if after this the result is empty first address of this user will be returned
+	 * 
+	 * @param string $group 
+	 *   the group, use one of UserConsts::USER_ADDRESS_GROUP_* (optional, default = UserConsts::USER_ADDRESS_GROUP_DEFAULT)
+	 * @param string $db_field 
+	 *   only this databasefield will be returned (optional, default = '')
+	 * 
 	 * @return array returns an array with the address information, if db_field is given, only this field will be returned as a string
 	 */
 	public function get_address_by_group($group = UserAddressObj::USER_ADDRESS_GROUP_DEFAULT, $db_field = "") {
@@ -233,7 +259,8 @@ class UserObj extends AbstractDataManagment
 	 * Crypts a password, also we remove the values_changed password entry if the current password is empty
 	 * else we would set on every user change the password to an empty one.
 	 *
-	 * @param boolean $isplain if the current password is plaintext and must be hashed first (optional, default = false)
+	 * @param boolean $isplain 
+	 *   if the current password is plaintext and must be hashed first (optional, default = false)
 	 */
 	private function crypt_pw($isplain = false) {
 

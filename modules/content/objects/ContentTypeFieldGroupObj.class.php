@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.content.objects
+ * @category ModelObjects
  */
 class ContentTypeFieldGroupObj extends AbstractDataManagment
 {
@@ -19,8 +20,11 @@ class ContentTypeFieldGroupObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 * The field group id is unique and links a content type and a field group
-	 * @param string $id the field group id, this must be unique (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * 
+	 * @param string $id 
+	 *   the field group id, this must be unique (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();

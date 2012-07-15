@@ -6,6 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.system.objects
+ * @category ModelObjects
  */
 class CoreRightObj extends AbstractDataManagment
 {
@@ -17,8 +18,10 @@ class CoreRightObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $right the right string (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param string $right 
+	 *   the right string (optional, default = "")
+	 * @param boolean $force_db 
+	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($right = "", $force_db = false) {
 		parent::__construct();
