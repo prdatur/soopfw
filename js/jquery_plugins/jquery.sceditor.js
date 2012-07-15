@@ -210,12 +210,22 @@
 
 			base.width(base.options.width ? base.options.width : $textarea.width());
 			base.height(base.options.height ? base.options.height : $textarea.height());
-			
+			var styles = base.options.style;
+			if (!(styles instanceof Array)) {
+				styles = [styles];
+			}
+			var style_links = "";
+			for (var style_index in styles) {
+				if (!styles.hasOwnProperty(style_index)) {
+					continue;
+				}
+				style_links += '<link rel="stylesheet" type="text/css" href="' + styles[style_index] + '" />'
+			}
 			getWysiwygDoc().open();
 			getWysiwygDoc().write(
 				'<html><head><!--[if gte IE 9]><style>* {min-height: auto !important}</style><![endif]-->' +
 				'<meta http-equiv="Content-Type" content="text/html;charset=' + base.options.charset + '" />' +
-				'<link rel="stylesheet" type="text/css" href="' + base.options.style + '" />' +
+				style_links +
 				'</head><body contenteditable="true"><span></span></body></html>'
 			);
 			getWysiwygDoc().close();
@@ -661,7 +671,7 @@
 			// The editor can cope if IE does unselect the text it's just not nice.
 			if(ieUnselectable !== false) {
 				content = $(content);
-				content.find(':not(input,textarea)').filter(function() { return this.nodeType===1; }).attr('unselectable', 'on');
+				content.find(':not(input,textarea)').filter(function() {return this.nodeType===1;}).attr('unselectable', 'on');
 			}
 			
 			var o_css = {
@@ -1688,6 +1698,77 @@
 				);
 			},
 			tooltip: "Font Size"
+		},
+		// END_COMMAND
+		// START_COMMAND: h
+		h: {
+			_createDropDown: function(editor, caller, callback) {
+				var	content   = $("<div />"),
+					/** @private */
+					clickFunc = function (e) {
+						callback($(this).data('sceditor-h'));
+						editor.closeDropDown(true);
+						e.preventDefault();
+					};
+
+				for (var i=1; i<= 6; i++) {
+					content.append(
+						$('<a class="sceditor-h-option" href="#"><h' + i + '>' + i + '</h' + i + '></a>')
+							.data('sceditor-h', i)
+							.click(clickFunc));
+				}
+
+				editor.createDropDown(caller, "h-picker", content);
+			},
+			exec: function (caller) {
+				var editor = this;
+				
+				$.sceditor.command.get('h')._createDropDown(
+					editor,
+					caller,
+					function(fontSize) {
+						var cmd = 'h'+fontSize;
+						editor.execCommand(cmd);
+					}
+				);
+			},
+			tooltip: "H"
+		},
+		// END_COMMAND
+		// START_COMMAND: h1
+		h1: {
+			exec: "h1",
+			tooltip: "h1"
+		},
+		// END_COMMAND
+		// START_COMMAND: h2
+		h2: {
+			exec: "h2",
+			tooltip: "h2"
+		},
+		// END_COMMAND
+		// START_COMMAND: h3
+		h3: {
+			exec: "h3",
+			tooltip: "h3"
+		},
+		// END_COMMAND
+		// START_COMMAND: h4
+		h4: {
+			exec: "h4",
+			tooltip: "h4"
+		},
+		// END_COMMAND
+		// START_COMMAND: h5
+		h5: {
+			exec: "h5",
+			tooltip: "h5"
+		},
+		// END_COMMAND
+		// START_COMMAND: h6
+		h6: {
+			exec: "h6",
+			tooltip: "h6"
 		},
 		// END_COMMAND
 		// START_COMMAND: Colour
@@ -3081,7 +3162,7 @@
 			// merge any existing command properties
 			cmd = $.extend($.sceditor.commands[name] || {}, cmd);
 		
-			cmd.remove = function() { $.sceditor.command.remove(name); };
+			cmd.remove = function() {$.sceditor.command.remove(name);};
 			
 			$.sceditor.commands[name] = cmd;
 			return this;
@@ -3142,8 +3223,8 @@
 		// Toolbar buttons order and groups. Should be comma seperated and have a bar | to seperate groups
 		toolbar:	"bold,italic,underline,strike,subscript,superscript|left,center,right,justify|" +
 				"font,size,color,removeformat|cut,copy,paste,pastetext|bulletlist,orderedlist|" +
-				"table|code,quote|horizontalrule,image,email,link,unlink|emoticon,youtube,date,time|" +
-				"ltr,rtl|print,source",
+				"table|code,quote|horizontalrule,email,link,unlink|youtube|" +
+				"ltr,rtl|source",
 
 		// Stylesheet to include in the WYSIWYG editor. Will style the WYSIWYG elements
 		style: "jquery.sceditor.default.css",

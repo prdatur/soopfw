@@ -103,6 +103,13 @@
 		mergeTextModeCommands = function() {
 			var merge = {
 				bold: { txtExec: ["[b]", "[/b]"] },
+				
+				h1: { txtExec: ["[h1]", "[/h1]"] },
+				h2: { txtExec: ["[h2]", "[/h2]"] },
+				h3: { txtExec: ["[h3]", "[/h3]"] },
+				h4: { txtExec: ["[h4]", "[/h4]"] },
+				h5: { txtExec: ["[h5]", "[/h5]"] },
+				h6: { txtExec: ["[h6]", "[/h6]"] },
 				italic: { txtExec: ["[i]", "[/i]"] },
 				underline: { txtExec: ["[u]", "[/u]"] },
 				strike: { txtExec: ["[s]", "[/s]"] },
@@ -643,6 +650,66 @@
 	};
 	
 	$.sceditorBBCodePlugin.bbcodes = {
+		//START_COMMAND: H1
+		h1: {
+			tags: {
+				h1: null
+			},
+			format: "[h1]{0}[/h1]",
+			html: '<h1>{0}</h1>'
+		},
+		// END_COMMAND
+		
+		// START_COMMAND: H1
+		h2: {
+			tags: {
+				h2: null
+			},
+			format: "[h2]{0}[/h2]",
+			html: '<h2>{0}</h2>'
+		},
+		// END_COMMAND
+		
+		// START_COMMAND: H1
+		h3: {
+			tags: {
+				h3: null
+			},
+			format: "[h3]{0}[/h3]",
+			html: '<h3>{0}</h3>'
+		},
+		// END_COMMAND
+		
+		// START_COMMAND: H1
+		h4: {
+			tags: {
+				h4: null
+			},
+			format: "[h4]{0}[/h4]",
+			html: '<h4>{0}</h4>'
+		},
+		// END_COMMAND
+		
+		// START_COMMAND: H1
+		h5: {
+			tags: {
+				h5: null
+			},
+			format: "[h5]{0}[/h5]",
+			html: '<h5>{0}</h5>'
+		},
+		// END_COMMAND
+		
+		// START_COMMAND: H1
+		h6: {
+			tags: {
+				h6: null
+			},
+			format: "[h6]{0}[/h6]",
+			html: '<h6>{0}</h6>'
+		},
+		// END_COMMAND
+		
 		// START_COMMAND: Bold
 		b: {
 			tags: {
@@ -876,7 +943,7 @@
 				table: null
 			},
 			format: "[table]{0}[/table]",
-			html: '<table>{0}</table>'
+			html: '<table class="default_table ui-widget ui-widget-content"><tbody>{0}</tbody></table>'
 		},
 		tr: {
 			tags: {
