@@ -1108,7 +1108,7 @@ class content extends ActionModul {
 			$page_obj->edit_count++;
 
 			$page_revision_obj->title = $title;
-			$page_revision_obj->serialized_data = json_encode($values);
+			$page_revision_obj->serialized_data = str_replace("\t","    ", json_encode($values));
 
 			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias);
 			if($revision_inserted) {
@@ -1150,7 +1150,7 @@ class content extends ActionModul {
 								$value_obj->content_type_field_group_id = $content_type_field_group_id;
 								$value_obj->field_type = $field_type;
 								$value_obj->index = $index;
-								$value_obj->value = $value;
+								$value_obj->value = str_replace("\t","    ", $value);
 								if(!$value_obj->insert()) {
 									$this->core->message(t("Could not store value entries"), Core::MESSAGE_TYPE_ERROR);
 									$this->db->transaction_rollback();
