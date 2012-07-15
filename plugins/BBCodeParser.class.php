@@ -110,6 +110,12 @@
 				}
 			}*/
 			$this->usedTags["hr"] = "parse_hr";
+			$this->usedTags["h1"] = "parse_h1";
+			$this->usedTags["h2"] = "parse_h2";
+			$this->usedTags["h3"] = "parse_h3";
+			$this->usedTags["h4"] = "parse_h4";
+			$this->usedTags["h5"] = "parse_h5";
+			$this->usedTags["h6"] = "parse_h6";
 			$this->usedTags["br"] = "parse_br";
 			$this->usedTags["i"] = "parse_i";
 			$this->usedTags["u"] = "parse_u";
@@ -132,16 +138,22 @@
 			$this->usedTags["url_blank"] = "parse_url_blank";
 			$this->usedTags["mail"] = "parse_mail";
 			$this->usedTags["color"] = "parse_color";
+			$this->usedTags["size"] = "parse_size";
 			$this->usedTags["img"] = "parse_img";
+			$this->usedTags["table"] = "parse_table";
+			$this->usedTags["tr"] = "parse_tr";
+			$this->usedTags["th"] = "parse_th";
+			$this->usedTags["td"] = "parse_td";
 
 		}
 
 		function parse ($text) {
 			$text = str_replace('[*]', '[li]', $text);
 			$text = str_replace('[/*]', '[/li]', $text);
+			$text = str_replace('[/*]', '[/li]', $text);
 			#$text = str_replace("\n", '<br />', $text);
 			$basetree = new stackItem();
-			$basetree->build(''.trim($text));
+			$basetree->build(''.trim($text), TRUE);
 			return $basetree->parse($this, $this->usedTags);
 
 		}
@@ -161,8 +173,55 @@
 
 		/* code generation methods */
 
+		function parse_table ($tree) {
+			return $this->simple_parse($tree, '<table class="default_table ui-widget ui-widget-content">', '</table>');
+
+		}
+		function parse_tr ($tree) {
+			return $this->simple_parse($tree, '<tr>', '</tr>');
+			
+		}
+		function parse_th ($tree) {
+			return $this->simple_parse($tree, '<th>', '</th>');
+
+		}
+		function parse_td ($tree) {
+			return $this->simple_parse($tree, '<td>', '</td>');
+
+		}
+
 		function parse_hr ($tree) {
 			return $this->simple_parse($tree, '<hr />', '');
+
+		}
+
+		function parse_h1 ($tree) {
+			return $this->simple_parse($tree, '<h1>', '</h1>');
+
+		}
+
+		function parse_h2 ($tree) {
+			return $this->simple_parse($tree, '<h2>', '</h2>');
+
+		}
+
+		function parse_h3 ($tree) {
+			return $this->simple_parse($tree, '<h3>', '</h3>');
+
+		}
+
+		function parse_h4 ($tree) {
+			return $this->simple_parse($tree, '<h4>', '</h4>');
+
+		}
+
+		function parse_h5 ($tree) {
+			return $this->simple_parse($tree, '<h5>', '</h5>');
+
+		}
+
+		function parse_h6 ($tree) {
+			return $this->simple_parse($tree, '<h6>', '</h6>');
 
 		}
 
@@ -261,15 +320,33 @@
 		function parse_url_blank ($tree, $params = array()) {
 			/* [url]href[/url] as well as [url=href]text[/url] is supported */
 			$href = isset($params['url']) ? $params['url'] : $tree->toText();
-			$href = $this->valid_url($href) ? $href : '';
+			if (preg_match("/^\/?content\/view\/([0-9]+)$/", $href, $matches)) {
+				$content = new content();
+				$href = '/' . $content->get_alias_for_page_id($matches[1]) . '.html';
+			}
+			else {
+				$href = $this->valid_url($href) ? $href : '';
+			}
 			return $this->simple_parse($tree, '<a href="'.htmlspecialchars($href).'" target="_blank">', '</a>');
 		}
 
 		function parse_url ($tree, $params = array()) {
 			/* [url]href[/url] as well as [url=href]text[/url] is supported */
 			$href = isset($params['url']) ? $params['url'] : $tree->toText();
-			$href = $this->valid_url($href) ? $href : '';
+			if (preg_match("/^\/?content\/view\/([0-9]+)$/", $href, $matches)) {
+				$content = new content();
+				$href = '/' . $content->get_alias_for_page_id($matches[1]) . '.html';
+			}
+			else {
+				$href = $this->valid_url($href) ? $href : '';
+			}
 			return $this->simple_parse($tree, '<a href="'.htmlspecialchars($href).'">', '</a>');
+		}
+
+		function parse_size ($tree, $params = array()) {
+			/* [url]href[/url] as well as [url=href]text[/url] is supported */
+			$px = intval($params['size']);
+			return $this->simple_parse($tree, '<h'.$px.'>', '</h'.$px.'>');
 		}
 
 		function parse_mail ($tree, $params = array()) {
@@ -496,11 +573,11 @@
 		 * $this is the current root element.
 		 */
 
-		function build ($text) {
+		function build ($text, $first_run = FALSE) {
 			if(empty($text))
 				return '';
 
-			if(substr($text, 0, 1) == '[') {
+			if(!$first_run && substr($text, 0, 1) == '[') {
 				/* Starts with an tag?
 				 * parsing should stop when /tag is found
 				 *
