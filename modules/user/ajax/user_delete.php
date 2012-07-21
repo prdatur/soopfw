@@ -20,6 +20,15 @@ if (!$params->is_valid()) {
 //Load the user and delete it
 $user_obj = new UserObj($params->user_id);
 if ($user_obj->delete()) {
+	
+	/**
+	 * Provides hook: user_delete
+	 *  
+	 * Allow other modules to do tasks if the user is deleted
+	 * 
+	 * @param int $user_id
+	 *   The user id
+	 */
 	$core->hook('user_delete', array($params->user_id));
 	AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
 }

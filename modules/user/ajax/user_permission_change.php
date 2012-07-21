@@ -56,6 +56,17 @@ switch ($params->value) {
 $current_rights = implode("\n", $tmp_arr);
 $user_right_obj->permissions = $current_rights;
 if ($user_right_obj->save_or_insert()) {
+	
+	/**
+	 * Provides hook: user_permission_change
+	 *  
+	 * Allow other modules to do tasks if the rights changed for the specific user
+	 * 
+	 * @param int $user_id
+	 *   The user id
+	 * @param array $permissions
+	 *   the current permissions for the user (includes the changes) 
+	 */
 	$core->hook('user_permission_change', array($params->user_id, $user_right_obj->permissions));
 	AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
 }

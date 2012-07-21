@@ -889,7 +889,21 @@ class Core {
 		
 		$alter_menus = array();
 				
-		// Provide other modules to alter the main menu entries
+		/**
+		 * Provides hook: alter_menu
+		 *  
+		 * Allow other modules to alter the menu entries for the menu id		 * 
+		 * 
+		 * The returning array will just merged, so we can not remove other
+		 * menu entries.
+		 *
+		 * @param string $menu_id
+		 *   The menu id
+		 * 
+		 * @return array
+		 *   An array with a flat list of additional menu entries.
+		 *   the tree will be parsed from parent_id which are based up on entry_id
+		 */
 		foreach($this->hook('alter_menu', array('main_menu')) AS $alter_menu) {
 			$alter_menus = array_merge_recursive($alter_menus, $alter_menu);
 		}
@@ -1208,7 +1222,7 @@ class Core {
 	 * The template ("standard/header.tpl") will check if this variable exist and creates
 	 * a javascript timeout with the redirection.
 	 *
-	 * @param stirng $location 
+	 * @param string $location 
 	 *   the location to be redirected
 	 * @param int $seconds 
 	 *   the number of seconds to wait before redirecting (optional, default = 5)

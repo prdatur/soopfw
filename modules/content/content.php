@@ -140,6 +140,22 @@ class content extends ActionModul {
 		$content_smarty->init();
 		
 		$implemented_field_groups = array();
+		
+		/**
+		 * Provides hook: content_add_field_groups
+		 *  
+		 * Allow other modules to add content type fields group.
+		 * 
+		 * The Returning array values are not the direct field values instead
+		 * each array value represents a content type field group which is also an array.
+		 * The key is used as the unique field id.
+		 * 
+		 * The following values are required for a content field group:
+		 *  - template => The full path to the default template file (without SITEPATH).
+		 *  - label => The label for this content type field group
+		 * 
+		 * @return array An array with the additional content type fields
+		 */
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
 		if(!empty($additional_field_groups)) {
 			foreach($additional_field_groups AS $return_values) {
@@ -166,7 +182,19 @@ class content extends ActionModul {
 		
 		$content_smarty->set_tpl($tpl_path);
 		
-		// Let other modules the chance to change the data array
+		/**
+		 * Provides hook: content_view_alter_data
+		 *  
+		 * Allow other modules to change the content data
+		 * 
+		 * You need to change it directly within the provided array
+		 * so you need to also get the $data_array by reference
+		 * 
+		 * @param string $content_type
+		 *   The name of the content type
+		 * @param array &$data_array
+		 *   The data array passed by reference
+		 */
 		$this->core->hook('content_view_alter_data', array($values['content_type'], &$data_array));
 		
 		$content = "";

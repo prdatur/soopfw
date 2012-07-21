@@ -35,6 +35,20 @@ else if ($params->value == "add") {
 }
 
 if ($return) {
+	
+	/**
+	 * Provides hook: user_permission_group_change
+	 *  
+	 * Allow other modules to do tasks if a user is removed or added from a specific group
+	 * 
+	 * @param int $group_id
+	 *   The group id
+	 * @param int $user_id
+	 *   the user id
+	 * @param string $value
+	 *   'remove' if we remove the user or 'add' if we add him to the specific group
+	 *   
+	 */
 	$core->hook('user_permission_group_change', $params->get_values());
 	AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
 }

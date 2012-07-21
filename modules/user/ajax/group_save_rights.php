@@ -25,6 +25,17 @@ $new_rights = implode("\n", $params->rights);
 $right_obj = new UserRightGroupObj($params->group_id);
 $right_obj->permissions = $new_rights;
 if ($right_obj->save()) {
+	
+	/**
+	 * Provides hook: group_save_rights
+	 *  
+	 * Allow other modules to do tasks if the rights changed for the specific group
+	 * 
+	 * @param int $group_id
+	 *   The group id
+	 * @param array $permissions
+	 *   the current permissions for the group (includes the changes) 
+	 */
 	$core->hook('group_save_rights', array($params->group_id, $params->rights));
 	AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
 }

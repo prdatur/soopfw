@@ -8,7 +8,7 @@ define("ENCODING", "UTF-8");
  * @param string $question
  *	 the message to show in front of the waiting input line
  * @return string
- *	 The entered stirng
+ *	 The entered string
  */
 function get_line($question) {
 	echo $question;

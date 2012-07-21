@@ -172,6 +172,15 @@ class user extends ActionModul
 				$user_address_obj->user_id = $user_obj->user_id;
 				$user_address_obj->set_fields($form->get_values());
 				if ($user_address_obj->insert()) {
+					
+					/**
+					 * Provides hook: add_user
+					 *  
+					 * Allow other modules to do tasks if the user is created
+					 * 
+					 * @param int $user_id
+					 *   The user id
+					 */
 					$this->core->hook('add_user', array($user_obj->user_id));
 					$user_obj->transaction_auto_commit();
 					//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
@@ -361,6 +370,19 @@ class user extends ActionModul
 				else {
 					$args[] = $lastinserted;
 				}
+				
+				/**
+				 * Provides hook: add_address
+				 *  
+				 * Allow other modules to do tasks if a address is added or changed for the user
+				 * 
+				 * @param int $user_id
+				 *   The user id
+				 * @param int $address_id
+				 *   The address id
+				 * @param array $old_values
+				 *   This array will be filled if the address is CHANGED so the address already exist. (optional, default = empty)
+				 */
 				$this->core->hook('add_address', $args);
 
 				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
