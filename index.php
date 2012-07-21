@@ -166,7 +166,12 @@
 				aborting_loading();
 
 			}
-
+			
+			if ($module->action == ActionModul::NO_DEFAULT_METHOD) {
+				assign_default_js_css($core);
+				$module->clear_output();
+				aborting_loading();
+			}
 			//Get the calling class method
 			$method = new ReflectionMethod($module, $module->action);
 
