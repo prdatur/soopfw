@@ -11,7 +11,7 @@ Soopfw depends on the following third-party software:
 	module: ssl if ssl is used)
 
  - php5-cli
- - php5
+ - php5 (version >= 5.3 is required)
 	modules: 
 		php5-mcrypt, 
 		php5-mysql, 
