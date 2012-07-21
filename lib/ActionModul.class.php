@@ -326,7 +326,7 @@ class ActionModul extends Object
 	 *
 	 * @return boolean static false
 	 */
-	protected function clear_output() {
+	public function clear_output() {
 		$this->static_tpl = NS;
 		return false;
 	}
