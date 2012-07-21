@@ -119,7 +119,18 @@ function success_alert(msg, callback, title)
 	return alert(msg, title, callback);
 }
 
-
+/**
+ * Displays a question dialog and execute the callback_function if the user
+ * click on "ok".
+ * Questions are the same as confirmations but with a different icon
+ * 
+ * @param string msg
+ *   The message to display.
+ * @param string title
+ *   The title for the dialog.
+ * @param mixed callback_function
+ *   An anonymous function or a function name as a string
+ */
 function question(msg, html, title, callback_function)
 {
 	$.alerts.cancelButton = Soopfw.t("cancel");
@@ -130,6 +141,21 @@ function question(msg, html, title, callback_function)
 	});
 }
 
+/**
+ * Displays a confirmation dialog and execute the callback_function if the user
+ * click on "ok".
+ * 
+ * @param string msg
+ *   The message to display.
+ * @param string title
+ *   The title for the dialog.
+ * @param mixed callback_function
+ *   An anonymous function or a function name as a string
+ * @param boolean parse_result
+ *   If set to true we do not just execute the callback function if the user
+ *   choose 'ok' instead we call EVERYTIME the callback function and provide
+ *   as the first parameter the result if the use clicked 'ok' or 'cancel'
+ */
 function confirm(msg, title, callback_function, parse_result)
 {
 	if(callback_function == undefined) {
@@ -147,6 +173,17 @@ function confirm(msg, title, callback_function, parse_result)
 
 }
 
+/**
+ * Displays a alert dialog and execute the callback_function if the user
+ * click on "ok" or closes the dialog.
+ *  
+ * @param string msg
+ *   The message to display.
+ * @param string title
+ *   The title for the dialog.
+ * @param mixed callback_function
+ *   An anonymous function or a function name as a string
+ */
 function alert(msg, title, callback_function)
 {
 	if(callback_function == undefined) {
