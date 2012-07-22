@@ -257,14 +257,21 @@ class menu extends ActionModul
 			$pure_alias = $obj_form->get("destination");
 			$pure_alias = preg_replace("/^\//","", $pure_alias);
 			$pure_alias = preg_replace("/\.[^\.]+$/","", $pure_alias);
+
+			$additional_sql_check = "";
+			$sql_args = array('@alias' => $pure_alias, '@destination' => $obj_form->get("destination"));
+			if ($loaded) {
+				$additional_sql_check = ' AND et.entry_id != @self_entry_id';
+				$sql_args['@self_entry_id'] = $entry_id;
+			}
+
 			//Return an error if the content page already exists within the menu structure (all menus will be checked)
 			$entry_exists  = $this->db->query_slave_first("
 				SELECT 1
 				FROM `".MenuEntryObj::TABLE."` e
 				JOIN `".MenuEntryTranslationObj::TABLE."` et ON (et.entry_id = e.entry_id)
 				JOIN `".UrlAliasObj::TABLE."` al ON (al.alias = @alias)
-				WHERE et.destination = @destination AND al.module = 'content' AND al.action = 'view'
-				", array('@alias' => $pure_alias, '@destination' => $obj_form->get("destination")));
+				WHERE et.destination = @destination AND al.module = 'content' AND al.action = 'view'" . $additional_sql_check, $sql_args);
 			if(!empty($entry_exists)) {
 				//Setup error message to display
 				$this->core->message(t("Could not save menu, this content page is already linked within a menu."), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
@@ -282,12 +289,12 @@ class menu extends ActionModul
 			}
 		}
 	}
-	
-	
-	/** 
+
+
+	/**
 	 * Install additional data
-	 * 
-	 * @return boolean 
+	 *
+	 * @return boolean
 	 *   if called from wrong method
 	 */
 	public function install() {
@@ -301,40 +308,40 @@ class menu extends ActionModul
 		$menu_obj->menu_id = 'main_menu';
 		$menu_obj->title = 'Mainmenu';
 		$menu_obj->insert();
-		
+
 		// Insert a menu entry for the "home" entry.
 		$menu_item = new MenuEntryObj();
 		$menu_item->menu_id = 'main_menu';
 		$menu_item->order = 1;
 		$menu_item->insert();
-		
+
 		$menu_tranlsation_item = new MenuEntryTranslationObj();
 		$menu_tranlsation_item->entry_id = $menu_item->entry_id;
 		$menu_tranlsation_item->language = 'en';
 		$menu_tranlsation_item->title = 'Home';
 		$menu_tranlsation_item->destination = '/';
 		$menu_tranlsation_item->insert();
-		
+
 		$menu_tranlsation_item->language = 'de';
 		$menu_tranlsation_item->insert();
-		
+
 		// Insert a menu entry for the "login" entry.
 		$menu_item = new MenuEntryObj();
 		$menu_item->menu_id = 'main_menu';
 		$menu_item->order = 2;
 		$menu_item->insert();
-		
+
 		$menu_tranlsation_item = new MenuEntryTranslationObj();
 		$menu_tranlsation_item->entry_id = $menu_item->entry_id;
 		$menu_tranlsation_item->language = 'en';
 		$menu_tranlsation_item->title = 'Login';
 		$menu_tranlsation_item->destination = '/user/login';
 		$menu_tranlsation_item->insert();
-		
+
 		$menu_tranlsation_item->language = 'de';
 		$menu_tranlsation_item->title = 'Anmelden';
 		$menu_tranlsation_item->insert();
-		
+
 		return true;
 	}
 }

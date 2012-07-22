@@ -48,11 +48,12 @@ class Array2Tree {
 				//If a language prefix is within an url, remove it for active check
 				$url = preg_replace('/\/[a-z][a-z]\//i', '/', $url);
 				$check_active_link = preg_replace('/\/[a-z][a-z]\//i', '/', $entry['#link']);
-
-				if($this->menu_selected == false && strtolower($url) == strtolower($check_active_link)) {
+				if(($this->menu_selected == false && strtolower($url) == strtolower($check_active_link)) || (isset($entry['#always_open']) && $entry['#always_open'] == MenuEntryTranslationObj::ALWAYS_OPEN_YES)) {
 					$entry['#active'] = true;
-					$entry['#active_direct'] = true;
-					$this->menu_selected = true;
+					if (strtolower($url) == strtolower($check_active_link)) {
+						$entry['#active_direct'] = true;
+						$this->menu_selected = true;
+					}
 				}
 			}
 

@@ -171,6 +171,7 @@ class MenuObj extends AbstractDataManagment
 					$menu_entry['#inactive'] = true; //The main title
 				}
 				$menu_entry['#link'] = $translations['destination']; // The main link
+				$menu_entry['#always_open'] = $menu_translation->always_open;
 			}
 			$array_2_tree->add_item($menu_entry);
 		}

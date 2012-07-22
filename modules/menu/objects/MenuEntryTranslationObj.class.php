@@ -18,6 +18,8 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	const TABLE = "menu_entry_translation";
 	const ACTIVE_YES = 'yes';
 	const ACTIVE_NO = 'no';
+	const ALWAYS_OPEN_YES = 'yes';
+	const ALWAYS_OPEN_NO = 'no';
 
 	/**
 	 * Constructor
@@ -42,8 +44,9 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 		$this->db_struct->add_required_field("language", t("language"), PDT_LANGUAGE_ENABLED, $language, 4);
 		$this->db_struct->add_required_field("title", t("title"), PDT_STRING);
 		$this->db_struct->add_field("perm", t("permission"), PDT_STRING, '');
+		$this->db_struct->add_field("always_open", t("always open?"), PDT_ENUM, self::ALWAYS_OPEN_NO, array(self::ALWAYS_OPEN_YES, self::ALWAYS_OPEN_NO));
 		$this->db_struct->add_required_field("destination", t("destination"), PDT_STRING);
-		$this->db_struct->add_required_field("active", t("active"), PDT_ENUM, 'yes', array(self::ACTIVE_YES, self::ACTIVE_NO));
+		$this->db_struct->add_required_field("active", t("active"), PDT_ENUM, self::ACTIVE_YES, array(self::ACTIVE_YES, self::ACTIVE_NO));
 
 		if (!empty($entry_id) && !empty($language)) {
 			if (!$this->load(array($entry_id, $language), $force_db)) {
