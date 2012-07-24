@@ -20,16 +20,29 @@ class Radiobuttons extends Checkboxes
 	 *   The values as an array in format ('value' => 'label') for every radiobutton
 	 * @param array $default_value
 	 *   The default value to preselect radiobutton if needed, its just the key within the $values (optional, default = '0')
+	 * @param string $label
+	 *   the input label (optional, default='')
+	 * @param string $description
+	 *   the input description (optional, default = '')
 	 * @param string $class
 	 *   the input css class (optional, default = '')
 	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
-	public function __construct($name, $values, $default_value = "0", $class = '', $id = '') {
+	public function __construct($name, $values, $default_value = "0", $label = '', $description = '', $class = '', $id = '') {
 
 		//We just need to load the core couse all needed parameters we will setup manually
 		parent::load_core();
 
+		//Set the label for the element, if $label not provided use $name instead
+		$this->config("label", $label);
+
+		//It can happen that an input will override config('label') so to have the original label store it
+		$this->config("orig_label", (empty($label)) ? $name : $label);
+
+		//Set the element description
+		$this->config("description", $description);
+		
 		//Set include empty elements with the returning output to always be false
 		$this->include_empty_elements(false);
 
