@@ -22,12 +22,12 @@ class menu extends ActionModul
 			888 => array(//Order id, same order ids will be unsorted placed behind each
 				'#id' => 'soopfw_menu', //A unique id which will be needed to generate the submenu
 				'#title' => t("Menu"), //The main title
-				'#link' => "/menu", // The main link
+				'#link' => "/admin/menu", // The main link
 				'#perm' => 'admin.menu', //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("Menu"), //The main title
-						'#link' => "/menu/overview", // The main link
+						'#link' => "/admin/menu/overview", // The main link
 					),
 
 				)

@@ -22,47 +22,47 @@ class content extends ActionModul {
 		foreach($this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
 			$content_types[] = array(
 				'#title' => $content_type['description'], //The main title
-				'#link' => "/content/manage_content_type/".$content_type['content_type'], // The main link
+				'#link' => "/admin/content/manage_content_type/".$content_type['content_type'], // The main link
 		#		'#perm' => $content_type['permission'], //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("manage fields"), //The main title
-						'#link' => "/content/manage_content_type_fields/".$content_type['content_type'], // The main link
+						'#link' => "/admin/content/manage_content_type_fields/".$content_type['content_type'], // The main link
 					)
 				)
 			);
 			$create_types[] = array(
 				'#title' => $content_type['description'], //The main title
-				'#link' => "/content/create/".$content_type['content_type'] // The main link
+				'#link' => "/admin/content/create/".$content_type['content_type'] // The main link
 			);
 		}
 		return array(
 			1 => array(//Order id, same order ids will be unsorted placed behind each
 				'#id' => 'soopfw_content_type', //A unique id which will be needed to generate the submenu
 				'#title' => t("content"), //The main title
-				'#link' => "/content", // The main link
+				'#link' => "/admin/content", // The main link
 				'#perm' => 'admin.content', //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("content types"), //The main title
-						'#link' => "/content/list_content_types", // The main link
+						'#link' => "/admin/content/list_content_types", // The main link
 						'#perm' => 'admin.content.manage', //Perm needed
 						'#childs' => $content_types
 					),
 					array(
 						'#title' => t("create content"), //The main title
-						'#link' => "/content/create", // The main link
+						'#link' => "/admin/content/create", // The main link
 						'#perm' => 'admin.content.manage', //Perm needed
 						'#childs' => $create_types
 					),
 					array(
 						'#title' => t("list content"), //The main title
-						'#link' => "/content/list_content", // The main link
+						'#link' => "/admin/content/list_content", // The main link
 						'#perm' => 'admin.content.create', //Perm needed
 						'#childs' => array(
 							array(
 								'#title' => t("unreachable content"), //The main title
-								'#link' => "/content/list_unreachable_content_types", // The main link
+								'#link' => "/admin/content/list_unreachable_content_types", // The main link
 								'#perm' => 'admin.content.create', //Perm needed
 							)
 						)

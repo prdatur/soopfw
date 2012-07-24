@@ -26,24 +26,24 @@ class translation extends ActionModul
 			800 => array(//Order id, same order ids will be unsorted placed behind each
 				'#id' => 'soopfw_translation', //A unique id which will be needed to generate the submenu
 				'#title' => t("Translation"), //The main title
-				'#link' => '/translation/search',
+				'#link' => '/admin/translation/search',
 				'#perm' => 'admin.translate', //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("Translate"), //The main title
-						'#link' => "/translation/search", // The main link
+						'#link' => "/admin/translation/search", // The main link
 					),
 					array(
 						'#title' => t("Import"), //The main title
-						'#link' => "/translation/import", // The main link
+						'#link' => "/admin/translation/import", // The main link
 					),
 					array(
 						'#title' => t("Export"), //The main title
-						'#link' => "/translation/export", // The main link
+						'#link' => "/admin/translation/export", // The main link
 					),
 					array(
 						'#title' => t("Manage"), //The main title
-						'#link' => "/translation/manage", // The main link
+						'#link' => "/admin/translation/manage", // The main link
 					),
 				)
 			)
@@ -447,7 +447,7 @@ class translation extends ActionModul
 		$language->lang = 'it';
 		$language->enabled = true;
 		$language->insert();
-		
+
 		return true;
 	}
 

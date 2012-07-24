@@ -19,6 +19,7 @@ class system extends ActionModul
 	const CONFIG_LOGIN_HANDLER = "login_handler";
 	const CONFIG_DEFAULT_PAGE = "default_page";
 	const CONFIG_DEFAULT_THEME = "default_theme";
+	const CONFIG_ADMIN_THEME = "admin_theme";
 
 	/**
 	 * The default method
@@ -40,32 +41,32 @@ class system extends ActionModul
 				'#childs' => array(
 					array(
 						'#title' => t("Modules"), //The main title
-						'#link' => "/system/modules", // The main link
+						'#link' => "/admin/system/modules", // The main link
 						'#perm' => 'admin.system.modules' //Perm needed
 					),
 					array(
 						'#title' => t("Update Db"), //The main title
-						'#link' => "/system/updatedb", // The main link
+						'#link' => "/admin/system/updatedb", // The main link
 						'#perm' => 'admin.system.updatedb' //Perm needed
 					),
 					array(
 						'#title' => t("Config"), //The main title
-						'#link' => "/system/config", // The main link
+						'#link' => "/admin/system/config", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
 						'#title' => t("Generate classlist"), //The main title
-						'#link' => "/system/generate_classlist", // The main link
+						'#link' => "/admin/system/generate_classlist", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
 						'#title' => t("Generate smartylist"), //The main title
-						'#link' => "/system/generate_smartylist", // The main link
+						'#link' => "/admin/system/generate_smartylist", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
 						'#title' => t("Reindex menu alias"), //The main title
-						'#link' => "/system/reindex_menu", // The main link
+						'#link' => "/admin/system/reindex_menu", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 				)
@@ -77,15 +78,15 @@ class system extends ActionModul
 	 *  Generates the classlist new
 	 */
 	public function generate_classlist() {
-		
+
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			return $this->no_permission();
 		}
-		
+
 		$this->core->generate_classlist();
 		$this->core->message(t('classlist generated'), Core::MESSAGE_TYPE_SUCCESS);
-		
+
 		$this->clear_output();
 	}
 
@@ -93,19 +94,19 @@ class system extends ActionModul
 	 *  Generates the smartylist new
 	 */
 	public function generate_smartylist() {
-		
+
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			return $this->no_permission();
 		}
-		
+
 		if ($this->core->create_smarty_sdi()) {
 			$this->core->message(t('smartylist generated'), Core::MESSAGE_TYPE_SUCCESS);
 		}
 		else {
 			$this->core->message(t('could not generated smartylist'), Core::MESSAGE_TYPE_ERROR);
 		}
-		
+
 		$this->clear_output();
 	}
 
@@ -113,18 +114,18 @@ class system extends ActionModul
 	 *  Reindex the menu alias
 	 */
 	public function reindex_menu() {
-		
+
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			return $this->no_permission();
 		}
-		
+
 		if ($this->core->reindex_menu());
 		$this->core->message(t('menu re-indexed'), Core::MESSAGE_TYPE_SUCCESS);
-		
+
 		$this->clear_output();
 	}
-	
+
 	/**
 	 * Action: config
 	 * Configurate the system main settings.
@@ -140,7 +141,7 @@ class system extends ActionModul
 
 		//Configurate the settings form
 		$form = new SystemConfigForm($this, "system_config", t("Configuration"));
-		
+
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
 			new FunctionValidator(t('Can not finde java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
@@ -157,7 +158,7 @@ class system extends ActionModul
 				return true;
 			})
 		));
-			
+
 		if (!empty($this->lng)) {
 			$form->add(new Selectfield(self::CONFIG_DEFAULT_LANGUAGE, $this->lng->get_enabled_languages(), $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_LANGUAGE, 'EN'), t("Default language")));
 		}
@@ -170,6 +171,7 @@ class system extends ActionModul
 			$available_themes[$entry->filename] = $entry->filename;
 		}
 		$form->add(new Selectfield(self::CONFIG_DEFAULT_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_THEME, 'standard'), t("Default theme")));
+		$form->add(new Selectfield(self::CONFIG_ADMIN_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_ADMIN_THEME, 'standard'), t("Admin theme"), t('All urls which starts with /admin will get this theme.')));
 
 		global $classes;
 		$login_handler = array();
@@ -247,7 +249,7 @@ class system extends ActionModul
 				}
 				$modules[] = $module;
 			}
-			
+
 			$this->core->generate_classlist();
 			$this->core->create_smarty_sdi();
 			$this->core->js_config("update_db_modules", $modules);
@@ -263,7 +265,7 @@ class system extends ActionModul
 	public function update($module = "system", $op = '') {
 		$this->install($module, $op, true);
 	}
-	
+
 	/**
 	 * Action: install
 	 * Install or update a module
@@ -310,7 +312,7 @@ class system extends ActionModul
 		$results = array();
 
 		//Creating Database tables from objects if the table does not exist.
-		$dir = new Dir("modules/".$module."/objects");
+		$dir = new Dir("modules/" . $module . "/objects");
 
 		foreach ($dir AS $entry) {
 			if (preg_match("/(.*)\.class\.php$/", $entry->filename, $matches)) {
@@ -319,142 +321,150 @@ class system extends ActionModul
 				$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 			}
 		}
-		
+
 		//Loop through each results. and check if the creation was success, if not we need to update the current table
 		foreach ($results AS $obj => $result) {
 			$msg = "Created Database table for object: ".$obj;
 			$type = Core::MESSAGE_TYPE_SUCCESS;
 			if (empty($result)) {
 				//Get the object which we want to create
+
+				/* @var $mobj AbstractDataManagment */
 				$mobj = new $obj();
 
-				//Get the tablename
-				$table = $mobj->get_dbstruct()->get_table();
-
-				//Check if the table realy exist.
-				if ($this->db->query_slave("SELECT 1 FROM `".$table."`")) {
-
-					//These fields must be changed again for auto_increment after wie added the field.
-					$add_fields = array();
-
-					//Get the old database fields to check wether we must rename, modify, delete or add the field
-					$db_fields = $this->db->get_table_fields($table);
-
-					//Get the current object fields
-					$obj_fields = $mobj->get_dbstruct()->get_struct();
-
-					//Get the database primary keys
-					$database_primary_keys = $this->db->get_primary_key($table, true);
-
-					//Get the new primary keys
-					$object_primary_keys = $mobj->get_dbstruct()->get_reference_key();
-
-					//Initialize the field where we store the last processed field, because if we add a new field we must add it right after this one
-					$after = "";
-
-					/**
-					 * We need this object index (loop index increment for the obj_fields) because we must check it against the database ordered index
-					 * This is needed to determine if we must just rename the field or change / add / delete it
-					 */
-					$object_index = 1;
-					foreach ($obj_fields AS $field => $options) {
-
-						//Pre init default value
-						if (!isset($options['default'])) {
-							$options['default'] = null;
-						}
-
-						//Check if the field should have auto increment
-						$ai = ($mobj->get_dbstruct()->get_auto_increment() == $field);
-
-						//Check if the current field already exists within table
-						if (isset($db_fields[$field])) {
-							//If the database index order is not the current object index, we must move the field to the correct position
-							if ($db_fields[$field]['ORDINAL_POSITION'] != $object_index) {
-								$this->db->move_table_field($table, $field, $options, $ai, $after);
-							}
-							else {
-								//If it is the same we just change the field options
-								$this->db->change_table_field($table, $field, $options, $ai);
-							}
-						}
-						else {
-							//Pre init that we do not rename
-							$rename = false;
-
-							//This will be set to the original field for the index to check if we must add or change the field
-							$original_index_table_field = null;
-
-							/**
-							 * loop through all database fields and get the old field for the current position,
-							 * if the found field is a primary key we can not add it as a new field, we must just rename it
-							 *
-							 */
-							foreach ($db_fields AS $field_name => $db_options) {
-								if ($object_index == $db_options['ORDINAL_POSITION']) {
-									if ($db_options['COLUMN_KEY'] == 'PRI') {
-										$rename = $db_options['COLUMN_NAME'];
-									}
-
-									$original_index_table_field = $db_options;
-									break;
-								}
-							}
-
-							//Check if we must rename because it is a primary key
-							if ($rename != false) {
-								$options['new_field'] = $field;
-								$this->db->change_table_field($table, $rename, $options, $ai);
-							}
-							//Check if we must rename because the original field does not longer exist within the current object
-							else if (!empty($original_index_table_field) && !isset($obj_fields[$original_index_table_field['COLUMN_NAME']])) {
-								$options['new_field'] = $field;
-								$this->db->change_table_field($table, $original_index_table_field['COLUMN_NAME'], $options, $ai);
-							}
-							/**
-							 * Field is not a primary and the original key for the index is still available so we have a complete new field, add it, but without auto increment
-							 * The auto increment will be set up after we changed the primary keys because the field must have an index to set the auto increment flag
-							 */
-							else {
-								$this->db->add_table_field($table, $field, $after, $options, false);
-								$add_fields[] = array(
-									'field' => $field,
-									'options' => $options,
-									'ai' => $ai
-								);
-							}
-						}
-						$after = $field;
-						//Remove the field from database array so all fields left within this array must be deleted because they are no longer within the current object
-						unset($db_fields[$field]);
-						$object_index++;
-					}
-
-					//Remove fields
-					foreach ($db_fields AS $field) {
-						$this->db->remove_table_field($table, $field['COLUMN_NAME']);
-					}
-
-					//Check if we must set the primary key, if the old primary keys did not changed to the current one, we do not need to update the key
-					//Get all values which are both within the provided arrays, if we have the same count of the intersection and one of the intersect array the 2 arrays MUST be equal
-					$intersect = array_intersect($object_primary_keys, $database_primary_keys);
-					if (count($intersect) != count($object_primary_keys)) {
-						//Set primary key
-						$this->db->set_primary_key($table, $object_primary_keys);
-					}
-					//Change all fresh added fields but now with the auto increment value
-					foreach ($add_fields AS $field_option) {
-						$this->db->change_table_field($table, $field_option['field'], $field_option['options'], $field_option['ai'], true);
-					}
-
-					//Run the queued sql statements
-					$this->db->alter_table_queue($table);
-					$msg = "Database table already exists, or now up to date: ".$obj;
+				if ($mobj->get_dbstruct()->autoupdate_disabled()) {
+					$msg = "Database update skipped because auto-update is disabled: " . $obj;
 					$type = Core::MESSAGE_TYPE_SUCCESS;
 				}
 				else {
-					$msg = "Could not create Database table for object: ".$obj;
-					$type = Core::MESSAGE_TYPE_ERROR;
+					//Get the tablename
+					$table = $mobj->get_dbstruct()->get_table();
+
+					//Check if the table realy exist.
+					if ($this->db->query_slave("SELECT 1 FROM `".$table."`")) {
+
+						//These fields must be changed again for auto_increment after wie added the field.
+						$add_fields = array();
+
+						//Get the old database fields to check wether we must rename, modify, delete or add the field
+						$db_fields = $this->db->get_table_fields($table);
+
+						//Get the current object fields
+						$obj_fields = $mobj->get_dbstruct()->get_struct();
+
+						//Get the database primary keys
+						$database_primary_keys = $this->db->get_primary_key($table, true);
+
+						//Get the new primary keys
+						$object_primary_keys = $mobj->get_dbstruct()->get_reference_key();
+
+						//Initialize the field where we store the last processed field, because if we add a new field we must add it right after this one
+						$after = "";
+
+						/**
+						* We need this object index (loop index increment for the obj_fields) because we must check it against the database ordered index
+						* This is needed to determine if we must just rename the field or change / add / delete it
+						*/
+						$object_index = 1;
+						foreach ($obj_fields AS $field => $options) {
+
+							//Pre init default value
+							if (!isset($options['default'])) {
+								$options['default'] = null;
+							}
+
+							//Check if the field should have auto increment
+							$ai = ($mobj->get_dbstruct()->get_auto_increment() == $field);
+
+							//Check if the current field already exists within table
+							if (isset($db_fields[$field])) {
+								//If the database index order is not the current object index, we must move the field to the correct position
+								if ($db_fields[$field]['ORDINAL_POSITION'] != $object_index) {
+									$this->db->move_table_field($table, $field, $options, $ai, $after);
+								}
+								else {
+									//If it is the same we just change the field options
+									$this->db->change_table_field($table, $field, $options, $ai);
+								}
+							}
+							else {
+								//Pre init that we do not rename
+								$rename = false;
+
+								//This will be set to the original field for the index to check if we must add or change the field
+								$original_index_table_field = null;
+
+								/**
+								* loop through all database fields and get the old field for the current position,
+								* if the found field is a primary key we can not add it as a new field, we must just rename it
+								*
+								*/
+								foreach ($db_fields AS $field_name => $db_options) {
+									if ($object_index == $db_options['ORDINAL_POSITION']) {
+										if ($db_options['COLUMN_KEY'] == 'PRI') {
+											$rename = $db_options['COLUMN_NAME'];
+										}
+
+										$original_index_table_field = $db_options;
+										break;
+									}
+								}
+
+								//Check if we must rename because it is a primary key
+								if ($rename != false) {
+									$options['new_field'] = $field;
+									$this->db->change_table_field($table, $rename, $options, $ai);
+								}
+								//Check if we must rename because the original field does not longer exist within the current object
+								else if (!empty($original_index_table_field) && !isset($obj_fields[$original_index_table_field['COLUMN_NAME']])) {
+									$options['new_field'] = $field;
+									$this->db->change_table_field($table, $original_index_table_field['COLUMN_NAME'], $options, $ai);
+								}
+								/**
+								* Field is not a primary and the original key for the index is still available so we have a complete new field, add it, but without auto increment
+								* The auto increment will be set up after we changed the primary keys because the field must have an index to set the auto increment flag
+								*/
+								else {
+									$this->db->add_table_field($table, $field, $after, $options, false);
+									$add_fields[] = array(
+										'field' => $field,
+										'options' => $options,
+										'ai' => $ai
+									);
+								}
+							}
+							$after = $field;
+							//Remove the field from database array so all fields left within this array must be deleted because they are no longer within the current object
+							unset($db_fields[$field]);
+							$object_index++;
+						}
+
+						//Remove fields
+						foreach ($db_fields AS $field) {
+							$this->db->remove_table_field($table, $field['COLUMN_NAME']);
+						}
+
+						//Check if we must set the primary key, if the old primary keys did not changed to the current one, we do not need to update the key
+						//Get all values which are both within the provided arrays, if we have the same count of the intersection and one of the intersect array the 2 arrays MUST be equal
+						$intersect = array_intersect($object_primary_keys, $database_primary_keys);
+						if (count($intersect) != count($object_primary_keys)) {
+							//Set primary key
+							$this->db->set_primary_key($table, $object_primary_keys);
+						}
+						//Change all fresh added fields but now with the auto increment value
+						foreach ($add_fields AS $field_option) {
+							$this->db->change_table_field($table, $field_option['field'], $field_option['options'], $field_option['ai'], true);
+						}
+
+						//Run the queued sql statements
+						$this->db->alter_table_queue($table);
+						$msg = "Database table already exists, or now up to date: ".$obj;
+						$type = Core::MESSAGE_TYPE_SUCCESS;
+					}
+					else {
+						$msg = "Could not create Database table for object: ".$obj;
+						$type = Core::MESSAGE_TYPE_ERROR;
+					}
 				}
 			}
 
@@ -464,7 +474,7 @@ class system extends ActionModul
 
 			$this->core->message($msg, $type);
 		}
-		
+
 		//Generating rights
 		if (isset($module_info['rights'])) {
 			foreach ($module_info['rights'] AS $right) {
@@ -474,10 +484,10 @@ class system extends ActionModul
 				$this->core->message("Right \"".$right."\" inserted", Core::MESSAGE_TYPE_SUCCESS);
 			}
 		}
-		
+
 		//If we are not updateing the system module we must call the module update method to perform maybe needed actions on a module update
 		if ($module != "system") {
-			
+
 			//Check if we are on a fresh module install or do just an update
 			$module_object = new $module();
 			$modul_config = new ModulConfigObj($module);

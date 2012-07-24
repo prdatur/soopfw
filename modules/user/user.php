@@ -22,16 +22,16 @@ class user extends ActionModul
 			999 => array(//Order id, same order ids will be unsorted placed behind each
 				'#id' => 'soopfw_user', //A unique id which will be needed to generate the submenu
 				'#title' => t("User"), //The main title
-				'#link' => "/user", // The main link
+				'#link' => "/admin/user", // The main link
 				'#perm' => 'admin.user', //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("Users"), //The main title
-						'#link' => "/user/overview", // The main link
+						'#link' => "/admin/user/overview", // The main link
 					),
 					array(
 						'#title' => t("Groups"), //The main title
-						'#link' => "/user/user_groups", // The main link
+						'#link' => "/admin/user/user_groups", // The main link
 						'#perm' => 'admin.user.group', //Perm needed
 					),
 				)
@@ -172,12 +172,12 @@ class user extends ActionModul
 				$user_address_obj->user_id = $user_obj->user_id;
 				$user_address_obj->set_fields($form->get_values());
 				if ($user_address_obj->insert()) {
-					
+
 					/**
 					 * Provides hook: add_user
-					 *  
+					 *
 					 * Allow other modules to do tasks if the user is created
-					 * 
+					 *
 					 * @param int $user_id
 					 *   The user id
 					 */
@@ -334,12 +334,12 @@ class user extends ActionModul
 
 		//Override address group with a selectbox
 		$options = array(
-			UserAddressObj::USER_ADDRESS_GROUP_DEFAULT => t('Default'), 
-			UserAddressObj::USER_ADDRESS_GROUP_DELIVER => t('Deliver'), 
-			UserAddressObj::USER_ADDRESS_GROUP_BILL => t('Bill'), 
-			UserAddressObj::USER_ADDRESS_GROUP_SUPPORT => t('Support'), 
+			UserAddressObj::USER_ADDRESS_GROUP_DEFAULT => t('Default'),
+			UserAddressObj::USER_ADDRESS_GROUP_DELIVER => t('Deliver'),
+			UserAddressObj::USER_ADDRESS_GROUP_BILL => t('Bill'),
+			UserAddressObj::USER_ADDRESS_GROUP_SUPPORT => t('Support'),
 		);
-		
+
 		$obj_form->add(new Selectfield("group", $options, $obj_form->get_object()->group, t("Addressgroup"), "", "form_id_" . $obj_form->get_object()->get_dbstruct()->get_table() . "_group"), t("group"));
 
 		//Add success ajax call to close the dialog
@@ -370,12 +370,12 @@ class user extends ActionModul
 				else {
 					$args[] = $lastinserted;
 				}
-				
+
 				/**
 				 * Provides hook: add_address
-				 *  
+				 *
 				 * Allow other modules to do tasks if a address is added or changed for the user
-				 * 
+				 *
 				 * @param int $user_id
 				 *   The user id
 				 * @param int $address_id
@@ -455,7 +455,7 @@ class user extends ActionModul
 	public function edit($user_id) {
 		//Require login
 		$this->session->require_login();
-		
+
 		$user_obj = new UserObj($user_id);
 		if ($user_obj->load_success()){
 			$this->title(t("User: @username", array('@username' => $user_obj->username)));
