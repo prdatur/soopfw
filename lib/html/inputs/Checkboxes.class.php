@@ -36,6 +36,10 @@ class Checkboxes extends AbstractHtmlInput
 	 *   The default values to preselect checkboxes if needed, keys are not used,
 	 *   provide just values with the key names from $values to be preselected
 	 *   like array('yes') to preselect yes element (optional, default = array())
+	 * @param string $label
+	 *   the input label (optional, default='')
+	 * @param string $description
+	 *   the input description (optional, default = '')
 	 * @param boolean $include_empty_values
 	 *   Set to true if you want also empty 'not posted' keys within the returning output (optional, default = false)
 	 * @param string $class
@@ -43,10 +47,19 @@ class Checkboxes extends AbstractHtmlInput
 	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
-	public function __construct($name, Array $values, Array $default_value = array(), $include_empty_values = false, $class = '', $id = '') {
+	public function __construct($name, Array $values, Array $default_value = array(), $label = '', $description = '', $include_empty_values = false, $class = '', $id = '') {
 
 		//We just need to load the core couse all needed parameters we will setup manually
 		parent::load_core();
+
+		//Set the label for the element, if $label not provided use $name instead
+		$this->config("label", $label);
+
+		//It can happen that an input will override config('label') so to have the original label store it
+		$this->config("orig_label", (empty($label)) ? $name : $label);
+
+		//Set the element description
+		$this->config("description", $description);
 
 		//Set if we want to include empty elements with the returning output
 		$this->include_empty_elements($include_empty_values);
@@ -99,11 +112,22 @@ class Checkboxes extends AbstractHtmlInput
 	 * @return string the HTML code for the element
 	 */
 	public function fetch() {
-		$output = "";
+		//first the the label string if not empty
+		$output = $this->get_label();
+
+		//Provide a suffix which we can configurate
+		$suffix = $this->config("suffix");
+		if(!empty($suffix)) {
+			$output .= $suffix;
+		}
+
 		//Loop through all inputs and append the fetched element html string to our returning string
 		foreach ($this->fields as &$field) {
 			$output .= "<div>".$field->fetch()."</div>";
 		}
+
+		//Append the main input template string and the followed description
+		$output .= $this->get_description();
 		return $output;
 	}
 
