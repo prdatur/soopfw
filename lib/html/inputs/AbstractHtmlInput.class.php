@@ -35,17 +35,17 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * constructor
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $value 
+	 * @param string $value
 	 *   the value for this input (optional, default='')
-	 * @param string $label 
+	 * @param string $label
 	 *   the input label (optional, default='')
-	 * @param string $description 
+	 * @param string $description
 	 *   the input description (optional, default = '')
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
 	public function __construct($name, $value = '', $label = '', $description = '', $class = "", $id = '') {
@@ -135,7 +135,7 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Disable an element
 	 *
-	 * @param boolean $boolean 
+	 * @param boolean $boolean
 	 *   wether this element is disabled or not
 	 */
 	public function disabled($boolean = true) {
@@ -146,9 +146,9 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Add a validator
 	 *
-	 * @param AbstractHtmlValidator &$validator 
+	 * @param AbstractHtmlValidator &$validator
 	 *   the validator
-	 * @param boolean $is_valid 
+	 * @param boolean $is_valid
 	 *   if this validator is always be valid (optional, default = false)
 	 */
 	public function add_validator(AbstractHtmlValidator &$validator, $is_valid = false) {
@@ -173,9 +173,9 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * check if input has the given validator
 	 *
-	 * @param string $validator 
+	 * @param string $validator
 	 *   validator name
-	 * 
+	 *
 	 * @return true if yes, else false
 	 */
 	public function has_validator($validator) {
@@ -351,11 +351,11 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * get or set config values
 	 *
-	 * @param string $k 
+	 * @param string $k
 	 *   the key
-	 * @param string $v 
+	 * @param string $v
 	 *   the value as a string, if not set current value will be returned (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed the value for the key as a string or if in set-mode return true, if a key is not set, return false
 	 */
 	public function config($k, $v = NS) {
@@ -437,9 +437,9 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Returns the given validator
 	 *
-	 * @param string $validator_name 
+	 * @param string $validator_name
 	 *   the validator name
-	 * 
+	 *
 	 * @return AbstractHtmlValidator the validator or null if validator not exists
 	 */
 	public function &get_validator($validator_name) {
@@ -453,17 +453,17 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Get or add config values to the config as an array, duplicate entries will be ignored by default
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 *   the key
-	 * @param string $val 
+	 * @param string $val
 	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
-	 * @param boolean $add_duplicates 
+	 * @param boolean $add_duplicates
 	 *   if this setting is set to true, the value will be added twice also if it was in the array before (optional, default = false)
-	 * 
+	 *
 	 * @return mixed the values for the key as an array or if in set-mode return true, if you return a value which are not set, return false
 	 */
 	public function config_array($key, $val = NS, $add_duplicates = false) {
-		if ($val == NS) {
+		if ($val === NS) {
 
 			//Return mode
 			//If the given key is not set, return false
@@ -556,11 +556,11 @@ abstract class AbstractHtmlInput extends Object
 	 *
 	 * This array will be checked against the $value_array if this key is also set in $value_array
 	 *
-	 * @param mixed $search_array 
+	 * @param mixed $search_array
 	 *   can be an array or a key
-	 * @param array $value_array 
+	 * @param array $value_array
 	 *   the value array , if left empty $_POST will be used (optional, default = array())
-	 * 
+	 *
 	 * @return mixed if key is set the value is returned if not it will return null
 	 */
 	protected function key_is_set($search_array, Array $value_array = array()) {

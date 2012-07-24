@@ -17,8 +17,8 @@ function get_line($question) {
 
 /**
  * Check a permission against the current user
- * 
- * @param string $perm 
+ *
+ * @param string $perm
  *   the permission to check
  * @return boolean true if current user has the permission, else false
  */
@@ -28,11 +28,11 @@ function has_perm($perm) {
 	}
 	$core = $GLOBALS['core'];
 	/* @var $core Core */
-	
+
 	if (empty($core->right_manager)) {
 		return false;
 	}
-	
+
 	return $core->right_manager->has_perm($params['perm']);
 }
 
@@ -92,7 +92,7 @@ function get_string_input($question, $default = '') {
  *
  * @param string $prompt
  *   The message to show
- * 
+ *
  * @return string
  *	 The entered string
  */
@@ -133,12 +133,19 @@ function parse_url_string($url) {
 	$override_params['type'] = "";
 	$override_params['action'] = "";
     $additional_function_params = array();
+	$admin_link = false;
     if(!empty($url) && $url != '/') {
         $additional_function_params = explode('/', substr($url,1));
 
 		if(count($additional_function_params) > 0) {
-            if(preg_match('/^[a-z]{2}$/is',$additional_function_params[0], $matches)) {
+            if(preg_match('/^[a-z]{2}$/is', $additional_function_params[0], $matches)) {
                 $language = $matches[0];
+                array_shift($additional_function_params);
+            }
+        }
+		if(count($additional_function_params) > 0) {
+            if(preg_match('/^admin$/is', $additional_function_params[0])) {
+                $admin_link = true;
                 array_shift($additional_function_params);
             }
         }
@@ -171,7 +178,7 @@ function parse_url_string($url) {
         }
 
     }
-
+	$override_params['admin_link'] = $admin_link;
 	$override_params['language'] = $language;
 	$override_params['additional_function_params'] = $additional_function_params;
 	return $override_params;
@@ -736,7 +743,7 @@ function safe($text, $type = PDT_STRING) {
  */
 function cc_error_handler($errno = E_NOTICE, $errstr = "", $errfile = "", $errline = "", $variables = "") {
 	global $core;
-	
+
 	/* @var $core Core */
 	// if error has been supressed with an @
 	if (error_reporting() == 0 || (($errno & error_reporting()) == 0 )) {

@@ -78,13 +78,13 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * Set or get the status, if you provide a value we are in set mode, else in get mode
 	 *
-	 * @param int $status 
+	 * @param int $status
 	 *   the status, use one of MainFileObj::STATUS_* (optional, default = NS)
-	 * 
+	 *
 	 * @return int on get mode the status, on set mode always false
 	 */
 	public function status($status = NS) {
-		if ($status == NS) {
+		if ($status === NS) {
 			return $this->status;
 		}
 		$this->status = (int)$status;
@@ -94,9 +94,9 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * load the given data
 	 *
-	 * @param mixed $val 
+	 * @param mixed $val
 	 *   The reference key value to be selected
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function load($val = "", $force_db = false) {
@@ -119,11 +119,11 @@ class MainFileObj extends AbstractDataManagment
 	 * Save or insert the given data and if $tmp_file is not empty move the new uploaded file to the wanted location
 	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location
 	 *
-	 * @param string $tmp_file 
+	 * @param string $tmp_file
 	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
-	 * 
+	 *
 	 * @return true on success, else false
 	 */
 	public function save_or_insert($tmp_file = "") {
@@ -139,11 +139,11 @@ class MainFileObj extends AbstractDataManagment
 	 * Save the given data and if $tmp_file is not empty move the new uploaded file to the wanted location
 	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location
 	 *
-	 * @param string $tmp_file 
+	 * @param string $tmp_file
 	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
-	 * 
+	 *
 	 * @return true on success, else false
 	 */
 	public function save($tmp_file = "", $save_if_unchanged = false) {
@@ -192,9 +192,9 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * This is a wrapper that we can call the parent insert function
 	 *
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert_parent($ignore = false) {
@@ -204,11 +204,11 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * Insert the given data
 	 *
-	 * @param string $tmp_file 
+	 * @param string $tmp_file
 	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert($tmp_file = "", $ignore = false) {
@@ -244,7 +244,7 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * Download this file
 	 *
-	 * @param string $override_src_file 
+	 * @param string $override_src_file
 	 *   here we can setup a absolute file path which file we want to download (optional, default = "")
 	 */
 	public function download($override_src_file = "") {
@@ -278,7 +278,7 @@ class MainFileObj extends AbstractDataManagment
 
 	/**
 	 * Returns the file content
-	 * 
+	 *
 	 * @return string the file contents
 	 */
 	public function get_contents() {
@@ -324,9 +324,9 @@ class MainFileObj extends AbstractDataManagment
 	/**
 	 * Returns the current path to the file
 	 *
-	 * @param boolean $without_sitepath 
+	 * @param boolean $without_sitepath
 	 *   wether we wont not to prepend the SITEPATH or not (optional, default false)
-	 * 
+	 *
 	 * @return string the path
 	 */
 	public function get_path($without_sitepath = false) {
@@ -339,9 +339,9 @@ class MainFileObj extends AbstractDataManagment
 
 	/**
 	 *
-	 * @param boolean $leave_on_server 
+	 * @param boolean $leave_on_server
 	 *   if set to true the file will only be deleted from database, the file it self will leave on the server (optional, default = false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function delete($leave_on_server = false) {

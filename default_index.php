@@ -44,6 +44,8 @@
 	$language = $override_params['language'];
 	unset($override_params['language']);
 	$core = new Core($language, $is_shell);
+	
+	$core->cache('core', 'admin_theme', $override_params['admin_link']);
 
 	//Only check for url_aliase if a specific url was provided not just _GET params
 	if(!empty($override_params['module'])) {
@@ -52,7 +54,7 @@
 			$override_params['module'] = $matches[1];
 		}
 		else {
-			
+
 			$alias_params = UrlAliasObj::get_params_from_alias($url);
 			if($alias_params !== false) {
 				$override_params = $alias_params;

@@ -28,19 +28,19 @@ class Checkboxes extends AbstractHtmlInput
 	/**
 	 * Construct
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The main name for this checkbox container (the checkboxes will inhire the name)
-	 * @param array $values 
+	 * @param array $values
 	 *   The values as an array in format ('value' => 'label') for every checkbox
-	 * @param array $default_value 
-	 *   The default values to preselect checkboxes if needed, keys are not used, 
-	 *   provide just values with the key names from $values to be preselected 
+	 * @param array $default_value
+	 *   The default values to preselect checkboxes if needed, keys are not used,
+	 *   provide just values with the key names from $values to be preselected
 	 *   like array('yes') to preselect yes element (optional, default = array())
-	 * @param boolean $include_empty_values 
+	 * @param boolean $include_empty_values
 	 *   Set to true if you want also empty 'not posted' keys within the returning output (optional, default = false)
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
 	public function __construct($name, Array $values, Array $default_value = array(), $include_empty_values = false, $class = '', $id = '') {
@@ -78,7 +78,7 @@ class Checkboxes extends AbstractHtmlInput
 	/**
 	 * Set if we want to include empty elements within returning values or not
 	 *
-	 * @param boolean $include 
+	 * @param boolean $include
 	 *   if we want to include it or not, (optional, default = true)
 	 */
 	public function include_empty_elements($include = true) {
@@ -110,16 +110,16 @@ class Checkboxes extends AbstractHtmlInput
 	/**
 	 * Get or set config values
 	 *
-	 * @param string $k 
+	 * @param string $k
 	 *   the key
-	 * @param string $v 
+	 * @param string $v
 	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed the value for the key as a string or if in set-mode return true, if a key is not set, return false
 	 */
 	public function config($key, $val = NS) {
 		//If we want to return the value we need to override the normal function
-		if ($key == "value" && $val == NS) {
+		if ($key == "value" && $val === NS) {
 			//If we have not inputs setup we can do nothing.
 			if (empty($this->fields)) {
 				return;

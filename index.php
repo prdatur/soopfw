@@ -188,7 +188,7 @@
 			$module_template = "";
 
 			if(!empty($module->static_tpl)) {
-				if($module->static_tpl == NS) {
+				if($module->static_tpl === NS) {
 					$module->static_tpl = "";
 				}
 				$module_template = $module->static_tpl;

@@ -18,7 +18,7 @@ class ActionModul extends Object
 	const LOGOUT_URL = "logout_url";
 	const LOGIN_URL = "login_url";
 	const PROFILE_URL = "profile_url";
-	
+
 	const NO_DEFAULT_METHOD = "|no_default|";
 
 	/**
@@ -113,9 +113,9 @@ class ActionModul extends Object
 	 * This method is called everytime we call an method which does not exists
 	 * This will call our default method every time if it is not empty.
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the method name
-	 * @param array $arguments 
+	 * @param array $arguments
 	 *   the method arguments (optional, default = array())
 	 */
 	function __call($name, array $arguments = array()) {
@@ -123,7 +123,7 @@ class ActionModul extends Object
 		if (empty($default_method)) {
 			trigger_error("NO DEFAULT METHOD DEFINED", E_USER_ERROR);
 		}
-		
+
 		if ($default_method == self::NO_DEFAULT_METHOD) {
 			return $this->clear_output();
 		}
@@ -133,9 +133,9 @@ class ActionModul extends Object
 	/**
 	 * Set the content title and description
 	 *
-	 * @param string $title 
+	 * @param string $title
 	 *   the title
-	 * @param string $description 
+	 * @param string $description
 	 *   the description (optional, default = '')
 	 */
 	public function title($title, $description = "") {
@@ -151,7 +151,7 @@ class ActionModul extends Object
 	/**
 	 * Set the content description
 	 *
-	 * @param string $description 
+	 * @param string $description
 	 *   the description
 	 */
 	public function description($description) {
@@ -166,12 +166,12 @@ class ActionModul extends Object
 	/**
 	 * This function should be overriden if we want to do not just insert database tables and rights
 	 * also we must set the static template dir couse this method will be called from system/install
-	 * 
+	 *
 	 * Within the overriden method we should then call this as the parent method like:
 	 * if(!parent::install()) { return false; }
-	 * 
+	 *
 	 * Because this checks for us if the install was called in a secure way.
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function install() {
@@ -206,8 +206,8 @@ class ActionModul extends Object
 	 * also we must set the static template dir couse this method will be called from system/install
 	 *
 	 * Updates the modul for given version
-	 * 
-	 * @param int $version 
+	 *
+	 * @param int $version
 	 *   the version
 	 */
 	public function update($version) {
@@ -256,7 +256,7 @@ class ActionModul extends Object
 	/**
 	 * Load the configuration for this module and if $assign is set to true we also assign it to smarty
 	 *
-	 * @param boolean $assign 
+	 * @param boolean $assign
 	 *   If we want to assign the config to smarty (optional, default = false)
 	 */
 	public function load_config($assign = false) {
@@ -275,15 +275,15 @@ class ActionModul extends Object
 	 * Call this method if a user provide wrong params, it will print out the message
 	 * and if needed clear the output of further template processing
 	 *
-	 * @param string $message 
+	 * @param string $message
 	 *   The message (optional, default = '')
-	 * @param boolean $clear_output 
+	 * @param boolean $clear_output
 	 *   if we want to clear the output (optional, default = true)
-	 * 
+	 *
 	 * @return boolean static false
 	 */
 	public function wrong_params($message = '', $clear_output = true) {
-		if (empty($message) || $message == NS) {
+		if (empty($message) || $message === NS) {
 			$message = t('Wrong params');
 		}
 
@@ -311,16 +311,16 @@ class ActionModul extends Object
 	 * Returns the translated link for the current url
 	 * If you can be more preciser override it.
 	 *
-	 * @param string $language_key 
+	 * @param string $language_key
 	 *   the language key
-	 * 
+	 *
 	 * @return string the translated url
 	 */
 	public function get_translation_link($language_key) {
 		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
 		return preg_replace('/\/+/','/', '/'.strtolower($language_key).'/'.preg_replace('/^\/[a-z]{2}(\/|$)/is','', $url));
 	}
-	
+
 	/**
 	 * Clear output the display no inner content html
 	 *
