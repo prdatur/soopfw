@@ -13,6 +13,8 @@ class user extends ActionModul
 	//Default method
 	protected $default_methode = "overview";
 
+	const CONFIG_DEFAULT_REGISTERED_USER_GROUPS = 'default_registered_user_groups';
+
 	/**
 	 * Implementation of get_admin_menu()
 	 * @return array the menu
@@ -34,9 +36,54 @@ class user extends ActionModul
 						'#link' => "/admin/user/user_groups", // The main link
 						'#perm' => 'admin.user.group', //Perm needed
 					),
+					array(
+						'#title' => t("config"), //The main title
+						'#link' => "/admin/user/config", // The main link
+						'#perm' => 'admin.user.config', //Perm needed
+					),
 				)
 			)
 		);
+	}
+
+
+	/**
+	 * Action: config
+	 * Configurate the system main settings.
+	 */
+	public function config() {
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+			return $this->no_permission();
+		}
+
+		//Setting up title and description
+		$this->title(t("System Config"), t("Here we can configure the main system settings"));
+
+		//Configurate the settings form
+		$form = new Form("system_config", t("Configuration"));
+
+		$values = array();
+		foreach($this->db->query_slave_all('SELECT * FROM `'. UserRightGroupObj::TABLE .'`') AS $row) {
+			$values[$row['group_id']] = $row['title'];
+		}
+		$form->add(new Checkboxes(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $values, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true), t('Default user groups'), t('The above selected groups will be automaticly assigned to newly created / registered users.')));
+
+		//Add a submit button
+		$form->add(new Submitbutton("saveconfig", t("Save Config")));
+
+		//Assign form to smarty
+		$form->assign_smarty();
+
+		//Check if form is valid (does not return anything but should always be called manually)
+		$form->check_form();
+
+		//Wether the form is submit and valid
+		if ($form->is_submitted() && $form->is_valid()) {
+			$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $form->get_value(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS), false, false, true);
+			$this->core->message(t("Configuration saved"), Core::MESSAGE_TYPE_SUCCESS);
+		}
+		$this->static_tpl = "form.tpl";
 	}
 
 	/**
@@ -580,6 +627,12 @@ class user extends ActionModul
 			return false;
 		}
 
+		$user_group = new UserRightGroupObj();
+		$user_group->title = 'Registered users';
+		$user_group->permissions = 'admin.show_admin_menu';
+		$user_group_id = $user_group->insert();
+
+		$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array($user_group_id => $user_group_id), false, false, true);
 		return true;
 	}
 

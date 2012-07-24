@@ -11,6 +11,8 @@ rights[] = "admin.user.change"
 rights[] = "admin.user.delete"
 rights[] = "admin.user.view"
 rights[] = "admin.user.rights.change"
+rights[] = "admin.user.config"
+rights[] = "admin.show_admin_menu"
 
 ;this should NEVER be set within right manager, it just determines that the user is logged in
 rights[] = "user.loggedin"
