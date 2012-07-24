@@ -21,17 +21,17 @@ class SystemConfigForm extends Form
 	/**
 	 * Constructor
 	 *
-	 * @param ActionModul $action_module 
+	 * @param ActionModul $action_module
 	 *   the action module for which the config is.
-	 * @param string $form_name 
+	 * @param string $form_name
 	 *   the form name used for smarty
-	 * @param string $title 
+	 * @param string $title
 	 *   The title for this form, this must be a translated string, it will not translate. (optional, default = '')
-	 * @param string $submit 
-	 *   if a post element with this string exist the form is submitted, 
+	 * @param string $submit
+	 *   if a post element with this string exist the form is submitted,
 	 *   can be set to "auto" as a special string that will setup a unique hidden submit handler field (optional, default = 'auto')
-	 * @param string $is_post 
-	 *   Set to false if you do not want to check the $submit value against the $_POST value, 
+	 * @param string $is_post
+	 *   Set to false if you do not want to check the $submit value against the $_POST value,
 	 *   only check if $submit is not empty (optional, default = true)
 	 */
  	public function __construct(ActionModul &$action_module, $form_name, $title = '', $submit = 'auto', $is_post = true) {
@@ -48,9 +48,9 @@ class SystemConfigForm extends Form
 	 * Checks if the form was submitted and valid, if so it will save the configurations into the database
 	 * for the specified module
 	 *
-	 * @param mixed $user_callback_function 
+	 * @param mixed $user_callback_function
 	 *   if provided the function will be called after success (optional, default = "")
-	 * 
+	 *
 	 * @return boolean true if form is submitted and valid or not
 	 */
 	public function execute($user_callback_function = "") {
@@ -66,7 +66,6 @@ class SystemConfigForm extends Form
 
 		//Wether the form is submit and valid
 		if ($this->is_submitted() && $this->is_valid()) {
-
 			//Save values on valid form
 			foreach ($this->get_values() AS $k => $v) {
 				$this->core->dbconfig($this->action_module->modulname, $k, $v);
