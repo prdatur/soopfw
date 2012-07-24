@@ -133,27 +133,27 @@ class content extends ActionModul {
 
 		$data_array = json_decode($values['serialized_data'], true);
 
-		
+
 
 		$content_smarty = new Smarty();
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$content_smarty->init();
-		
+
 		$implemented_field_groups = array();
-		
+
 		/**
 		 * Provides hook: content_add_field_groups
-		 *  
+		 *
 		 * Allow other modules to add content type fields group.
-		 * 
+		 *
 		 * The Returning array values are not the direct field values instead
 		 * each array value represents a content type field group which is also an array.
 		 * The key is used as the unique field id.
-		 * 
+		 *
 		 * The following values are required for a content field group:
 		 *  - template => The full path to the default template file (without SITEPATH).
 		 *  - label => The label for this content type field group
-		 * 
+		 *
 		 * @return array An array with the additional content type fields
 		 */
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
@@ -169,8 +169,8 @@ class content extends ActionModul {
 		// Provide template overrides.
 		$template_override_field_groups_path = $this->smarty->get_tpl(true). '/content/field_groups';
 		$field_groups_path = $this->module_tpl_dir.'field_groups';
-		
-		
+
+
 		$content_type_tpl = $template_override_field_groups_path. '/' . $values['content_type'].".tpl";
 		if(file_exists($content_type_tpl)) {
 			$tpl_path = $template_override_field_groups_path. '/';
@@ -179,24 +179,24 @@ class content extends ActionModul {
 			$content_type_tpl = $field_groups_path . $values['content_type'].".tpl";
 			$tpl_path = $field_groups_path . '/';
 		}
-		
+
 		$content_smarty->set_tpl($tpl_path);
-		
+
 		/**
 		 * Provides hook: content_view_alter_data
-		 *  
+		 *
 		 * Allow other modules to change the content data
-		 * 
+		 *
 		 * You need to change it directly within the provided array
 		 * so you need to also get the $data_array by reference
-		 * 
+		 *
 		 * @param string $content_type
 		 *   The name of the content type
 		 * @param array &$data_array
 		 *   The data array passed by reference
 		 */
 		$this->core->hook('content_view_alter_data', array($values['content_type'], &$data_array));
-		
+
 		$content = "";
 		if(file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
@@ -212,7 +212,7 @@ class content extends ActionModul {
 				}
 				if(!file_exists($field_group_tpl)) {
 					$group_obj = new ContentTypeFieldGroupObj($field_group_id);
-					
+
 					if(isset($implemented_field_groups[$group_obj->field_group]) && file_exists(SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'])) {
 						$field_group_tpl = SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'];
 					}
@@ -223,11 +223,11 @@ class content extends ActionModul {
 						$field_group_tpl = $field_groups_path . '/' . $group_obj->field_group . ".tpl";
 					}
 				}
-				
+
 				if(!file_exists($field_group_tpl)) {
 					continue;
 				}
-				
+
 				$content_smarty->clearAllAssign();
 				$content_smarty->assign_by_ref("data", $field_group_values);
 				$content .= $content_smarty->fetch($field_group_tpl);
@@ -424,7 +424,7 @@ class content extends ActionModul {
 		if(!$page->load_success()) {
 			return $this->wrong_params(t("no such page"));
 		}
-		
+
 		$page_revision = new PageRevisionObj($page_id);
 		if(!$page_revision->load_success()) {
 			return $this->wrong_params(t("No such page"));
@@ -435,7 +435,7 @@ class content extends ActionModul {
 		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
 			return $this->no_permission();
 		}
-		
+
 		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
 			'ipage_id' => $page_id,
 			'@language' => $this->core->current_language
@@ -769,7 +769,7 @@ class content extends ActionModul {
 			}
 			$options[$matches[1]] = $matches[2];
 		}
-		
+
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
 		if(!empty($additional_field_groups)) {
 			foreach($additional_field_groups AS $module => $return_values) {
@@ -780,7 +780,7 @@ class content extends ActionModul {
 				}
 			}
 		}
-		
+
 		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_".$obj->get_dbstruct()->get_table()."_field_group");
 		$input->add_validator(new RequiredValidator());
 		$input->config('label', t('field type'));
@@ -846,31 +846,31 @@ class content extends ActionModul {
 	 *
 	 * @param string $language_key
 	 *   the language key
-	 * 
+	 *
 	 * @return string the translated url
 	 */
 	public function get_translation_link($language_key) {
 		static $cache = array();
 		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
-		
+
 		// Remove all starting slashes.
 		$url = preg_replace('/^\/+/is','', $url);
-		
+
 		// Replace a possible language indicator.
 		$url = preg_replace('/^[a-z]{2}\//is','', $url);
-		
+
 		// Remove the file ending
 		$url = preg_replace('/\.html?$/is','', $url);
-		
+
 		// Check if cache has already this entry.
 		if(!isset($cache[$url."|".$language_key])) {
-			
+
 			// Try to get the url alias for this url if cache was not setup.
 			if(!isset($cache[$url])) {
 				$alias_url = new UrlAliasObj();
 				$alias_url->db_filter->add_where("alias", $url);
 				$alias_url->load();
-				
+
 				// Check if the url alias exist, if not we must fallback to parent method.
 				if(!$alias_url->load_success()) {
 					$cache[$url] = false;
@@ -878,21 +878,21 @@ class content extends ActionModul {
 					return parent::get_translation_link($language_key);
 				}
 				$cache[$url] = $alias_url->params;
-			} 
+			}
 			// The url was cached but an alias could not be found, fallback to parent method.
 			else if($cache[$url] == false) {
 				return parent::get_translation_link($language_key);
 			}
 			$data_array = explode("|", $cache[$url], 2);
-			
+
 			// Try to get the alias for this page id
 			$alias = $this->get_alias_for_page_id($data_array[0], $language_key);
-			
+
 			// If nothing could be found use the page id fallback.
 			if(empty($alias)) {
 				$alias = 'content/view/'.$data_array[0];
 			}
-			
+
 			// Setup the cache key with the translated link.
 			$cache[$url."|".$language_key] = '/'.strtolower($language_key).'/'.$alias.'.html';
 		}
@@ -900,7 +900,7 @@ class content extends ActionModul {
 		else if($cache[$url."|".$language_key] == false) {
 			return parent::get_translation_link($language_key);
 		}
-		
+
 		// Return the alias for this language.
 		return $cache[$url."|".$language_key];
 	}
@@ -1015,11 +1015,11 @@ class content extends ActionModul {
 
 		$publish = new Checkbox("publish", 1,($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
 		$form_content .= '<br />' . $publish->fetch();
-		
+
 		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0 , t("create auto alias?"));
 		$form_content .= '<br />' . $create_alias->fetch();
-		
-		
+
+
 		$form->add($publish);
 		$form->add($create_alias);
 		if(!$create_mode) {

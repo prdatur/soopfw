@@ -113,12 +113,18 @@ class Db
 	 * configurating mysql server,
 	 * and connecting to database
 	 *
-	 * @param string $server Mysql Server
-	 * @param string $user Mysql Username
-	 * @param string $password Mysql Password
-	 * @param string $database Mysql Database
-	 * @param int $debug Debug mod (optional, default = false)
-	 * @param string $servername Servername (optional, default = 'default')
+	 * @param string $server
+	 *   Mysql Server
+	 * @param string $user
+	 *   Mysql Username
+	 * @param string $password
+	 *   Mysql Password
+	 * @param string $database
+	 *   Mysql Database
+	 * @param int $debug
+	 *   Debug mod (optional, default = false)
+	 * @param string $servername
+	 *   Servername (optional, default = 'default')
 	 */
 	public function __construct($server, $user, $password, $database, $debug = false, $servername = "default") {
 		$this->add_server($servername, $server, $user, $password, $database);
@@ -139,11 +145,16 @@ class Db
 	/**
 	 * Adds a DB server and connect directly to this server
 	 *
-	 * @param string $servername Servername
-	 * @param string $server Mysql Server
-	 * @param string $username Mysql Username
-	 * @param string $password Mysql Password
-	 * @param string $database Mysql Database
+	 * @param string $servername
+	 *   Servername
+	 * @param string $server
+	 *   Mysql Server
+	 * @param string $username
+	 *   Mysql Username
+	 * @param string $password
+	 *   Mysql Password
+	 * @param string $database
+	 *   Mysql Database
 	 */
 	public function add_server($servername, $server, $username, $password, $database) {
 		$this->dbserver[$servername] = @mysql_connect($server, $username, $password);
@@ -156,9 +167,10 @@ class Db
 	}
 
 	/**
-	 * sets the server
+	 * Sets the server.
 	 *
-	 * @param string $var description (optional, default = 'default')
+	 * @param string $var
+	 *   the unique servername (optional, default = 'default')
 	 */
 	public function set_server($var = "default") {
 		if ($this->transaction_is_active()) {
@@ -168,9 +180,11 @@ class Db
 	}
 
 	/**
-	 * get the server
+	 * Get the server.
 	 *
-	 * @param string $var the servername
+	 * @param string $var
+	 *   the unique servername
+	 *
 	 * @return resource the mysql resource
 	 */
 	public function get_server($var) {
@@ -178,15 +192,19 @@ class Db
 	}
 
 	/**
-	 * sets the default server
+	 * Sets the default server
 	 *
-	 * @param string $var the servername
+	 * @param string $var
+	 *   the unique servername
 	 */
 	public function set_default_server($var) {
 		$this->dbserver["default"] = $this->dbserver[$var];
 		$this->link_id = $this->dbserver["default"];
 	}
 
+	/**
+	 * Initialize the mysql table object.
+	 */
 	public function init_mysql_table() {
 		$this->mysql_table = new MysqlTable();
 	}
@@ -194,7 +212,8 @@ class Db
 	/**
 	 * setter for _debug
 	 *
-	 * @param boolean $var True or false, debug or not
+	 * @param boolean $var
+	 *   True or false, debug or not
 	 */
 	public function set_debug($var) {
 		$this->_debug = $var;
@@ -219,8 +238,11 @@ class Db
 	 * Let say we have default = "%{v}%" and someone searches the above example "hell".
 	 * {v} will be replaced with escaped "hell" and there for the search will be %hell%
 	 *
-	 * @param string $val The String
-	 * @param string $default the default value if $val have no * (optional, default = '')
+	 * @param string $val
+	 *   The String
+	 * @param string $default
+	 *   the default value if $val have no * (optional, default = '')
+	 *
 	 * @return string The escaped and replaced String
 	 */
 	public function get_sql_string_search($val, $default = "") {
@@ -235,12 +257,17 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query to the MASTER server
+	 * Sending a Mysql query to the MASTER server.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
-	 * @param int $limit The limit (optional, default = 0)
-	 * @param int $offset The offset (optional, default = 0)
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $limit
+	 *   The limit (optional, default = 0)
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
+	 *
 	 * @return resource Mysql queryid
 	 */
 	public function query_master($query_string, $args = array(), $limit = 0, $offset = 0) {
@@ -248,11 +275,14 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query and get the results
-	 * as an string back, display first result and first field
+	 * Sending a Mysql query and get the results
+	 * as an string back, display first result and first field.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 *
 	 * @return array The Results
 	 */
 	public function query_field($query_string, $args = array()) {
@@ -265,12 +295,17 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query to a SLAVE server
+	 * Sending a Mysql query to a SLAVE server.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
-	 * @param int $limit The limit (optional, default = 0)
-	 * @param int $offset The offset (optional, default = 0)
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $limit
+	 *   The limit (optional, default = 0)
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
+	 *
 	 * @return resource Mysql queryid
 	 */
 	public function query_slave($query_string, $args = array(), $limit = 0, $offset = 0) {
@@ -281,12 +316,17 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query to a SLAVE and get the num_rows count
+	 * Sending a Mysql query to a SLAVE and get the num_rows count.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
-	 * @param int $limit The limit (optional, default = 0)
-	 * @param int $offset The offset (optional, default = 0)
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $limit
+	 *   The limit (optional, default = 0)
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
+	 *
 	 * @return int The result count
 	 */
 	public function query_slave_count($query_string, $args = array(), $limit = 0, $offset = 0) {
@@ -295,12 +335,16 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query to a SLAVE and get the results
-	 * as an array back, but only the first row
+	 * Sending a Mysql query to a SLAVE and get the results
+	 * as an array back, but only the first row.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
-	 * @param int $type Type (optional ,default = MYSQL_ASSOC)
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $type
+	 *   Type (optional ,default = MYSQL_ASSOC)
+	 *
 	 * @return mixed the first result row
 	 */
 	public function query_slave_first($query_string, $args = array(), $type = MYSQL_ASSOC) {
@@ -308,10 +352,13 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query to a SLAVE and return if a row exists for this query
+	 * Sending a Mysql query to a SLAVE and return if a row exists for this query.
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 *
 	 * @return boolean returns true if the query is not empty, else false
 	 */
 	public function query_slave_exists($query_string, $args = array()) {
@@ -321,12 +368,12 @@ class Db
 
 	/**
 	 * Sends a mysql-query and get ALL the results from a SLAVE server as an array back
-	 * 
+	 *
 	 * @param string $query_string
 	 *   Querystring
 	 * @param array $args
 	 *   an array which replace inline strings array('search_key' => 'replace_val') (Optional, default = array())
-	 * @param int $limit 
+	 * @param int $limit
 	 *   The limit (optional, default = 0)
 	 * @param int $offset
 	 *   The offset (optional, default = 0)
@@ -353,13 +400,17 @@ class Db
 	}
 
 	/**
-	 * Sending a Mysql Query
+	 * Sending a Mysql query
 	 *
-	 * @param string $query_string Querystring
-	 * @param array $args an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
-	 * @param int $showerror Show error (optional, default = 1)
-	 * @param int $limit The limit (optional, default = 0)
-	 * @param int $offset The offset (optional, default = 0)
+	 * @param string $query_string
+	 *   Querystring
+	 * @param array $args
+	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $limit
+	 *   The limit (optional, default = 0)
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
+	 *
 	 * @return resource Mysql queryid
 	 */
 	protected function query($query_string, $args = array(), $limit = 0, $offset = 0) {
@@ -418,8 +469,11 @@ class Db
 	 * If Queryid was not set, it will get the
 	 * results of the last query
 	 *
-	 * @param string $query_id Queryid (optional ,default=-1)
-	 * @param int $type type (optional, default = MYSQL_ASSOC)
+	 * @param string $query_id
+	 *   Queryid (optional ,default=-1)
+	 * @param int $type
+	 *   type (optional, default = MYSQL_ASSOC)
+	 *
 	 * @return array Mysql result as an array only with numeric index
 	 */
 	public function &fetch_array($query_id = -1, $type = MYSQL_ASSOC) {
@@ -440,7 +494,9 @@ class Db
 	 * If the Queryid is not set, it will
 	 * get the results from the last query
 	 *
-	 * @param int $query_id Queryid (optional) Default=-1
+	 * @param int $query_id
+	 *   Queryid (optional) Default=-1
+	 *
 	 * @return int the count
 	 */
 	public function num_rows($query_id = -1) {
@@ -462,7 +518,8 @@ class Db
 	/**
 	 * Sets AutoCommit
 	 *
-	 * @param boolean $mode AutoCommit
+	 * @param boolean $mode
+	 *   AutoCommit
 	 */
 	public function set_autocommit($mode) {
 		if ($mode != TRUE) {
@@ -475,7 +532,8 @@ class Db
 	/**
 	 * Add the provided value/s to the changed memcache keys container if a transaction is active
 	 *
-	 * @param mixed $values a single value or an array with values
+	 * @param mixed $values
+	 *   a single value or an array with values
 	 */
 	public function add_changed_memcached_key($values) {
 		if (!$this->transaction_is_active()) {
@@ -501,6 +559,8 @@ class Db
 
 	/**
 	 * Begin a transaction
+	 *
+	 * @return resource the mysql resource or false on error
 	 */
 	public function transaction_begin() {
 		if ($qry_result = $this->query_master('BEGIN')) {
@@ -512,6 +572,8 @@ class Db
 
 	/**
 	 * Commit a transaction
+	 *
+	 * @return resource the mysql resource or false on error
 	 */
 	public function transaction_commit() {
 		if ($qry_result = $this->query_master('COMMIT')) {
@@ -523,6 +585,8 @@ class Db
 
 	/**
 	 * Rollback a transaction
+	 *
+	 * @return resource the mysql resource or false on error
 	 */
 	public function transaction_rollback() {
 		$this->transaction_active = false;
@@ -550,7 +614,9 @@ class Db
 	 * Inizialize the alter table queue if we have it not and return the alter
 	 * table SQL-String, if already initialized it will return an empty string
 	 *
-	 * @param string $table The table
+	 * @param string $table
+	 *   The table
+	 *
 	 * @return string The sql
 	 */
 	private function init_alter_table_queue($table) {
@@ -566,11 +632,14 @@ class Db
 	}
 
 	/**
-	 * Removes a field from a table
+	 * Removes a field from a table.
 	 *
-	 * @param string $table The table
-	 * @param string $field The field
-	 * @param boolean $queue if the sql query will be queued or not (optional, default = false)
+	 * @param string $table
+	 *   The table
+	 * @param string $field
+	 *   The field
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
 	 */
 	public function remove_table_field($table, $field, $queue = false) {
 		if ($queue === true) {
@@ -584,14 +653,20 @@ class Db
 	}
 
 	/**
-	 * Adds a new field to the given table
+	 * Adds a new field to the given table.
 	 *
-	 * @param string $table the table
-	 * @param string $field the field
-	 * @param string $after The new field will be added after this, if set to empty it will be created in at first
-	 * @param array $data the data array which contains typ, default, additional keys
-	 * @param boolean $autoincrement should this field set autoincrement? (optional, default = false)
-	 * @param boolean $queue if the sql query will be queued or not (optional, default = false)
+	 * @param string $table
+	 *   the table
+	 * @param string $field
+	 *   the field
+	 * @param string $after
+	 *   The new field will be added after this, if set to empty it will be created in at first
+	 * @param array $data
+	 *   the data array which contains typ, default, additional keys
+	 * @param boolean $autoincrement
+	 *   should this field set autoincrement? (optional, default = false)
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
 	 */
 	public function add_table_field($table, $field, $after, $data, $autoincrement = false, $queue = false) {
 		$line = $this->mysql_table->create_database_get_line($field, $data, $autoincrement);
@@ -611,13 +686,22 @@ class Db
 	}
 
 	/**
-	 * Change a field from a given table
+	 * Change a field from a given table.
 	 *
-	 * @param string $table the table
-	 * @param string $field the field
-	 * @param array $data the data array which contains typ, default, additional keys
-	 * @param boolean $autoincrement should this field set autoincrement? (optional, default = false)
-	 * @param boolean $queue if the sql query will be queued or not (optional, default = false)
+	 * To rename a field you need to provide $data the array key 'new_field' with the new field name
+	 * and within $field parameter the old value.
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $field
+	 *   the field
+	 * @param array $data
+	 *   the data array which contains typ, default, additional keys
+	 *   if 'new_field' exists within the data array it will try to rename the old field $field into $data['new_field']
+	 * @param boolean $autoincrement
+	 *   should this field set autoincrement? (optional, default = false)
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
 	 */
 	public function change_table_field($table, $field, $data, $autoincrement = false, $queue = false) {
 		$line = $this->mysql_table->create_database_get_line($field, $data, $autoincrement, true);
@@ -631,11 +715,14 @@ class Db
 	}
 
 	/**
-	 * Set the primary key
+	 * Set the primary key.
 	 *
-	 * @param string $table the table
-	 * @param string $field the field
-	 * @param boolean $queue if the sql query will be queued or not (optional, default = false)
+	 * @param string $table
+	 *   the table
+	 * @param string $field
+	 *   the field
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
 	 */
 	public function set_primary_key($table, $field, $queue = false) {
 		if (!is_array($field)) {
@@ -654,13 +741,20 @@ class Db
 	}
 
 	/**
-	 * Move a table field after the given $after field
-	 * @param string $table the table
-	 * @param string $field the field
-	 * @param array $data the data array which contains typ, default, additional keys
-	 * @param boolean $autoincrement should this field set autoincrement?
-	 * @param string $after The new field will be added after this, if set to empty it will be created in at first
-	 * @param boolean $queue if the sql query will be queued or not (optional, default = false)
+	 * Move a table field after the given $after field.
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $field
+	 *   the field
+	 * @param array $data
+	 *   the data array which contains typ, default, additional keys
+	 * @param boolean $autoincrement
+	 *   should this field set autoincrement?
+	 * @param string $after
+	 *   The new field will be added after this, if set to empty it will be created in at first
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
 	 */
 	public function move_table_field($table, $field, $data, $autoincrement, $after, $queue = false) {
 		$field_data = $this->mysql_table->create_database_get_line($field, $data, $autoincrement, true);
@@ -673,9 +767,10 @@ class Db
 	}
 
 	/**
-	 * Execute all queries which was queued for the given $table
+	 * Execute all queries which was queued for the given $table.
 	 *
-	 * @param string $table The table queue to run
+	 * @param string $table
+	 *   The table queue to run
 	 */
 	public function alter_table_queue($table) {
 		//Return if table was not queued
@@ -690,9 +785,11 @@ class Db
 	}
 
 	/**
-	 * Returns an array with all fields for given table
+	 * Returns an array with all fields for given table.
 	 *
-	 * @param string $table the table
+	 * @param string $table
+	 *   the table
+	 *
 	 * @return array with all fields array('fieldname' => 'fieldname')
 	 */
 	public function get_table_fields($table) {
@@ -704,10 +801,13 @@ class Db
 	}
 
 	/**
-	 * Get the Primarykey of a table
+	 * Get the Primarykey of a table.
 	 *
-	 * @param string $table the table
-	 * @param boolean $return_as_array Wether we want to return the primary key as an array or as a comma seperated string (optional, default = false)
+	 * @param string $table
+	 *   the table
+	 * @param boolean $return_as_array
+	 *   Wether we want to return the primary key as an array or as a comma seperated string (optional, default = false)
+	 *
 	 * @return mixed the primary key as an array or a string comma seperated
 	 */
 	public function get_primary_key($table, $return_as_array = false) {
@@ -730,10 +830,15 @@ class Db
 	/**
 	 * Insert data to the database
 	 *
-	 * @param string $table the database table
-	 * @param array $values The Values
-	 * @param array $db_struct The Database Struct
-	 * @param boolean $ignore Don't throw an error if data is already there (optional,default = false)
+	 * @param string $table
+	 *   the database table
+	 * @param array $values
+	 *   The Values
+	 * @param array $db_struct
+	 *   The Database Struct
+	 * @param boolean $ignore
+	 *   Don't throw an error if data is already there (optional,default = false)
+	 *
 	 * @return true on success, else false
 	 */
 	public function insert($table, Array $values, Array $db_struct, $ignore = false) {
@@ -769,10 +874,15 @@ class Db
 	/**
 	 * Edit data
 	 *
-	 * @param string $table the database table
-	 * @param array $values The values
-	 * @param array $db_struct The database struct (not the object)
-	 * @param DatabaseFilter $filter an object of DatabaseFilter
+	 * @param string $table
+	 *   the database table
+	 * @param array $values
+	 *   The values
+	 * @param array $db_struct
+	 *   The database struct (not the object)
+	 * @param DatabaseFilter $filter
+	 *   an object of DatabaseFilter
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function edit($table, Array $values, Array $db_struct, DatabaseFilter &$filter) {
@@ -809,11 +919,15 @@ class Db
 	}
 
 	/**
-	 * returns a parsed string for the update query
+	 * Returns a parsed string for the update query.
 	 *
-	 * @param mixed $val the value
-	 * @param string $key the table field
-	 * @param array &$db_struct db_struct will be passed by reference,do not provide a & couse function body do this
+	 * @param mixed $val
+	 *   the value
+	 * @param string $key
+	 *   the table field
+	 * @param array &$db_struct
+	 *   db_struct will be passed by reference,do not provide a & couse function body do this
+	 *
 	 * @return string the parsed update string
 	 */
 	private function parse_value($val, $key, &$db_struct) {
@@ -821,9 +935,13 @@ class Db
 	}
 
 	/**
+	 * Parse the values based up on the given type.
 	 *
-	 * @param mixed $val the unparsed value
-	 * @param int $type a type const, choose one of PDT_*
+	 * @param mixed $val
+	 *   the unparsed value
+	 * @param int $type
+	 *   a type const, choose one of PDT_*
+	 *
 	 * @return mixed the parsed value
 	 */
 	private function parse_value_type($val, $type) {
