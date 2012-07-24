@@ -166,7 +166,7 @@
 				aborting_loading();
 
 			}
-			
+
 			if ($module->action == ActionModul::NO_DEFAULT_METHOD) {
 				assign_default_js_css($core);
 				$module->clear_output();
@@ -243,17 +243,17 @@
 		die();
 	}
 	function assign_default_js_css(Core &$core) {
-            
+
 		//Define default css files
 		$core->add_css("/css/master.css");
 		$dir = new Dir('/css/jquery_soopfw', false);
 		$dir->just_files();
 		$dir->file_extension('css');
 		$dir->file_regexp('.*jquery-ui-[0-9.]+.*');
-		
+
 		$jquery_ui_css_versions = array();
 		$jquery_ui_js_version = "";
-		
+
 		foreach($dir->search() AS $file_entry) {
 			if (preg_match("/jquery-ui-([0-9]+\.[0-9]+\.[0-9]+).*/", $file_entry->filename, $matches)) {
 				$jquery_ui_css_versions[$matches[1]] = $file_entry->path;
@@ -273,18 +273,18 @@
 			else {
 				$jquery_ui_js_version = "";
 			}
-			
+
 		}
-		
+
 		$core->add_css("/css/jquery_soopfw/jquery-ui-datetime-picker.css");
 		$core->add_css("/css/jquery_soopfw/jquery.qtip.css");
 		$core->add_css("/css/jquery_soopfw/jquery.sceditor.default.min.css");
 		$core->add_css("/css/jquery_overrides.css");
-		
+
 		$core->add_css("/css/soopfw_icons.css");
-		
+
 		$core->add_css("/css/fileuploader.css");
-		
+
 		$core->add_css("/css/admin_menu.css");
 		$core->add_css("/css/menu.css");
 		$core->add_css("/css/box.css");
@@ -292,10 +292,10 @@
 		$core->add_css("/css/popup.css");
 		$core->add_css("/css/table.css");
 		$core->add_css("/css/pager.css");
-		
+
 		$core->add_css($core->smarty->get_tpl()."/css/styles.css");
-		
-		
+
+
 
 		//Add default javascript files
 		$core->add_js("/js/jquery-1.7.2.min.js", Core::JS_SCOPE_SYSTEM);
@@ -307,7 +307,7 @@
 		$core->add_js("/js/jquery_plugins/jquery.maskedinput-1.3.min.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.validator-0.3.3.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.ajaxQueue.js", Core::JS_SCOPE_SYSTEM);
-		$core->add_js("/js/jquery_plugins/jquery.qtip.min.js", Core::JS_SCOPE_SYSTEM);
+		$core->add_js("/js/jquery_plugins/jquery.qtip.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.metadata.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.tablesorter.min.js", Core::JS_SCOPE_SYSTEM);
