@@ -596,13 +596,15 @@ class Core {
 	 *   if we want to use a static cache (for multi read outs within one request) (optional, default = false)
 	 * @param boolean $strict_array
 	 *   set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @param boolean $serialize
+	 *   set to true if you want to json_encode / json_decode the values (optional, default = false)
 	 *
 	 * @return mixed
 	 * 		- return a single string value if $strict_array is set to false and just one value found
 	 * 		- returns an array if $strict_array is set to true or it has more than one value
 	 */
-	public function get_dbconfig($modul, $key = NS, $default_value = NS, $use_cache = false, $strict_array = false) {
-		$value = $this->dbconfig($modul, $key, NS, $use_cache, $strict_array);
+	public function get_dbconfig($modul, $key = NS, $default_value = NS, $use_cache = false, $strict_array = false, $serialize = false) {
+		$value = $this->dbconfig($modul, $key, NS, $use_cache, $strict_array, $serialize);
 		if ($value == null) {
 			return $default_value;
 		}
@@ -625,6 +627,8 @@ class Core {
 	 *   if we want to use a static cache (for multi read outs within one request) (optional, default = false)
 	 * @param boolean $strict_array
 	 *   set to true if you want always an array as returning value, else if just one value is found it will return just the value (optional, default = false)
+	 * @param boolean $serialize
+	 *   set to true if you want to json_encode / json_decode the values (optional, default = false)
 	 *
 	 * @return mixed
 	 * 	Get mode
@@ -633,7 +637,7 @@ class Core {
 	 *  Set mode
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
-	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false) {
+	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false, $serialize = false) {
 		if ($value === NS) {
 			//Get mode
 			if ($key === NS) {
@@ -642,6 +646,9 @@ class Core {
 
 				$return = array();
 				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
+					if ($serialize === true) {
+						$v['value'] = json_decode($v['value'], true);
+					}
 					$return[$v['key']] = $v['value'];
 				}
 				return $return;
@@ -668,6 +675,9 @@ class Core {
 
 			if (!empty($rows)) {
 				foreach ($rows AS $row) {
+					if ($serialize === true) {
+						$row['value'] = json_decode($row['value'], true);
+					}
 					$return[$row['key']] = $row['value'];
 				}
 
@@ -687,6 +697,10 @@ class Core {
 				$this->cache($modul, implode("::", $key), $return);
 			}
 			return $return;
+		}
+
+		if ($serialize === true) {
+			$value = json_encode($value);
 		}
 
 		//Insert mode
