@@ -18,9 +18,9 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param int $id 
+	 * @param int $id
 	 *   the alias id (optional, default = '')
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
@@ -48,31 +48,31 @@ class UrlAliasObj extends AbstractDataManagment
 	/**
 	 * Save the given Data
 	 *
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made (optional, default = false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
 		$old_alias = $this->get_original_value("alias");
-		if(parent::save($save_if_unchanged)) {
-			$this->core->mcache('url_alias_match_'.md5($this->values['alias']), "",1);
-			$this->core->mcache('url_alias_match_'.md5($old_alias), "",1);
+		if (parent::save($save_if_unchanged)) {
+			$this->core->mcache('url_alias_match_' . md5($this->values['alias']), "", 1);
+			$this->core->mcache('url_alias_match_' . md5($old_alias), "", 1);
 		}
 	}
 
 	/**
 	 * Insert the current data
 	 *
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
-		if(parent::insert($ignore)) {
+		if (parent::insert($ignore)) {
 			//Need to clear the cache key for the alias
-			$this->core->mcache('url_alias_match_'.md5($this->values['alias']), "",1);
+			$this->core->mcache('url_alias_match_' . md5($this->values['alias']), "", 1);
 			return true;
 		}
 		return false;
@@ -85,44 +85,43 @@ class UrlAliasObj extends AbstractDataManagment
 	 */
 	public function delete() {
 		$old_alias = $this->get_value("alias");
-		if(parent::delete()) {
-			$this->core->mcache('url_alias_match_'.md5($old_alias), "",1);
+		if (parent::delete()) {
+			$this->core->mcache('url_alias_match_' . md5($old_alias), "", 1);
 		}
 	}
-
-
 
 	/**
 	 * Converts a given string in a string which an be used within url's
 	 *
-	 * @param string $string 
+	 * @param string $string
 	 *   the string to convert
-	 * 
+	 *
 	 * @return string the converted string
 	 */
 	public static function get_alias_string($string) {
-		$string =  mb_convert_encoding($string, 'UTF-8');
+		$string = mb_convert_encoding($string, 'UTF-8');
 		$invalid_chars = "!\"§$%&/()=?`*_:;><,.#+´ß^°¬¹²³¼½¬{[]}\¸@ł€¶ŧ←↓→øþ¨~æſðđŋħł˝|»«¢„“”µ·…";
-		$string = strtolower(preg_replace("/[".preg_quote($invalid_chars,"/")."\s]+/u", "-", $string));
-		$string =  preg_replace("/-+/u","-", $string);
-		$string =  preg_replace("/-$/u","", $string);
-		$string =  preg_replace("/^-/u","", $string);
+		$string = strtolower(preg_replace("/[" . preg_quote($invalid_chars, "/") . "\s]+/u", "-", $string));
+		$string = preg_replace("/-+/u", "-", $string);
+		$string = preg_replace("/-$/u", "", $string);
+		$string = preg_replace("/^-/u", "", $string);
 		return $string;
 	}
 
 	/**
 	 * Tries to get action call parameter array for the given alias string
 	 *
-	 * @param string $alias 
+	 * @param string $alias
 	 *   the alias to search for
-	 * 
+	 *
 	 * @return array the array with module, action, and params for the action which is needed to call an action or false if nothing is found
 	 */
 	public static function get_params_from_alias($alias) {
+		/* @var $core Core */
 		global $core;
 		$return_array = array();
 
-		if(preg_match("/^\/?([a-z][a-z]\/)?(.*)$/i", $alias, $matches)) {
+		if (preg_match("/^\/?([a-z][a-z]\/)?(.*)$/i", $alias, $matches)) {
 			$alias = $matches[2];
 		}
 
@@ -130,45 +129,50 @@ class UrlAliasObj extends AbstractDataManagment
 		$alias_url_check = $alias;
 
 		//Remove ending file-endings if it is a regular file ending (just the most used one) and also removes the starting /
-		if(preg_match('/^\/?(.*)\.(html|ajaxhtml|ajax|htm|direct)$/is', $alias_url_check, $matches)) {
+		if (preg_match('/^\/?(.*)\.(html|ajaxhtml|ajax|htm|direct)$/is', $alias_url_check, $matches)) {
 			$alias_url_check = $matches[1];
 		}
 
-		$cached_match = $core->mcache('url_alias_match_'.md5($alias_url_check));
-		if(false && !empty($cached_match)) {
+		$cached_match = $core->mcache('url_alias_match_' . md5($alias_url_check));
+		if (false && !empty($cached_match)) {
 			$additional_function_params = $cached_match['additional_function_params'];
 			$return_array = $cached_match['override_params'];
 		}
 		else {
 			//We can determine a direct module action call with the _ prefix in a module, also we can provide .direct as "file-extension" so check for it
-			if(!empty($matches) && $matches[2] == "direct") {
+			if (!empty($matches) && $matches[2] == "direct") {
 				//We do not want the psyodo file extension within the last parameter, so remove it
-				$last_index = count($additional_function_params)-1;
+				$last_index = count($additional_function_params) - 1;
 				$additional_function_params[$last_index] = str_replace('.direct', '', $additional_function_params[$last_index]);
 			}
 			//We need only an alias check if we provided some url path parts
-			else if(!empty($alias)){
-				//Get the most precise alias from db
-				$best_match = 0;
-				$rows = array();
-				$rows = $core->db->query_slave_first("SELECT * FROM `".UrlAliasObj::TABLE."` WHERE `alias` = @alias", array("@alias" => $alias_url_check));
+			else if (!empty($alias)) {
 
-				if(empty($rows)) {
-					list($alias_start) = explode("/",$alias, 2);
-					$rows = $core->db->query_slave_all("SELECT * FROM `".UrlAliasObj::TABLE."` WHERE `alias` LIKE 'alias_start%'", array("alias_start" => $alias_start));
+				$alias_priority = ((!empty($matches) && ($matches[2] == "html" || $matches[2] == "htm")));
+
+				//Get the most precise alias from db
+				$best_match_alias = "";
+
+				$rows = array();
+				$rows = $core->db->query_slave_first("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` = @alias", array("@alias" => $alias_url_check));
+
+				if (empty($rows)) {
+					list($alias_start) = explode("/", $alias, 2);
+					$rows = $core->db->query_slave_all("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` LIKE 'alias_start%'", array("alias_start" => $alias_start));
 				}
 				else {
 					$rows = array($rows);
 				}
 
 				//To have a much better performance we search only alias which starts with the first url path patter (first part of / array)
-				foreach($rows AS $row) {
+				foreach ($rows AS $row) {
 
 					//try to match the alias, replace all % to (.*) to get the entry for an additional parameter
-					$regexp = '/^'.str_replace("%","([^\/]*)", preg_quote($row['alias'], '/')).'(\/.+)?$/is';
-					if(preg_match($regexp, $alias_url_check, $matches)) {
+					$regexp = '/^' . str_replace("%", "([^\/]*)", preg_quote($row['alias'], '/')) . '(\/.+)?$/is';
+					if (preg_match($regexp, $alias_url_check, $matches)) {
 
-						if(is_alias_preciser($row['alias'])) {
+						if (is_alias_preciser($row['alias'])) {
+							$best_match_alias = $row['alias'];
 							$return_array['module'] = $row['module'];
 							$return_array['action'] = $row['action'];
 							$return_array['perm'] = $row['perm'];
@@ -179,11 +183,12 @@ class UrlAliasObj extends AbstractDataManagment
 
 							//Get how much "params" we have left
 							$match_count = count($matches);
+
 							//If a param is left build up
-							if($match_count > 0) {
+							if ($match_count > 0) {
 
 								//If we have not just the last part as a param, (%-param)
-								if($match_count > 1) {
+								if ($match_count > 1) {
 									$match = $matches;
 									//Remove the last param couse this is build up below
 									array_pop($match);
@@ -191,9 +196,9 @@ class UrlAliasObj extends AbstractDataManagment
 								}
 								reset($matches);
 								//Get the additional params
-								$add_param_array = explode('/', $matches[$match_count-1]);
+								$add_param_array = explode('/', $matches[$match_count - 1]);
 								//We must shift the first element of $add_param_array, this is always be empty because the starting / within preg_match above
-								if(empty($add_param_array[0])) {
+								if (empty($add_param_array[0])) {
 									array_shift($add_param_array);
 								}
 
@@ -201,34 +206,43 @@ class UrlAliasObj extends AbstractDataManagment
 							} //if we have additional params
 
 							//If we got some params from database, provide it
-							if(!empty($row['params'])) {
+							if (!empty($row['params'])) {
 								$params = json_decode($row['params'], true);
-								if(empty($params)) {
+								if (empty($params)) {
 									$params = array($row['params']);
-								} else if(!is_array($params)) {
+								}
+								else if (!is_array($params)) {
 									$params = array($params);
 								}
 
-								foreach($params AS $param) {
+								foreach ($params AS $param) {
 									$additional_function_params[] = $param;
 								}
 							}
-
 						} //if alias is a better / longer option
 					} // if alias match
 				} // foreach url aliase
 
 				//Cache the result if we have one
-				if($best_match > 0) {
-					$core->mcache('url_alias_match_'.md5($alias_url_check), array(
+				if (!empty($return_array)) {
+					if (!$alias_priority) {
+						$original_url_params = explode("/", $alias_url_check);
+						if ($original_url_params[0] == 'admin') {
+							array_shift($original_url_params);
+						}
+						if (isset($original_url_params[0]) && $core->module_enabled($original_url_params[0])) {
+							return false;
+						}
+					}
+					$core->mcache('url_alias_match_' . md5($alias_url_check), array(
 						'override_params' => $return_array,
 						'additional_function_params' => $additional_function_params,
-					),1209600);
+					), 1209600);
 				}
 			} //if matches .direct
 		} //Cached
 
-		if(empty($return_array)) {
+		if (empty($return_array)) {
 			return false;
 		}
 
@@ -238,4 +252,56 @@ class UrlAliasObj extends AbstractDataManagment
 
 }
 
+if (!function_exists("is_alias_preciser")) {
+
+	/**
+	* Checks wether the given alias string is more precise than the last "best" one.
+	*
+	* @global mixed $best_match 0 if not initalized or nothing found, else the best match alias array
+	* @param string $alias the alias string
+	* @return boolean true if it is more precise, else false
+	*/
+	function is_alias_preciser($alias) {
+		/**
+		* Stores the last best match array
+		*/
+		global $best_match;
+
+		//Get the alias as param array
+		$alias_array = explode("/", $alias);
+
+		//Get the param count of check alias
+		$alias_count = count($alias_array);
+
+		//Get the param count of previous best alias
+		$best_match_count = count($best_match);
+
+		//If we call this method first time or the current alias param count is higher than the last one, return true and set the best match array new
+		if ($best_match === 0 || $alias_count > $best_match_count) {
+			$best_match = $alias_array;
+			return true;
+		}
+
+		//If we have equals param count on both side check variables
+		if ($alias_count == $best_match_count) {
+			//Loop through current alias
+			foreach ($alias_array AS $index => $param) {
+				//If the last best match param on current index is a variable and the current one not, the current one is more precise.
+				if ($best_match[$index] == "%" && $param != "%") {
+					$best_match = $alias_array;
+					return true;
+				}
+
+				//If we found at the current index that the current alias has a param where the best match one has no one, this determines
+				//that the hole current alias is not more precise as the last one.
+				if ($param == "%" && $best_match[$index] != "%") {
+					return false;
+				}
+			}
+		}
+
+		//The current alias has less params than the last best match one, so return false
+		return false;
+	}
+}
 ?>
