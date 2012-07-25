@@ -78,21 +78,23 @@ class Pager extends Object
 	 * This post variable will be used for page requests
 	 * @var string
 	 */
-	private $ajax_page_post_variable = "page";
+	private $ajax_page_post_variable = "cpage";
 
 	/**
 	 * Construct
 	 *
 	 * @param int $max_entries_per_page
 	 *   the max entries per page
-	 * @param int $entries 
+	 * @param int $entries
 	 *   the complete number of entries
-	 * @param int $current_page 
+	 * @param int $current_page
 	 *   the current page (optional, default = null)
-	 * @param string $link_template 
+	 * @param string $link_template
 	 *   the link template, this will be used for the href value you need to privde %page% which will be replaced with the current page (optional, default = null)
+	 * @param string $page_variable
+	 *   the page variable which will be used to determine the current page (optional, default = 'cpage')
 	 */
- 	public function __construct($max_entries_per_page, $entries, $current_page = null, $link_template = null) {
+ 	public function __construct($max_entries_per_page, $entries, $current_page = null, $link_template = null, $page_variable = 'cpage') {
 		parent::__construct();
 		$this->max_entries_per_page = $max_entries_per_page;
 		$this->entries = $entries;
@@ -107,7 +109,7 @@ class Pager extends Object
 			foreach ($_GET AS $k => &$v) {
 				$tmp_arr[md5($k)] = $k."=".$v;
 			}
-			$tmp_arr[md5("cpage")] = "cpage=%page%";
+			$tmp_arr[md5($page_variable)] = $page_variable . "=%page%";
 			$url = $_SERVER["REQUEST_URI"];
 			$this->link_template = substr($url, 0, strpos($url, "?"))."?".implode("&", $tmp_arr);
 		}
@@ -117,13 +119,13 @@ class Pager extends Object
 		}
 		else {
 			//IF cpage was found within the get request use this, else set it to 0
-			$this->current_page = (!empty($_GET['cpage'])) ? $_GET['cpage'] : 0;
+			$this->current_page = (!empty($_GET[$page_variable])) ? $_GET[$page_variable] : 0;
 		}
 	}
 
 	/**
 	 * Build up our pager and return the html (just the div container), The pager self will be build up with javascript
-	 * 
+	 *
 	 * @return string The Pager HTML
 	 */
 	public function build_pager() {
@@ -154,7 +156,7 @@ class Pager extends Object
 
 	/**
 	 * Get the offset of the current page
-	 * 
+	 *
 	 * @return int the current offset
 	 */
 	public function get_offset() {
@@ -163,8 +165,8 @@ class Pager extends Object
 
 	/**
 	 * Build up the pager HTML and assign it to Smarty variable $variable
-	 * 
-	 * @param string $variable 
+	 *
+	 * @param string $variable
 	 *   The smarty variable
 	 */
 	public function assign_smarty($variable) {
@@ -173,10 +175,10 @@ class Pager extends Object
 
 	/**
 	 * Enables or Disable to use ajax as page callbacks or if no param provied return current value
-	 * 
-	 * @param boolean $is_ajax 
+	 *
+	 * @param boolean $is_ajax
 	 *   wether to set the is_ajax to true or false (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return boolean
 	 */
 	public function is_ajax($is_ajax = NS) {
@@ -190,9 +192,9 @@ class Pager extends Object
 	/**
 	 * Set or Get the entries
 	 *
-	 * @param int $entries 
+	 * @param int $entries
 	 *   wether to set the entries (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function entries($entries = NS) {
@@ -205,10 +207,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the current_page
-	 * 
-	 * @param int $current_page 
+	 *
+	 * @param int $current_page
 	 *   wether to set or get the current_page (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function current_page($current_page = NS) {
@@ -221,10 +223,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the max_entries_per_page
-	 * 
-	 * @param int $max_entries_per_page 
+	 *
+	 * @param int $max_entries_per_page
 	 *   wether to set or get the max_entries_per_page (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function max_entries_per_page($max_entries_per_page = NS) {
@@ -237,10 +239,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the range
-	 * 
-	 * @param int $range wether 
+	 *
+	 * @param int $range wether
 	 *   to set or get the range  (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function range($range = NS) {
@@ -253,10 +255,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the front_range
-	 * 
-	 * @param int $front_range 
+	 *
+	 * @param int $front_range
 	 *   wether to set or get the front_range (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function front_range($front_range = NS) {
@@ -269,10 +271,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the end_range
-	 * 
-	 * @param int $end_range wether 
+	 *
+	 * @param int $end_range wether
 	 *   to set or get the end_range (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
 	public function end_range($end_range = NS) {
@@ -285,10 +287,10 @@ class Pager extends Object
 
 	/**
 	 * Set or Get the link_template
-	 * 
-	 * @param string $link_template 
+	 *
+	 * @param string $link_template
 	 *   wether to set or get the link_template (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
 	public function link_template($link_template = NS) {
@@ -302,10 +304,10 @@ class Pager extends Object
 	/**
 	 * Set or Get the ajax_effect
 	 * the effect after the page content is recieved
-	 * 
-	 * @param string $ajax_effect 
+	 *
+	 * @param string $ajax_effect
 	 *   wether to set or get  the ajax_effect (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
 	public function ajax_effect($ajax_effect = NS) {
@@ -319,10 +321,10 @@ class Pager extends Object
 	/**
 	 * Set or Get the ajax_replace_element
 	 * the html replace element
-	 * 
-	 * @param string $ajax_replace_element 
+	 *
+	 * @param string $ajax_replace_element
 	 *   wether to set or get the ajax_replace_element (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
 	public function ajax_replace_element($ajax_replace_element = NS) {
@@ -336,9 +338,9 @@ class Pager extends Object
 	/**
 	 * Set or Get the ajax_page_post_variable
 	 * ajax_page_post_variable is the post variable which will be send to the ajax callback
-	 * @param string $ajax_page_post_variable 
+	 * @param string $ajax_page_post_variable
 	 *   wether to set or get the ajax_page_post_variable (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
 	public function ajax_page_post_variable($ajax_page_post_variable = NS) {
