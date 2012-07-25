@@ -210,7 +210,7 @@ class user extends ActionModul
 
 			$user_obj = new UserObj();
 			$user_obj->set_fields($form->get_values());
-			$user_obj->password = md5($user_obj->password);
+			$user_obj->password = $user_obj->password;
 			$user_obj->transaction_auto_begin();
 			//Check if the insert command returned true
 			if ($user_obj->insert()) {
