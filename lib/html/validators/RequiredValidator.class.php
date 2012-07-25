@@ -28,6 +28,9 @@ class RequiredValidator extends AbstractHtmlValidator
 		if($val."" === "0") {
 			return true;
 		}
+		if ($val === NS) {
+			return false;
+		}
 		return !empty($val);
 	}
 

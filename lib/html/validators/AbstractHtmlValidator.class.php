@@ -40,9 +40,9 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * constructor
 	 *
-	 * @param string $error 
+	 * @param string $error
 	 *   the error message (optional, default = "")
-	 * @param mixed $options 
+	 * @param mixed $options
 	 *   the options (optional, default = null)
 	 */
 	public function __construct($error = "", $options = null) {
@@ -63,7 +63,7 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the error message
 	 *
-	 * @param string &$val 
+	 * @param string &$val
 	 *   The error
 	 */
 	public function set_error(&$val) {
@@ -82,7 +82,7 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the value
 	 *
-	 * @param string &$val 
+	 * @param string &$val
 	 *   The value
 	 */
 	public function set_value(&$val) {
@@ -101,7 +101,7 @@ abstract class AbstractHtmlValidator extends Object
 	/**
 	 * Set the options
 	 *
-	 * @param string &$val 
+	 * @param string &$val
 	 *   The options
 	 */
 	public function set_options(&$val) {
