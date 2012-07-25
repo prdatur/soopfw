@@ -1393,15 +1393,17 @@ class Core {
 		if ($cache == null) {
 			$cache = array();
 			foreach ($this->modules AS $module) {
-				$class = new ReflectionClass($module);
-				$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
-				foreach ($methods AS $method) {
-					if (preg_match("/^hook_(.*)$/", $method->name, $match)) {
-						$hook_name = $match[1];
-						if (!isset($cache[$hook_name])) {
-							$cache[$hook_name] = array();
+				if (class_exists($module)) {
+					$class = new ReflectionClass($module);
+					$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
+					foreach ($methods AS $method) {
+						if (preg_match("/^hook_(.*)$/", $method->name, $match)) {
+							$hook_name = $match[1];
+							if (!isset($cache[$hook_name])) {
+								$cache[$hook_name] = array();
+							}
+							$cache[$hook_name][$module] = $module;
 						}
-						$cache[$hook_name][$module] = $module;
 					}
 				}
 			}
