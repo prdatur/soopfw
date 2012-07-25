@@ -10,17 +10,17 @@ $.extend(Soopfw, {
 	internal: {
 		progressbars: {}
 	},
-	
+
 	/**
 	 * Opens a chooser dialog where just the buttons appear to execute a user defined action
-	 * 
+	 *
 	 * @param string $title
 	 *   the title
 	 * @param array $buttons
 	 *   the buttons
 	 */
 	chooser_dialog: function($title, $buttons) {
-		
+
 		var html = $('<div id="ui-dialog' + uuid() + '"></div>');
 		foreach($buttons, function(k, v) {
 			$buttons[k] = function() {
@@ -38,7 +38,7 @@ $.extend(Soopfw, {
 			buttons: $buttons
 		});
 	},
-	
+
 	/**
 	 * Behavious all js function should implement this instead of Jquery document ready
 	 * Will be reloaded with every ajax_html and normal page request
@@ -61,7 +61,7 @@ $.extend(Soopfw, {
 		}
 		Soopfw.system_footer_behaviour();
 	},
-	
+
 	/**
 	 * MUST BE IMPLEMENTED
 	 * Makes a table sortable (desc asc)
@@ -74,7 +74,7 @@ $.extend(Soopfw, {
 		})
 
 	},
-	
+
 	/**
 	 * Translation function, key as an english text, args as an object {search => replace}
 	 * @param String key
@@ -189,7 +189,7 @@ $.extend(Soopfw, {
 		$("div.progressbar_"+identifier+" div.progressbar_bar").css("width", percent+"%");
 		$("div.progressbar_"+identifier+" span.progressbar_percent").html(percent+"%");
 	},
-	
+
 	/**
 	 * Append an ajax load to the given div
 	 *
@@ -281,14 +281,14 @@ $.extend(Soopfw, {
 		});
 		return id;
 	},
-	
+
 	uuid: function(length) {
 		if(length == undefined) {
 			length = 32;
 		}
 		return randomID(length);
 	},
-	
+
 	redirect: function() {
 
 		var url = Soopfw.config.redirect_url;
@@ -313,18 +313,40 @@ Soopfw.system_footer_behaviour = function() {
 	},function(){
 		$(this).find(".dropdownbox").hide();
 	});
-	
+
 	var editor_styles = [];
 	$('head > link[type="text/css"]').each(function() {
 		editor_styles.push($(this).attr('href'));
 	});
-	
+
 	editor_styles.push(Soopfw.config.template_path+'/css/jquery.sceditor.overrides.css');
 	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').sceditorBBCodePlugin({
 		style: editor_styles
 	});
 	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').addClass("soopfw-proccessed");
+
+	$('.Tagfield:not(.soopfw-proccessed)').addClass("soopfw-proccessed").each(function() {
+		var options = {};
+		var src = $(this).attr('autocomplete_source');
+		var min_length = $(this).attr('autocomplete_min_length');
+
+		if (!empty(src)) {
+			options['tagSource'] = src;
+		}
+		else if (Soopfw.config['taginput_source_' + $(this).attr('source_id')] != undefined) {
+			options['tagSource'] = Soopfw.config['taginput_source_' + $(this).attr('source_id')];
+		}
+
+		if (!empty(options['tagSource'])) {
+			options['autocompleteMinLength'] = min_length;
+		}
+		$(this).tagit(options);
+	});
+
+
 	process_form_buttons();
+
+
 };
 
 function process_form_buttons() {
@@ -391,13 +413,13 @@ function randomID(size)
 
 var tabs_loaded = {};
 $(document).ready(function() {
-	
+
 	$.extend(true, $.ui.dialog.prototype.options, {
 		close: function() {
 			$(this).dialog("destroy").remove();
 		}
 	});
-	
+
 	Soopfw.behaviors.system_setup_tabs = function() {
 		if(Soopfw.config.load_tabs != undefined) {
 			for(var i = 0; i < Soopfw.config.load_tabs.length; i++) {
