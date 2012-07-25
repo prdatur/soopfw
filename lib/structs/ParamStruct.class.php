@@ -71,7 +71,7 @@ class ParamStruct extends Object
 	/**
 	 * Construct
 	 *
-	 * @param string $submit_name 
+	 * @param string $submit_name
 	 *   The submit name (optional, default = NS)
 	 */
  	public function __construct($submit_name = NS) {
@@ -90,7 +90,7 @@ class ParamStruct extends Object
 
 	/**
 	 * Get the database struct
-	 * 
+	 *
 	 * @return array the struct
 	 */
 	public function get_struct() {
@@ -103,9 +103,9 @@ class ParamStruct extends Object
 	 * If $return_more is set to true it will break up after finding the first invalid validator and set this
 	 * error to our validator_error array
 	 *
-	 * @param boolean $return_more 
+	 * @param boolean $return_more
 	 *   Set to true if you want to have all validator errors not the first invalid one (optional, default = false)
-	 * 
+	 *
 	 * @return boolean returns true if all validators are valid, else false
 	 */
 	public function is_valid($return_more = false) {
@@ -147,9 +147,9 @@ class ParamStruct extends Object
 	/**
 	 * Add a validator to a parameter
 	 *
-	 * @param string $field 
+	 * @param string $field
 	 *   the parameter field
-	 * @param mixed $validators 
+	 * @param mixed $validators
 	 *   can be an array with AbstractHtmlValidator or a direct AbstractHtmlValidator
 	 */
 	public function add_validator($field, $validators) {
@@ -166,16 +166,15 @@ class ParamStruct extends Object
 		//Loop through all validator which we want to add and add the parameter value as the validator value
 		foreach ($validators AS $validator) {
 			$this->validators[$field][$validator->get_type()] = $validator;
-			$validator->set_value($this->__get($field));
 		}
 	}
 
 	/**
 	 * Returns if the param is required
 	 *
-	 * @param string $param 
+	 * @param string $param
 	 *   the param
-	 * 
+	 *
 	 * @return boolean true if the param is a required param, else false
 	 */
 	public function is_required_param($param) {
@@ -185,9 +184,9 @@ class ParamStruct extends Object
 	/**
 	 * Returns if the param must be set (but can be empty)
 	 *
-	 * @param string $param 
+	 * @param string $param
 	 *   The param
-	 * 
+	 *
 	 * @return boolean true if the param is a isset param, else false
 	 */
 	public function is_isset_param($param) {
@@ -225,9 +224,9 @@ class ParamStruct extends Object
 	/**
 	 * Check if struct has param
 	 *
-	 * @param string $param 
+	 * @param string $param
 	 *   The param
-	 * 
+	 *
 	 * @return boolean returns true if exists, else false
 	 */
 	public function has_param($param) {
@@ -237,9 +236,9 @@ class ParamStruct extends Object
 	/**
 	 * Returns the struct param
 	 *
-	 * @param string $param 
+	 * @param string $param
 	 *   The parameter name
-	 * 
+	 *
 	 * @return mixed if exist return the field, else false
 	 */
 	public function get_param($param) {
@@ -288,13 +287,13 @@ class ParamStruct extends Object
 	/**
 	 * Add a struct param
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The param name
-	 * @param int $typ 
+	 * @param int $typ
 	 *   The param typ ( use one of PDT_*)
-	 * @param mixed $default_value 
+	 * @param mixed $default_value
 	 *   Default value for this param (optional, default = '')
-	 * @param mixed $map_as 
+	 * @param mixed $map_as
 	 *   Map the parameter to another name (optional, default = '')
 	 */
 	public function add_param($name, $typ, $default_value = "", $map_as = "") {
@@ -313,11 +312,11 @@ class ParamStruct extends Object
 	/**
 	 * Add a struct param which is required and cannot be empty
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The param name
-	 * @param int $typ 
+	 * @param int $typ
 	 *   The param typ ( use one of PDT_*)
-	 * @param mixed $map_as 
+	 * @param mixed $map_as
 	 *   Map the parameter to another name (optional, default = '')
 	 */
 	public function add_required_param($name, $typ, $map_as = "") {
@@ -328,11 +327,11 @@ class ParamStruct extends Object
 	/**
 	 * Add a struct param which can be empty but must be set
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The param name
-	 * @param int $typ 
+	 * @param int $typ
 	 *   The param typ ( use one of PDT_*)
-	 * @param mixed $map_as 
+	 * @param mixed $map_as
 	 *   Map the parameter to another name (optional, default = '')
 	 */
 	public function add_isset_param($name, $typ, $map_as = "") {
@@ -348,9 +347,9 @@ class ParamStruct extends Object
 	/**
 	 * Get the default value for the given param
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The param
-	 * 
+	 *
 	 * @return mixed The default value, if value doesnt exist or no default value exist return null
 	 */
 	public function get_default_value($name) {
@@ -407,9 +406,9 @@ class ParamStruct extends Object
 	/**
 	 * Set the value of given name
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The name
-	 * @param mixed $value 
+	 * @param mixed $value
 	 *   The value
 	 */
 	public function __set($name, $value) {
@@ -429,7 +428,7 @@ class ParamStruct extends Object
 	 * $type = ParamStruct::FILL_FROM_GP = Fill the array from $_GET and override it with $_POST<br />
 	 * $type = array = Direct fill the array from the given one
 	 *
-	 * @param mixed $type 
+	 * @param mixed $type
 	 *   can be an array to fill direct or a string one of ParamStruct::FILL_FROM_* (optional, default = ParamStruct::FILL_FROM_POST)
 	 */
 	public function fill($type = self::FILL_FROM_POST) {
@@ -476,9 +475,9 @@ class ParamStruct extends Object
 	 *
 	 * @param mixed $value
 	 *   the value
-	 * @param int $type 
+	 * @param int $type
 	 *   based on PDT_*
-	 * 
+	 *
 	 * @return mixed returns the value parsed to the given type
 	 */
 	private function parse_value($value, $type) {
@@ -510,14 +509,14 @@ class ParamStruct extends Object
 
 	/**
 	 * Self empty function
-	 * 
+	 *
 	 * Check if the given value is empty based up on the given type
 	 *
-	 * @param mixed $value 
+	 * @param mixed $value
 	 *   the value
-	 * @param int $type 
+	 * @param int $type
 	 *   based on PDT_*
-	 * 
+	 *
 	 * @return boolean returns true on success, else false, if type == PDT_FILE returns false if length <= 0 or tmp_file == empty else true
 	 */
 	public function is_empty(&$value, $type) {
