@@ -50,11 +50,19 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	}
 
 	/**
-	 * Returns the logout url for this login handler
-	 * @return string
+	 * Returns the profile url for this login handler
+	 *
+	 * @param UserObj $user_obj
+	 *   the user object, if provided it will get the profile url for this account (optional, default = null)
+	 *
+	 * @return string the profile url
 	 */
-	public function get_profile_url() {
-		return '/user/edit/@userid';
+	public function get_profile_url($user_obj = null) {
+		$profile_url = '/user/edit/@userid';
+		if (!is_null($user_obj)) {
+			$profile_url = str_replace('@userid', $user_obj->user_id, $profile_url);
+		}
+		return $profile_url;
 	}
 
 	/**
