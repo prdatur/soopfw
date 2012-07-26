@@ -415,6 +415,7 @@ var tabs_loaded = {};
 $(document).ready(function() {
 
 	$.extend(true, $.ui.dialog.prototype.options, {
+		modal: true,
 		close: function() {
 			$(this).dialog("destroy").remove();
 		}
