@@ -11,7 +11,7 @@
 	<%foreach $pages AS $page%>
 		<tr id="row_<%$page.page_id%>">
 			<td style="text-align: left;">
-				<a href="/content/edit/<%$page.page_id%>">
+				<a href="/admin/content/edit/<%$page.page_id%>">
 					<span><%$page.title%>
 						<%if $page.deleted == 'yes'%><span style='font-style: italic'>(deleted)</span><%/if%>
 						<%if empty($page.last_revision)%><span style='font-style: italic'>(unpublished)</span><%/if%>

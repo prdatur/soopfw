@@ -65,7 +65,7 @@ function add_group(group)
 					}
 				});
 			}}),
-			create_element({input: 'td', css: {"text-align": 'right'}, append:[
+			create_element({input: 'td', attr: {"class": 'ui-state-default'}, css: {"text-align": 'right'}, append:[
 				create_element({input: 'a', attr:{id: 'group_id'+'_'+group.group_id,href: 'javascript:void(0);'}, append:[
 					create_element({input: 'img', attr:{src: '/1x1_spacer.gif', "class": 'linkedElement ui-icon-soopfw ui-icon-soopfw-cancel'}})
 				], click: function()

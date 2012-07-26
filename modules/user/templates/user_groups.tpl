@@ -1,7 +1,7 @@
 <div id="createGroup" class="form_button"><%t key='Add new group'%></div> <br /><br />
 <div style="clear: both;"></div>
-<div style="float:left;width:150px;">
-	<table cellpadding="2" cellspacing="0" class="ui-widget ui-widget-content" style="width:100%;" border="0">
+<div style="float:left;">
+	<table cellpadding="0" cellspacing="0" class="ui-widget ui-widget-content" border="0">
 		<thead class="ui-widget-header">
 			<tr>
 				<td><%t key='Groups'%></td>

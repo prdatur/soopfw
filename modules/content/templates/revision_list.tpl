@@ -17,8 +17,8 @@
 				<%$revision.created_by.username%>
 				<%else%><%t key='user not found'%><%/if%></td>
 			<td style="text-align:right">
-				<a href="/content/view/<%$revision.page_id%>/<%$revision.revision%>" target="_blank"><%t key='view'%></a> -
-				<a href="/content/edit/<%$revision.page_id%>/<%$revision.revision%>" target="_blank"><%t key='edit'%></a>&nbsp;
+				<a href="/admin/content/view/<%$revision.page_id%>/<%$revision.revision%>" target="_blank"><%t key='view'%></a> -
+				<a href="/admin/content/edit/<%$revision.page_id%>/<%$revision.revision%>" target="_blank"><%t key='edit'%></a>&nbsp;
 			</td>
 		</tr>
 		<%/foreach%>

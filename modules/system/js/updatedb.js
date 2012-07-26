@@ -18,7 +18,7 @@ Soopfw.behaviors.system_updater = function() {
 					var module_updated = Soopfw.config.update_db_modules[current];
 					if(current >= max_updates) {
 						Soopfw.progress_update("system_updatedb", Soopfw.t("Updating Module completed", {'icurrent': current, 'icomplete': max_updates}));
-						location.href = "/system/updatedb";
+						location.href = "/admin/system/updatedb";
 						return;
 					}
 					current++;

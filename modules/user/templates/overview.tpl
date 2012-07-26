@@ -20,7 +20,7 @@
 			<td style="text-align: center;"><input type="checkbox" name="selected_user[]" value="<%$user.user_id%>" id="dmySelectUser_<%$user.user_id%>" class="dmySelectUser input_checkbox"/></td>
 			<td style="text-align: center" class="linkedElement dmyActiveUser" id="activeUser_<%$user.user_id%>"><img src="/1x1_spacer.gif" id="activeUserImg_<%$user.user_id%>" class="ui-icon-soopfw ui-icon-soopfw-status-<%$user.status_color%>" /></td>
 			<td style="text-align: center;"><img src="/1x1_spacer.gif" title="<%$user.language%>" alt="<%$user.language%>" class="ui-icon-soopfw-country ui-icon-soopfw-country-<%$user.language|lower%>"></td>
-			<td style="text-align: left;" id="adressTd_<%$user.user_id%>" class="adressTd"><a href="/user/edit/<%$user.user_id%>"><span class="showUserAddress" id="showUserAddress_<%$user.user_id%>"><%$user.username%></span></a>
+			<td style="text-align: left;" id="adressTd_<%$user.user_id%>" class="adressTd"><a href="/admin/user/edit/<%$user.user_id%>"><span class="showUserAddress" id="showUserAddress_<%$user.user_id%>"><%$user.username%></span></a>
 				<div id="userDefaultAdress_<%$user.user_id%>" style="display:none;"><span style="font-weight:bold; text-decoration: underline;"><%t key='Default address'%></span><br />
 				<%$user.default_address.company%><br />
 				<%$user.default_address.firstname%> <%$user.default_address.lastname%><br />
