@@ -2,8 +2,9 @@
 <form action="<%$form->action()%>" method="<%$form->method()%>" enctype="<%$form->enctype()%>" id="<%$form->formname%>">
 <%/if%>
 <div class="<%if empty($class)%>ui-widget<%else%><%$class%><%/if%> form" cellpadding="0" cellspacing="0">
-	<%if empty($no_header) || $no_header==false%>
-	<div class="ui-widget-header "><%$form->get_title()%> <%$header%></div>
+	<%$header_title=$form->get_title()%>
+	<%if (empty($no_header) || $no_header==false) && !empty($header_title)%>
+	<div class="ui-widget-header "><%$header_title%> <%$header%></div>
 	<%/if%>
 	<div class="ui-widget-content">
 		<%$form_content|unescape%>
