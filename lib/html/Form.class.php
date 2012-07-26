@@ -123,16 +123,16 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Constructor
 	 *
-	 * @param string $form_name 
+	 * @param string $form_name
 	 *   The form name used for smarty
-	 * @param string $title 
+	 * @param string $title
 	 *   The title for this form, this must be a translated string, it will not translate. (optional, default = '')
-	 * @param string $submit 
-	 *   If a post element with this string exist the form is submitted, 
-	 *   can be set to "auto" as a special string that will setup 
+	 * @param string $submit
+	 *   If a post element with this string exist the form is submitted,
+	 *   can be set to "auto" as a special string that will setup
 	 *   a unique hidden submit handler field (optional, default = 'auto')
-	 * @param string $is_post 
-	 *   Set to false if you do not want to check the $submit value 
+	 * @param string $is_post
+	 *   Set to false if you do not want to check the $submit value
 	 *   against the $_POST value, only check if $submit is not empty (optional, default = true)
 	 */
  	public function __construct($form_name, $title = '', $submit = 'auto', $is_post = true) {
@@ -190,6 +190,11 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * @return boolean true if form is submitted and valid or not
 	 */
 	public function check_form() {
+
+		if (!$this->assigned) {
+			$this->assign_smarty();
+		}
+
 		$result = $this->is_submitted();
 		if ($result == true) {
 			//If form was submitted we remove all pre_value configs from all visible elements
@@ -216,7 +221,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set wether to self handle ajax submit or not.
 	 *
-	 * @param boolean $self_handle 
+	 * @param boolean $self_handle
 	 *   If set to true, no javascript will be added to submit the form via ajax request (optional, default = true)
 	 */
 	public function custom_ajax_handler($self_handle = true) {
@@ -227,9 +232,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * Set or get the form css class
 	 * The CSS-Class will be added to all current elements
 	 *
-	 * @param string $class 
+	 * @param string $class
 	 *   the css class (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode ($class = NS) return the current css class, else return nothing
 	 */
 	public function css_class($class = NS) {
@@ -247,11 +252,16 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Assign the form to smarty.
-	 * 
-	 * @param string $name 
+	 *
+	 * @param string $name
 	 *   The smarty variable (optional, default = 'form')
 	 */
 	public function assign_smarty($name = "form") {
+
+		if (empty($this->elements[self::ELEMENT_SCOPE_BUTTON])) {
+			$this->add(new Submitbutton('submit', t('Submit')));
+		}
+
 		if ($this->is_ajax) {
 			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
@@ -271,13 +281,18 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Append the form to smarty.
-	 * 
-	 * @param string $key 
+	 *
+	 * @param string $key
 	 *   The key for the array
-	 * @param string $name 
+	 * @param string $name
 	 *   The smarty variable (optional, default = 'form')
 	 */
-	public function append_smarty($key, $name = "form") {		
+	public function append_smarty($key, $name = "form") {
+
+		if (empty($this->elements[self::ELEMENT_SCOPE_BUTTON])) {
+			$this->add(new Submitbutton('submit', t('Submit')));
+		}
+
 		if ($this->is_ajax) {
 			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
@@ -317,10 +332,10 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * set or get the ajax return type.
-	 * 
-	 * @param string $type 
+	 *
+	 * @param string $type
 	 *   the type, if provided should be json or html (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode (type = NS) return the current type, else return nothing
 	 */
 	public function ajax_return_type ($type = NS) {
@@ -337,10 +352,10 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Set or get the ajax return type handler.
-	 * 
-	 * @param string $ajax_return_type_handler 
+	 *
+	 * @param string $ajax_return_type_handler
 	 *   the handler (js-function name) (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode (type = NS) return the current handler, else return nothing
 	 */
 	public function ajax_return_type_handler ($ajax_return_type_handler = NS) {
@@ -354,9 +369,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set or get the form action
 	 *
-	 * @param string $action 
+	 * @param string $action
 	 *   the form action (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode (action = NS) return the current action, else return nothing
 	 */
 	public function action($action = NS) {
@@ -374,9 +389,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set or get the form method
 	 *
-	 * @param string $method 
+	 * @param string $method
 	 *   the form method (POST, GET) (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode (method = NS) return the current method, else return nothing
 	 */
 	public function method($method = NS) {
@@ -390,9 +405,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set or get the form enctype
 	 *
-	 * @param string $enctype 
+	 * @param string $enctype
 	 *   the form enctype (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed if we are in return mode (enctype = NS) return the current enctype, else return nothing
 	 */
 	public function enctype($enctype = NS) {
@@ -414,7 +429,7 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Set the form title
-	 * 
+	 *
 	 * @param string $title
 	 *   the title
 	 */
@@ -425,7 +440,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Check if form is valid
 	 *
-	 * @return boolean 
+	 * @return boolean
 	 *   true if valid, else false
 	 */
 	public function form_valid() {
@@ -439,7 +454,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * Check if form is submitted
 	 * if $submit_element_key is provided it will check if this submit button was clicked.
 	 *
-	 * @param string $submit_element_key 
+	 * @param string $submit_element_key
 	 *   the element key to be checked (optional, default = "")
 	 * @return boolean true if submitted, else false
 	 */
@@ -457,8 +472,8 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Returns the errors
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 *   all errors
 	 */
 	public function get_errors() {
@@ -469,9 +484,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * Adds an error
 	 * The $element variable is used to mark the element as invalid (add error classes to the element)
 	 *
-	 * @param string $element 
+	 * @param string $element
 	 *   the element
-	 * @param string $msg 
+	 * @param string $msg
 	 *   the error message
 	 */
 	public function add_error($element, $msg) {
@@ -481,9 +496,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Remove an input
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   input name
-	 * @param string $element_scope 
+	 * @param string $element_scope
 	 *   the input scope, use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
 	 */
 	public function remove($name, $element_scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -493,9 +508,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Add a single input
 	 *
-	 * @param AbstractHtmlInput &$input 
+	 * @param AbstractHtmlInput &$input
 	 *   the AbstractHtmlInput
-	 * @param array &$validators 
+	 * @param array &$validators
 	 *   an array with validators (optional, default = array())
 	 */
 	public function add(AbstractHtmlInput &$input, $validators = array()) {
@@ -544,9 +559,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Check all input validators.
 	 *
-	 * @param boolean $assign_errors 
+	 * @param boolean $assign_errors
 	 *   if set to true, the errors will be added directory into core messages (optional, default = false)
-	 * 
+	 *
 	 * @return boolean true if valid, else false
 	 */
 	public function is_valid($assign_errors = false) {
@@ -588,9 +603,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * If $scope is empty it will return the pure elements array (like array(Form::ELEMENT_SCOPE_VISIBLE = array(visible_elements), Form::ELEMENT_SCOPE_HIDDEN => array(hidden_elements),...)
 	 * and if scope is provided it will return all elements within the provided scope
 	 *
-	 * @param string $scope 
+	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
-	 * 
+	 *
 	 * @return array the element array format [key] = AbstractHtmlInput
 	 */
 	public function get_array($scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -603,9 +618,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Get all elements with their values
 	 *
-	 * @param boolean $include_hidden 
+	 * @param boolean $include_hidden
 	 *   Wether to include hidden and submit values within return values (optional, default=false)
-	 * 
+	 *
 	 * @return array the element array format [key] = value
 	 */
 	public function &get_values($include_hidden = false) {
@@ -639,9 +654,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Get the form values as an multidimensional array if name fields like field[key1]
 	 *
-	 * @param boolean $include_hidden 
+	 * @param boolean $include_hidden
 	 *   set this to true if you want hidden element values (optional, default = false)
-	 * 
+	 *
 	 * @return array the parsed value array
 	 */
 	public function &get_array_values($include_hidden = false) {
@@ -658,11 +673,11 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * This provides the ability to configurate an input element
 	 * You can provide any AbstractHtmlInput->config() key for the element
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the element name
-	 * @param array $config 
+	 * @param array $config
 	 *   The configuration array in format array('option' => 'value')
-	 * @param string $scope 
+	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
 	 */
 	public function config_element($name, Array $config, $scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -677,9 +692,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set given values
 	 *
-	 * @param array &$values 
+	 * @param array &$values
 	 *   the values as elm_name => value
-	 * @param string $scope 
+	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
 	 */
 	public function set_values(&$values, $scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -698,7 +713,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set the javascript function to be called if the form is successfully submitted
 	 *
-	 * @param string $function_name 
+	 * @param string $function_name
 	 *   the javascript function
 	 */
 	public function add_js_success_callback($function_name) {
@@ -708,11 +723,11 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Get an element within the scope
 	 *
-	 * @param string $val 
+	 * @param string $val
 	 *   the element name
-	 * @param string $scope 
+	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
-	 * 
+	 *
 	 * @return AbstractHtmlInput the element as an AbstractHtmlInput or false if element not found
 	 */
 	public function get($val, $scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -725,11 +740,11 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Get a value for the given element name within the given scope
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $scope 
+	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
-	 * 
+	 *
 	 * @return mixed the value for this value or false if element not exists
 	 */
 	public function get_value($name, $scope = self::ELEMENT_SCOPE_VISIBLE) {
@@ -753,9 +768,9 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Get an element overriding __get
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the element name
-	 * 
+	 *
 	 * @return the element as an AbstractHtmlInput or false if element not exists
 	 */
 	public function __get($name) {
@@ -803,7 +818,7 @@ class Form extends AbstractHtmlElement implements Iterator
 
 	/**
 	 * Returns wether the current entry is valid or not
-	 * 
+	 *
 	 * @return boolean
 	 *   Wether the current key is valid or not
 	 */

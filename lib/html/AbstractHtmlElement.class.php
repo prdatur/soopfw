@@ -12,23 +12,32 @@ abstract class AbstractHtmlElement extends Object
 {
 
 	/**
+	 * Determines if the form is assigned to smarty or not.
+	 *
+	 * @var boolean
+	 */
+	protected $assigned = false;
+
+	/**
 	 * Assign the form to smarty
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The smarty variable
 	 */
 	public function assign_smarty($name) {
 		$this->smarty->assign_by_ref($name, $this);
+		$this->assigned = true;
 	}
-	
+
 	/**
 	 * Assign the form to smarty
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The smarty variable
 	 */
 	public function append_smarty($name, $key) {
 		$this->smarty->append(array($name => array($key => &$this)), '', true);
+		$this->assigned = true;
 	}
 
 }
