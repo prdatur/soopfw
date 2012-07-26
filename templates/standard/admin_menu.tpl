@@ -6,7 +6,7 @@
 <%foreach $data as $entry%>
 		<li<%if $topline == true%> class="topline"<%$topline=false%><%/if%>>
 <%if is_array($entry)%>
-			<a href="<%$entry['#link']%>"<%if !empty($entry['#childs'])%> class="sub"<%/if%>><%$entry['#title']%></a>
+<a href="<%$entry['#link']%>"<%if !empty($entry['#childs'])%> class="sub ui-icon-triangle-1-e"<%/if%>><%$entry['#title']%><%if !empty($entry['#childs'])%><span class="ui-icon ui-icon-triangle-1-e clearfix"></span><%/if%></a>
 <%if !empty($entry['#childs'])%>
 <%admin_sub_menu data=$entry['#childs'] level=$level+1%>
 <%/if%>

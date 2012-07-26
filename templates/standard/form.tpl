@@ -25,7 +25,7 @@
 				<%/if%>
 				<%$inner_fieldset_count = $inner_fieldset_count + 1%>
 				<%$element->fetch()%>
-				<%if !empty($label)%><legend><%$label%></legend><%/if%>
+				<%if !empty($label)%><div class="legend_wrapper"><legend><%$label%></legend></div><%/if%>
 			<%else%>
 			<div id="<%$element->config('id')%>_wrapper">
 				<%$element->fetch()%>

@@ -1,9 +1,9 @@
 /* ui widget for a table */
 
-a:link, 
-a:visited, 
-a:active, 
-.ui-widget-content td a, 
+a:link,
+a:visited,
+a:active,
+.ui-widget-content td a,
 .linktext {
 	cursor:pointer !important;
     color: #084269;
@@ -11,7 +11,7 @@ a:active,
 	text-decoration:none;
 }
 
-a:hover, 
+a:hover,
 .ui-widget-content td a:hover,
 .linktext:hover,
 .hover {
@@ -71,10 +71,6 @@ a:hover,
 	border: 0px;
 }
 
-.ui-widget-content {
-	background: url("../images/ui-bg_loop_25_dfdfdf_21x21.png") repeat scroll 50% 50% #dfdfdf;
-}
-
 .ui-widget {
 	border: 1px solid #A5A5A5;
 }
@@ -84,3 +80,6 @@ a:hover,
 	border: 0px;
 }
 
+.ui-dialog {
+	padding: 0px;
+}

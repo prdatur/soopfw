@@ -1,5 +1,5 @@
 .jqueryslidemenu {
-	background: #414141;
+	background-color: #414141;
 	width: 100%;
 }
 
@@ -10,29 +10,29 @@
 }
 
 /*Top level list items*/
-.jqueryslidemenu ul li { 
+.jqueryslidemenu ul li {
 	position: relative;
 	display: inline;
 	float: left;
 	margin:0px;
 }
 
-.jqueryslidemenu ul li ul li { 
+.jqueryslidemenu ul li ul li {
 	left:-5px;
 }
 
-.jqueryslidemenu ul li ul li a { 
+.jqueryslidemenu ul li ul li a {
 	border-right: 1px solid #aaa;
-	background: #414141;
+	background-color: #414141;
 }
 
-.jqueryslidemenu ul li ul li ul li { 
+.jqueryslidemenu ul li ul li ul li {
 	top:5px;
 }
 
 /*Top level menu link items style*/
 .jqueryslidemenu ul li a {
-	display: block; 
+	display: block;
 	color: white;
 	padding: 8px 10px;
 	border-left: 1px solid #aaa;
@@ -50,7 +50,7 @@
 }
 
 .jqueryslidemenu ul li a:hover {
-	background: black; 
+	background-color: black;
 	color: white;
 }
 
@@ -74,10 +74,10 @@
 }
 
 /* Sub level menu links style */
-.jqueryslidemenu ul li ul li a { 
-	width: 148px; 
-	padding: 5px; margin: 0; 
-	border-top: 1px solid #aaa; 
+.jqueryslidemenu ul li ul li a {
+	width: 148px;
+	padding: 5px; margin: 0;
+	border-top: 1px solid #aaa;
 	border-bottom-width: 0;
 }
 
@@ -85,7 +85,13 @@
 	border-bottom: 1px solid #aaa;
 }
 
-.jqueryslidemenuz ul li ul li a:hover { 
-	background: #eff9ff; 
-	color: black; 
+.jqueryslidemenuz ul li ul li a:hover {
+	background: #eff9ff;
+	color: black;
+}
+
+.jqueryslidemenu ul li a.sub > span {
+	display: block;
+	float: right;
+	background-image: url(jquery_soopfw/images/ui-icons_ffffff_256x240.png);
 }

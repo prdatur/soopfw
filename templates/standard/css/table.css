@@ -1,10 +1,13 @@
 /* ################## TABLE        #########################################  */
-table {
+#content_wrapper table.ui-widget-content.ui-widget {
     padding: 0px;
     margin: 0px;
     width: 100%;
 	border-collapse: separate;
-    border-spacing: 2px 2px;
+	border: 1px solid #4e4e4e;
+    border-spacing: 1px 1px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 table td {
@@ -13,15 +16,10 @@ table td {
 
 table thead tr td {
     font-weight: bold;
-    background-color: #e6d6ba;
 }
 
 table tr.odd td {
-    background-color: #F5F5F5;
-}
-
-table.ui-widget {
-	margin-top: 10px;
+   /* background-color: #F5F5F5;*/
 }
 
 table.ui-widget tbody td {
@@ -29,30 +27,25 @@ table.ui-widget tbody td {
 	line-height: 20px;
 }
 
-table.ui-widget .ui-widget-header .ui-icon { 
-	background-image:  url("../images/ui-icons_222222_256x240.png");
-}
-
 table.ui-widget .ui-widget-header td {
-	background: #DDDDD4;
 	padding: 5px;
 	font-size: 13px;
-	color: #444444;
+	color: #fefefe;
 }
 
-table.ui-widget-content {
-	background: url("../images/ui-bg_loop_25_fafafa_21x21.png") repeat scroll 50% 50% #dfdfdf;
+table.ui-widget-content tbody tr:hover td {
+	background: url("../images/ui-bg_highlight-soft_80_eeeeee_1x100.png") repeat scroll 50% 50% #DDDDD4;
+	color: #4e4e4e;
+}
+
+table.ui-widget-content tbody tr td {
+	background: url("../images/ui-bg_carbon-fiber_25_ffffff_8x9.png") repeat scroll 50% 50% #dfdfdf;
 }
 
 table.ui-widget-content td {
-	background: #EDEDE9;
-	padding: 2px;
+	/*background: #EDEDE9;*/
+	padding: 5px;
 }
-
-table.ui-widget thead tr td {
-	background-color: transparent;
-}
-
 
 tr.group_list > td.ui-state-active,
 tr.group_list > td.ui-state-hover {

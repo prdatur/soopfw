@@ -1,17 +1,37 @@
+.ui-widget.form {
+	border: 0px;
+}
+
+form div.form > div.ui-widget-content {
+	background-color: #fefefe;
+	background-image: none;
+}
+
 fieldset {
 	background: none repeat scroll 0 0 transparent;
 	border: 0 solid transparent;
+	border: 1px solid #cbcbcb;
 	margin: 0;
 	padding: 0;
-	margin-top: 2px;
+	margin-top: 7px;
+	background-color: #f0f0f0;
 }
 
+fieldset div {
+	padding: 5px;
+}
+fieldset div.legend_wrapper {
+    padding: 5px 0px 5px 0;
+	background-color: #FFFFFF;
+	border-bottom: 1px solid #cbcbcb;
+}
 fieldset legend {
-	color: #333333;
-    font-size: 18px;
+	display: block;
+	width: auto;
+    font-size: 14px;
     font-weight: normal;
-    line-height: 21px;
-    padding: 10px 10px 5px 0;
+	padding: 5px;
+    line-height: 17px;
 	font-family: Georgia,"Times New Roman",Times,serif;
 }
 
@@ -28,14 +48,14 @@ textarea {
 	height: 100px;
 }
 
-input[type="text"], 
-input[type="password"] { 
-	height: 18px; 
+input[type="text"],
+input[type="password"] {
+	height: 18px;
 }
 
-input.input_radio, 
-input.input_checkbox, 
-input[type="radio"], 
+input.input_radio,
+input.input_checkbox,
+input[type="radio"],
 input[type="checkbox"] {
 	border: 0px;
 	background-color: transparent;
@@ -46,6 +66,7 @@ input[type="checkbox"] {
 .form > .ui-widget-content {
 	padding: 5px;
 }
+
 
 .form-element-label, .form-element-label > label {
 	font-weight: bold;
@@ -72,6 +93,11 @@ input[type="checkbox"] {
 .form-element-label {
 	margin-top: 10px;
 }
+
+fieldset > div > .form-element-label:first-child {
+	margin-top: 0px;
+}
+
 .form-required {
 	color: #FF0000;
 	font-weight: bold;
