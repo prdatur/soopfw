@@ -1322,8 +1322,17 @@ class Core {
 	 *
 	 * @param string $file
 	 *   The filepath to the css file which should be loaded
+	 * @param boolean $is_full_path
+	 *   if set to true it will not add the current template path to the file.
+	 *   those files can not be overridden (optional, default = false)
 	 */
-	public function add_css($file) {
+	public function add_css($file, $is_full_path = false) {
+
+		if ($is_full_path == true) {
+			$this->css_files[] = $file;
+			return;
+		}
+		
 		$check_template_file = $this->smarty->get_tpl() . $file;
 
 		$module = $this->cache("core", "current_module");
@@ -1343,11 +1352,20 @@ class Core {
 	 *   The filepath to the javascript file which should be loaded
 	 * @param string $type
 	 *   The javascript scope, use one of Core::JS_SCOPE_* (optional, default = Core::JS_SCOPE_USER)
+	 * @param boolean $is_full_path
+	 *   if set to true it will not add the current template path to the file.
+	 *   those files can not be overridden (optional, default = false)
 	 */
-	public function add_js($file, $type = self::JS_SCOPE_USER) {
+	public function add_js($file, $type = self::JS_SCOPE_USER, $is_full_path = false) {
 		if (!isset($this->js_files[$type])) {
 			$this->js_files[$type] = array();
 		}
+
+		if ($is_full_path == true) {
+			$this->js_files[$type][] = $file;
+			return;
+		}
+
 		$check_template_file = $this->smarty->get_tpl() . $file;
 
 		$module = $this->cache("core", "current_module");
@@ -1519,6 +1537,11 @@ class Core {
 				//Get the current absolute filepath to the javascript file
 				$file_path = SITEPATH . $file;
 
+				// Skip if file does not exists.
+				if (!file_exists($file_path)) {
+					continue;
+				}
+
 				//Append the filepath to the md5 sum
 				$md5_check .= $file_path;
 
@@ -1564,6 +1587,11 @@ class Core {
 
 				foreach($original_css_files AS $file) {
 					$search_replace = array();
+
+					if (!file_exists(SITEPATH . $file)) {
+						continue;
+					}
+
 					$src = file_get_contents(SITEPATH . $file);
 					preg_match_all('~\bbackground(-image)?\s*:(.*?)url\(\s*(\'|")?(?<image>.*?)\3?\s*\)~i', $src, $matches);
 
