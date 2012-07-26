@@ -26,6 +26,14 @@
 */
 (function($) {
 
+    /**
+     * Defines the global autocomplete min length.
+     *
+     * @static int
+     *   the global autocomplete min length
+     */
+    var autocompleteMinLengthDefault = 0;
+
     $.widget('ui.tagit', {
         options: {
             itemName          : 'item',
@@ -36,9 +44,10 @@
             caseSensitive     : true,
             placeholderText   : null,
 
-			// How much characters must be inserted before autocomplete starts the work
-			autocompleteMinLength : 0,
-			
+            // How much characters must be inserted before autocomplete starts the work
+            // -1 value because this determines we should use the global one.
+            autocompleteMinLength : -1,
+
             // When enabled, quotes are not neccesary
             // for inputting multi-word tags.
             allowSpaces: false,
@@ -218,9 +227,13 @@
 
             // Autocomplete.
             if (this.options.availableTags || this.options.tagSource) {
+                // If our min length options is -1 we have not provide it so set it to the static value.
+                if (this.options.autocompleteMinLength == -1) {
+                    this.options.autocompleteMinLength = autocompleteMinLengthDefault;
+                }
                 this._tagInput.autocomplete({
                     source: this.options.tagSource,
-					minLength: this.options.autocompleteMinLength,
+                    minLength: this.options.autocompleteMinLength,
                     select: function(event, ui) {
                         // Delete the last tag if we autocomplete something despite the input being empty
                         // This happens because the input's blur event causes the tag to be created when
@@ -231,7 +244,6 @@
                         if (that._tagInput.val() === '') {
                             that.removeTag(that._lastTag(), false);
                         }
-
                         that.createTag(ui.item.value);
                         // Preventing the tag input to be updated with the chosen value.
                         return false;
@@ -392,6 +404,12 @@
 
     });
 
+    // Provide static method to set global auto complete min length.
+    $.extend($.ui.tagit, {
+        globalAutocompleteMinLength: function(minLength) {
+            autocompleteMinLengthDefault = minLength;
+        }
+    });
 })(jQuery);
 
 
