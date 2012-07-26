@@ -286,7 +286,7 @@ class content extends ActionModul {
 			);
 		}
 
-		$this->core->add_css('/css/jquery.treeview.css');
+		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');
 		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
 		$this->smarty->assign_by_ref("data", $entries);
 
