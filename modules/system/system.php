@@ -20,6 +20,8 @@ class system extends ActionModul
 	const CONFIG_DEFAULT_PAGE = "default_page";
 	const CONFIG_DEFAULT_THEME = "default_theme";
 	const CONFIG_ADMIN_THEME = "admin_theme";
+	const CONFIG_RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key";
+	const CONFIG_RECAPTCHA_PUPLIC_KEY = "recaptcha_public_key";
 
 	/**
 	 * The default method
@@ -40,34 +42,43 @@ class system extends ActionModul
 				'#perm' => 'admin.system', //Perm needed
 				'#childs' => array(
 					array(
-						'#title' => t("Modules"), //The main title
-						'#link' => "/admin/system/modules", // The main link
-						'#perm' => 'admin.system.modules' //Perm needed
-					),
-					array(
-						'#title' => t("Update Db"), //The main title
-						'#link' => "/admin/system/updatedb", // The main link
-						'#perm' => 'admin.system.updatedb' //Perm needed
-					),
-					array(
 						'#title' => t("Config"), //The main title
 						'#link' => "/admin/system/config", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
-						'#title' => t("Generate classlist"), //The main title
-						'#link' => "/admin/system/generate_classlist", // The main link
-						'#perm' => "admin.system.config", // perms needed
+						'#title' => t("Modules"), //The main title
+						'#link' => "/admin/system/modules", // The main link
+						'#perm' => 'admin.system.modules', //Perm needed
+						'#childs' => array(
+							array(
+								'#title' => t("Update modules"), //The main title
+								'#link' => "/admin/system/updatedb", // The main link
+								'#perm' => 'admin.system.updatedb' //Perm needed
+							),
+							array(
+								'#title' => t("Reindex module menu alias"), //The main title
+								'#link' => "/admin/system/reindex_menu", // The main link
+								'#perm' => "admin.system.config", // perms needed
+							),
+						),
 					),
 					array(
-						'#title' => t("Generate smartylist"), //The main title
-						'#link' => "/admin/system/generate_smartylist", // The main link
-						'#perm' => "admin.system.config", // perms needed
-					),
-					array(
-						'#title' => t("Reindex menu alias"), //The main title
-						'#link' => "/admin/system/reindex_menu", // The main link
-						'#perm' => "admin.system.config", // perms needed
+						'#title' => t("Tools"), //The main title
+						'#perm' => "admin.system", // perms needed
+						'#childs' => array(
+							array(
+								'#title' => t("Generate classlist"), //The main title
+								'#link' => "/admin/system/generate_classlist", // The main link
+								'#perm' => "admin.system.config", // perms needed
+
+							),
+							array(
+								'#title' => t("Generate smartylist"), //The main title
+								'#link' => "/admin/system/generate_smartylist", // The main link
+								'#perm' => "admin.system.config", // perms needed
+							),
+						),
 					),
 				)
 			)
@@ -140,8 +151,9 @@ class system extends ActionModul
 		$this->title(t("System Config"), t("Here we can configure the main system settings"));
 
 		//Configurate the settings form
-		$form = new SystemConfigForm($this, "system_config", t("Configuration"));
+		$form = new SystemConfigForm($this, "system_config");
 
+		$form->add(new Fieldset('performance', t('Performance')));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
 			new FunctionValidator(t('Can not finde java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
@@ -159,10 +171,12 @@ class system extends ActionModul
 			})
 		));
 
+		$form->add(new Fieldset('system', t('System')));
 		if (!empty($this->lng)) {
 			$form->add(new Selectfield(self::CONFIG_DEFAULT_LANGUAGE, $this->lng->get_enabled_languages(), $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_LANGUAGE, 'EN'), t("Default language")));
 		}
 
+		$form->add(new Fieldset('appearance', t('Appearance')));
 		$dir = new Dir('templates', false);
 		$dir->skip_dirs("images");
 		$dir->just_dirs();
@@ -172,6 +186,7 @@ class system extends ActionModul
 		}
 		$form->add(new Selectfield(self::CONFIG_DEFAULT_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_THEME, 'standard'), t("Default theme")));
 		$form->add(new Selectfield(self::CONFIG_ADMIN_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_ADMIN_THEME, 'standard'), t("Admin theme"), t('All urls which starts with /admin will get this theme.')));
+		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
 		global $classes;
 		$login_handler = array();
@@ -181,8 +196,10 @@ class system extends ActionModul
 			}
 		}
 
+		$form->add(new Fieldset('security', t('Security')));
 		$form->add(new Selectfield(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->dbconfig("system", self::CONFIG_LOGIN_HANDLER), t("Login handler")));
-		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
+		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key")));
+		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key")));
 
 		//Execute the settings form
 		$form->execute();
@@ -235,6 +252,7 @@ class system extends ActionModul
 
 		$this->session->require_login();
 
+		$this->title(t("Update modules"));
 		$form = new Form("Start update");
 		$form->add(new Submitbutton("update", t("Start update")));
 		$form->assign_smarty("form");

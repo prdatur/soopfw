@@ -17,26 +17,47 @@ class Captcha extends AbstractHtmlInput
 	 *
 	 * @var string
 	 */
-	private $privatekey;
+	private $privatekey = "6LfhidQSAAAAAGhXGrsmAsCAaHhxwLhMO8EAgJ6Q";
 
 	/**
 	 * The public key
 	 *
 	 * @var string
 	 */
-	private $publickey;
+	private $publickey = "6LfhidQSAAAAAAOYoYmolqHLdQY2bxlqrUvx2mOT";
 
 	/**
 	 * constructor
 	 *
-	 * @param string $publickey 
-	 *   The public key
-	 * @param string $privatekey 
-	 *   The private key
+	 * @param string $label
+	 *   the input label (optional, default='')
+	 * @param string $description
+	 *   the input description (optional, default = '')
+	 * @param string $publickey
+	 *   The public key (optional, default = '')
+	 * @param string $privatekey
+	 *   The private key (optional, default = '')
 	 */
- 	public function __construct($publickey, $privatekey) {
-		$this->privatekey = $privatekey;
-		$this->publickey = $publickey;
+ 	public function __construct($label = '', $description = '', $publickey = '', $privatekey = '') {
+		parent::load_core();
+
+		//Set the label for the element, if $label not provided use $name instead
+		$this->config("label", $label);
+
+		//It can happen that an input will override config('label') so to have the original label store it
+		$this->config("orig_label", (empty($label)) ? $name : $label);
+
+		//Set the element description
+		$this->config("description", $description);
+		
+		if (empty($privatekey) && empty($publickey)) {
+			$privatekey = $this->core->dbconfig('system', system::CONFIG_RECAPTCHA_PRIVATE_KEY);
+			$publickey = $this->core->dbconfig('system', system::CONFIG_RECAPTCHA_PUPLIC_KEY);
+		}
+		if (!empty($privatekey) && !empty($publickey)) {
+			$this->privatekey = $privatekey;
+			$this->publickey = $publickey;
+		}
 		$this->init();
 	}
 
@@ -57,14 +78,14 @@ class Captcha extends AbstractHtmlInput
 	 * @return array the errors
 	 */
 	public function get_errors() {
-		return array("");
+		return array(t("You have entered a wrong captcha, please try again."));
 	}
 
 	/**
 	 * Init the captcha filter
 	 */
 	public function init() {
-		$this->config("template", "forms/captcha.tpl");
+		$this->config("template", recaptcha_get_html($this->publickey));
 		$this->config("type", "captcha");
 	}
 
