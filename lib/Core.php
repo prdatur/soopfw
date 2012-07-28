@@ -13,6 +13,7 @@ define("DB_TIME", "H:i:s");
 
 mb_internal_encoding('UTF-8');
 
+global $memcached_use;
 /**
  * Determines if we use the original memcached class
  * @var boolean
@@ -373,7 +374,10 @@ class Core {
 		if (!empty($this->db)) {
 			$this->db->init_mysql_table();
 		}
-		$this->init_smarty();
+
+		if (!defined('is_shell')) {
+			$this->init_smarty();
+		}
 
 		//Initialize the right manager object
 		$this->right_manager = new RightManager($this);
@@ -446,6 +450,7 @@ class Core {
 		//Only create the memcached object if we do not have it already
 		if (is_null($this->memcache_obj)) {
 			//Init original memcached object
+
 			if ($memcached_use) {
 				$this->memcache_obj = new memcached();
 				$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config("core", "domain") . ":");
