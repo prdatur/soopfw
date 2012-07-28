@@ -16,24 +16,24 @@ class Selectfield extends AbstractHtmlInput
 	 *
 	 * @var array
 	 */
-	private $options = array();
+	protected $options = array();
 
 	/**
 	 * Construct
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param array $options 
+	 * @param array $options
 	 *   the options as array(key => value, ...)
-	 * @param string $selected 
+	 * @param string $selected
 	 *   the selected key (optional, default = '')
-	 * @param string $label 
+	 * @param string $label
 	 *   the input label (optional, default='')
-	 * @param string $description 
+	 * @param string $description
 	 *   the input description (optional, default = '')
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
  	public function __construct($name, $options, $selected = "", $label = "", $description = "", $class = "", $id = "") {
@@ -57,9 +57,9 @@ class Selectfield extends AbstractHtmlInput
 	 *
 	 * @param string $value
 	 *   the input value
-	 * @param string $content 
+	 * @param string $content
 	 *   the content
-	 * @param boolean $checked_param 
+	 * @param boolean $checked_param
 	 *   true or false if input is checked
 	 */
 	public function add_option($value, $content, $checked_param) {

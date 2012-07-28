@@ -57,7 +57,7 @@ class Session extends Object
 	 *
 	 * Creating a session object will always creates a session if not already exist
 	 *
-	 * @param Core &$core 
+	 * @param Core &$core
 	 *  the core object to setup (This is needed because globals core maybe does not exists (optional, default = null)
 	 */
  	public function __construct(&$core = null) {
@@ -74,7 +74,7 @@ class Session extends Object
 
 	/**
 	 * Returns all session keys for the login
-	 * 
+	 *
 	 * @return array the session keys
 	 */
 	public function get_login_session_keys() {
@@ -84,9 +84,9 @@ class Session extends Object
 	 * Log the current user out, if $time is higher than 0 than the request_redirection will be used,
 	 * else it will a direct header location event
 	 *
-	 * @param int $time 
+	 * @param int $time
 	 *   set the redirection timeout after logout (optional, default = 0)
-	 * @param boolean $justreturn 
+	 * @param boolean $justreturn
 	 *   if we just want to logout the current user with no redirect (optional, default = false)
 	 */
 	public function logout($time = 0, $justreturn = false) {
@@ -110,10 +110,10 @@ class Session extends Object
 	/**
 	 * Checks if the user is logged in, if not we will redirect him to the login page
 	 *
-	 * @param boolean $force_not_loggedin 
+	 * @param boolean $force_not_loggedin
 	 *   force not logged in that the user will be redirected to the user login page (optional, default = false)
-	 * @param boolean $need_direct_handler 
-	 *   the can be set to true to tell the handler that we NEED to be logged in through the third-party login handler, 
+	 * @param boolean $need_direct_handler
+	 *   the can be set to true to tell the handler that we NEED to be logged in through the third-party login handler,
 	 *   normal login is wrong (optional, default = false)
 	 */
 	public function require_login($force_not_loggedin = false, $need_direct_handler = false) {
@@ -155,20 +155,20 @@ class Session extends Object
 			//Set the loggedin fast check variable to true
 			$this->logged_in = true;
 			$this->current_user()->add_perm('user.loggedin');
-
+			
 		}
 		return $this->logged_in;
 	}
 
 	/**
 	 * Returns the current login handler
-	 * 
+	 *
 	 * @return LoginHandler the current login handler
 	 */
 	public function get_login_handler() {
 		return $this->login_handler;
 	}
-	
+
 	/**
 	 * Check if the given credentials are valid and if so setup a new session object
 	 * or update the old one, also update the last login time
@@ -227,7 +227,7 @@ class Session extends Object
 
 	/**
 	 * Returns wether the user is logged in or not
-	 * 
+	 *
 	 * @return boolean true if the user is logged in, else false
 	 */
 	public function is_logged_in() {
@@ -238,9 +238,9 @@ class Session extends Object
 	 * Return or set the current user object
 	 * If $user_obj is provided set mode is active, else current user will be returned
 
-	 * @param UserObj $user_obj 
+	 * @param UserObj $user_obj
 	 *   The user object (optional, default = null)
-	 * 
+	 *
 	 * @return UserObj return the user object on get mode, else nothing will be returned
 	 */
 	public function current_user(UserObj $user_obj = null) {
@@ -255,11 +255,11 @@ class Session extends Object
 	/**
 	 * Set session variable keys
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 *   the array key
-	 * @param string $value 
+	 * @param string $value
 	 *   the value to be set
-	 * 
+	 *
 	 * @return boolean static true
 	 */
 	public function set($key, $value) {
@@ -269,12 +269,12 @@ class Session extends Object
 
 	/**
 	 * Get session variable keys
-	 * 
-	 * @param string $key 
+	 *
+	 * @param string $key
 	 *   the array key
-	 * @param string $default_value 
+	 * @param string $default_value
 	 *   return this value if key not found (optional, default = null)
-	 * 
+	 *
 	 * @return mixed return the value from given key, if key not exists return $default_value
 	 */
 	public function get($key, $default_value = null) {
@@ -283,8 +283,8 @@ class Session extends Object
 
 	/**
 	 * Deletes the given key from session
-	 * 
-	 * @param string $key 
+	 *
+	 * @param string $key
 	 *   The session key
 	 */
 	public function delete($key) {

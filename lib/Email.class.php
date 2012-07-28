@@ -32,8 +32,8 @@ class Email extends Object
 
 	/**
 	 * Add an error to the error array and set the provided $msg as the last error
-	 * 
-	 * @param string $msg 
+	 *
+	 * @param string $msg
 	 *   The error message
 	 */
 	public function error($msg) {
@@ -50,21 +50,21 @@ class Email extends Object
 	 * if $need_confirmation is set, the receiver get a request to confirm the reading of this email
 	 * it must be a valid email address provided couse there the confirmation will be send.
 	 *
-	 * @param string $template 
+	 * @param string $template
 	 *   the Template key
-	 * @param string $language 
+	 * @param string $language
 	 *   the language
-	 * @param mixed $receiver 
+	 * @param mixed $receiver
 	 *   the user object, an array with ('email', 'name') or the plain email where to send the email
-	 * @param array $tpl_vals 
+	 * @param array $tpl_vals
 	 *   the Template replace vars as an array (optional, default = array())
-	 * @param string $attachments 
+	 * @param string $attachments
 	 *   attach files provide only filepathes in an array(file1,file2,file3,....)  (optional, default = array())
-	 * @param string $need_confirmation 
+	 * @param string $need_confirmation
 	 *   Set the confirmation email (optional, default = '')
-	 * 
+	 *
 	 * @return true on success, else false
-	 * 
+	 *
 	 * @uses send($receiver, $from, $subject, $body, $attachments = array(), $need_confirmation)
 	 */
 	public function send_tpl($template, $language, $receiver, Array $tpl_vals = array(), $attachments = array(), $need_confirmation = '') {
@@ -102,19 +102,19 @@ class Email extends Object
 	 * if $need_confirmation is set, the receiver get a request to confirm the reading of this email
 	 * it must be a valid email address provided couse there the confirmation will be send.
 	 *
-	 * @param string $receiver 
+	 * @param string $receiver
 	 *   the receiver email as a string or array("email","name")
-	 * @param string $from 
+	 * @param string $from
 	 *   the sender email as a string or array("email","name")
-	 * @param string $subject 
+	 * @param string $subject
 	 *   the email subject
-	 * @param string $body 
+	 * @param string $body
 	 *   the email body
-	 * @param string $attachments 
+	 * @param string $attachments
 	 *   attach files provide only filepathes in an array(file1,file2,file3,....)  (optional, default = array())
-	 * @param string $need_confirmation 
+	 * @param string $need_confirmation
 	 *   Set the confirmation email(optional, default = '')
-	 * 
+	 *
 	 * @return true on success, else false, if false, error messages will be stored in $errors array
 	 */
 	public function send($receiver, $from, $subject, $body, $attachments = array(), $need_confirmation = '') {

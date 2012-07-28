@@ -29,13 +29,13 @@ class ObjForm extends Form
 	/**
 	 * Construct
 	 *
-	 * @param AbstractDataManager $obj 
+	 * @param AbstractDataManager $obj
 	 *   the object from which we build up the form
-	 * @param string $title 
+	 * @param string $title
 	 *   The title for this form, this must be a translated string, it will not translate. (optional, default = '')
-	 * @param array $element_config 
+	 * @param array $element_config
 	 *   A configuration array in form array('field_name' => array('option'  => 'value')) (optional, default = array())
-	 * @param boolean $force_load_success  
+	 * @param boolean $force_load_success
 	 *   Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
 	 */
  	public function __construct(AbstractDataManagment &$obj, $title = "", $element_config = array(), $force_load_success = false) {
@@ -51,7 +51,7 @@ class ObjForm extends Form
 
 		//Build up our form based up on the provided object
 		$this->get_form();
-		
+
 		//If we provided a configuration for a specific element we config this
 		foreach ($element_config AS $name => $config) {
 			$this->config_element($name, $config);
@@ -63,16 +63,16 @@ class ObjForm extends Form
 
 	/**
 	 * returns the object
-	 * 
+	 *
 	 * @return AbstractDataManagment the object
 	 */
-	public function get_object() {
+	public function &get_object() {
 		return $this->object;
 	}
 
 	/**
 	 * Sets the Object
-	 * 
+	 *
 	 * @param AbstractDataManagment $obj
 	 *   the object
 	 */
@@ -170,7 +170,7 @@ class ObjForm extends Form
 
 	/**
 	 * Insert the object if form is valid
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert() {
@@ -193,7 +193,7 @@ class ObjForm extends Form
 
 	/**
 	 * Save or insert the object if form is valid.
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function save_or_insert() {
