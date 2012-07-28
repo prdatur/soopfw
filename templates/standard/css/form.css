@@ -29,7 +29,7 @@ fieldset legend {
 	display: block;
 	width: auto;
     font-size: 14px;
-    font-weight: normal;
+    font-weight: bold;
 	padding: 5px;
     line-height: 17px;
 	font-family: Georgia,"Times New Roman",Times,serif;
@@ -41,7 +41,7 @@ textarea {
 }
 
 select {
-	width:92%;
+	width: auto;
 }
 
 textarea {
@@ -71,6 +71,7 @@ input[type="checkbox"] {
 .form-element-label, .form-element-label > label {
 	font-weight: bold;
 	padding-bottom: 5px;
+	color: #4270a3;
 }
 
 .form_button_container {
@@ -121,5 +122,5 @@ label.invalid_input {
 
 
 .form > .ui-widget-header {
-	padding: 10px;
+	padding: 5px;
 }

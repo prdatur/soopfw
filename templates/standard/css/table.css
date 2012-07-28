@@ -47,6 +47,10 @@ table.ui-widget-content td {
 	padding: 5px;
 }
 
+table thead.ui-widget-header > tr > td input {
+	margin: 0px;
+}
+
 tr.group_list > td.ui-state-active,
 tr.group_list > td.ui-state-hover {
 	border: 0px;
