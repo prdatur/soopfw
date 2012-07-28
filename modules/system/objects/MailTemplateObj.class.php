@@ -7,44 +7,66 @@
  * @package modules.system.objects
  * @category ModelObjects
  */
-class MailTemplateObj extends MessageTemplateObj
+class MailTemplateObj extends AbstractDataManagment
 {
-
 	/**
-	 * The mail subject
-	 *
-	 * @var string
+	 * Define constances
 	 */
-	public $subject = "";
-
-	/**
-	 * The mail body text
-	 *
-	 * @var string
-	 */
-	public $body = "";
+	const TABLE = 'core_message_templates';
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $id 
-	 *   the mail template id (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param string $id
+	 *   the message template id (optional, default = '')
+	 * @param string $language
+	 *   the language (optional, default = 'en')
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
-	function __construct($id = "", $force_db = false) {
-		parent::__construct($id, $force_db);
+	public function __construct($id = "", $language = 'en', $force_db = false) {
+		parent::__construct();
+
+		$language = strtolower($language);
+		$this->db_struct = new DbStruct(self::TABLE);
+		$this->db_struct->set_cache(false);
+		$this->db_struct->add_reference_key(array("id", 'language'));
+
+		$this->db_struct->add_field("id", t('Message ID'), PDT_STRING, '', 120);
+		$this->db_struct->add_field("language", t("Language"), PDT_STRING, '', 3);
+		$this->db_struct->add_field("subject", t("The subject string"), PDT_STRING);
+		$this->db_struct->add_field("body", t("The body string"), PDT_TEXT);
+		if (!empty($id) && !empty($language)) {
+			$this->load(array($id, $language), $force_db);
+		}
 	}
 
+	/**
+	 * Returns all available templates
+	 *
+	 * @return array the template ids
+	 */
+	public function get_mail_template_ids() {
+		static $values = null;
+
+		if ($values == null) {
+			$values = DatabaseFilter::create(self::TABLE)
+				->add_column('id')
+				->group_by('id')
+				->order_by('id')
+				->select_all('id', true);
+		}
+
+		return $values;
+	}
 
 	/**
 	 * Load the template if not already and replace all given key with the respective values
-	 * 
-	 * @param array $tplvars 
+	 *
+	 * @param array $tplvars
 	 *   the template variable as an array in (key => value) the key is just the key without surrounding {}
 	 */
 	public function parse(Array $tplvars) {
-		$this->get_template_data();
 		foreach ($tplvars AS $k => $v) {
 			if (is_array($v)) {
 				continue;
@@ -53,21 +75,6 @@ class MailTemplateObj extends MessageTemplateObj
 			$this->body = str_replace("{".$k."}", $v, $this->body);
 		}
 	}
-
-	/**
-	 * Setup the subject and body text from the given template
-	 */
-	private function get_template_data() {
-		if (!empty($this->template)) {
-			if (preg_match("/\[subject\](.*)\[\/subject\]/iUs", $this->template, $matches)) {
-				$this->subject = $matches[1];
-			}
-			if (preg_match("/\[body\](.*)\[\/body\]/iUs", $this->template, $matches)) {
-				$this->body = $matches[1];
-			}
-		}
-	}
-
 }
 
 ?>

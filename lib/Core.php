@@ -427,8 +427,10 @@ class Core {
 	 * function will redirect to https page if we are currently on http mode
 	 */
 	public function need_ssl() {
-		if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
+
+		if ((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
 			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+			exit();
 		}
 	}
 
@@ -1280,14 +1282,26 @@ class Core {
 	 * Soopfw.config.foo[0] = 'bar';
 	 * Soopfw.config.foo[1] = 'bar2';
 	 *
+	 * using array_key
+	 *
+	 * js_config('foo','bar2', true, 'id1');
+	 * js_config('foo','bar2', true, 'id2');
+	 *
+	 * will produce:
+	 * Soopfw.config.foo['id1'] = 'bar2';
+	 * Soopfw.config.foo['id2'] = 'bar2';
+	 *
 	 * @param string $var
 	 *   The variable name for the config key.
 	 * @param mixed $value
 	 *   Any variable which should be provided within javascript Soopfw.config.*
 	 * @param boolean $as_array
 	 *   If the value should be added as a config array (optional, default = false)
+	 * @param string $array_key
+	 *   if $as_array is set to true this value will be used for the array key.
+	 *   if left empty a numeric array push will be used (optional, default = null)
 	 */
-	public function js_config($var, $value, $as_array = false) {
+	public function js_config($var, $value, $as_array = false, $array_key = null) {
 		//Check if we want to just set the value to the config key or if we want
 		//to add it to an config array
 		if ($as_array == false) {  //Set
@@ -1304,7 +1318,12 @@ class Core {
 			}
 
 			//Add the value to the config array
-			$this->js_config[$var][] = $value;
+			if (is_null($array_key)) {
+				$this->js_config[$var][] = $value;
+			}
+			else {
+				$this->js_config[$var][$array_key] = $value;
+			}
 		}
 	}
 
@@ -1332,7 +1351,7 @@ class Core {
 			$this->css_files[] = $file;
 			return;
 		}
-		
+
 		$check_template_file = $this->smarty->get_tpl() . $file;
 
 		$module = $this->cache("core", "current_module");

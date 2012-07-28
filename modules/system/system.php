@@ -17,6 +17,7 @@ class system extends ActionModul
 	const CONFIG_CACHE_CSS = "cache_css";
 	const CONFIG_DEFAULT_LANGUAGE = "default_language";
 	const CONFIG_LOGIN_HANDLER = "login_handler";
+	const CONFIG_SSL_AVAILABLE = "ssl_available";
 	const CONFIG_DEFAULT_PAGE = "default_page";
 	const CONFIG_DEFAULT_THEME = "default_theme";
 	const CONFIG_ADMIN_THEME = "admin_theme";
@@ -44,6 +45,11 @@ class system extends ActionModul
 					array(
 						'#title' => t("Config"), //The main title
 						'#link' => "/admin/system/config", // The main link
+						'#perm' => "admin.system.config", // perms needed
+					),
+					array(
+						'#title' => t("Email templates"), //The main title
+						'#link' => "/admin/system/email_templates", // The main link
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
@@ -86,6 +92,162 @@ class system extends ActionModul
 	}
 
 	/**
+	 * Action: email_templates
+	 *
+	 * Configurate the email templates
+	 */
+	public function email_templates() {
+
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+			return $this->no_permission();
+		}
+
+		//Setup search form
+		$form = new Form("search_email_templates", t("search:"));
+		$form->add(new Textfield("id", '', t("template id")));
+		$form->add(new Textfield("subject", '', t("subject")));
+		$form->add(new Textfield("body", '', t("body")));
+
+		$this->lng->load_language_list('', array(), true);
+		$options = array(
+			'' => t('All')
+		);
+		$options = array_merge($options, $this->lng->languages);
+		$form->add(new Selectfield('language', $options, '', t("Language")));
+
+
+
+		$form->add(new Submitbutton("search", t("Search"), "form_button"));
+		$form->assign_smarty("search_form");
+
+		//Check form and add errors if form is not valid
+		$form->check_form();
+		if ($form->is_submitted()) { //Search was submited
+			//Set session key for server search values so a reload of a page will use the session values
+			$this->session->set("search_system_email_templates", $form->get_values());
+		}
+		else {
+			//Form was not submited so try to load session values
+			$form->set_values($this->session->get("search_system_email_templates", array()));
+		}
+
+		$templates = DatabaseFilter::create(MailTemplateObj::TABLE);
+
+		//Build up where statement
+		foreach ($this->session->get("search_system_email_templates", array()) AS $field => $val) {
+			if (empty($val)) {
+				continue;
+			}
+			$templates->add_where($field, $this->db->get_sql_string_search($val, "%{v}%", false), 'LIKE');
+		}
+
+		$templates = $templates->add_column('id')
+			->group_by('id')
+			->order_by('id')
+			->select_all();
+
+		$this->smarty->assign('templates', $templates);
+	}
+
+	/**
+	 * Action: change_email_template
+	 * Save or create a email template, if $id is provided update the current one
+	 * if left empty it will create a new template
+	 *
+	 * @param int $id
+	 *   the email template id (optional, default = "")
+	 * @param string $available_variables
+	 *   the available variables which can be provided as a comma seperated string
+	 *   to provide information about the template which variables can be used.
+	 *   (optional, default = "")
+	 */
+	public function change_email_template($id = "", $available_variables = "") {
+		//Need to be logged in
+		$this->session->require_login();
+
+		if (!$this->right_manager->has_perm("admin.system.config")) {
+			return $this->no_permission();
+		}
+		$description = "";
+		if (!empty($available_variables)) {
+			$vars = array();
+			foreach(explode(",", $available_variables) AS $var) {
+				$vars[] = '<a href="javascript:system_change_email_template_insert_variable(\'' . trim($var) . '\')">{' . trim($var) . '}</a>';
+			}
+			$description = t('The following variables can be used: <b>!variables</b>', array('!variables' => implode(", ", $vars)));
+		}
+
+		$form = new Form('change_email_template');
+
+		$this->lng->load_language_list('', array(), true);
+
+		$validators = array(
+			new RequiredValidator(),
+		);
+		if (empty($id)) {
+			$title = t('Add a new template');
+			$validators[] = new NotExistValidator(t('This email template already exists'),  array(MailTemplateObj::TABLE => 'id'));
+		}
+		else {
+			$title = t('Change email template');
+		}
+
+		$this->title($title, $description);
+		$form->add(new Textfield('id', $id, t('Template id')), $validators);
+
+		$values = DatabaseFilter::create(MailTemplateObj::TABLE)
+			->add_where('id', $id)
+			->select_all('language');
+
+		foreach ($this->lng->languages AS $language => $label) {
+			if (!isset($values[$language])) {
+				$values[$language] = array('subject' => '', 'body' => '');
+			}
+			$form->add(new Fieldset('language_' . $language, t('Language: @language', array('@language' => $label))));
+			$form->add(new Textfield($language . '[subject]', $values[$language]['subject'], t('Subject')));
+			$form->add(new Textarea($language . '[body]', $values[$language]['body'], t('Body')));
+		}
+
+		$form->set_ajax(true);
+		$form->add_js_success_callback("save_email_template_success");
+		//Add a save submit button
+		$form->add(new Submitbutton("insert", t("Save")));
+
+		$form->assign_smarty("form");
+
+
+		//Check if form was submitted
+		if ($form->check_form()) {
+
+			$values = $form->get_array_values();
+
+			$this->db->transaction_begin();
+			foreach ($this->lng->languages AS $language => $label) {
+				$obj = new MailTemplateObj($id, $language);
+				if (!$obj->load_success()) {
+					$obj->id = $values['id'];
+					$obj->language = $language;
+				}
+
+				$obj->set_fields($values[$language]);
+				if (!$obj->save_or_insert()) {
+					$this->db->transaction_rollback();
+					$this->core->message("Error while saving mail template", Core::MESSAGE_TYPE_ERROR, true);
+				}
+			}
+
+			//Setup success message
+			$this->db->transaction_commit();
+			$this->core->message("Email template saved ", Core::MESSAGE_TYPE_SUCCESS, true, $values['id']);
+		}
+
+		$this->static_tpl = 'form.tpl';
+	}
+
+	/**
+	 *  Action generate_classlist
+	 *
 	 *  Generates the classlist new
 	 */
 	public function generate_classlist() {
@@ -102,6 +264,8 @@ class system extends ActionModul
 	}
 
 	/**
+	 *  Action generate_smartylist
+	 *
 	 *  Generates the smartylist new
 	 */
 	public function generate_smartylist() {
@@ -122,6 +286,8 @@ class system extends ActionModul
 	}
 
 	/**
+	 *  Action: reindex_menu
+	 *
 	 *  Reindex the menu alias
 	 */
 	public function reindex_menu() {
@@ -139,6 +305,7 @@ class system extends ActionModul
 
 	/**
 	 * Action: config
+	 *
 	 * Configurate the system main settings.
 	 */
 	public function config() {
@@ -197,9 +364,13 @@ class system extends ActionModul
 		}
 
 		$form->add(new Fieldset('security', t('Security')));
+		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'yes'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
+
+
 		$form->add(new Selectfield(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->dbconfig("system", self::CONFIG_LOGIN_HANDLER), t("Login handler")));
-		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key")));
-		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key")));
+		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
+		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
+
 
 		//Execute the settings form
 		$form->execute();
@@ -207,6 +378,7 @@ class system extends ActionModul
 
 	/**
 	 * Action: modules
+	 *
 	 * Lists all available modules with there status. if a module is not found within database it will be listed but as disabled
 	 */
 	public function modules() {
@@ -246,7 +418,8 @@ class system extends ActionModul
 
 	/**
 	 * Action: updatedb
-	 * Will on form submition update all modules
+	 *
+	 * Will on form submission update all modules
 	 */
 	public function updatedb() {
 
@@ -276,9 +449,13 @@ class system extends ActionModul
 
 	/**
 	 * Action: update
+	 *
 	 * update a module
-	 * @param string $module The module to be updated (optional, default = 'system')
-	 * @param string $op the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
+	 *
+	 * @param string $module
+	 *   The module to be updated (optional, default = 'system')
+	 * @param string $op
+	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
 	public function update($module = "system", $op = '') {
 		$this->install($module, $op, true);
@@ -286,9 +463,13 @@ class system extends ActionModul
 
 	/**
 	 * Action: install
+	 *
 	 * Install or update a module
-	 * @param string $module The module to be installed or updated (optional, default = 'system')
-	 * @param string $op the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
+	 *
+	 * @param string $module
+	 *   The module to be installed or updated (optional, default = 'system')
+	 * @param string $op
+	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 * @param boolean $update
 	 *   if we only update, if set to true it will not install an unconfigured module
 	 *   (optional, default = false)

@@ -45,6 +45,9 @@ unset($override_params['language']);
 $core = new Core($language, $is_shell);
 
 $core->cache('core', 'admin_theme', $override_params['admin_link']);
+if ($override_params['admin_link'] === true) {
+	$core->need_ssl();
+}
 
 //Only check for url_aliase if a specific url was provided not just _GET params
 if (!empty($override_params['module'])) {
