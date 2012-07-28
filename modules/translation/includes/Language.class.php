@@ -169,7 +169,7 @@ class Language extends Object
 	public function load_language_list($language = '', $push_countries_to_front = array(), $only_enabled = false) {
 
 		if ($this->load_list("languages", $language)) {
-			$this->languages = array_change_key_case($this->languages, CASE_UPPER);
+			$this->languages = array_change_key_case($this->languages, CASE_LOWER);
 		}
 
 		if (!empty($push_countries_to_front)) {
@@ -180,8 +180,8 @@ class Language extends Object
 
 			//Unset "preferred" languages
 			foreach ($push_countries_to_front AS $language) {
-				unset($codes[strtoupper($language)]);
-				$merge_array[strtoupper($language)] = $this->languages[strtoupper($language)];
+				unset($codes[strtolower($language)]);
+				$merge_array[strtolower($language)] = $this->languages[strtolower($language)];
 			}
 
 			$merge_array[''] = '----------------------';
@@ -197,11 +197,11 @@ class Language extends Object
 
 
 			foreach ($this->db->query_slave_all("SELECT * FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $language) {
-				if (!isset($this->languages[strtoupper($language['lang'])])) {
+				if (!isset($this->languages[strtolower($language['lang'])])) {
 					continue;
 				}
 
-				$return_array[strtoupper($language['lang'])] = $this->languages[strtoupper($language['lang'])];
+				$return_array[strtolower($language['lang'])] = $this->languages[strtolower($language['lang'])];
 			}
 
 			$this->languages = $return_array;
@@ -630,7 +630,7 @@ class Language extends Object
 		if (empty($this->languages)) {
 			return array();
 		}
-		foreach ($this->db->query_slave_all("SELECT UPPER(`lang`) as lang FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $row) {
+		foreach ($this->db->query_slave_all("SELECT LOWER(`lang`) as lang FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $row) {
 			$return[$row['lang']] = $this->languages[$row['lang']];
 		}
 		return $return;

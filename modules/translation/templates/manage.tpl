@@ -16,7 +16,7 @@
 		<tr>
 			<td style="text-align: center;"><input type="checkbox" name="selected_languages[]" value="<%$language->lang%>" class="dmySelect input_checkbox"/></td>
 			<td style="text-align: center" class="linkedElement dmyActive" language="<%$language->lang%>"><img src="/1x1_spacer.gif" id="activeImg_<%$language->lang%>" class="ui-icon-soopfw ui-icon-soopfw-status-<%$status_icon%>"></td>
-			<td style="text-align: left;"><%$language_translation[$language->lang|upper]%></td>
+			<td style="text-align: left;"><%$language_translation[$language->lang|lower]%></td>
 		</tr>
 	<%foreachelse%>
 	<tr>
