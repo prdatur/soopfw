@@ -14,7 +14,17 @@ class user extends ActionModul
 	protected $default_methode = "overview";
 
 	const CONFIG_DEFAULT_REGISTERED_USER_GROUPS = 'default_registered_user_groups';
+	const CONFIG_ENABLE_REGISTRATION = 'enable_registration';
+	const CONFIG_SIGNUP_ALIAS = 'signup_alias';
+	const CONFIG_SIGNUP_NEED_CAPTCHA = 'signup_need_captcha';
+	const CONFIG_SIGNUP_TYPE = 'signup_type';
+	const CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD = 'admin_change_customer_passsword';
+	const CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP = 'customer_confirm_signup';
+	const CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD = 'customer_signup_send_password';
 
+
+	const SIGNUP_TYPE_CONFIRM = 'confirm';
+	const SIGNUP_TYPE_RANDOM = 'random';
 	/**
 	 * Implementation of get_admin_menu()
 	 * @return array the menu
@@ -46,6 +56,19 @@ class user extends ActionModul
 		);
 	}
 
+	/**
+	 * Implements menu().
+	 * @return  The alias mappings
+	 */
+	public function menu() {
+		if ($this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no') == 'yes') {
+			return array(
+				$this->core->get_dbconfig("user", self::CONFIG_SIGNUP_ALIAS, 'signup') => array(
+					'user' => array('signup')
+				)
+			);
+		}
+	}
 
 	/**
 	 * Action: config
@@ -53,21 +76,50 @@ class user extends ActionModul
 	 */
 	public function config() {
 		//Check perms
-		if (!$this->right_manager->has_perm('admin.system.config', true)) {
+		if (!$this->right_manager->has_perm('admin.user.config', true)) {
 			return $this->no_permission();
 		}
 
 		//Setting up title and description
-		$this->title(t("System Config"), t("Here we can configure the main system settings"));
+		$this->title(t("User Config"), t("Here we can configure the main system settings"));
 
 		//Configurate the settings form
 		$form = new Form("system_config", t("Configuration"));
 
+		$form->add(new Fieldset('main_settings', t('Main settings')));
 		$values = array();
 		foreach($this->db->query_slave_all('SELECT * FROM `'. UserRightGroupObj::TABLE .'`') AS $row) {
 			$values[$row['group_id']] = $row['title'];
 		}
-		$form->add(new Checkboxes(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $values, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true), t('Default user groups'), t('The above selected groups will be automaticly assigned to newly created / registered users.')));
+		$form->add(new Checkboxes(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $values, $this->core->get_dbconfig("user", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true), t('Default user groups'), t('The above selected groups will be automaticly assigned to newly created / registered users.')));
+
+		$form->add(new YesNoSelectfield(self::CONFIG_ENABLE_REGISTRATION, $this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no'), t("Enable user signup?")));
+		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_CAPTCHA, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes'), t("user signups needs captcha?")));
+
+		$signup_types = array(
+			user::SIGNUP_TYPE_CONFIRM => t('User needs to confirm his account'),
+			user::SIGNUP_TYPE_RANDOM => t('User get a random password send to his email'),
+		);
+		$form->add(new Radiobuttons(self::CONFIG_SIGNUP_TYPE, $signup_types, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, user::SIGNUP_TYPE_CONFIRM), t('Signup type'), t('How the user should be verified after signup.')));
+		$form->add(new Textfield(self::CONFIG_SIGNUP_ALIAS, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_ALIAS, 'signup'), t("Alias for signup")));
+
+		$description = "";
+		if ($this->right_manager->has_perm('admin.system.config')) {
+			$description = '<a href="/admin/system/email_templates">' . t('Manage email templates') . '</a>';
+		}
+		$form->add(new Fieldset('mail_templates', t('email templates'), $description));
+
+		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, ''),
+				t('Administrator changes password'),
+				t('This email will be send if an administrator changes a customer password')));
+
+		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, array('username', 'link'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, ''),
+				t('Customer confirm signup'),
+				t('This email will be send if a customer signup an account and he needs to confirm his account')));
+
+		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, ''),
+				t('Customer signup send password'),
+				t('This email will be send if a customer signup an account and instead of a confirmation link the user get a welcome mail including a random password.')));
 
 		//Add a submit button
 		$form->add(new Submitbutton("saveconfig", t("Save Config")));
@@ -80,10 +132,172 @@ class user extends ActionModul
 
 		//Wether the form is submit and valid
 		if ($form->is_submitted() && $form->is_valid()) {
-			$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $form->get_value(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS), false, false, true);
+
+			$values = $form->get_values();
+			foreach ($values AS $k => $v) {
+				if ($k == self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS) {
+					$this->core->dbconfig('user', $k, $v, false, false, true);
+				}
+				else {
+					$this->core->dbconfig('user', $k, $v);
+				}
+			}
 			$this->core->message(t("Configuration saved"), Core::MESSAGE_TYPE_SUCCESS);
 		}
 		$this->static_tpl = "form.tpl";
+	}
+
+	/**
+	 * Action: signup
+	 * Allow users to self signup
+	 */
+	public function signup() {
+		if ($this->session->is_logged_in()) {
+			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+		}
+
+		if ($this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no') == 'no') {
+			$this->core->message(t('User signup is disabled'), Core::MESSAGE_TYPE_NOTICE);
+			return $this->clear_output();
+		}
+
+		$this->core->need_ssl();
+
+		$this->static_tpl = 'form.tpl';
+
+		$signup_type = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, user::SIGNUP_TYPE_CONFIRM);
+
+		$form = new Form('user_signup');
+
+		$form->add(new Textfield('username', '', t('username'), t('Please choose a username')), array(
+			new RequiredValidator(),
+			new NotExistValidator(t('This username is already taken, please choose a different'), array(UserObj::TABLE => 'username')),
+		));
+
+		if ($signup_type == user::SIGNUP_TYPE_CONFIRM) {
+			$password_field = new Passwordfield('password', '', t('Password'), t('Please choose a good password'));
+			$form->add($password_field, array(
+				new RequiredValidator(),
+				new LengthValidator("", array('min' => 6)),
+			));
+			$form->add(new Passwordfield('password2', '', t('Re-type password'), t('For security issues please retype the choosen password')), new EqualsValidator(t('Both passwords must match.'), $password_field->config('value')));
+		}
+
+		$form->add(new Textfield('email', '', t('email'), t('Please provide your email address')), array(
+			new EmailValidator(),
+			new RequiredValidator(),
+		));
+
+		if ($this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes') == 'yes') {
+			$form->add(new Captcha(t("I'm human"), t('Please verify that you are a human person.')));
+		}
+
+		if ($form->check_form()) {
+			$password = "";
+			if ($signup_type == user::SIGNUP_TYPE_RANDOM) {
+				$password = generatePW(12);
+			}
+
+			$user_obj = $this->create_user($form, $password);
+			if ($user_obj !== false) {
+				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+				$this->core->message(t("Your account was successfully created."), Core::MESSAGE_TYPE_SUCCESS);
+
+				$tpl_vals = array(
+						'username' => $user_obj->username
+				);
+
+				switch($signup_type) {
+					case user::SIGNUP_TYPE_CONFIRM:
+						$user_obj->active = 'no';
+						$user_obj->confirm_key = md5(uniqid());
+						$user_obj->save();
+						$mail_tpl_key = user::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP;
+
+						$tpl_vals['link'] = 'http';
+						if ($this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+							$tpl_vals['link'] .= 's';
+						}
+						$tpl_vals['link'] .= '://' . $this->core->core_config('core', 'domain') . '/user/confirm/' . $user_obj->confirm_key;
+						break;
+					case user::SIGNUP_TYPE_RANDOM:
+						$mail_tpl_key = user::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD;
+						$tpl_vals['password'] = $password;
+						break;
+				}
+
+				$template = $this->core->get_dbconfig("user", $mail_tpl_key);
+				if (!empty($template)) {
+					$email_template = new Email();
+
+					if ($email_template->send_tpl($template, $this->core->current_language, $form->get_value('email'), $tpl_vals)) {
+						switch($signup_type) {
+							case user::SIGNUP_TYPE_CONFIRM:
+								$this->core->message(t("We have send you an email with a confirmation link included, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
+								break;
+							case user::SIGNUP_TYPE_RANDOM:
+								$this->core->message(t("We have send you an email which includes your password, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
+								break;
+						}
+						$user_obj->transaction_auto_commit();
+					}
+					else {
+						$user_obj->transaction_auto_rollback();
+						$this->core->message(t("Could not send the email to you, please contact the administrator."), Core::MESSAGE_TYPE_ERROR);
+					}
+				}
+				else {
+					$user_obj->transaction_auto_rollback();
+					$this->core->message(t("Could not find the email template which i should send you, please contact the administrator."), Core::MESSAGE_TYPE_ERROR);
+				}
+				$this->clear_output();
+			}
+			else {
+				//Setup error message to display
+				$this->core->message(t("Could not create your account, please try again"), Core::MESSAGE_TYPE_ERROR);
+			}
+		}
+	}
+
+	/**
+	 * Action: confirm
+	 *
+	 * Confirms a registered user
+	 *
+	 * @param string $confirm_key
+	 *   the confirmation key
+	 */
+	public function confirm($confirm_key) {
+
+		if ($this->session->is_logged_in()) {
+			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+		}
+
+		$this->core->need_ssl();
+
+		$this->clear_output();
+
+		if (!preg_match("/^[a-z0-9]{32}$/", $confirm_key)) {
+			return $this->core->message(t('Invalid confirmation key, account already confirmed or confirmation key expired.'), Core::MESSAGE_TYPE_ERROR);
+		}
+
+		$user_obj = new UserObj();
+		$user_obj->db_filter->add_where('confirm_key', $confirm_key);
+		$user_obj->load();
+
+		if (!$user_obj->load_success()) {
+			return $this->core->message(t('Invalid confirmation key, account already confirmed or confirmation key expired.'), Core::MESSAGE_TYPE_ERROR);
+		}
+
+		$user_obj->confirm_key = '';
+		$user_obj->active = 'yes';
+
+		if ($user_obj->save()) {
+			$this->core->message(t('Confirmation succeed, you can now login with your username and password.'), Core::MESSAGE_TYPE_SUCCESS);
+		}
+		else {
+			$this->core->message(t('Could not activate the user account, please contact an administrator'), Core::MESSAGE_TYPE_ERROR);
+		}
 	}
 
 	/**
@@ -207,37 +421,16 @@ class user extends ActionModul
 
 		//Check if form was submitted
 		if ($form->is_submitted() && $form->is_valid(false)) {
-
-			$user_obj = new UserObj();
-			$user_obj->set_fields($form->get_values());
-			$user_obj->password = $user_obj->password;
-			$user_obj->transaction_auto_begin();
-			//Check if the insert command returned true
-			if ($user_obj->insert()) {
-
-				$user_address_obj = new UserAddressObj();
-				$user_address_obj->user_id = $user_obj->user_id;
-				$user_address_obj->set_fields($form->get_values());
-				if ($user_address_obj->insert()) {
-
-					/**
-					 * Provides hook: add_user
-					 *
-					 * Allow other modules to do tasks if the user is created
-					 *
-					 * @param int $user_id
-					 *   The user id
-					 */
-					$this->core->hook('add_user', array($user_obj->user_id));
-					$user_obj->transaction_auto_commit();
-					//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
-					$this->core->message(t("User added successfully"), Core::MESSAGE_TYPE_SUCCESS, $form->is_ajax(), $user_obj->user_id);
-					return;
-				}
+			$user_obj = $this->create_user($form);
+			if ($user_obj !== false) {
+				$user_obj->transaction_auto_commit();
+				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+				$this->core->message(t("User added successfully"), Core::MESSAGE_TYPE_SUCCESS, $form->is_ajax(), $user_obj->user_id);
 			}
-			$user_obj->transaction_auto_rollback();
-			//Setup error message to display
-			$this->core->message(t("Could not add user"), Core::MESSAGE_TYPE_ERROR, $form->is_ajax());
+			else {
+				//Setup error message to display
+				$this->core->message(t("Could not add user"), Core::MESSAGE_TYPE_ERROR, $form->is_ajax());
+			}
 		}
 
 		$this->static_tpl = 'form.tpl';
@@ -578,6 +771,7 @@ class user extends ActionModul
 	 */
 	public function login() {
 
+		$this->core->need_ssl();
 		$this->title(t('Login'), t('Please enter your username and password'));
 		$login_form = new Form('login', '', 'soopfw_login');
 		$login_form->add(new Textfield("user", '', t("Username")));
@@ -636,6 +830,47 @@ class user extends ActionModul
 		return true;
 	}
 
+	/**
+	 * Creates a new user from the form
+	 *
+	 * @param Form $form
+	 *   the Form
+	 * @param string $password
+	 *   the password for the user, if provided this password will be used
+	 *   for the user (optional, default = "")
+	 * @return UserObj the user object if the user was created, else false
+	 */
+	private function create_user($form, $password = "") {
+		$user_obj = new UserObj();
+		$user_obj->set_fields($form->get_values());
+
+		if (!empty($password)) {
+			$user_obj->password = $password;
+		}
+		$user_obj->transaction_auto_begin();
+		//Check if the insert command returned true
+		if ($user_obj->insert()) {
+
+			$user_address_obj = new UserAddressObj();
+			$user_address_obj->user_id = $user_obj->user_id;
+			$user_address_obj->set_fields($form->get_values());
+			if ($user_address_obj->insert()) {
+
+				/**
+					* Provides hook: add_user
+					*
+					* Allow other modules to do tasks if the user is created
+					*
+					* @param int $user_id
+					*   The user id
+					*/
+				$this->core->hook('add_user', array($user_obj->user_id));
+				return $user_obj;
+			}
+		}
+		$user_obj->transaction_auto_rollback();
+		return false;
+	}
 	/**
 	 * Get all right groups
 	 *

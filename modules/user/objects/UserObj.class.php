@@ -49,7 +49,7 @@ class UserObj extends AbstractDataManagment
 		$this->db_struct->add_field("registered", t("Registered"), PDT_DATETIME, '0000-00-00 00:00:00');
 		$this->db_struct->add_field("last_login", t("Last login"), PDT_DATETIME, '0000-00-00 00:00:00');
 		$this->db_struct->add_field("active", t("active"), PDT_ENUM, 'yes', array('yes', 'no'));
-		$this->db_struct->add_field("confirmed", t("Confirmed"), PDT_ENUM, 'no', array('yes', 'no'));
+		$this->db_struct->add_field("confirm_key", t("confirm_key"), PDT_STRING);
 		$this->db_struct->add_field("deleted", t("Deleted"), PDT_ENUM, 'no', array('yes', 'no'));
 
 		$this->set_default_fields();
@@ -112,7 +112,7 @@ class UserObj extends AbstractDataManagment
 		if ($crypt_pw == true) {
 			$this->crypt_pw($isplain);
 		}
-		
+
 		if (parent::insert($ignore)) {
 			foreach($this->core->get_dbconfig("system", user::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
 				$user2group = new User2RightGroupObj();
