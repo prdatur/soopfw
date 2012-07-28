@@ -33,8 +33,8 @@ class DatabaseWhereGroup
 
 	/**
 	 * Construct.
-	 * 
-	 * @param string $type 
+	 *
+	 * @param string $type
 	 *   the link type use one of DatabaseWhereGroup::TYPE_* (optional, default = DatabaseWhereGroup::TYPE_AND)
 	 */
  	public function __construct($type = DatabaseWhereGroup::TYPE_AND) {
@@ -44,14 +44,14 @@ class DatabaseWhereGroup
 	/**
 	 * Adds a field or a complete DatabaseWhereGroup object to this group
 	 *
-	 * @param mixed $key 
+	 * @param mixed $key
 	 *   the table field as a string, could also be a DatabaseWhereGroup object
-	 * @param string $value 
+	 * @param string $value
 	 *   the condition value, it is only optional if key is a DatabaseWhereGroup object (optional, default = NS)
-	 * @param string $condition_type 
+	 * @param string $condition_type
 	 *   like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
 	 *
-	 * @return DatabaseWhereGroup 
+	 * @return DatabaseWhereGroup
 	 *   The where group
 	 */
 	public function add_where($key, $value = NS, $condition_type = '=') {
@@ -73,7 +73,7 @@ class DatabaseWhereGroup
 	/**
 	 * Returns wether the database where group is empty or not
 	 *
-	 * @return boolean 
+	 * @return boolean
 	 *   true if empty, else false
 	 */
 	public function is_empty() {
@@ -85,9 +85,10 @@ class DatabaseWhereGroup
 	 * if the condition is a database where group object to get not more than one WHERE prefix within the returning string
 	 *
 	 * @param boolean $first
-	 *   if set to true it will place in front of the string the WHERE prefix (optional, default = true)
-	 * 
-	 * @return string 
+	 *   if set to true it will place in front of the string the WHERE prefix
+	 *   this parameter should never provided because it is used for recrusion internal (optional, default = true)
+	 *
+	 * @return string
 	 *   the sql statement string
 	 */
 	public function get_sql($first = true) {
@@ -108,7 +109,8 @@ class DatabaseWhereGroup
 
 			//Escape the value
 			$val = safe($v['value']);
-
+			// This removal of escape char is required if a % value was provided which was already escaped.
+			$val = preg_replace("/[\\\]+\%/", "\\%", $val);
 			//Check if we have not a number, if so we need to add ''
 			if (((int)$v['value'] !== $v['value']) || ((float)$v['value'] !== $v['value'])) {
 				$val = "'".$val."'";
@@ -119,10 +121,14 @@ class DatabaseWhereGroup
 		}
 
 		//get all conditions to a string linked with the link type
-		$where = " (".implode(" ".$this->type." ", $tmp_array).") ";
+		$where_str = implode(" ".$this->type." ", $tmp_array);
+		$where = "";
+		if (!empty($where_str)) {
+			$where = " (".$where_str.") ";
+		}
 
 		//place the WHERE prefix statement
-		if ($first) {
+		if ($first && !empty($where)) {
 			$where = " WHERE".$where;
 		}
 		return $where;

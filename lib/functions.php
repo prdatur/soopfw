@@ -485,9 +485,10 @@ function t($key, $args = array()) {
 	//We do not have found the translation so do the replacement on the english key string
 	foreach ($args AS $k => $v) {
 		switch (substr($k, 0, 1)) {
-			case 'i': $v = (int)$v;
-			case 'f': $v = (float)$v;
-			default: $v = htmlspecialchars($v);
+			case 'i': $v = (int)$v;break;
+			case 'f': $v = (float)$v;break;
+			case '!': break;
+			default: $v = htmlspecialchars($v);break;
 		}
 
 		$key = str_replace($k, $v, $key);
@@ -724,6 +725,9 @@ function safe($text, $type = PDT_STRING) {
 	switch ($type) {
 		case PDT_INT:
 			return (int)$text;
+			break;
+		case PDT_FLOAT:
+			return (float)$text;
 			break;
 	}
 
@@ -1021,9 +1025,10 @@ function generatePW($count) {
  * @return string The escaped String
  */
 function sql_escape($string, $hochkomma = 0) {
-	if ($hochkomma)
-		return "'" . mysql_real_escape_string($string) . "'";
-	return mysql_real_escape_string($string);
+	if ($hochkomma) {
+		return "'" . str_replace("%", "\\%", mysql_real_escape_string($string)) . "'";
+	}
+	return str_replace("%", "\\%", mysql_real_escape_string($string));
 }
 
 /** @function getRealIP

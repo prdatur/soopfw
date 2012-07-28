@@ -242,16 +242,32 @@ class Db
 	 *   The String
 	 * @param string $default
 	 *   the default value if $val have no * (optional, default = '')
+	 * @param boolean $escape
+	 *   if set to false the value will not be escaped.
+	 *   BE CAREFULL WITH THIS. USE THIS ONLY IF YOU USE DatabaseFilter OR YOU HAVE SELF ESCAPED
+	 *   THE VALUE. (optional, default = true)
 	 *
 	 * @return string The escaped and replaced String
 	 */
-	public function get_sql_string_search($val, $default = "") {
+	public function get_sql_string_search($val, $default = "", $escape = true) {
 		$return_arr = array();
 		foreach (explode("*", $val) AS $sub_string) {
-			$return_arr[] = sql_escape($sub_string);
+			if ($escape) {
+				$sub_string = sql_escape($sub_string);
+			}
+			else {
+				$sub_string = str_replace("%", "\\%", $sub_string);
+			}
+			$return_arr[] = $sub_string;
 		}
 		if (count($return_arr) <= 1) {
-			return str_replace("{v}", sql_escape($val), $default);
+			if ($escape) {
+				$val = sql_escape($val);
+			}
+			else {
+				$val = str_replace("%", "\\%", $val);
+			}
+			return str_replace("{v}", $val, $default);
 		}
 		return implode("%", $return_arr);
 	}

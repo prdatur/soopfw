@@ -9,8 +9,24 @@
  * @package lib.database.filter
  * @category Database
  */
-class DatabaseFilter
+class DatabaseFilter extends Object
 {
+	const ASC = 'asc';
+	const DESC = 'desc';
+
+	/**
+	 * the table name
+	 *
+	 * @var string
+	 */
+	private $table = "";
+
+	/**
+	 * the table alias
+	 *
+	 * @var string
+	 */
+	private $alias = "";
 
 	/**
 	 * The where filter object
@@ -41,10 +57,54 @@ class DatabaseFilter
 	private $offset = 0;
 
 	/**
-	 * construct
+	 * The group by elements
+	 *
+	 * @var array
 	 */
- 	public function __construct() {
+	private $group_by = array();
+
+	/**
+	 * The order by elements
+	 *
+	 * @var array
+	 */
+	private $order_by = array();
+
+	/**
+	 * the fields which will be changed on insert or update.
+	 *
+	 * @var array
+	 */
+	private $change_fields = array();
+
+	/**
+	 * construct
+	 *
+	 * @param string $table
+	 *   the table (optional, default = "")
+	 * @param string $alias
+	 *   the alias for this table (optional, default = "")
+	 */
+ 	public function __construct($table = "", $alias = "") {
 		$this->where = new DatabaseWhereGroup();
+		$this->table = $table;
+		$this->alias = $alias;
+		parent::__construct();
+	}
+
+	/**
+	 * Creates a databaseFilter instance which is the same as using
+	 * new DatabaseFilter but this will let us have a better code style
+	 *
+	 * @param string $table
+	 *   the table (optional, default = "")
+	 * @param string $alias
+	 *   the alias for this table (optional, default = "")
+	 *
+	 * @return DatabaseFilter returns the newly created object
+	 */
+	public static function create($table = "", $alias = "") {
+		return new DatabaseFilter($table, $alias);
 	}
 
 	/**
@@ -61,21 +121,60 @@ class DatabaseFilter
 	 * Add a column to our wanted columns. if table is specified the table name
 	 * will be placed in front of the field
 	 *
-	 * @param string $field the table field
-	 * @param string $table the table name (optional, default = NS)
+	 * @param string $field
+	 *   the table field
+	 * @param string $table
+	 *   the table name (optional, default = NS)
+	 *
+	 * @return DatabaseFilter Self returning
 	 */
-	public function add_column($field, $table = NS) {
-		$field = "`".$field."`";
+	public function &add_column($field, $table = NS) {
+		$field = "`" . safe($field) . "`";
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . safe($table) . "`";
+		}
 		if ($table !== NS) {
-			"`".$table."`.".$field;
+			$field = $table . "." . $field;
 		}
 		$this->fields[] = $field;
+		return $this;
+	}
+
+	/**
+	 * Add a column to our wanted columns. if table is specified the table name
+	 * will be placed in front of the field
+	 *
+	 * @param string $field
+	 *   the table field
+	 * @param string $value
+	 *   the new value for this field
+	 * @param string $table
+	 *   the table name (optional, default = NS)
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &change_fields($field, $value, $table = NS) {
+		$field = "`" . safe($field) . "`";
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . safe($table) . "`";
+		}
+		if ($table !== NS) {
+			$field = $table . "." . $field;
+		}
+		$this->change_fields[] = array('field' => $field, 'value' => safe($value));
+		return $this;
 	}
 
 	/**
 	 * Get the pure column array
 	 *
-	 * @return array
+	 * @return array the field array
 	 */
 	public function get_fields() {
 		return $this->fields;
@@ -84,31 +183,47 @@ class DatabaseFilter
 	/**
 	 * Return the columns as a string sperated by a comma
 	 *
-	 * @return string
+	 * @return string the fields imploded by , (comma)
 	 */
 	public function get_columns() {
 		if (empty($this->fields)) {
-			$this->fields[] = "*";
+			$table = $this->get_table_or_alias();
+			if (!empty($table)) {
+				$table .= '.';
+			}
+			$this->fields[] = $table . "*";
 		}
 		return implode(", ", $this->fields);
 	}
 
 	/**
 	 * add a where condition
-	 * @param mixed $field the field as a string or an DatabaseWhereGroup object
-	 * @param string $value can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
-	 * @param string $condition_type (=, !=, LIKE) (optional, default = "=")
+	 *
+	 * @param mixed $field
+	 *   the field as a string or an DatabaseWhereGroup object
+	 * @param string $value
+	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
+	 * @param string $condition_type
+	 *   the condition type (=, !=, LIKE) (optional, default = "=")
+	 *
+	 * @return DatabaseFilter Self returning
 	 */
-	public function add_where($field, $value = "", $condition_type = "=") {
+	public function &add_where($field, $value = "", $condition_type = "=") {
 		$this->where->add_where($field, $value, $condition_type);
+		return $this;
 	}
 
 	/**
 	 * Set the where condition
+	 *
 	 * @param DatabaseWhereGroup $where
+	 *   the database where group
+	 *
+	 * @return DatabaseFilter Self returning
 	 */
-	public function set_where(DatabaseWhereGroup $where) {
+	public function &set_where(DatabaseWhereGroup $where) {
 		$this->where = $where;
+		return $this;
 	}
 
 	/**
@@ -117,14 +232,14 @@ class DatabaseFilter
 	 * @return boolean true if not empty, else false
 	 */
 	public function has_where() {
-		return!$this->where->is_empty();
+		return !$this->where->is_empty();
 	}
 
 	/**
 	 * Returns the sql where statement. if the where filter was setup with
 	 * some filter it returns WHERE in front of the prefix with all filters
 	 *
-	 * @return string
+	 * @return string the where sql
 	 */
 	public function get_where() {
 		return $this->where->get_sql();
@@ -133,31 +248,244 @@ class DatabaseFilter
 	/**
 	 * Set or get the database limit
 	 *
-	 * @param int $limit if provided it will set the limit (optional, default = NS)
-	 * @return int returns the limit while in get mode, null in set mode
+	 * @param int $limit
+	 *   if provided it will set the limit (optional, default = NS)
+	 *
+	 * @return mixed returns the limit while in get mode, DatabaseFilter self returning in set mode
 	 */
 	public function limit($limit = NS) {
 		if ($limit !== NS) {
 			$this->limit = (int)$limit;
-			return null;
+			return $this;
 		}
-		return $this->limit;
+		return (int)$this->limit;
 	}
 
 	/**
 	 * Set or get the database offset
 	 *
-	 * @param int $offset if provided it will set the offset (optional, default = NS)
-	 * @return int returns the offset while in get mode, null in set mode
+	 * @param int $offset
+	 *   if provided it will set the offset (optional, default = NS)
+	 *
+	 * @return mixed returns the offset while in get mode, DatabaseFilter self returning in set mode
 	 */
 	public function offset($offset = NS) {
 		if ($offset !== NS) {
 			$this->offset = (int)$offset;
-			return;
+			return $this;
 		}
-		return $this->offset;
+		return (int)$this->offset;
 	}
 
+	/**
+	 * Group by the given field.
+	 *
+	 * @param string $field
+	 *   the field to group by
+	 * @param string $table
+	 *   the table or alias prefix to use for this field (optional, default = NS)
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &group_by($field, $table = NS) {
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . safe($table) . "`";
+		}
+
+		$this->group_by[] = $table . '.`' . safe($field) . '`';
+		return $this;
+	}
+
+	/**
+	 * Order by the given field.
+	 *
+	 * @param string $field
+	 *   the field to group by
+	 * @param string $direction
+	 *   the order direction use DatabaseFilter::ASC or DatabaseFilter::DESC (optional, default = NS)
+	 * @param string $table
+	 *   the table or alias prefix to use for this field (optional, default = NS)
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &order_by($field, $direction = self::ASC, $table = NS) {
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . safe($table) . "`";
+		}
+		if ($direction != self::ASC && $direction != self::DESC) {
+			$direction = self::ASC;
+		}
+		$this->order_by[] = $table . '.`' . safe($field) . '` ' . $direction;
+		return $this;
+	}
+
+	/**
+	 * Execute the filter to get all rows.
+	 *
+	 * @param int $array_key
+	 *   returned array key as a table field (optional, default=0)
+	 * @param boolean $single_row_field
+	 *  if set to true and the returning array will just have one field
+	 *  the value array will transformed into a single value string
+	 *  for example if the returning array would be:
+	 *  array('row1' => array('field1'), 'row2' => array('field1'))
+	 *  the transformed one would be:
+	 *  array('row1' => 'field1', 'row1' => 'field1')
+	 *
+	 * @return array the rows
+	 */
+	public function select_all($array_key = 0, $single_row_field = false) {
+		$values = $this->db->query_slave_all($this->get_select_sql(), array(), $this->limit(), $this->offset(), $array_key);
+		if ($single_row_field == true && is_array($values)) {
+			$current_first_row = current($values);
+			if (is_array($current_first_row) && count($current_first_row) == 1) {
+				foreach($values AS $row_index => &$value) {
+					$value = current($value);
+				}
+			}
+		}
+		return $values;
+	}
+
+	/**
+	 * Execute the filter to get the first row.
+	 *
+	 * @return array the row
+	 */
+	public function select_first() {
+		return $this->db->query_slave_first($this->get_select_sql());
+	}
+
+	/**
+	 * Execute the filter to get the count of results.
+	 *
+	 * @return int the count
+	 */
+	public function select_count() {
+		return $this->db->query_slave_count($this->get_select_sql(), array(), $this->limit(), $this->offset());
+	}
+
+	/**
+	 * Execute the filter to check if a value exists.
+	 *
+	 * @return boolean returns true if a row exists, else false
+	 */
+	public function select_exists() {
+		return $this->db->query_slave_exists($this->get_select_sql());
+	}
+
+	/**
+	 * Execute the filter which can be further processed with Db->fetch_assoc();
+	 *
+	 * @return resource the mysql resource id
+	 */
+	public function select() {
+		return $this->db->query_slave($this->get_select_sql(), array(), $this->limit(), $this->offset());
+	}
+
+	/**
+	 * Execute the filter with an update statement.
+	 *
+	 * @return boolean returns true if the update succeeds, else false
+	 */
+	public function update() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
+		}
+
+		$update_fields = array();
+		foreach ($this->change_fields AS $field) {
+			$update_fields[] = $field['field'] . " = '" . $field['value'] . "'";
+		}
+		return $this->db->query_master("UPDATE " . $table . " SET " . $update_fields . $this->get_where());
+	}
+
+	/**
+	 * Execute the filter with an delete statement.
+	 *
+	 * @return boolean returns true if the delete succeeds, else false
+	 */
+	public function delete() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
+		}
+
+		return $this->db->query_master("DELETE FROM " . $table . $this->get_where(), array(), $this->limit(), $this->offset());
+	}
+
+	/**
+	 * Execute the filter with an insert statement.
+	 *
+	 * @return mixed returns the last inserted id if available, if not it will return boolean if the insert was successfully.
+	 */
+	public function insert() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
+		}
+
+		$fields = $values = array();
+		foreach ($this->change_fields AS $field) {
+			$fields[] = $field['field'];
+			$values[] = "'" . $field['value'] . "'";
+		}
+		if ($this->db->query_master("INSERT INTO " . $table . " (" . $fields . ") VALUES (" . $values . ")")) {
+			$inserted_id = $this->db->insert_id();
+			if ($inserted_id !== false) {
+				return $inserted_id;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Generates a select sql statement.
+	 *
+	 * @return string the sql string
+	 */
+	private function get_select_sql() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
+		}
+
+		$group_by = $order_by = "";
+		if (!empty($this->group_by)) {
+			$group_by .= ' GROUP BY ' . implode(', ', $this->group_by);
+		}
+
+		if (!empty($this->order_by)) {
+			$order_by .= ' ORDER BY ' . implode(', ', $this->order_by);
+		}
+
+		return "SELECT " . $this->get_columns() . " FROM " . $table . $this->get_where() . $group_by . $order_by;
+	}
+
+	/**
+	 * Returns the usable table name, if an alias exists for the table it will
+	 * return the alias.
+	 *
+	 * @return string the table or the alias
+	 */
+	private function get_table_or_alias() {
+		$table = "";
+		if (!empty($this->table)) {
+			$table = "`" . safe($this->table) . "`";
+		}
+		if (!empty($this->alias)) {
+			$table = safe($this->alias);
+		}
+		return $table;
+	}
 }
 
 ?>
