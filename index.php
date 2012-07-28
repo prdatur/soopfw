@@ -314,6 +314,7 @@
 		$core->add_js("/js/jquery_plugins/jquery.ui.tabs.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.sceditor.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.sceditor.bbcode.js", Core::JS_SCOPE_SYSTEM);
+		$core->add_js("/js/jquery_plugins/jquery-fieldselection.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/adminmenu.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/common.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/core.js", Core::JS_SCOPE_SYSTEM);
