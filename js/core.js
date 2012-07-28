@@ -258,6 +258,10 @@ $.extend(Soopfw, {
 			}
 		}, options);
 
+		var matches = window.location.pathname.match(/^\/admin\/.*/g);
+		if(matches != null && matches.length > 0) {
+			url = '/admin' + url;
+		}
 		$.ajax({
 			url: url,
 			dataType: 'html',
