@@ -19,8 +19,24 @@
  */
 function smarty_function_view_content($params, $smarty, $template)
 {
-	$page = new PageObj($params['id']);
-	return $page->get_content();
+	/* @var $core Core */
+	global $core;
+
+
+	$id = $params['id'];
+	if (!is_numeric($id)) {
+		$filter = DatabaseFilter::create(PageRevisionObj::TABLE)
+			->add_column('page_id')
+			->add_where('title', $id)
+			->select_first();
+		$id = $filter['page_id'];
+	}
+
+	if (!empty($id)) {
+		$page = new content();
+		return $page->view($id, '', true);
+	}
+	return "";
 }
 
 ?>
