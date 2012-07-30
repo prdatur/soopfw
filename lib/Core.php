@@ -297,7 +297,7 @@ class Core {
 
 		$db_default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
 		if (!empty($db_default_language)) {
-			$this->default_language = strtoupper($db_default_language);
+			$this->default_language = strtolower($db_default_language);
 		}
 		//Only do a normal startup if we do not install the core system
 		if ($install == false) {
@@ -315,7 +315,7 @@ class Core {
 
 			//Set the provided $language if it is not empty
 			if (!empty($language)) {
-				$_SESSION['language'] = strtoupper($language);
+				$_SESSION['language'] = strtolower($language);
 			}
 
 
@@ -955,6 +955,8 @@ class Core {
 
 		//Assign current template path
 		$this->smarty->assign("SITEPATH", SITEPATH);
+		$this->smarty->assign("domain", $this->core_config('core', 'domain'));
+		$this->js_config("domain", $this->core_config('core', 'domain'));
 		$this->smarty->assign("TEMPLATE_PATH", $this->smarty->get_tpl());
 		$this->js_config('template_path', $this->smarty->get_tpl());
 		//Assign the user id if an user is logged in
@@ -1366,7 +1368,10 @@ class Core {
 		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
-		$this->css_files[] = $file;
+
+		if (file_exists(SITEPATH.$file)) {
+			$this->css_files[] = $file;
+		}
 	}
 
 	/**
@@ -1399,7 +1404,9 @@ class Core {
 		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
-		$this->js_files[$type][] = $file;
+		if (file_exists(SITEPATH.$file)) {
+			$this->js_files[$type][] = $file;
+		}
 	}
 
 	/**

@@ -18,15 +18,15 @@ class LanguagesObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $lang 
+	 * @param string $lang
 	 *   the language key (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($lang = "", $force_db = false) {
 		parent::__construct();
 
-		$lang = strtoupper($lang);
+		$lang = strtolower($lang);
 		$this->db_struct = new DbStruct(self::TABLE);
 		$this->db_struct->set_cache(true);
 		$this->db_struct->add_reference_key("lang");

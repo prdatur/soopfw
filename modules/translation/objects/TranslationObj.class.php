@@ -20,11 +20,11 @@ class TranslationObj extends AbstractDataManagment
 	 * We have a special note on loading, if you provide not a fully md5 hash as the id, the id string will be made to an md5 sum and the be loaded.
 	 * So you can also load the object by passing the direct translation key string to it.
 	 *
-	 * @param string $id 
+	 * @param string $id
 	 *   the translation id, its the md5 sum of the key (optional, default = "")
-	 * @param string $language 
+	 * @param string $language
 	 *   the language (optional, default = "EN")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $language = "EN", $force_db = false) {
@@ -42,7 +42,7 @@ class TranslationObj extends AbstractDataManagment
 			if(!preg_match("/[a-f0-9]{32}/", $id)) {
 				$id = md5($id);
 			}
-			$language = strtoupper($language);
+			$language = strtolower($language);
 			return $this->load(array($id, $language), $force_db);
 		}
 	}
