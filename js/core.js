@@ -252,7 +252,7 @@ $.extend(Soopfw, {
 		options = $.extend({
 			title: title,
 			modal: true,
-			width: 400,
+			width: 500,
 			open: function(event, ui) {
 				Soopfw.reload_behaviors();
 			}
