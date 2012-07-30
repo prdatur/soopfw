@@ -995,7 +995,6 @@ function class_loader($classname) {
 		}
 		//throw new Exception("Error - class $classname is not available!");
 	}
-	$already_loaded[$classname] = true;
 }
 
 /** @function generatePW
