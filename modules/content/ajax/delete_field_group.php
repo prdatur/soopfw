@@ -12,7 +12,7 @@ if (!$params->is_valid()) {
 }
 
 //Check perms
-if (!$core->get_right_manager()->has_perm("admin.menu.manage")) {
+if (!$core->get_right_manager()->has_perm("admin.content.manage")) {
 	AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true);
 }
 
