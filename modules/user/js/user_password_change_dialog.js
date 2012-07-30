@@ -3,12 +3,12 @@ function change_user_password_dialog(customer_id) {
 			create_element({input:'div', css:{"text-align": 'left',padding: '5px'}, append: [
 				create_element({input: 'label',attr:{"for":'new_password', html:Soopfw.t("New password:")}}),
 				create_element({input: 'input',attr:{type:'text', id:'new_password'}}),
-				create_element({input: 'a', attr:{href:'javascript: void(0);', html: Soopfw.t("Generate password")}, click: function(){
+				create_element({input: 'a', css:{display: 'block'},attr:{href:'javascript: void(0);', html: Soopfw.t("Generate password")}, click: function(){
 					generate_password(8, $(this).prev());
 				}})
 			]}),
 			/**
-			 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED 
+			 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED
 			create_element({input:'div', css:{"text-align": 'left',padding: '5px'},append: [
 				create_element({input: 'input', attr:{type:'checkbox',id:'inform_user'}}),
 				create_element({input: 'label', attr:{"for":'inform_user', html: Soopfw.t("Inform?")}})
@@ -27,7 +27,7 @@ function change_user_password_dialog(customer_id) {
 				user_id: customer_id,
 				password: new_pw
 				/**
-				 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED 
+				 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED
 				  ,inform: $("#inform_user").prop("checked")
 				 */
 			};
