@@ -85,13 +85,18 @@ class content extends ActionModul {
 
 	/**
 	 * Action: view
+	 *
 	 * View a content page
 	 * Revision can be provided but then the current user must have the permission to create content
 	 *
-	 * @param int $page_id the page id
-	 * @param int $revision the revision to show (optional, default = '')
+	 * @param int $page_id
+	 *   the page id
+	 * @param int $revision
+	 *   the revision to show (optional, default = '')
+	 * @param boolean $return_html
+	 *   if set to true the content will returned instead of smarty assigned (optional, default = false)
 	 */
-	public function view($page_id, $revision = '') {
+	public function view($page_id, $revision = '', $return_html = false) {
 
 		$page_data_array = explode("|", $page_id, 2);
 		if(!isset($page_data_array[1])) {
@@ -167,7 +172,7 @@ class content extends ActionModul {
 			}
 		}
 		// Provide template overrides.
-		$template_override_field_groups_path = $this->smarty->get_tpl(true). '/content/field_groups';
+		$template_override_field_groups_path = $this->smarty->get_tpl(true). 'content/field_groups';
 		$field_groups_path = $this->module_tpl_dir.'field_groups';
 
 
@@ -176,7 +181,7 @@ class content extends ActionModul {
 			$tpl_path = $template_override_field_groups_path. '/';
 		}
 		else {
-			$content_type_tpl = $field_groups_path . $values['content_type'].".tpl";
+			$content_type_tpl = $field_groups_path . '/' . $values['content_type'].".tpl";
 			$tpl_path = $field_groups_path . '/';
 		}
 
@@ -233,21 +238,25 @@ class content extends ActionModul {
 				$content .= $content_smarty->fetch($field_group_tpl);
 			}
 		}
+		
+		if ($return_html == true) {
+			return $content;
+		}
 
 		$view_links = array();
 
 		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
 		if($this->right_manager->has_perm("admin.content.create", false)) {
 			$view_links[] = array(
-				'href' => '/content/view/'.$page_id,
+				'href' => '/admin/content/view/'.$page_id,
 				'title' => t("view")
 			);
 			$view_links[] = array(
-				'href' => '/content/edit/'.$page_id,
+				'href' => '/admin/content/edit/'.$page_id,
 				'title' => t("edit")
 			);
 			$view_links[] = array(
-				'href' => '/content/revision_list/'.$page_id,
+				'href' => '/admin/content/revision_list/'.$page_id,
 				'title' => t("revisions")
 			);
 		}
@@ -255,7 +264,7 @@ class content extends ActionModul {
 		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
 		if($this->right_manager->has_perm("admin.translate", false)) {
 			$view_links[] = array(
-				'href' => '/content/translate_list/'.$page_id,
+				'href' => '/admin/content/translate_list/'.$page_id,
 				'title' => t("translate")
 			);
 		}
