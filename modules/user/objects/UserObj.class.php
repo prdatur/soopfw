@@ -120,6 +120,16 @@ class UserObj extends AbstractDataManagment
 				$user2group->group_id = $group_id;
 				$user2group->insert();
 			}
+
+			/**
+			 * Provides hook: add_user
+			 *
+			 * Allow other modules to do tasks if the user is created
+			 *
+			 * @param int $user_id
+			 *   The user id
+			 */
+			$this->core->hook('add_user', array($this->user_id));
 			return true;
 		}
 		return false;
@@ -132,6 +142,7 @@ class UserObj extends AbstractDataManagment
 	 */
 	public function delete() {
 		$this->transaction_auto_begin();
+		$user_id = $this->user_id;
 		$this->db->query_master("DELETE FROM `".UserAddressObj::TABLE."` WHERE `user_id` = @user_id", array(
 			'@user_id' => $this->user_id
 		));
@@ -145,6 +156,17 @@ class UserObj extends AbstractDataManagment
 			'@user_id' => $this->user_id
 		));
 		if (parent::delete()) {
+
+			/**
+			 * Provides hook: user_delete
+			 *
+			 * Allow other modules to do tasks if the user is deleted
+			 *
+			 * @param int $user_id
+			 *   The user id
+			 */
+			$this->core->hook('user_delete', array($user_id));
+
 			$this->transaction_auto_commit();
 			return true;
 		}
@@ -232,20 +254,19 @@ class UserObj extends AbstractDataManagment
 		else {
 			$db_field = "*";
 		}
-
-		$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `user_address` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = @group", array(
+		$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = @group", array(
 			'@user_id' => $this->user_id,
 			'@group' => $group
 		));
 
 		if (empty($result) && $group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT) {
-			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `user_address` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = '".UserAddressObj::USER_ADDRESS_GROUP_DEFAULT."'", array(
+			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = '".UserAddressObj::USER_ADDRESS_GROUP_DEFAULT."'", array(
 				'@user_id' => $this->user_id
 			));
 		}
 
 		if (empty($result)) {
-			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `user_address` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id", array(
+			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id", array(
 				'@user_id' => $this->user_id
 			));
 		}
@@ -259,7 +280,9 @@ class UserObj extends AbstractDataManagment
 		}
 
 		if (empty($result)) {
-			return array();
+			$address_obj = new UserAddressObj();
+			$address_obj->set_default_fields();
+			return $address_obj->get_values();
 		}
 
 		return $result;

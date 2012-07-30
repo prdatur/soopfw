@@ -64,7 +64,7 @@ class user extends ActionModul
 		if ($this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no') == 'yes') {
 			return array(
 				$this->core->get_dbconfig("user", self::CONFIG_SIGNUP_ALIAS, 'signup') => array(
-					'user' => array('signup')
+					'menu' => 'signup'
 				)
 			);
 		}
@@ -163,6 +163,7 @@ class user extends ActionModul
 
 		$this->core->need_ssl();
 
+		$this->title(t('signup'));
 		$this->static_tpl = 'form.tpl';
 
 		$signup_type = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, user::SIGNUP_TYPE_CONFIRM);
@@ -180,7 +181,9 @@ class user extends ActionModul
 				new RequiredValidator(),
 				new LengthValidator("", array('min' => 6)),
 			));
-			$form->add(new Passwordfield('password2', '', t('Re-type password'), t('For security issues please retype the choosen password')), new EqualsValidator(t('Both passwords must match.'), $password_field->config('value')));
+			$form->add(new Passwordfield('password2', '', t('Re-type password'), t('For security issues please retype the choosen password')), array(
+				new EqualsValidator(t('Both passwords must match.'), $password_field->config('value')))
+			);
 		}
 
 		$form->add(new Textfield('email', '', t('email'), t('Please provide your email address')), array(
@@ -200,8 +203,6 @@ class user extends ActionModul
 
 			$user_obj = $this->create_user($form, $password);
 			if ($user_obj !== false) {
-				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
-				$this->core->message(t("Your account was successfully created."), Core::MESSAGE_TYPE_SUCCESS);
 
 				$tpl_vals = array(
 						'username' => $user_obj->username
@@ -231,6 +232,9 @@ class user extends ActionModul
 					$email_template = new Email();
 
 					if ($email_template->send_tpl($template, $this->core->current_language, $form->get_value('email'), $tpl_vals)) {
+						//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+						$this->core->message(t("Your account was successfully created."), Core::MESSAGE_TYPE_SUCCESS);
+
 						switch($signup_type) {
 							case user::SIGNUP_TYPE_CONFIRM:
 								$this->core->message(t("We have send you an email with a confirmation link included, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
@@ -243,7 +247,7 @@ class user extends ActionModul
 					}
 					else {
 						$user_obj->transaction_auto_rollback();
-						$this->core->message(t("Could not send the email to you, please contact the administrator."), Core::MESSAGE_TYPE_ERROR);
+						$this->core->message(t("Could not send the email to you, please contact the administrator.\n Errors: @errors", array('@errors' => implode('\n', $email_template->errors))), Core::MESSAGE_TYPE_ERROR);
 					}
 				}
 				else {
@@ -711,6 +715,18 @@ class user extends ActionModul
 		$tabs->add(t("address"), "user_address", "/user/user_address/" . $user_id);
 		$tabs->add(t("Rights"), "user_rights", "/user/user_rights/" . $user_id, "admin.user.rights.change");
 
+		/**
+		 * Provides hook: edit_user_tabs
+		 *
+		 * Allow other modules to add user data tabs
+		 *
+		 * @param int $user_id
+		 *   The user id
+		 * @param HtmlTabs $tabs
+		 *   The tabs
+		 */
+	    $this->core->hook('edit_user_tabs', array($user_id, &$tabs));
+
 		//Assign to smarty
 		$tabs->assign_smarty("tabs");
 
@@ -772,6 +788,11 @@ class user extends ActionModul
 	public function login() {
 
 		$this->core->need_ssl();
+
+		if ($this->session->is_logged_in()) {
+			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+		}
+
 		$this->title(t('Login'), t('Please enter your username and password'));
 		$login_form = new Form('login', '', 'soopfw_login');
 		$login_form->add(new Textfield("user", '', t("Username")));
@@ -855,16 +876,6 @@ class user extends ActionModul
 			$user_address_obj->user_id = $user_obj->user_id;
 			$user_address_obj->set_fields($form->get_values());
 			if ($user_address_obj->insert()) {
-
-				/**
-					* Provides hook: add_user
-					*
-					* Allow other modules to do tasks if the user is created
-					*
-					* @param int $user_id
-					*   The user id
-					*/
-				$this->core->hook('add_user', array($user_obj->user_id));
 				return $user_obj;
 			}
 		}
