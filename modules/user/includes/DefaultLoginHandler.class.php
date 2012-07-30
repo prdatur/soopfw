@@ -84,7 +84,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	public function check_login() {
 
 		//Initialize check variables, these variables will be ether filled from session or from post variables
-		$check_pw = $check_user = "";
+		$check_user = "";
 
 		$session_id = $this->session->get_session_id();
 		//If we have NOT posted and session variables are NOT empty check the user with the current session
@@ -110,7 +110,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 			$check_user = 'guest';
 		}
 
-		return $this->validate_login($check_user, $check_pw);
+		return $this->validate_login($check_user, "");
 	}
 
 	/**
