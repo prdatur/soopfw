@@ -167,7 +167,7 @@
 
 			}
 
-			if ($module->action == ActionModul::NO_DEFAULT_METHOD) {
+			if ($module->action == ActionModul::NO_DEFAULT_METHOD || !method_exists($module, $module->action)) {
 				assign_default_js_css($core);
 				$module->clear_output();
 				aborting_loading();
