@@ -344,8 +344,14 @@ class DatabaseFilter extends Object
 		$values = $this->db->query_slave_all($this->get_select_sql(), array(), $this->limit(), $this->offset(), $array_key);
 		if ($single_row_field == true && is_array($values)) {
 			$current_first_row = current($values);
+			if (!empty($array_key)) {
+				unset($current_first_row[$array_key]);
+			}
 			if (is_array($current_first_row) && count($current_first_row) == 1) {
 				foreach($values AS $row_index => &$value) {
+					if (!empty($array_key)) {
+						unset($value[$array_key]);
+					}
 					$value = current($value);
 				}
 			}
@@ -399,12 +405,14 @@ class DatabaseFilter extends Object
 		if (!empty($this->alias)) {
 			$table .= ' AS ' . safe($this->alias);
 		}
-
+		if (empty($this->change_fields)) {
+			return true;
+		}
 		$update_fields = array();
 		foreach ($this->change_fields AS $field) {
 			$update_fields[] = $field['field'] . " = '" . $field['value'] . "'";
 		}
-		return $this->db->query_master("UPDATE " . $table . " SET " . $update_fields . $this->get_where());
+		return $this->db->query_master("UPDATE " . $table . " SET " . implode(", ", $update_fields) . $this->get_where());
 	}
 
 	/**
