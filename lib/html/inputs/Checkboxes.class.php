@@ -123,7 +123,8 @@ class Checkboxes extends AbstractHtmlInput
 
 		//Loop through all inputs and append the fetched element html string to our returning string
 		foreach ($this->fields as &$field) {
-			$output .= "<div>".$field->fetch()."</div>";
+			$this->init();
+			$output .= "<div class='" . $this->config('type') . "'>".$field->fetch()."</div>";
 		}
 
 		//Append the main input template string and the followed description
@@ -162,6 +163,30 @@ class Checkboxes extends AbstractHtmlInput
 		}
 		//All other actions will be normal
 		return parent::config($key, $val);
+	}
+
+	/**
+	 * Get or add config values to the config as an array, duplicate entries will be ignored by default
+	 *
+	 * @param string $key
+	 *   the key
+	 * @param string $val
+	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
+	 * @param boolean $add_duplicates
+	 *   if this setting is set to true, the value will be added twice also if it was in the array before (optional, default = false)
+	 *
+	 * @return mixed the values for the key as an array or if in set-mode return true, if you return a value which are not set, return false
+	 */
+	public function config_array($key, $val = NS, $add_duplicates = false) {
+		if ($val !== NS) {
+			if ($key == 'css_class') {
+				foreach ($this->fields as &$field) {
+					$field->config_array($key, $val, $add_duplicates);
+				}
+			}
+		}
+
+		parent::config_array($key, $val, $add_duplicates);
 	}
 
 }
