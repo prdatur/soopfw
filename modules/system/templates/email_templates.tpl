@@ -17,7 +17,7 @@
 			<td style="text-align: left;">
 				<a href="javascript:void(0);" class="dmyChange" did="<%$entry.id%>"><%$entry.id%></a>
 			</td>
-			<td style="text-align: center;" class="linkedElement_grey dmyDelete" did="<%$entry.id%>' OR 1=1"><img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-cancel" title="<%t key='delete?'%>" alt="<%t key='delete?'%>"></td>
+			<td style="text-align: center;" class="linkedElement_grey dmyDelete" did="<%$entry.id%>"><img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-cancel" title="<%t key='delete?'%>" alt="<%t key='delete?'%>"></td>
 		</tr>
 	<%foreachelse%>
 	<tr>
