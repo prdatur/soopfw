@@ -71,14 +71,21 @@ class Email extends Object
 		//try to load the given $template with the given $language
 		$mail_template = new MailTemplateObj($template, $language);
 
-		//If template not exists within the current language try to load it with english language
-		if (!$mail_template->load_success()) {
-			unset($mail_template);
-			$mail_template = new MailTemplateObj($template, 'en');
-		}
+		//If template not exists within the selected language try to load it with english language
+		if (!$mail_template->load_success() || empty($mail_template->body) || empty($mail_template->subject)) {
 
+			unset($mail_template);
+			$mail_template = new MailTemplateObj($template, $this->core->current_language);
+
+			//If template not exists within the current language try to load it with english language
+			if (!$mail_template->load_success() || empty($mail_template->body) || empty($mail_template->subject)) {
+
+				unset($mail_template);
+				$mail_template = new MailTemplateObj($template, 'en');
+			}
+		}
 		//If this template also not exist send a debug email that we miss this template and return false
-		if (!$mail_template->load_success()) {
+		if (!$mail_template->load_success() || empty($mail_template->body) || empty($mail_template->subject)) {
 			debug_mail("Missing Mailtemplate", "I missed on the server core message template: ".$template);
 			return false;
 		}
