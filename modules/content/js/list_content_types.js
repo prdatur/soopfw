@@ -58,7 +58,7 @@ function get_content_type_row(result) {
 
 	var tr = $('<tr did="'+result.content_type+'">');
 	tr.append(create_element({input: 'td', append:[
-		create_element({input: 'a', attr:{href:'/content/manage_content_type_fields/'+result.content_type, html: result.description}})
+		create_element({input: 'a', attr:{href:'/admin/content/manage_content_type_fields/'+result.content_type, html: result.description}})
 	]}));
 
 	var options = create_element({input: 'td', css: {"text-align": 'right'},append:[
