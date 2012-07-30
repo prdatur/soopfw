@@ -66,7 +66,7 @@ class Session extends Object
 		$this->start_session();
 		$login_handler = $this->core->dbconfig("system", System::CONFIG_LOGIN_HANDLER);
 
-		if(empty($login_handler)) {
+		if(empty($login_handler) || !class_exists($login_handler)) {
 			$login_handler = "DefaultLoginHandler";
 		}
 		$this->login_handler = new $login_handler($core);
@@ -102,7 +102,7 @@ class Session extends Object
 		}
 		//Unset the redirection after login session key couse we do not want to redirect to an secured url
 		$this->session->delete('redir_after_login');
-
+		
 		$this->login_handler->logout($time, $justreturn);
 
 	}
@@ -155,7 +155,7 @@ class Session extends Object
 			//Set the loggedin fast check variable to true
 			$this->logged_in = true;
 			$this->current_user()->add_perm('user.loggedin');
-			
+
 		}
 		return $this->logged_in;
 	}
