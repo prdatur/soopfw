@@ -266,6 +266,15 @@ class Core {
 	private $widgets = array();
 
 	/**
+	 * Holds all useable mime types
+	 * This array will be empty for performance reasons unles we need it.
+	 * method get_mime_types or load_mime_types will fill it up.
+	 *
+	 * @var array
+	 */
+	public $mime_types = array();
+
+	/**
 	 * Constructor which reads configs, and setting up Database connection and creating an empty language  object
 	 * if $install is set to true it will no objects will be created, if $is_shell is set to true smarty will not be initialized,
 	 * also no session will be started
@@ -717,6 +726,25 @@ class Core {
 			$this->cache($modul, $key, $value);
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the mime type list.
+	 * If the list is empty it will try to fill it up by loading the config/mime_types.php
+	 *
+	 * @return array the mime type list
+	 */
+	public function get_mime_types() {
+		if (empty($this->mime_types)) {
+			$this->load_mime_types();
+		}
+		return $this->mime_types;
+	}
+
+	public function load_mime_types() {
+		if (empty($this->mime_types)) {
+			include SITEPATH . '/config/mime_types.php';
+		}
 	}
 
 	/**

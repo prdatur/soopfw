@@ -83,6 +83,21 @@ class soopfw_install {
 		else {
 			consoleLog('config/smarty.php exists', 'ok');
 		}
+
+		if(!file_exists('config/mime_types.php')) {
+			consoleLog('Could not find mime type list, try to get it', 'info');
+			if(!file_exists('config/mime_types.php.default')) {
+				consoleLog('Could not find default mime type list, aborting...', 'error');
+				exit;
+			}
+			$this->check_writeable('config');
+			if(copy('config/mime_types.php.default', 'config/mime_types.php')) {
+				consoleLog('Recovered config/mime_types.php', 'ok');
+			}
+		}
+		else {
+			consoleLog('config/mime_types.php exists', 'ok');
+		}
 	}
 
 	private function main_configuration() {
@@ -182,6 +197,10 @@ class soopfw_install {
 		$user_address_obj->user_id = $user_obj->user_id;
 		$user_address_obj->insert();
 
+		require SITEPATH . '/config/generate_mimetype_list.php';
+		$mime_type_cli = new cli_generate_mimetype_list();
+		$mime_type_cli->execute();
+		
 		$core->dbconfig("system", "installed", "1");
 
 		consoleLog('Soopfw is now installed. You can no navigate to http://'.$this->config['core']['domain'].'/user/login', 'ok');
