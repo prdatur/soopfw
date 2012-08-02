@@ -71,6 +71,13 @@ class DatabaseFilter extends Object
 	private $order_by = array();
 
 	/**
+	 * The joins
+	 *
+	 * @var array
+	 */
+	private $joins = array();
+
+	/**
 	 * the fields which will be changed on insert or update.
 	 *
 	 * @var array
@@ -90,6 +97,19 @@ class DatabaseFilter extends Object
 		$this->table = $table;
 		$this->alias = $alias;
 		parent::__construct();
+	}
+
+	/**
+	 * Set the table
+	 * 
+	 * @param string $table
+	 *   the table name
+	 * @param string $alias
+	 *   the alias for the table (optional, default = '')
+	 */
+	public function set_table($table, $alias = '') {
+		$this->table = $table;
+		$this->alias = $alias;
 	}
 
 	/**
@@ -326,6 +346,48 @@ class DatabaseFilter extends Object
 	}
 
 	/**
+	 * Joins a table
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $on
+	 *   the on statement
+	 * @param string $alias
+	 *   the alias (optional, default = '')
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &join($table, $on, $alias = '') {
+		$table = "`" . safe($table) . "`";
+		if (!empty($alias)) {
+			$table .= ' AS ' . safe($alias);
+		}
+		$this->joins[] = 'JOIN ' . $table . ' ON (' . $on . ')';
+		return $this;
+	}
+
+	/**
+	 * Joins a table
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $on
+	 *   the on statement
+	 * @param string $alias
+	 *   the alias (optional, default = '')
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &left_join($table, $on, $alias = '') {
+		$table = "`" . safe($table) . "`";
+		if (!empty($alias)) {
+			$table .= ' AS ' . safe($alias);
+		}
+		$this->joins[] = 'LEFT JOIN ' . $table . ' ON (' . $on . ')';
+		return $this;
+	}
+
+	/**
 	 * Execute the filter to get all rows.
 	 *
 	 * @param int $array_key
@@ -465,7 +527,7 @@ class DatabaseFilter extends Object
 		if (!empty($this->alias)) {
 			$table .= ' AS ' . safe($this->alias);
 		}
-
+		$table .= ' ';
 		$group_by = $order_by = "";
 		if (!empty($this->group_by)) {
 			$group_by .= ' GROUP BY ' . implode(', ', $this->group_by);
@@ -475,7 +537,7 @@ class DatabaseFilter extends Object
 			$order_by .= ' ORDER BY ' . implode(', ', $this->order_by);
 		}
 
-		return "SELECT " . $this->get_columns() . " FROM " . $table . $this->get_where() . $group_by . $order_by;
+		return "SELECT " . $this->get_columns() . " FROM " . $table . implode(' ' , $this->joins) . $this->get_where() . $group_by . $order_by;
 	}
 
 	/**
