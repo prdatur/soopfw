@@ -43,7 +43,6 @@ qq.FileUploader = function(o){
         template: '<div class="qq-uploader">' +
                 '<div class="qq-upload-drop-area"><span>Drop files here to upload</span></div>' +
                 '<div class="qq-upload-button form_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-button-text soopfw-proccessed">Upload a file</div>' +
-                //'<div class="qq-upload-button soopfw-proccessed">Upload a file</div>' +
                 '<table class="qq-upload-list" cellspacing="0" cellpadding="0"></table>' +
              '</div>',
 
@@ -106,9 +105,15 @@ qq.FileUploader = function(o){
     this._bindCancelEvent();
 
     var self = this;
+
+	var multi_input = self._options.multiple;
+	if (multi_input == true) {
+		multi_input = qq.UploadHandlerXhr.isSupported();
+	}
+
     this._button = new qq.UploadButton({
         element: this._getElement('button'),
-        multiple: qq.UploadHandlerXhr.isSupported(),
+        multiple: multi_input,
         onChange: function(input){
             self._onInputChange(input);
         }
@@ -160,7 +165,12 @@ qq.FileUploader.prototype = {
     _error: function(code, fileName){
         var message = this._options.messages[code];
         message = message.replace('{file}', this._formatFileName(fileName));
-        message = message.replace('{extensions}', this._options.allowedExtensions.join(', '));
+		if (this._options.allowedExtensions != false) {
+			message = message.replace('{extensions}', this._options.allowedExtensions.join(', '));
+		}
+		else {
+			message = message.replace('{extensions}', '');
+		}
         message = message.replace('{sizeLimit}', this._formatSize(this._options.sizeLimit));
         this._options.showMessage(message);
     },

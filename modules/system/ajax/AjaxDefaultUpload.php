@@ -11,6 +11,11 @@ $params->add_param("fid", PDT_INT, 0);
 
 $params->fill();
 
+$get_params = new ParamStruct();
+$get_params->add_param("file_type", PDT_STRING, 'mainfile');
+
+$get_params->fill(ParamStruct::FILL_FROM_GET);
+
 //If we provided a file id it determines that we want to delete it. so do it.
 if (!empty($params->fid)) {
 
@@ -28,7 +33,9 @@ if (!empty($params->fid)) {
 $allowed_extensions = array();
 $uploader = new qqFileUploader();
 
-$result = $uploader->handle_upload(new MainFileObj());
+$file_obj = new MainFileObj();
+$file_obj->type = $get_params->file_type;
+$result = $uploader->handle_upload($file_obj);
 if ($result !== AjaxModul::SUCCESS) {
 	$message = "";
 	switch ($result) {

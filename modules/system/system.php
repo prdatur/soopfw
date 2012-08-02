@@ -23,6 +23,7 @@ class system extends ActionModul
 	const CONFIG_ADMIN_THEME = "admin_theme";
 	const CONFIG_RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key";
 	const CONFIG_RECAPTCHA_PUPLIC_KEY = "recaptcha_public_key";
+	const CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE = "default_upload_max_file_size";
 
 	/**
 	 * The default method
@@ -370,6 +371,7 @@ class system extends ActionModul
 		$form->add(new Selectfield(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->dbconfig("system", self::CONFIG_LOGIN_HANDLER), t("Login handler")));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
+		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 
 
 		//Execute the settings form

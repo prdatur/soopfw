@@ -45,6 +45,13 @@ class Filefield extends AbstractHtmlInput
 	private $file_mimetype = "";
 
 	/**
+	 * The file extension of uploaded file
+	 *
+	 * @var string
+	 */
+	private $file_extension = "";
+
+	/**
 	 * Determines if this filefield object will be uploaded via ajax or not
 	 * Default: false
 	 *
@@ -57,7 +64,21 @@ class Filefield extends AbstractHtmlInput
 	 *
 	 * @var int
 	 */
-	private $size_limit = 0;
+	private $size_limit = 52428800;
+
+	/**
+	 * Determines which file extensions are allowed.
+	 * empty array will allow all.
+	 *
+	 * @var array
+	 */
+	private $file_extensions = array();
+
+	/**
+	 * the file type
+	 * @var string
+	 */
+	private $file_type = 'mainfile';
 
 	/**
 	 * This url is used within an ajax request to post the file
@@ -75,45 +96,71 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $value 
+	 * @param string $value
 	 *   the input value
-	 * @param string $label 
+	 * @param string $label
 	 *   the input label (optional, default='')
-	 * @param string $description 
+	 * @param string $description
 	 *   the input description (optional, default = '')
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
-	 * @param boolean $handle_upload 
+	 * @param boolean $handle_upload
 	 *   wether this element handles the upload directly or not (optional, default = true)
 	 */
  	public function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "", $handle_upload = true) {
 		parent::__construct($name, $value, $label, $description, $class, $id);
 		$this->config("id", (empty($id)) ? "form_id_".$name : $id);
 		$this->config("handle_upload", $handle_upload);
+
+		$this->size_limit($this->core->get_dbconfig('system', system::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit));
 		$this->init();
+	}
+
+	/**
+	 * Set the file type.
+	 *
+	 * @param string $file_type
+	 *   the file type
+	 */
+	public function set_type($file_type) {
+		$this->file_type = $file_type;
+	}
+
+	/**
+	 * Set the file extensions.
+	 *
+	 * @param array $file_extensions
+	 *   the allowed extensions
+	 */
+	public function file_extensions(array $file_extensions) {
+		foreach($file_extensions AS $ext) {
+			$this->file_extensions[$ext] = true;
+		}
 	}
 
 	/**
 	 * Set the allowed file extensions
 	 *
-	 * @param mixed $extensions 
+	 * @param mixed $extensions
 	 *   The allowed extensions, can be a single string value or an array holding all allowed values
+	 *
+	 * @deprecated since version 1.0 please referer to file_extensions()
 	 */
 	public function extensions($extensions) {
 		if (!empty($extensions) && !is_array($extensions)) {
 			$extensions = array($extensions);
 		}
-		$this->config('allowed_extensions', $extensions);
+		$this->file_extensions($extensions);
 	}
 
 	/**
 	 * Set the maximum size which can have a file
 	 *
-	 * @param int $size_limit 
+	 * @param int $size_limit
 	 *   the size in bytes
 	 */
 	public function size_limit($size_limit) {
@@ -163,11 +210,12 @@ class Filefield extends AbstractHtmlInput
 				'action' => $this->action,
 				'id' => $this->config("id"),
 				'name' => $this->config("name"),
-				'extensions' => $this->config('allowed_extensions'),
-				'size_limit' => $this->config('size_limit'),
+				'extensions' => array_keys($this->file_extensions),
+				'size_limit' => $this->size_limit,
 				'css_class' => implode(" ", $css_classes),
 				'on_complete' => $this->config('on_complete'),
-				'pre_values' => $pre_values
+				'pre_values' => $pre_values,
+				'file_type' => $this->file_type,
 				), true);
 			$this->config("handle_upload", false);
 			$this->init();
@@ -181,11 +229,11 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Get or set config values, we must override this for filefield couse we have additional special variables
 	 *
-	 * @param string $val 
+	 * @param string $val
 	 *   the key
-	 * @param string $val 
+	 * @param string $val
 	 *   the value as a string, if not set, current value will be returned (optional, default = NS)
-	 * 
+	 *
 	 * @return mixed the value for the key as a string or if in set-mode return true, if you return a value which are not set, return false
 	 */
 	function config($k, $v = NS) {
@@ -225,9 +273,21 @@ class Filefield extends AbstractHtmlInput
 
 		//If we are on the ajax mode we need to add the ajax file upload handler so javascript can work.
 		if ($this->is_ajax) {
-			return "<div id=\"file-uploader-".$this->config("id")."\" class=\"soopfw_ajax_file_uploader_handler\">
+			//first the the label string if not empty
+			$return = $this->get_label();
+			//Provide a suffix which we can configurate
+			$suffix = $this->config("suffix");
+			if(!empty($suffix)) {
+				$return .= $suffix;
+			}
+
+			$tmp_tpl = "<div id=\"file-uploader-".$this->config("id")."\" class=\"soopfw_ajax_file_uploader_handler\">
 						<noscript> <p>Please enable JavaScript to use file uploader.</p> </noscript>
 					</div>";
+
+			//Append the main input template string and the followed description
+			$return .= $tmp_tpl.$this->get_description();
+			return $return;
 		}
 		return $html;
 	}
@@ -245,25 +305,43 @@ class Filefield extends AbstractHtmlInput
 			$this->file_size = $_FILES[$this->config("name")]['size'];
 			$this->file_mimetype = $_FILES[$this->config("name")]['type'];
 			$this->file_tmpname = $_FILES[$this->config("name")]['tmp_name'];
+
+			if (preg_match(".*\.([^.]+)$", $this->file_name, $matches)) {
+				$this->file_extension = $matches[1];
+			}
 		}
 
 		//Store the file if we handle the upload and if the file was successfully uploaded
 		if ($this->config("handle_upload") == true) {
 			if (isset($_FILES[$this->config("name")]) && $_FILES[$this->config("name")]['error'] == 0) {
-				$main_file_obj = new MainFileObj();
 
-				//If we are logged in set the current user as the file owner
-				if ($this->session->is_logged_in()) {
-					$main_file_obj->owner = $this->session->current_user()->user_id;
+				if (!empty($this->size_limit) && $this->file_size > $this->size_limit) {
+					$this->core->message(t('The uploaded file is too big, max file size is @max_file_size', array('@max_file_size' => format_bytes($this->size_limit))));
 				}
+				else if(!empty($this->file_extensions) && !isset($this->file_extensions[$this->file_extension])) {
+					$this->core->message(t('File extension "@ext" is not allowed. Allowed are: @allowed_exts', array(
+						'@ext' => $this->file_extension,
+						'@allowed_exts' => implode(", ", $this->file_extensions),
+					)));
+				}
+				else {
 
-				$main_file_obj->filename = $this->file_name;
-				$main_file_obj->size = $this->file_size;
-				$main_file_obj->mimetype = $this->file_mimetype;
+					$main_file_obj = new MainFileObj();
+					$main_file_obj->type = $this->file_type;
 
-				//If we saved the file successfully provide the fileid as the element value
-				if ($main_file_obj->save_or_insert($this->file_tmpname)) {
-					$this->config("value", $main_file_obj->fid);
+					//If we are logged in set the current user as the file owner
+					if ($this->session->is_logged_in()) {
+						$main_file_obj->owner = $this->session->current_user()->user_id;
+					}
+
+					$main_file_obj->filename = $this->file_name;
+					$main_file_obj->size = $this->file_size;
+					$main_file_obj->mimetype = $this->file_mimetype;
+
+					//If we saved the file successfully provide the fileid as the element value
+					if ($main_file_obj->save_or_insert($this->file_tmpname)) {
+						$this->config("value", $main_file_obj->fid);
+					}
 				}
 			}
 		}
