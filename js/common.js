@@ -123,7 +123,7 @@ function success_alert(msg, callback, title)
  * Displays a question dialog and execute the callback_function if the user
  * click on "ok".
  * Questions are the same as confirmations but with a different icon
- * 
+ *
  * @param string msg
  *   The message to display.
  * @param string title
@@ -144,7 +144,7 @@ function question(msg, html, title, callback_function)
 /**
  * Displays a confirmation dialog and execute the callback_function if the user
  * click on "ok".
- * 
+ *
  * @param string msg
  *   The message to display.
  * @param string title
@@ -176,7 +176,7 @@ function confirm(msg, title, callback_function, parse_result)
 /**
  * Displays a alert dialog and execute the callback_function if the user
  * click on "ok" or closes the dialog.
- *  
+ *
  * @param string msg
  *   The message to display.
  * @param string title
@@ -396,6 +396,7 @@ function ajax_request(url, dataArray, return_function, error_function, options)
         type: 'POST',
         dataType: 'json',
 		url: url,
+		async: true,
 		data: dataArray,
 		success: function(result) {
 			if(error_function == undefined) {
@@ -1907,13 +1908,13 @@ var comboboxArray = new Object();
 			}
 			if(type != 'question')
 			{
-				$("#popup_message").text(msg);
+				$("#popup_message").html(msg);
 			}
 			else
 			{
-				$("#popup_message").text(msg['msg']);
+				$("#popup_message").html(msg['msg']);
 			}
-			$("#popup_message").html( $("#popup_message").text().replace(/\n/g, '<br />') );
+			$("#popup_message").html( $("#popup_message").html().replace(/\n/g, '<br />') );
 
 			/*$("#popup_container").css({
 				minWidth: $("#popup_container").outerWidth(),
