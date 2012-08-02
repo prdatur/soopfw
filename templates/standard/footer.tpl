@@ -4,6 +4,7 @@
 		<%include file="submenu.tpl" menu=$main_menu%>
 	</div>
 </div>
+</div>
 </body>
 </html>
 <%/if%>
