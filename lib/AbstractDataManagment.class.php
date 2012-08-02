@@ -1,7 +1,7 @@
 <?php
 /**
  * Provide an abstract data managment.
- * Everytime we decide to create a new table we should create a Model object 
+ * Everytime we decide to create a new table we should create a Model object
  * which extends the AbstractDataManagment class.
  * The data manager will handle all save / load / change processes within the database.
  * It works also with memcached to have a better performance
@@ -81,8 +81,8 @@ abstract class AbstractDataManagment extends Object
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param Core $core 
+	 *
+	 * @param Core $core
 	 *   The Core Object (optional, default = null)
 	 */
 	public function __construct(Core &$core = null) {
@@ -93,9 +93,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Returns the original key for this object, the values will be filled after loading and will not change until a save operation occurs
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 *   the key
-	 * 
+	 *
 	 * @return mixed the value for the key, if key not exists returns null
 	 */
 	public function get_original_value($key) {
@@ -116,7 +116,7 @@ abstract class AbstractDataManagment extends Object
 
 	/**
 	 * Returns an object form for the current AbstractDataManagment object
-	 * 
+	 *
 	 * @return ObjForm the object_form
 	 */
 	public function get_form() {
@@ -126,9 +126,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set the value of given name
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The name
-	 * @param mixed $value 
+	 * @param mixed $value
 	 *   The value
 	 */
 	public function __set($name, $value) {
@@ -150,7 +150,7 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set values
 	 *
-	 * @param array $field_arr 
+	 * @param array $field_arr
 	 *   The Data
 	 */
 	public function set_fields(Array $field_arr) {
@@ -180,9 +180,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get the value from given key
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 *   The key
-	 * 
+	 *
 	 * @return mixed the value or if not exists returns null
 	 */
 	public function &get_value($key) {
@@ -201,7 +201,7 @@ abstract class AbstractDataManagment extends Object
 	 * @param array $fields
 	 *   If provided we do only get back the provided fields
 	 *   fields are the values within this array (optional, default = array())
-	 * 
+	 *
 	 * @return array The values
 	 */
 	public function &get_values($force_all_fields = false, $fields = array()) {
@@ -249,9 +249,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Whether or not the field exist within the struct or not
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The name of the field
-	 * 
+	 *
 	 * @return boolean true if the field exist, else false
 	 */
 	public function has_field($name) {
@@ -261,9 +261,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Whether or not the field has changed since this object was loaded
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The name of the field
-	 * 
+	 *
 	 * @return boolean true if changed, else false
 	 */
 	public function has_changed($name) {
@@ -313,7 +313,7 @@ abstract class AbstractDataManagment extends Object
 	 * Set values (bulk)
 	 * use only for fast setting (loading) all values / does not check for correct keys
 	 *
-	 * @param array $field_array 
+	 * @param array $field_array
 	 *   The Data
 	 */
 	public function set_fields_bulk(Array $field_array) {
@@ -324,9 +324,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * load the given data
 	 *
-	 * @param mixed $val 
+	 * @param mixed $val
 	 *   The reference key value to be selected
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function load($val = "", $force_db = false) {
@@ -424,101 +424,107 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Load multiple records into an array
 	 *
-	 * @param array $keys 
-	 *   Array with primary keys to be loaded
-	 * @param int $return_as 
+	 * @param mixed $keys
+	 *   Array with primary keys to be loaded or a database filter which is used for the query
+	 * @param int $return_as
 	 *   determines the return value type  use PDT_OBJ or PDT_ARR (optional, default = PDT_OBJ)
-	 * 
+	 *
 	 * @return array with objects/array as values
 	 */
 	public function &load_multiple($keys, $return_as = PDT_OBJ) {
 
-
-		//If we did not provide any keys, we can do nothing.
-		if(empty($keys)) {
-			$return = array();
-			return $return;
+		if ($keys instanceof DatabaseFilter) {
+			$this->db_filter = $keys;
 		}
+		else {
+			//If we did not provide any keys, we can do nothing.
+			if(empty($keys)) {
+				$return = array();
+				return $return;
+			}
 
-		//Get the database structure
-		$struct = $this->db_struct->get_struct();
-		$count_struct = count($struct);
+			//Get the database structure
+			$struct = $this->db_struct->get_struct();
+			$count_struct = count($struct);
 
-		//initialize the arrayindex counter for return values
-		$return_index_counter = 0;
+			//initialize the arrayindex counter for return values
+			$return_index_counter = 0;
 
-		//Setup all wanted memcached keys to load
-		foreach ($keys as $value) {
-			$memcached_key = $this->get_memcached_key($value);
-			$memcached_keys[$memcached_key] = $memcached_key;
-		}
+			//Setup all wanted memcached keys to load
+			foreach ($keys as $value) {
+				$memcached_key = $this->get_memcached_key($value);
+				$memcached_keys[$memcached_key] = $memcached_key;
+			}
 
-		/**
-		 * If the structure is cacheable, try to get the cached data,
-		 * we also check if some wanted data is missed, if so we try to load it from the database
-		 */
-		if ($this->db_struct->is_cacheable()) {
-			$memcached_return = $this->core->memcache_obj->getMulti($memcached_keys);
+			/**
+			 * If the structure is cacheable, try to get the cached data,
+			 * we also check if some wanted data is missed, if so we try to load it from the database
+			 */
+			if ($this->db_struct->is_cacheable()) {
+				$memcached_return = $this->core->memcache_obj->getMulti($memcached_keys);
 
-			if ($memcached_return) {
-				//Add the found data to our return array
-				foreach ($memcached_return as $key => $values) {
-					// cached 'item not available' or outdated
-					if (is_null($values) || count($values) != $count_struct) {
-						continue;
+				if ($memcached_return) {
+					//Add the found data to our return array
+					foreach ($memcached_return as $key => $values) {
+						// cached 'item not available' or outdated
+						if (is_null($values) || count($values) != $count_struct) {
+							continue;
+						}
+
+						//Setup the return data
+						switch($return_as) {
+							case PDT_ARR:
+								$return[$return_index_counter++] = $values;
+								break;
+							case PDT_OBJ:
+								$return[$return_index_counter] = new $this();
+								$return[$return_index_counter++]->set_fields_bulk($values);
+								break;
+						}
+						//Remove current key from memcached_keys so if we finished the loop the values which are left within the array we have missed and must be loaded from database
+						unset($memcached_keys[$key]);
 					}
-
-					//Setup the return data
-					switch($return_as) {
-						case PDT_ARR:
-							$return[$return_index_counter++] = $values;
-							break;
-						case PDT_OBJ:
-							$return[$return_index_counter] = new $this();
-							$return[$return_index_counter++]->set_fields_bulk($values);
-							break;
-					}
-					//Remove current key from memcached_keys so if we finished the loop the values which are left within the array we have missed and must be loaded from database
-					unset($memcached_keys[$key]);
 				}
-			}
-			//Clean memory
-			unset($memcached_return);
-		}
-
-		//Everything was cached, we're done :-)
-		if (empty($memcached_keys)) {
-			return $return;
-		}
-
-		//Setup the database filter for the missed element
-		$this->db_filter->clear();
-
-		//Main database where group
-		$main_where_group = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
-
-		//Loop all missed values from cache and build up a database filter to catch all missed one together with one sql query
-		foreach($memcached_keys AS $key) {
-
-			//Get the memcached key as an array
-			$value_array = explode(":", $key);
-
-			//Remove the table from the memcached key
-			array_shift($value_array);
-
-			$where_group = new DatabaseWhereGroup();
-
-			//Loop through all reference keys and setup the database filter
-			foreach($this->db_struct->get_reference_key() AS $index => $key) {
-				$where_group->add_where($key, $value_array[$index]);
+				//Clean memory
+				unset($memcached_return);
 			}
 
-			$main_where_group->add_where($where_group);
-		}
-		$this->db_filter->set_where($main_where_group);
+			//Everything was cached, we're done :-)
+			if (empty($memcached_keys)) {
+				return $return;
+			}
 
+			//Setup the database filter for the missed element
+			$this->db_filter->clear();
+
+			//Main database where group
+			$main_where_group = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+
+			//Loop all missed values from cache and build up a database filter to catch all missed one together with one sql query
+			foreach($memcached_keys AS $key) {
+
+				//Get the memcached key as an array
+				$value_array = explode(":", $key);
+
+				//Remove the table from the memcached key
+				array_shift($value_array);
+
+				$where_group = new DatabaseWhereGroup();
+
+				//Loop through all reference keys and setup the database filter
+				foreach($this->db_struct->get_reference_key() AS $index => $key) {
+					$where_group->add_where($key, $value_array[$index]);
+				}
+
+				$main_where_group->add_where($where_group);
+			}
+
+			$this->db_filter->set_table($this->db_struct->get_table());
+			$this->db_filter->set_where($main_where_group);
+		}
+		$return = array();
 		//Get all database values
-		foreach($this->db->query_slave_all("SELECT ".$this->db_filter->get_columns()." FROM ".$this->db_struct->get_table().$this->db_filter->get_where()) AS $values) {
+		foreach($this->db_filter->select_all() AS $values) {
 			//Setup the return data
 			switch($return_as) {
 				case PDT_ARR:
@@ -552,9 +558,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Save the given Data
 	 *
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made (optional, default = false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -597,9 +603,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Insert the current data
 	 *
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
@@ -685,9 +691,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Save current data to cache
 	 *
-	 * @param int $expire 
+	 * @param int $expire
 	 *   The time when cache item expired (optional, default=null)
-	 * 
+	 *
 	 * @return boolean true on success , else false
 	 */
 	public function save_cache($expire = null) {
@@ -738,9 +744,9 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get the next auto increment value for the given table
 	 *
-	 * @return mixed 
-	 *   if table does not exist within the status report, return 1, 
-	 *   if exist but auto increment field does not exist return false, 
+	 * @return mixed
+	 *   if table does not exist within the status report, return 1,
+	 *   if exist but auto increment field does not exist return false,
 	 *   else return the auto increment value as an int
 	 */
 	public function get_next_id() {
@@ -799,11 +805,11 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Set an element as "changed" to our struct
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 *   the key (database field)
-	 * @param mixed $value 
+	 * @param mixed $value
 	 *   the value
-	 * @param boolean $ignore_values_changed 
+	 * @param boolean $ignore_values_changed
 	 *   wether if we want to ignore that this value is changed (optional, default = false)
 	 */
 	protected function set_values_changed($key, &$value, $ignore_values_changed = false) {
@@ -818,11 +824,11 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Get a memached key
 	 *
-	 * @param mixed $values 
+	 * @param mixed $values
 	 *   the values as an array or NS for current values (optional, default = NS)
-	 * @param string $table 
+	 * @param string $table
 	 *   the table name or NS for current table name (optional, default = NS)
-	 * 
+	 *
 	 * @return string the memcached key
 	 */
 	protected function get_memcached_key($values = NS, $table = NS) {
@@ -870,11 +876,11 @@ abstract class AbstractDataManagment extends Object
 	/**
 	 * Parse a given value to a given type, this can also be used to determine the default value, if you provide '' within $value
 	 *
-	 * @param mixed $value 
+	 * @param mixed $value
 	 *   the value which will be parsed
-	 * @param int $type 
+	 * @param int $type
 	 *   const use one of PDT_*
-	 * 
+	 *
 	 * @return mixed the parsed value
 	 */
 	protected function parse_value($value, $type) {
