@@ -133,7 +133,9 @@ class YuiCompressor
 		$flattened_output = implode("\n", $raw_output);
 
 		// clean up (remove temp file)
-		unlink($file);
+		if (file_exists($file)) {
+			unlink($file);
+		}
 
 		// return compressed output
 		return $flattened_output;
