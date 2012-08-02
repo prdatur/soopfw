@@ -85,10 +85,6 @@
 	border-bottom: 1px solid #aaa;
 }
 
-.jqueryslidemenuz ul li ul li a:hover {
-	background: #eff9ff;
-	color: black;
-}
 
 .jqueryslidemenu ul li a.sub > span {
 	display: block;
