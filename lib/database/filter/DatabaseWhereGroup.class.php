@@ -62,7 +62,8 @@ class DatabaseWhereGroup
 		//Else we need to have setup a value
 		else if ($value !== NS) {
 			//Add the condition
-			$this->conditions[$key] = array(
+			$this->conditions[] = array(
+				'key' => $key,
 				'value' => $value,
 				'condition_type' => $condition_type
 			);
@@ -94,13 +95,15 @@ class DatabaseWhereGroup
 	public function get_sql($first = true) {
 		$tmp_array = array();
 		//Loop through all available conditions
-		foreach ($this->conditions AS $k => $v) {
+		foreach ($this->conditions AS $v) {
 			//If we have a database where group, get the statement from this object
 			if ($v instanceof DatabaseWhereGroup) {
 				$tmp_array[] = $v->get_sql(false);
 				continue;
 			}
 
+			$k = $v['key'];
+			
 			/**
 			 * the dot is a seperator for direct table selection so we need to escape it with `.` to get a field string
 			 * for example, original = my.db.field1, so we get this: `my`.`db`.`field1`
@@ -112,7 +115,7 @@ class DatabaseWhereGroup
 			// This removal of escape char is required if a % value was provided which was already escaped.
 			$val = preg_replace("/[\\\]+\%/", "\\%", $val);
 			//Check if we have not a number, if so we need to add ''
-			if (((int)$v['value'] !== $v['value']) || ((float)$v['value'] !== $v['value'])) {
+			if (((int)$v['value'] !== $v['value']) && ((float)$v['value'] !== $v['value'])) {
 				$val = "'".$val."'";
 			}
 
