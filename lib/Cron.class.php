@@ -212,6 +212,9 @@ class Cron
 
 		if ($call !== NS) { //if $call provided execute the function / object method
 			//Check if we call an object or just a function
+			if (is_string($call)) {
+				$call = trim($call);
+			}
 			if (is_array($call)) { //object
 				foreach ($call AS &$call_value) {
 					if (is_string($call_value)) {
@@ -224,7 +227,7 @@ class Cron
 				}
 			}
 			else if (is_callable($call)) { //function
-				call_user_func(trim($call));
+				call_user_func($call);
 			}
 		}
 		$this->log("");
