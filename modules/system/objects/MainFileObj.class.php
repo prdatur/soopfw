@@ -337,6 +337,19 @@ class MainFileObj extends AbstractDataManagment
 	}
 
 	/**
+	 * Will return the extension for this filename without the dot.
+	 *
+	 * @return string the extension string
+	 */
+	public function get_extension() {
+		$ext = '';
+		if (preg_match("/\.([^\.]+)$/", $this->filename, $matches)) {
+			$ext = $matches[1];
+		}
+		return $ext;
+	}
+
+	/**
 	 *
 	 * @param boolean $leave_on_server
 	 *   if set to true the file will only be deleted from database, the file it self will leave on the server (optional, default = false)
