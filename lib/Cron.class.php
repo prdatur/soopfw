@@ -65,7 +65,7 @@ class Cron
 	 * @see match
 	 * @param string $match
 	 *   The match string like a normal crontab string (optional, default = NS)
-	 * @param int $timestamp 
+	 * @param int $timestamp
 	 *   the timestamp to be used as the check value (optional, default = NS)
 	 */
  	public function __construct($match = NS, $timestamp = NS) {
@@ -85,7 +85,7 @@ class Cron
 	 * no quotes..
 	 * Use only \n (unix newline) for new lines
 	 *
-	 * @param string $match_str 
+	 * @param string $match_str
 	 *   syntax as a string or a filename where the syntax is stored
 	 */
 	public function multiple_match($match_str) {
@@ -124,9 +124,9 @@ class Cron
 	 * Single setup the match syntax,<br />
 	 * Be sure to use all Cron::CRON_TIME_* constants or the match return will be always false
 	 *
-	 * @param string $type 
+	 * @param string $type
 	 *   the type, use one of Cron::CRON_TIME_* constants
-	 * @param string $val 
+	 * @param string $val
 	 *   the contab syntax for one value
 	 */
 	public function set_match_time($type, $val) {
@@ -140,13 +140,13 @@ class Cron
 	 * only , (comma) can be multiple for one entry
 	 * example * 3-7 * 3,2 4
 	 *
-	 * @param string $match 
+	 * @param string $match
 	 *  the match string, if not provided it will check if the class has a match set up (optional, default = NS)
-	 * @param mixed $call 
+	 * @param mixed $call
 	 *   can be a string for function, or an array for an object (optional, default = NS)
-	 * @param int $timestamp 
+	 * @param int $timestamp
 	 *   setup manual timestamp (optional, default = NS)
-	 * 
+	 *
 	 * @return boolean if matched return true, else false
 	 */
 	public function match($match = NS, $call = NS, $timestamp = NS) {
@@ -223,7 +223,7 @@ class Cron
 					call_user_func($call);
 				}
 			}
-			else if (function_exists(trim($call))) { //function
+			else if (is_callable($call)) { //function
 				call_user_func(trim($call));
 			}
 		}
@@ -236,13 +236,13 @@ class Cron
 	/**
 	 * Check the $check_value against the $check_time from type $check_type
 	 *
-	 * @param string $check_time 
+	 * @param string $check_time
 	 *   value match syntax like * or 4,3 or 3
-	 * @param int $check_value 
+	 * @param int $check_value
 	 *   the value
-	 * @param string $check_type 
+	 * @param string $check_type
 	 *   use one of the Cron::CRON_TIME_* consts
-	 * 
+	 *
 	 * @return boolean true on match, else false
 	 */
 	private function check_times($check_time, $check_value, $check_type) {
@@ -303,7 +303,7 @@ class Cron
 
 	/**
 	 * Returns a String for the crontab match based on time_array values
-	 * 
+	 *
 	 * @return string if time_array is not empty return the match syntax, else return false
 	 */
 	private function get_match_time() {
@@ -325,9 +325,9 @@ class Cron
 	 *
 	 * @param string $msg
 	 *   The message
-	 * @param boolean $newline 
+	 * @param boolean $newline
 	 *   print newline at the end of the message? (optional, default = true)
-	 * @param boolean $force 
+	 * @param boolean $force
 	 *   force output (optional, default = false)
 	 */
 	private function log($msg, $newline = true, $force = false) {
