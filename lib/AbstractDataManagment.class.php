@@ -433,6 +433,9 @@ abstract class AbstractDataManagment extends Object
 	 */
 	public function &load_multiple($keys, $return_as = PDT_OBJ) {
 
+		//initialize the arrayindex counter for return values
+		$return_index_counter = 0;
+
 		if ($keys instanceof DatabaseFilter) {
 			$this->db_filter = $keys;
 		}
@@ -447,8 +450,7 @@ abstract class AbstractDataManagment extends Object
 			$struct = $this->db_struct->get_struct();
 			$count_struct = count($struct);
 
-			//initialize the arrayindex counter for return values
-			$return_index_counter = 0;
+
 
 			//Setup all wanted memcached keys to load
 			foreach ($keys as $value) {
@@ -541,7 +543,9 @@ abstract class AbstractDataManagment extends Object
 			if ($this->db_struct->is_cacheable()) {
 				$this->core->memcache_obj->set($memcached_key, $values, $this->db_struct->default_cache_time());
 			}
-			unset($memcached_keys[$memcached_key]);
+			if (!empty($memcached_keys)) {
+				unset($memcached_keys[$memcached_key]);
+			}
 		}
 		return $return;
 	}
@@ -896,7 +900,7 @@ abstract class AbstractDataManagment extends Object
 				if (!is_array($value)) {
 					return array();
 				}
-				return $array;
+				return $value;
 			case PDT_LANGUAGE :
 			case PDT_LANGUAGE_ENABLED : $value = strtoupper($value);
 			case PDT_ENUM :
@@ -918,7 +922,10 @@ abstract class AbstractDataManagment extends Object
 				if ($value == "0000-00-00") {
 					return $value;
 				}
-				return date(DB_DATE, strtotime($value));
+				if ((int)$value !== $value) {
+					$value = strtotime($value);
+				}
+				return date(DB_DATE, $value);
 			case PDT_DATETIME :
 				if (empty($value)) {
 					return "0000-00-00 00:00:00";
@@ -926,7 +933,10 @@ abstract class AbstractDataManagment extends Object
 				if ($value == "0000-00-00 00:00:00") {
 					return $value;
 				}
-				return date(DB_DATETIME, strtotime($value));
+				if ((int)$value !== $value) {
+					$value = strtotime($value);
+				}
+				return date(DB_DATETIME, $value);
 			case PDT_TIME :
 				if (empty($value)) {
 					return "00:00:00";
@@ -934,7 +944,10 @@ abstract class AbstractDataManagment extends Object
 				if ($value == "00:00:00") {
 					return $value;
 				}
-				return date(DB_TIME, strtotime($value));
+				if ((int)$value !== $value) {
+					$value = strtotime($value);
+				}
+				return date(DB_TIME, $value);
 			default : return $value;
 		}
 	}
