@@ -302,6 +302,7 @@
 		if (!empty($jquery_ui_js_version)) {
 			$core->add_js($jquery_ui_js_version, Core::JS_SCOPE_SYSTEM);
 		}
+		$core->add_js("/js/jquery_plugins/jquery.ui.i18n.all.min.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.ui.droppable.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery-ui-timepicker-addon.js", Core::JS_SCOPE_SYSTEM);
 		$core->add_js("/js/jquery_plugins/jquery.maskedinput-1.3.min.js", Core::JS_SCOPE_SYSTEM);

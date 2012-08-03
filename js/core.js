@@ -308,7 +308,7 @@ $.extend(Soopfw, {
 
 Soopfw.system_footer_behaviour = function() {
 	$(".disabledSelection :not(.enabledSelection)").disableSelection();
-	$.datepicker.setDefaults( $.datepicker.regional[ "<%$current_language%>" ] );
+	$.datepicker.setDefaults( $.datepicker.regional[ Soopfw.config.current_language ] );
 	$('input[type="text"].datepicker').datepicker();
 	$('input[type="text"].datetimepicker').datetimepicker();
 
