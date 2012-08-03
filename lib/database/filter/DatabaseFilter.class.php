@@ -101,7 +101,7 @@ class DatabaseFilter extends Object
 
 	/**
 	 * Set the table
-	 * 
+	 *
 	 * @param string $table
 	 *   the table name
 	 * @param string $alias
@@ -327,21 +327,31 @@ class DatabaseFilter extends Object
 	 * @param string $direction
 	 *   the order direction use DatabaseFilter::ASC or DatabaseFilter::DESC (optional, default = NS)
 	 * @param string $table
-	 *   the table or alias prefix to use for this field (optional, default = NS)
+	 *   the table or alias prefix to use for this field
+	 *   if you provide null, no table will be prepended (optional, default = NS)
 	 *
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &order_by($field, $direction = self::ASC, $table = NS) {
 		if ($table === NS) {
-			$table = $this->get_table_or_alias();
+			$table = $this->get_table_or_alias().'.';
+		}
+		elseif ($table !== null) {
+			$table = "`" . safe($table) . "`.";
 		}
 		else {
-			$table = "`" . safe($table) . "`";
+			$table = '';
 		}
+		
 		if ($direction != self::ASC && $direction != self::DESC) {
 			$direction = self::ASC;
 		}
-		$this->order_by[] = $table . '.`' . safe($field) . '` ' . $direction;
+
+		$field = safe($field);
+		if (preg_match('/^[a-z_]$/', $field)) {
+			$field = "`".$field."`";
+		}
+		$this->order_by[] = $table . $field . ' ' . $direction;
 		return $this;
 	}
 
