@@ -837,6 +837,11 @@ class Core {
 						if (count($data['menu']) > 1) {
 							$alias_obj->module = $data['menu'][0];
 							$alias_obj->action = $data['menu'][1];
+							unset($data['menu'][0]);
+							unset($data['menu'][1]);
+							if (!empty($data['menu'])) {
+								$alias_obj->params = json_encode($data['menu']);
+							}
 						}
 						else {
 							$alias_obj->module = $module;
@@ -1015,7 +1020,7 @@ class Core {
 		}
 		//Assign the messages
 		$this->smarty->assign("main_messages", $messages);
-
+		
 		$this->cache_js_css();
 
 		//Add needed css/js files
