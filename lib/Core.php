@@ -437,12 +437,32 @@ class Core {
 	}
 
 	/**
+	 * Returns if ssl is currently active.
+	 *
+	 * @return boolean true if ssl is activated, else false
+	 */
+	public function is_ssl() {
+		return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on");
+	}
+
+	/**
 	 * function will redirect to https page if we are currently on http mode
 	 */
 	public function need_ssl() {
 
-		if ((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+		if (!$this->is_ssl() && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
 			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+			exit();
+		}
+	}
+
+	/**
+	 * function will redirect to http page if we are currently on https mode
+	 */
+	public function need_no_ssl() {
+
+		if ($this->is_ssl()) {
+			header("Location: http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 			exit();
 		}
 	}
@@ -985,6 +1005,13 @@ class Core {
 	 * Assign default variables to smarty
 	 */
 	public function smarty_assign_default_vars() {
+		/**
+		 * Provides hook: core_assign_default_vars
+		 *
+		 * Allow other modules to do things before all default vars will be assigned
+		 * Usefull for adding javascript files for assign smarty values
+		 */
+		$this->hook('core_assign_default_vars');
 
 		//Assign current template path
 		$this->smarty->assign("SITEPATH", SITEPATH);
@@ -1020,7 +1047,7 @@ class Core {
 		}
 		//Assign the messages
 		$this->smarty->assign("main_messages", $messages);
-		
+
 		$this->cache_js_css();
 
 		//Add needed css/js files
