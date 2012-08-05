@@ -149,16 +149,23 @@ class DatabaseFilter extends Object
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &add_column($field, $table = NS) {
-		$field = "`" . safe($field) . "`";
+
 		if ($table === NS) {
 			$table = $this->get_table_or_alias();
 		}
 		else {
 			$table = "`" . safe($table) . "`";
 		}
-		if ($table !== NS) {
-			$field = $table . "." . $field;
+
+		$field = safe($field);
+		if (preg_match('/^[a-z_]$/', $field)) {
+			$field = "`".$field."`";
+			if ($table !== NS) {
+				$field = $table . "." . $field;
+			}
 		}
+
+
 		$this->fields[] = $field;
 		return $this;
 	}
@@ -225,11 +232,15 @@ class DatabaseFilter extends Object
 	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
 	 * @param string $condition_type
 	 *   the condition type (=, !=, LIKE) (optional, default = "=")
+	 * @param boolean $escape
+	 *   if set to false the value will not be escaped
+	 *	 USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 *   can open SQL-Injections. (optional, default = true)
 	 *
 	 * @return DatabaseFilter Self returning
 	 */
-	public function &add_where($field, $value = "", $condition_type = "=") {
-		$this->where->add_where($field, $value, $condition_type);
+	public function &add_where($field, $value = "", $condition_type = "=", $escape = true) {
+		$this->where->add_where($field, $value, $condition_type, $escape);
 		return $this;
 	}
 
@@ -342,7 +353,7 @@ class DatabaseFilter extends Object
 		else {
 			$table = '';
 		}
-		
+
 		if ($direction != self::ASC && $direction != self::DESC) {
 			$direction = self::ASC;
 		}
@@ -437,7 +448,7 @@ class DatabaseFilter extends Object
 	 * @return array the row
 	 */
 	public function select_first() {
-		return $this->db->query_slave_first($this->get_select_sql());
+		return $this->db->query_slave_first($this->get_select_sql(), array(), $this->offset());
 	}
 
 	/**

@@ -50,11 +50,15 @@ class DatabaseWhereGroup
 	 *   the condition value, it is only optional if key is a DatabaseWhereGroup object (optional, default = NS)
 	 * @param string $condition_type
 	 *   like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
+	 * @param boolean $escape
+	 *   if set to false the value will not be escaped
+	 *	 USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 *   can open SQL-Injections. (optional, default = true)
 	 *
 	 * @return DatabaseWhereGroup
 	 *   The where group
 	 */
-	public function add_where($key, $value = NS, $condition_type = '=') {
+	public function add_where($key, $value = NS, $condition_type = '=', $escape = true) {
 		//If we just provided a database where group object, add this
 		if ($value === NS && $key instanceof DatabaseWhereGroup) {
 			$this->conditions[] = $key;
@@ -65,7 +69,8 @@ class DatabaseWhereGroup
 			$this->conditions[] = array(
 				'key' => $key,
 				'value' => $value,
-				'condition_type' => $condition_type
+				'condition_type' => $condition_type,
+				'escape' => $escape,
 			);
 		}
 		return $this;
@@ -103,22 +108,36 @@ class DatabaseWhereGroup
 			}
 
 			$k = $v['key'];
-			
+			if ($k instanceof DatabaseWhereGroup) {
+				$tmp_array[] = $k->get_sql(false);
+				continue;
+			}
+
 			/**
 			 * the dot is a seperator for direct table selection so we need to escape it with `.` to get a field string
 			 * for example, original = my.db.field1, so we get this: `my`.`db`.`field1`
+			 * this will only be executed if the k is not a numeric integer because maybe we want just select 1
 			 */
-			$k = "`".safe(str_replace(".", "`.`",  $k))."`";
-
-			//Escape the value
-			$val = safe($v['value']);
-			// This removal of escape char is required if a % value was provided which was already escaped.
-			$val = preg_replace("/[\\\]+\%/", "\\%", $val);
-			//Check if we have not a number, if so we need to add ''
-			if (((int)$v['value'] !== $v['value']) && ((float)$v['value'] !== $v['value'])) {
-				$val = "'".$val."'";
+			if ((int)$k !== $k) {
+				$k = "`".safe(str_replace(".", "`.`",  $k))."`";
+			}
+			else {
+				$k = safe($k);
 			}
 
+			if ($v['escape'] == true) {
+				//Escape the value
+				$val = safe($v['value']);
+				// This removal of escape char is required if a % value was provided which was already escaped.
+				$val = preg_replace("/[\\\]+\%/", "\\%", $val);
+				//Check if we have not a number, if so we need to add ''
+				if (((int)$v['value'] !== $v['value']) && ((float)$v['value'] !== $v['value'])) {
+					$val = "'".$val."'";
+				}
+			}
+			else {
+				$val = $v['value'];
+			}
 			//Add the condition string
 			$tmp_array[] = $k." ".$v['condition_type']." ".$val;
 		}
