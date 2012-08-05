@@ -37,6 +37,56 @@ function has_perm($perm) {
 }
 
 /**
+ * Formate a given number to the given currency.
+ *
+ * @param string $string
+ *   the number which will be formated.
+ * @param string $currency
+ *   the currency string.
+ *
+ * @return string the formated string
+ */
+function formate_money($string, $currency) {
+	switch ($currency) {
+		case 'EUR': {
+				$decPoint = ",";
+				$thousendPoint = ".";
+				break;
+			}
+		case 'CHF': {
+				$decPoint = ".";
+				$thousendPoint = "'";
+				break;
+			}
+	}
+
+	return number_format(round_money($string, $currency), 2, $decPoint, $thousendPoint);
+}
+
+/**
+ * Rounds a given $value to the given $currency.
+ * 
+ * @param float $value
+ *   the value to be rounded.
+ * @param string $currency
+ *   which currency is used.
+ *
+ * @return float the rounded money number
+ */
+function round_money($value, $currency) {
+	switch ($currency) {
+		case 'CHF':
+			$divider = 20;
+			break;
+		default:
+			$divider = 100;
+			break;
+	}
+	$value = (float) $value;
+	return round($value * $divider) / $divider;
+}
+
+/**
  * Reads the user input and validate it against a "yes" input.
  *
  * The following values will be return true:
@@ -163,7 +213,7 @@ function format_bytes($bytes, $force_type = '') {
  */
 function format_byte_string($str) {
 		$val = trim($str);
-		
+
 		if (preg_match("/^([0-9]+)\s*([kmgtpezy])?b?\s*$/i", $val, $matches)) {
 			$val = (int)$matches[1];
 
