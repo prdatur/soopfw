@@ -358,13 +358,15 @@ class Db
 	 *   Querystring
 	 * @param array $args
 	 *   an array which replace inline strings array('search_key' => 'replace_val') (optional, default = array())
+	 * @param int $offset
+	 *   The offset (optional, default = 0)
 	 * @param int $type
 	 *   Type (optional ,default = MYSQL_ASSOC)
 	 *
 	 * @return mixed the first result row
 	 */
-	public function query_slave_first($query_string, $args = array(), $type = MYSQL_ASSOC) {
-		return $this->fetch_array($this->query_slave($query_string, $args, 1), $type);
+	public function query_slave_first($query_string, $args = array(), $offset = 0, $type = MYSQL_ASSOC) {
+		return $this->fetch_array($this->query_slave($query_string, $args, 1, $offset), $type);
 	}
 
 	/**
