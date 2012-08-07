@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provide cli commando (drush) to re-generate the smartylist database (all allowed template dirs)
+ * Provide cli commando (clifs) to re-generate the smartylist database (all allowed template dirs)
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>

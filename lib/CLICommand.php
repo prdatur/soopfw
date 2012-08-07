@@ -1,6 +1,6 @@
 <?php
 /**
- * Provide the an abstract class for creating cli commands (./drush)
+ * Provide the an abstract class for creating cli commands (./clifs)
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
@@ -39,13 +39,13 @@ abstract class CLICommand extends Object {
 	/**
      * This function must be set on extended class, this will be called if cli
      * command is executed
-	 * 
+	 *
      * @return boolean should return true if no errors occured, else false
      */
     abstract public function execute();
 
 	/**
-	 * Starts the cli command (drush) 
+	 * Starts the cli command (clifs)
 	 */
     public function start() {
 		ini_set('display_errors', 'on');
@@ -86,9 +86,9 @@ abstract class CLICommand extends Object {
 	/**
 	 * Add a message
 	 *
-	 * @param string $message 
+	 * @param string $message
 	 *   The message to be displayed
-	 * @param string $type 
+	 * @param string $type
 	 *   The message type, use one of CLICommand::MESSAGE_TYPE_* (optional, default = CLICommand::MESSAGE_TYPE_ERROR)
 	 */
     public function error($message, $type = self::MESSAGE_TYPE_ERROR) {

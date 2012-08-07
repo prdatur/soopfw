@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
 	/**
-	 * Executes a "drush" command (Command line).
-	 * The name "drush" was inspired by Drupal.
-	 * Beware you can not run commands with the Drupal command line tool "drush".
-	 * You need to execute it with ./drush
+	 * Executes a "clifs" command (Command line).
+	 * The name "clifs" was inspired by Drupal.
+	 * Beware you can not run commands with the Drupal command line tool "clifs".
+	 * You need to execute it with ./clifs
 	 */
 	if(preg_match("/^\//", $_SERVER['SCRIPT_FILENAME'])) {
        $path = $_SERVER['SCRIPT_FILENAME'];
@@ -26,5 +26,5 @@
     $core = new Core('', true, (in_array("--install", $argv) ||in_array("--generate_classlist", $argv)));
 
     $core->run_cli();
-	
+
 ?>

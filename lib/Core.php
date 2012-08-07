@@ -115,7 +115,7 @@ else {
  *
  * In a default install/behavior we DO NOT need to initialize the Core.
  *
- * Soopfw will do this for us within the default_index.php, also shell commands (drush) will initialize the core for us.
+ * Soopfw will do this for us within the default_index.php, also shell commands (clifs) will initialize the core for us.
  *
  * So do this only if you have your own standalone file.
  *
@@ -435,8 +435,8 @@ class Core {
 				echo " --" . $cmd . "\t\t" . $obj->get_description() . "\n";
 			}
 			echo "Example:\n";
-			echo "php -f drush.php -- --help\n";
-			echo "./drush.php -h\n";
+			echo "php -f clifs.php -- --help\n";
+			echo "./clifs.php -h\n";
 		}
 		//Run all provided commands
 		else {

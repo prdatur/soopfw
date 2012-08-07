@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provide cli commando (drush) to re-generate the mime type file
+ * Provide cli commando (clifs) to re-generate the mime type file
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>

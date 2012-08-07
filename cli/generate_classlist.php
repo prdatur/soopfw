@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provide cli commando (drush) to re-generate the classlist database
+ * Provide cli commando (clifs) to re-generate the classlist database
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>

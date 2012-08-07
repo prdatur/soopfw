@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provide cli commando (drush) to get the hashed value for a string
+ * Provide cli commando (clifs) to get the hashed value for a string
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
