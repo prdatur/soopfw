@@ -24,7 +24,9 @@
 
     require("lib/Core.php");
     $core = new Core('', true, (in_array("--install", $argv) ||in_array("--generate_classlist", $argv)));
+	$core->boot();
 
+	$core->session->current_user(new UserObj(1));
     $core->run_cli();
 
 ?>

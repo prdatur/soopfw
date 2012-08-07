@@ -9,6 +9,9 @@ Options -Indexes
   RewriteRule ^install$ index.php [L]
   RewriteRule "(^|/)\." - [F]
 
+  RewriteEngine   on
+  RewriteRule ^clifs$ - [R=404]
+
   # redirect all users to access the site WITH the 'www.' prefix,
   #RewriteCond %{HTTP_HOST} !^www\. [NC]
   #RewriteRule ^ http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

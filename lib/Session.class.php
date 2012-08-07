@@ -63,7 +63,9 @@ class Session extends Object
  	public function __construct(&$core = null) {
 		parent::__construct($core);
 		$this->current_user = new UserObj();
-		$this->start_session();
+		if (!defined('is_shell')) {
+			$this->start_session();
+		}
 		$login_handler = $this->core->dbconfig("system", System::CONFIG_LOGIN_HANDLER);
 
 		if(empty($login_handler) || !class_exists($login_handler)) {
@@ -102,7 +104,7 @@ class Session extends Object
 		}
 		//Unset the redirection after login session key couse we do not want to redirect to an secured url
 		$this->session->delete('redir_after_login');
-		
+
 		$this->login_handler->logout($time, $justreturn);
 
 	}

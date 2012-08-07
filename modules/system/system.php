@@ -439,8 +439,6 @@ class system extends ActionModul
 
 		if ($form->is_submitted()) {
 			$modules = array();
-			//Get all modules
-			$dir = new Dir("/modules", false); //False to set recrusive off
 			foreach ($this->core->modules AS $module) {
 				if (!$this->core->module_enabled($module)) {
 					continue;
@@ -477,24 +475,20 @@ class system extends ActionModul
 	 *   The module to be installed or updated (optional, default = 'system')
 	 * @param string $op
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
-	 * @param boolean $update
-	 *   if we only update, if set to true it will not install an unconfigured module
-	 *   (optional, default = false)
 	 */
-	public function install($module = "system", $op = '', $update = false) {
+	public function install($module = "system", $op = '') {
 
 		$this->clear_output();
 
 
 		//Check only perms if we have installed the system before (first time a fresh install will pass the perm check)
-		if ($this->core->dbconfig("system", "installed") == "1" && $this->core->module_enabled("user")) {
+		if (!defined('is_shell') && $this->core->dbconfig("system", "installed") == "1" && $this->core->module_enabled("user")) {
 			$this->session->require_login();
 			//Check perms
 			if (!$this->right_manager->has_perm("admin.system.modules")) {
 				return $this->no_permission();
 			}
 		}
-
 
 		$installed = false;
 
@@ -664,7 +658,7 @@ class system extends ActionModul
 
 						//Run the queued sql statements
 						$this->db->alter_table_queue($table);
-						$msg = "Database table already exists, or now up to date: ".$obj;
+						$msg = "DB Table already exists or now up to date: ".$obj;
 						$type = Core::MESSAGE_TYPE_SUCCESS;
 					}
 					else {

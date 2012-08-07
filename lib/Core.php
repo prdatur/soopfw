@@ -320,14 +320,12 @@ class Core {
 		if (!empty($db_default_language)) {
 			$this->default_language = strtolower($db_default_language);
 		}
+
+		//Initialize our session
+		$this->session = new Session($this);
+
 		//Only do a normal startup if we do not install the core system
 		if ($install == false) {
-
-			//Start the session only if we are not in shell mode
-			if (!$is_shell) {
-				//Initialize our session
-				$this->session = new Session($this);
-			}
 
 			//If we have not setup a language set the current language to the default language
 			if (empty($language) && empty($_SESSION['language'])) {
@@ -379,7 +377,7 @@ class Core {
 	public function boot() {
 
 		//Check if we should redirect
-		if (!empty($this->session)) {
+		if (!defined('is_shell') && !empty($this->session)) {
 			$reload_page = $this->session->get("next_load_redirect", "");
 			if (!empty($reload_page)) {
 				$this->session->set("next_load_redirect", "");
