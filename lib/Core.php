@@ -152,6 +152,12 @@ class Core {
 	const INIT_TYPE_AJAX = 'ajax';
 
 	/**
+	 * Define run modes.
+	 */
+	const RUN_MODE_DEVELOPEMENT = 'development';
+	const RUN_MODE_PRODUCTION = 'production';
+
+	/**
 	 * @var array the core config
 	 */
 	public $config;
@@ -302,6 +308,11 @@ class Core {
 		//If we want to use a database connection initialize the database object
 		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
 			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $this->config['db']['debug']);
+			if ($this->get_dbconfig("system", core::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT) == Core::RUN_MODE_PRODUCTION) {
+				error_reporting(E_ERROR);
+				ini_set('display_errors', 'off');
+				ini_set('html_errors', 'off');
+			}
 		}
 		unset($this->config['db']);
 

@@ -24,6 +24,7 @@ class system extends ActionModul
 	const CONFIG_RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key";
 	const CONFIG_RECAPTCHA_PUPLIC_KEY = "recaptcha_public_key";
 	const CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE = "default_upload_max_file_size";
+	const CONFIG_RUN_MODE = "system_run_mode";
 
 	/**
 	 * The default method
@@ -354,6 +355,10 @@ class system extends ActionModul
 		}
 		$form->add(new Selectfield(self::CONFIG_DEFAULT_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_THEME, 'standard'), t("Default theme")));
 		$form->add(new Selectfield(self::CONFIG_ADMIN_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_ADMIN_THEME, 'standard'), t("Admin theme"), t('All urls which starts with /admin will get this theme.')));
+		$form->add(new Selectfield(self::CONFIG_RUN_MODE, array(
+			Core::RUN_MODE_DEVELOPEMENT => t('Development'),
+			Core::RUN_MODE_PRODUCTION => t('Production'),
+		), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
 		global $classes;
