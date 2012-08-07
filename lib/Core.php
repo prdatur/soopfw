@@ -303,6 +303,7 @@ class Core {
 		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
 			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $this->config['db']['debug']);
 		}
+		unset($this->config['db']);
 
 		$db_default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
 		if (!empty($db_default_language)) {
