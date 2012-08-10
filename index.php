@@ -323,6 +323,9 @@
 
 		$core->add_js("/js/fileuploader.js", Core::JS_SCOPE_USER);
 		$core->add_js("/js/SoopfwPager.js", Core::JS_SCOPE_USER);
+		if(file_exists(SITEPATH . $core->smarty->get_tpl() . '/js/main.js')) {
+			$core->add_js($core->smarty->get_tpl() . '/js/main.js', Core::JS_SCOPE_USER);
+		}
 	}
 
 
