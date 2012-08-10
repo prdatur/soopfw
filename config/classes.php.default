@@ -73,7 +73,7 @@ $classes = array (
       'path' => '/modules/system/objects/MailTemplateObj.class.php',
       'extends' => 
       array (
-        0 => 'MessageTemplateObj',
+        0 => 'AbstractDataManagment',
       ),
       'implements' => 
       array (
@@ -82,17 +82,6 @@ $classes = array (
     'IPLockObj' => 
     array (
       'path' => '/modules/system/objects/IPLockObj.class.php',
-      'extends' => 
-      array (
-        0 => 'AbstractDataManagment',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'MessageTemplateObj' => 
-    array (
-      'path' => '/modules/system/objects/MessageTemplateObj.class.php',
       'extends' => 
       array (
         0 => 'AbstractDataManagment',
@@ -134,6 +123,17 @@ $classes = array (
       array (
       ),
     ),
+    'MimeTypeObj' => 
+    array (
+      'path' => '/modules/system/objects/MimeTypeObj.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'UrlAliasObj' => 
     array (
       'path' => '/modules/system/objects/UrlAliasObj.class.php',
@@ -162,6 +162,94 @@ $classes = array (
       'extends' => 
       array (
         0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'EmailTemplateSelectField' => 
+    array (
+      'path' => '/modules/system/includes/EmailTemplateSelectField.class.php',
+      'extends' => 
+      array (
+        0 => 'Selectfield',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_install_module' => 
+    array (
+      'path' => '/modules/system/cli/install_module.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_generate_smartylist' => 
+    array (
+      'path' => '/modules/system/cli/generate_smartylist.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_enable_module' => 
+    array (
+      'path' => '/modules/system/cli/enable_module.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_reindex_menu' => 
+    array (
+      'path' => '/modules/system/cli/reindex_menu.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_generate_mimetype_list' => 
+    array (
+      'path' => '/modules/system/cli/generate_mimetype_list.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_generate_classlist' => 
+    array (
+      'path' => '/modules/system/cli/generate_classlist.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_disable_module' => 
+    array (
+      'path' => '/modules/system/cli/disable_module.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
       ),
       'implements' => 
       array (
@@ -255,6 +343,17 @@ $classes = array (
       array (
       ),
     ),
+    'FieldGroupTextfield' => 
+    array (
+      'path' => '/modules/content/field_groups/FieldGroupTextfield.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractFieldGroup',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'FieldGroupText' => 
     array (
       'path' => '/modules/content/field_groups/FieldGroupText.class.php',
@@ -269,6 +368,17 @@ $classes = array (
     'FieldGroupLink' => 
     array (
       'path' => '/modules/content/field_groups/FieldGroupLink.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractFieldGroup',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FieldGroupWysiwyg' => 
+    array (
+      'path' => '/modules/content/field_groups/FieldGroupWysiwyg.class.php',
       'extends' => 
       array (
         0 => 'AbstractFieldGroup',
@@ -645,6 +755,28 @@ $classes = array (
       array (
       ),
     ),
+    'Tagfield' => 
+    array (
+      'path' => '/lib/html/inputs/Tagfield.class.php',
+      'extends' => 
+      array (
+        0 => 'Textfield',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Datefield' => 
+    array (
+      'path' => '/lib/html/inputs/Datefield.class.php',
+      'extends' => 
+      array (
+        0 => 'Textfield',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Filefield' => 
     array (
       'path' => '/lib/html/inputs/Filefield.class.php',
@@ -969,6 +1101,7 @@ $classes = array (
       'path' => '/lib/database/filter/DatabaseFilter.class.php',
       'extends' => 
       array (
+        0 => 'Object',
       ),
       'implements' => 
       array (
@@ -979,7 +1112,6 @@ $classes = array (
       'path' => '/lib/database/filter/DatabaseWhereGroup.class.php',
       'extends' => 
       array (
-        0 => 'Object',
       ),
       'implements' => 
       array (
@@ -1054,6 +1186,16 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'memcache' => 
+    array (
+      'path' => '/lib/memcache.class.php',
+      'extends' => 
+      array (
       ),
       'implements' => 
       array (
@@ -1236,6 +1378,16 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Configuration' => 
+    array (
+      'path' => '/lib/Configuration.class.php',
+      'extends' => 
+      array (
       ),
       'implements' => 
       array (
@@ -2281,34 +2433,780 @@ $classes = array (
       array (
       ),
     ),
-    'cli_generate_smartylist' => 
+    'Net_DNS2_Cache_File' => 
     array (
-      'path' => '/cli/generate_smartylist.php',
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Cache/File.php',
       'extends' => 
       array (
-        0 => 'CLICommand',
+        0 => 'Net_DNS2_Cache',
       ),
       'implements' => 
       array (
       ),
     ),
-    'cli_reindex_menu' => 
+    'Net_DNS2_Cache_Shm' => 
     array (
-      'path' => '/cli/reindex_menu.php',
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Cache/Shm.php',
       'extends' => 
       array (
-        0 => 'CLICommand',
+        0 => 'Net_DNS2_Cache',
       ),
       'implements' => 
       array (
       ),
     ),
-    'cli_generate_classlist' => 
+    'Net_DNS2_PrivateKey' => 
     array (
-      'path' => '/cli/generate_classlist.php',
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/PrivateKey.php',
       'extends' => 
       array (
-        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_DS' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/DS.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_CNAME' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/CNAME.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NSAP' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NSAP.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_URI' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/URI.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_TSIG' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/TSIG.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_X25' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/X25.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_KEY' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/KEY.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR_DNSKEY',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_KX' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/KX.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_PX' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/PX.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_APL' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/APL.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_ISDN' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/ISDN.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_ATMA' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/ATMA.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_RT' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/RT.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_CDS' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/CDS.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR_DS',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_DLV' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/DLV.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR_DS',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_AAAA' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/AAAA.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_WKS' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/WKS.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_DNAME' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/DNAME.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_SIG' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/SIG.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_A' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/A.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_PTR' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/PTR.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_ANY' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/ANY.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NSEC3PARAM' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NSEC3PARAM.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_RP' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/RP.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_MX' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/MX.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_LOC' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/LOC.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_DNSKEY' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/DNSKEY.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_HINFO' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/HINFO.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_OPT' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/OPT.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_CAA' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/CAA.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NAPTR' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NAPTR.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_RRSIG' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/RRSIG.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NSEC3' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NSEC3.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_EID' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/EID.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_TALINK' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/TALINK.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_SRV' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/SRV.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_CERT' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/CERT.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NSEC' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NSEC.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_HIP' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/HIP.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_SSHFP' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/SSHFP.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_TXT' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/TXT.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NIMLOCK' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NIMLOC.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_SOA' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/SOA.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_IPSECKEY' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/IPSECKEY.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_SPF' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/SPF.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR_TXT',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_DHCID' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/DHCID.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_TA' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/TA.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR_DS',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_NS' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/NS.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_AFSDB' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/AFSDB.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_RR_TKEY' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/RR/TKEY.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_RR',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Cache' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Cache.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Resolver' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Resolver.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_BitMap' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/BitMap.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Packet' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Packet.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Socket_Sockets' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Socket/Sockets.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_Socket',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Socket_Streams' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Socket/Streams.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_Socket',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Question' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Question.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Updater' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Updater.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Packet_Response' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Packet/Response.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_Packet',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Packet_Request' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Packet/Request.php',
+      'extends' => 
+      array (
+        0 => 'Net_DNS2_Packet',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Lookups' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Lookups.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Socket' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Socket.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Exception' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Exception.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2_Header' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2/Header.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNS2' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNS2.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Net_DNSBL' => 
+    array (
+      'path' => '/plugins/Net_DNS2-1.2.1/DNSBL.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'TTFParser' => 
+    array (
+      'path' => '/plugins/fpdf17/makefont/ttfparser.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FPDF' => 
+    array (
+      'path' => '/plugins/fpdf17/fpdf.php',
+      'extends' => 
+      array (
       ),
       'implements' => 
       array (
@@ -2317,6 +3215,13 @@ $classes = array (
   ),
   'interfaces' => 
   array (
+    'Widget' => 
+    array (
+      'path' => '/lib/interfaces/Widget.class.php',
+      'extends' => 
+      array (
+      ),
+    ),
     'LoginHandler' => 
     array (
       'path' => '/lib/interfaces/LoginHandler.class.php',
