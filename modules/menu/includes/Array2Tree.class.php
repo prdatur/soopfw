@@ -48,7 +48,7 @@ class Array2Tree {
 				//If a language prefix is within an url, remove it for active check
 				$url = preg_replace('/\/[a-z][a-z]\//i', '/', $url);
 				$check_active_link = preg_replace('/\/[a-z][a-z]\//i', '/', $entry['#link']);
-				if(($this->menu_selected == false && strtolower($url) == strtolower($check_active_link)) || (isset($entry['#always_open']) && $entry['#always_open'] == MenuEntryTranslationObj::ALWAYS_OPEN_YES)) {
+				if(($this->menu_selected == false && strtolower($url) == strtolower($check_active_link))) {
 					$entry['#active'] = true;
 					if (strtolower($url) == strtolower($check_active_link)) {
 						$entry['#active_direct'] = true;
@@ -84,7 +84,7 @@ class Array2Tree {
 
 		foreach($array AS $k => &$childs) {
 
-			if($onetime_add_all == false && $childs['parent_id']."" !== "0" && empty($childs['#active']) && !$this->check_if_a_child_is_direct_selected($array)) {
+			if($onetime_add_all == false && $childs['parent_id']."" !== "0" && empty($childs['#active']) && (!isset($childs['#always_open']) || $childs['#always_open'] != MenuEntryTranslationObj::ALWAYS_OPEN_YES) && !$this->check_if_a_child_is_direct_selected($array)) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {
@@ -102,7 +102,7 @@ class Array2Tree {
 
 		foreach($array AS $k => &$childs) {
 
-			if($skip_remove == false && !empty($childs['#active'])) {
+			if($skip_remove == false && (!empty($childs['#active']) || (isset($childs['#always_open']) && $childs['#always_open'] == MenuEntryTranslationObj::ALWAYS_OPEN_YES))) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {
@@ -138,7 +138,7 @@ class Array2Tree {
 	 */
 	private function check_if_a_child_is_active(&$array) {
 		foreach($array AS &$child) {
-			if(!empty($child['#active'])) {
+			if(!empty($child['#active']) || (isset($child['#always_open']) && $child['#always_open'] == MenuEntryTranslationObj::ALWAYS_OPEN_YES)) {
 				return true;
 			}
 		}
