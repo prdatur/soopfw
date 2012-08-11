@@ -238,7 +238,7 @@ class content extends ActionModul {
 				$content .= $content_smarty->fetch($field_group_tpl);
 			}
 		}
-		
+
 		if ($return_html == true) {
 			return $content;
 		}
@@ -588,15 +588,21 @@ class content extends ActionModul {
 		$this->lng->load_language_list('', array(), true);
 
 		$translations = $this->lng->languages;
+		$fallback = $translations;
+		unset($fallback[$this->core->current_language]);
 		foreach($translations AS $key => &$language) {
+			$from_lang = $this->core->current_language;
+			if ($key == $from_lang) {
+				$from_lang = key($fallback);
+			}
 			$language = array(
 				'language' => $language,
 				'title' => t('create translation'),
-				'link' => '/'.$key.'/content/translate/'.$page_id.'/'.$this->core->current_language
+				'link' => '/' . $key . '/admin/content/translate/' . $page_id . '/' . $from_lang
 			);
 			if(isset($already_translated[$key])) {
 				$language['title'] = $already_translated[$key]['title'];
-				$language['link'] = '/'.$key.'/content/edit/'.$page_id;
+				$language['link'] = '/'.$key.'/admin/content/edit/'.$page_id;
 			}
 		}
 
