@@ -158,7 +158,7 @@ class DatabaseFilter extends Object
 		}
 
 		$field = safe($field);
-		if (preg_match('/^[a-z_]$/', $field)) {
+		if (preg_match('/^[a-z_]+$/', $field)) {
 			$field = "`".$field."`";
 			if ($table !== NS) {
 				$field = $table . "." . $field;
@@ -359,7 +359,7 @@ class DatabaseFilter extends Object
 		}
 
 		$field = safe($field);
-		if (preg_match('/^[a-z_]$/', $field)) {
+		if (preg_match('/^[a-z_]+$/', $field)) {
 			$field = "`".$field."`";
 		}
 		$this->order_by[] = $table . $field . ' ' . $direction;
@@ -427,12 +427,9 @@ class DatabaseFilter extends Object
 		$values = $this->db->query_slave_all($this->get_select_sql(), array(), $this->limit(), $this->offset(), $array_key);
 		if ($single_row_field == true && is_array($values)) {
 			$current_first_row = current($values);
-			if (!empty($array_key)) {
-				unset($current_first_row[$array_key]);
-			}
-			if (is_array($current_first_row) && count($current_first_row) == 1) {
-				foreach($values AS $row_index => &$value) {
-					if (!empty($array_key)) {
+			if (is_array($current_first_row)) {
+				foreach($values AS &$value) {
+					if (!empty($array_key) && count($value) > 1) {
 						unset($value[$array_key]);
 					}
 					$value = current($value);
