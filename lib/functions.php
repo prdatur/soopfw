@@ -65,7 +65,7 @@ function formate_money($string, $currency) {
 
 /**
  * Rounds a given $value to the given $currency.
- * 
+ *
  * @param float $value
  *   the value to be rounded.
  * @param string $currency
@@ -558,8 +558,9 @@ function soopfw_shutdown() {
 function t($key, $args = array()) {
 	static $key_cache = array();
 	global $translation_cache, $core;
-	$key = strtolower($key);
-	$cache_key = $key."|".md5(json_encode($args));
+
+	$save_key = strtolower($key);
+	$cache_key = $save_key."|".md5(json_encode($args));
 	if(isset($key_cache[$cache_key])) {
 		return $key_cache[$cache_key];
 	}
@@ -573,12 +574,12 @@ function t($key, $args = array()) {
 	if (!empty($core->lng)) {
 
 		//Try to get the translation for the key and do replacements within language object
-		$translated = $core->lng->get($key, "", $args);
+		$translated = $core->lng->get($save_key, "", $args);
 		if (!empty($translated)) {
 			$key = $translated;
 		}
 		else {
-			$translation_cache[md5($key)] = $key;
+			$translation_cache[md5($save_key)] = $save_key;
 		}
 	}
 	if(!empty($core)) {
