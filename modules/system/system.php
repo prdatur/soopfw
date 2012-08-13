@@ -465,7 +465,7 @@ class system extends ActionModul
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
 	public function update($module = "system", $op = '') {
-		$this->install($module, $op, true);
+		$this->install($module, $op);
 	}
 
 	/**
