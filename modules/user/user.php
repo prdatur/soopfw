@@ -20,13 +20,21 @@ class user extends ActionModul
 	const CONFIG_SIGNUP_TYPE = 'signup_type';
 	const CONFIG_SIGNUP_UNIQUE_EMAIL = 'signup_unique_email';
 	const CONFIG_LOGIN_ALLOW_EMAIL = 'login_allow_email';
+	const CONFIG_LOST_PW_TYPE = 'lost_pw_type';
+	const CONFIG_LOST_PW_ONE_TIME_EXPIRE = 'lost_pw_one_time_expire';
 	const CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD = 'admin_change_customer_passsword';
 	const CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP = 'customer_confirm_signup';
 	const CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD = 'customer_signup_send_password';
+	const CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW = 'customer_lost_pw_new_pw';
+	const CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE = 'customer_lost_pw_one_time_access';
 
 
 	const SIGNUP_TYPE_CONFIRM = 'confirm';
 	const SIGNUP_TYPE_RANDOM = 'random';
+
+	const LOST_PW_TYPE_NONE = 1;
+	const LOST_PW_TYPE_RANDOM = 2;
+	const LOST_PW_TYPE_ONE_TIME_ACCESS = 3;
 	/**
 	 * Implementation of get_admin_menu()
 	 * @return array the menu
@@ -105,7 +113,19 @@ class user extends ActionModul
 			user::SIGNUP_TYPE_CONFIRM => t('User needs to confirm his account'),
 			user::SIGNUP_TYPE_RANDOM => t('User get a random password send to his email'),
 		);
-		$form->add(new Radiobuttons(self::CONFIG_SIGNUP_TYPE, $signup_types, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, user::SIGNUP_TYPE_CONFIRM), t('Signup type'), t('How the user should be verified after signup.')));
+		$form->add(new Radiobuttons(self::CONFIG_SIGNUP_TYPE, $signup_types, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, self::SIGNUP_TYPE_CONFIRM), t('Signup type'), t('How the user should be verified after signup.')));
+
+		$form->add(new Radiobuttons(self::CONFIG_LOST_PW_TYPE, array(
+			self::LOST_PW_TYPE_NONE => t('Disabled'),
+			self::LOST_PW_TYPE_RANDOM => t('Send new random password'),
+			self::LOST_PW_TYPE_ONE_TIME_ACCESS => t('One time direct access link'),
+		), $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS), t('Lost password action'), t('How the user can recovery his password.')));
+
+		$form->add(new Textfield(self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24'), t('If "@action" is set to "@value" the link expires after this time', array(
+			'@action' => t('Lost password action'),
+			'@value' => t('One time direct access link'),
+		)), t('Time is given in hours, only integers are valid')));
+
 		$form->add(new Textfield(self::CONFIG_SIGNUP_ALIAS, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_ALIAS, 'signup'), t("Alias for signup")));
 
 		$description = "";
@@ -125,6 +145,20 @@ class user extends ActionModul
 		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, ''),
 				t('Customer signup send password'),
 				t('This email will be send if a customer signup an account and instead of a confirmation link the user get a welcome mail including a random password.')));
+
+		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, ''),
+				t('Lost password mail for sending new password'),
+				t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
+					'@action' => t('Lost password action'),
+					'@value' => t('One time direct access link'),
+				))));
+
+		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, array('link', 'username', 'expires'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''),
+				t('Lost password mail for one time direct access'),
+				t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
+					'@action' => t('Send new random password'),
+					'@value' => t('One time direct access link'),
+				))));
 
 		//Add a submit button
 		$form->add(new Submitbutton("saveconfig", t("Save Config")));
@@ -155,6 +189,141 @@ class user extends ActionModul
 		}
 	}
 
+	/**
+	 * Action: list_password
+	 *
+	 * Provides the feature for a customer to recovery his password.
+	 *
+	 * @param string $id
+	 *   the unique one time action key (optional, default = "")
+	 */
+	public function lost_password($id = "") {
+		$this->core->need_ssl();
+		if ($this->session->is_logged_in()) {
+			$this->core->message(t('You are logged in, you can not recovery your password'));
+			return $this->clear_output();
+		}
+
+		if (!empty($id)) {
+
+			$err_msg = t('Invalid secret key or key is expired or one time access is disabled');
+			$one_time_access = new UserOneTimeActionObj($id);
+			if (!$one_time_access->load_success() || $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) != self::LOST_PW_TYPE_ONE_TIME_ACCESS) {
+				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
+				return $this->clear_output();
+			}
+
+			$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
+			if (TIME_NOW >= strtotime($one_time_access->date) + ((int)$expire_hours * 60)) {
+				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
+				return $this->clear_output();
+			}
+
+			$user = new UserObj($one_time_access->user_id);
+			if (!$user->load_success()) {
+				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
+				return $this->clear_output();
+			}
+			$one_time_access->delete();
+			$this->session->validate_login($user);
+			$this->core->location($this->session->get_login_handler()->get_profile_url($user));
+		}
+		else {
+			$this->static_tpl = 'form.tpl';
+
+			if ($this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) == self::LOST_PW_TYPE_NONE) {
+				$this->core->message(t('Password recovery currently disabled'), Core::MESSAGE_TYPE_NOTICE);
+				return $this->clear_output();
+			}
+			$this->title(t("Recovery password"), t('We will send you an email with additional information'));
+
+			$form = new Form('lost_password');
+			if ($this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
+				$title = t('Please enter your username or email address');
+			}
+			else {
+				$title = t('Please enter your username');
+			}
+			$form->add(new Textfield('account', '', $title), new RequiredValidator());
+
+			$form->add(new Submitbutton('submit', t('Recovery password.')));
+
+			if ($form->check_form()) {
+				$account = $form->get_value('account');
+
+				$acc = DatabaseFilter::create(UserObj::TABLE)
+					->add_column('user_id')
+					->add_where('username', $account)
+					->select_first();
+
+				if (empty($acc) && $this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
+					$acc = DatabaseFilter::create(UserAddressObj::TABLE)
+						->add_column('user_id')
+						->add_where('email', $account)
+						->select_first();
+				}
+
+
+				if (empty($acc)) {
+					return $this->core->message(t('No such account'), Core::MESSAGE_TYPE_ERROR);
+				}
+
+				$this->db->transaction_begin();
+
+				$mail = new Email();
+
+				$user_obj = new UserObj($acc['user_id']);
+
+				if ($this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) == self::LOST_PW_TYPE_RANDOM) {
+					$new_pw = generatePW(12);
+
+					$user_obj->password = $new_pw;
+
+					if ($user_obj->save()) {
+						if ($mail->send_tpl($this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, ''), $this->core->current_language, $user_obj, array(
+							'password' => $new_pw,
+							'username' => $user_obj->username,
+						))) {
+							$this->db->transaction_commit();
+							$this->core->message(t('We have send you an email with further information, please check your inbox'), Core::MESSAGE_TYPE_SUCCESS);
+							$this->clear_output();
+						}
+						else {
+							$this->db->transaction_rollback();
+							return $this->core->message(t('We could not send you the required email information, your account is left untouched.'), Core::MESSAGE_TYPE_ERROR);
+						}
+					}
+					else {
+						$this->db->transaction_rollback();
+						return $this->core->message(t('Could not generate a random password for you, please contact an administrator'), Core::MESSAGE_TYPE_ERROR);
+					}
+				}
+				else {
+					$one_time = new UserOneTimeActionObj();
+					$one_time->user_id = $acc['user_id'];
+
+					if ($one_time->insert()) {
+
+						if ($mail->send_tpl($this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''), $this->core->current_language, $user_obj, array(
+							'link' => $this->core->get_secure_url().'/user/lost_password/' . $one_time->id,
+							'username' => $user_obj->username,
+						))) {
+							$this->db->transaction_commit();
+							$this->core->message(t('We have send you an email with further information, please check your inbox'), Core::MESSAGE_TYPE_SUCCESS);
+							$this->clear_output();
+						}
+						else {
+							$this->db->transaction_rollback();
+							return $this->core->message(t('We could not send you the required email information, your account is left untouched.'), Core::MESSAGE_TYPE_ERROR);
+						}
+					}
+				}
+
+			}
+		}
+
+
+	}
 	/**
 	 * Action: signup
 	 * Allow users to self signup
@@ -811,9 +980,7 @@ class user extends ActionModul
 		$login_form->add(new Passwordfield("pass", '', t("Password")));
 		$login_form->add(new Submitbutton("soopfw_login", t("Login"), t("Login")));
 		$login_form->assign_smarty();
-
-		$this->static_tpl = "form.tpl";
-
+		$this->smarty->assign('lost_password_type', $this->core->get_dbconfig('user', self::CONFIG_LOST_PW_TYPE, self::CONFIG_LOST_PW_ONE_TIME_EXPIRE));
 		if ($login_form->check_form()) {
 			if ($this->session->validate_login($login_form->get_value("user"), $login_form->get_value("pass"))) {
 				//If a location is found, redirect the user

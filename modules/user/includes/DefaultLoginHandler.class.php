@@ -147,7 +147,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 		}
 
 		$hash_check = new PasswordHash();
-		if (!$hash_check->check_password($password, $user_obj->password)) { //Password incorrect
+		if (!$hash_check->check_password(trim($password), $user_obj->password)) { //Password incorrect
 			return false;
 		}
 

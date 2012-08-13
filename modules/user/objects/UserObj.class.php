@@ -67,14 +67,12 @@ class UserObj extends AbstractDataManagment
 	 *   If we want to save the current values also if we do not changed anything (optional, default = false)
 	 * @param boolean $crypt_pw
 	 *   Wether we want to crypt the password or not (optional, default = true)
-	 * @param boolean $isplain
-	 *   wether the current password is plain text or not (optional, default = false)
 	 *
 	 * @return boolean true on success, else false
 	 */
-	public function save($save_if_unchanged = false, $crypt_pw = true, $isplain = false) {
-		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->password))) {
-			$this->crypt_pw($isplain);
+	public function save($save_if_unchanged = false, $crypt_pw = true) {
+		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->old_values['password']))) {
+			$this->crypt_pw();
 		}
 		return parent::save($save_if_unchanged);
 	}
@@ -90,7 +88,7 @@ class UserObj extends AbstractDataManagment
 	 * @return boolean true on success, else false
 	 */
 	public function save_or_insert($crypt_pw = true, $save_if_unchanged = false) {
-		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->password))) {
+		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->old_values['password']))) {
 			$this->crypt_pw();
 		}
 		return parent::save_or_insert();
@@ -103,14 +101,12 @@ class UserObj extends AbstractDataManagment
 	 *   Don't throw an error if data is already there (optional, default=false)
 	 * @param boolean $crypt_pw
 	 *   Wether we want to crypt the password or not (optional, default = true)
-	 * @param boolean $isplain
-	 *   wether the current password is plain text or not (optional, default = false)
 	 *
 	 * @return boolean true on success, else false
 	 */
-	public function insert($ignore = false, $crypt_pw = true, $isplain = false) {
+	public function insert($ignore = false, $crypt_pw = true) {
 		if ($crypt_pw == true) {
-			$this->crypt_pw($isplain);
+			$this->crypt_pw();
 		}
 
 		if (parent::insert($ignore)) {
@@ -291,11 +287,8 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * Crypts a password, also we remove the values_changed password entry if the current password is empty
 	 * else we would set on every user change the password to an empty one.
-	 *
-	 * @param boolean $isplain
-	 *   if the current password is plaintext and must be hashed first (optional, default = false)
 	 */
-	private function crypt_pw($isplain = false) {
+	private function crypt_pw() {
 
 		if (empty($this->password)) {
 

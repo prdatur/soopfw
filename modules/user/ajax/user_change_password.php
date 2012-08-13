@@ -12,7 +12,7 @@ $params = new ParamStruct();
 $params->add_required_param("user_id", PDT_INT);
 $params->add_required_param("password", PDT_STRING);
 /**
- * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED 
+ * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED
  */
 // $params->add_isset_param("inform", PDT_BOOL, false);
 $params->fill();
@@ -27,12 +27,12 @@ $field = $params->field;
 $user_obj = new UserObj($params->user_id);
 $user_obj->password = $params->password;
 
-if ($user_obj->save(true, true, true)) {
+if ($user_obj->save(true, true)) {
 
 	//If we wanted to inform the user about the new password, send an email
-	
+
 	/**
-	 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED 
+	 * DISABLED UNTIL EMAIL TEMPLATE CONFIGURATION IS IMPLEMENTED
 	 */
 	if (false && $params->inform == true) {
 		$tpl_vals['password'] = $params->password;
