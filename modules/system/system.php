@@ -18,6 +18,7 @@ class system extends ActionModul
 	const CONFIG_DEFAULT_LANGUAGE = "default_language";
 	const CONFIG_LOGIN_HANDLER = "login_handler";
 	const CONFIG_SSL_AVAILABLE = "ssl_available";
+	const CONFIG_SECURE_DOMAIN = "ssl_domain";
 	const CONFIG_DEFAULT_PAGE = "default_page";
 	const CONFIG_DEFAULT_THEME = "default_theme";
 	const CONFIG_ADMIN_THEME = "admin_theme";
@@ -371,6 +372,7 @@ class system extends ActionModul
 
 		$form->add(new Fieldset('security', t('Security')));
 		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'yes'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
+		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
 
 
 		$form->add(new Selectfield(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->dbconfig("system", self::CONFIG_LOGIN_HANDLER), t("Login handler")));

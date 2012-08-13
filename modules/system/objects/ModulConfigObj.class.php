@@ -16,9 +16,9 @@ class ModulConfigObj extends AbstractDataManagment
 
 	/**
 	 *
-	 * @param string $modul 
+	 * @param string $modul
 	 *   the modul name (optional, default = '')
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($modul = "", $force_db = false) {
@@ -36,6 +36,24 @@ class ModulConfigObj extends AbstractDataManagment
 				return false;
 			}
 		}
+	}
+
+	/**
+	 * Save the given Data and also set the static cached variable within core.
+	 *
+	 * @param boolean $save_if_unchanged
+	 *   Save this object even if no changes to it's values were made (optional, default = false)
+	 *
+	 * @return boolean true on success, else false
+	 */
+	public function save($save_if_unchanged = false) {
+
+		if (parent::save($save_if_unchanged)) {
+			// We access for performance the values direct.
+			$this->core->module_enabled($this->values['module'], $this->values['enabled']);
+			return true;
+		}
+		return false;
 	}
 
 }

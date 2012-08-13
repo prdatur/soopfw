@@ -478,6 +478,27 @@ class Core {
 	}
 
 	/**
+	 * Returns the secured url. if ssl is not available it will get the unsecure back.
+	 *
+	 * @param boolean $strict
+	 *   if set to true it will not get back an unsecure base url if ssl is unavailable,
+	 *   instead it will return null if it can not return a valid secure url (optional, default = false)
+	 *
+	 * @return string the secure base url
+	 */
+	public function get_secure_url($strict = false) {
+		if ($this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+			return 'https://' . $this->get_dbconfig("system", system::CONFIG_SECURE_DOMAIN, $this->core_config('core', 'domain'));
+		}
+
+		if ($strict === true) {
+			return null;
+		}
+
+		return 'http://' . $this->core_config('core', 'domain');
+	}
+
+	/**
 	 * Initialize the memcached object or an equivalent wrapper
 	 *
 	 * @global boolean $memcached_use
@@ -1236,26 +1257,46 @@ class Core {
 	 *
 	 * @param string $module
 	 *   The module to be checked
+	 * @param boolean $set_value
+	 *   if value is provided it will set the cache, else it will return the
+	 *   module status, the $set_value will be used within ModulConfigObj::save
+	 *   to have the current state of the module if we changed it somewhere.
+	 *	 (optional, default = null)
 	 *
 	 * @return boolean true if enabled, else false
 	 */
-	public function module_enabled($module) {
+	public function module_enabled($module, $set_value = null) {
+		static $cache = array();
 
-		//If module is unknown, return false
-		if (!isset($this->modules[$module])) {
-			return false;
+		// Set the cached value if we provide a $set_value
+		if ($set_value !== null) {
+			$cache[$module] = $set_value;
+			return;
 		}
 
-		//Load the module config of the given $module
-		$modconfig = new ModulConfigObj($module);
+		//Check db/memcached only once.
+		if (!isset($cache[$module])) {
+			//If module is unknown, return false
+			if (!isset($this->modules[$module])) {
+				$cache[$module] = false;
+				return false;
+			}
 
-		//If module is not installed return false
-		if (!$modconfig->load_success()) {
-			return false;
+			//Load the module config of the given $module
+			$modconfig = new ModulConfigObj($module);
+
+			//If module is not installed return false
+			if (!$modconfig->load_success()) {
+				$cache[$module] = false;
+				return false;
+			}
+
+			//Set cahe if it is enabled or not
+			$cache[$module] = ($modconfig->enabled == 1);
 		}
 
-		//Return if it is enabled
-		return ($modconfig->enabled == 1);
+		//Return if it is enabled or not
+		return $cache[$module];
 	}
 
 	/**
