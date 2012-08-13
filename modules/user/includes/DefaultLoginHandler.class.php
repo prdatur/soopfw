@@ -124,9 +124,18 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	public function validate_login($username, $password) {
 		//Create the user object which will be filled if login succeed
 		$user_obj = new UserObj();
-
 		//Add the database filter to load the user based up on the username check variable
-		$user_obj->db_filter->add_where("username", $username);
+
+		if ($this->core->get_dbconfig("user", user::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
+			$where_or = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+			$user_obj->db_filter->join(UserAddressObj::TABLE, 'usr.user_id = ' . UserObj::TABLE . '.user_id', 'usr');
+			$where_or->add_where("email", $username);
+			$where_or->add_where("username", $username);
+			$user_obj->db_filter->add_where($where_or);
+		}
+		else {
+			$user_obj->db_filter->add_where("username", $username);
+		}
 		//Check if a valid user account exists
 		if (!$user_obj->load()) { //No user found
 			return false;

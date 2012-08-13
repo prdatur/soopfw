@@ -18,6 +18,8 @@ class user extends ActionModul
 	const CONFIG_SIGNUP_ALIAS = 'signup_alias';
 	const CONFIG_SIGNUP_NEED_CAPTCHA = 'signup_need_captcha';
 	const CONFIG_SIGNUP_TYPE = 'signup_type';
+	const CONFIG_SIGNUP_UNIQUE_EMAIL = 'signup_unique_email';
+	const CONFIG_LOGIN_ALLOW_EMAIL = 'login_allow_email';
 	const CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD = 'admin_change_customer_passsword';
 	const CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP = 'customer_confirm_signup';
 	const CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD = 'customer_signup_send_password';
@@ -80,6 +82,7 @@ class user extends ActionModul
 			return $this->no_permission();
 		}
 
+		$this->static_tpl = "form.tpl";
 		//Setting up title and description
 		$this->title(t("User Config"), t("Here we can configure the main system settings"));
 
@@ -95,6 +98,8 @@ class user extends ActionModul
 
 		$form->add(new YesNoSelectfield(self::CONFIG_ENABLE_REGISTRATION, $this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no'), t("Enable user signup?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_CAPTCHA, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes'), t("user signups needs captcha?")));
+		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_UNIQUE_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no'), t("Are the emails unique?")));
+		$form->add(new YesNoSelectfield(self::CONFIG_LOGIN_ALLOW_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no'), t("Allow login with email?"), t('In order to allow the email login, unique email must be set to yes')));
 
 		$signup_types = array(
 			user::SIGNUP_TYPE_CONFIRM => t('User needs to confirm his account'),
@@ -134,6 +139,10 @@ class user extends ActionModul
 		if ($form->is_submitted() && $form->is_valid()) {
 
 			$values = $form->get_values();
+			if ($values[self::CONFIG_LOGIN_ALLOW_EMAIL] == 'yes' && $values[self::CONFIG_SIGNUP_UNIQUE_EMAIL] != 'yes') {
+				return $this->core->message(t('To allow email login the "unique email" option must be activated'), Core::MESSAGE_TYPE_ERROR);
+			}
+
 			foreach ($values AS $k => $v) {
 				if ($k == self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS) {
 					$this->core->dbconfig('user', $k, $v, false, false, true);
@@ -144,7 +153,6 @@ class user extends ActionModul
 			}
 			$this->core->message(t("Configuration saved"), Core::MESSAGE_TYPE_SUCCESS);
 		}
-		$this->static_tpl = "form.tpl";
 	}
 
 	/**
@@ -186,10 +194,14 @@ class user extends ActionModul
 			);
 		}
 
-		$form->add(new Textfield('email', '', t('email'), t('Please provide your email address')), array(
+		$email_validators = array(
 			new EmailValidator(),
 			new RequiredValidator(),
-		));
+		);
+		if ($this->core->get_dbconfig("user", self::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no') == 'yes') {
+			$email_validators[] = new NotExistValidator(t('This email is already taken, please choose a different'), array(UserAddressObj::TABLE => 'email'));
+		}
+		$form->add(new Textfield('email', '', t('email'), t('Please provide your email address')), $email_validators);
 
 		if ($this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes') == 'yes') {
 			$form->add(new Captcha(t("I'm human"), t('Please verify that you are a human person.')));
