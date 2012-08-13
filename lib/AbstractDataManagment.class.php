@@ -389,9 +389,10 @@ abstract class AbstractDataManagment extends Object
 				$this->db_filter->add_where($key, $val[$index]);
 			}
 		}
+		$this->db_filter->set_table($this->db_struct->get_table());
 
 		//We must load the data from database
-		$db_values = $this->db->query_slave_first("SELECT ".$this->db_filter->get_columns()." FROM ".$this->db_struct->get_table().$this->db_filter->get_where());
+		$db_values = $this->db_filter->select_first();
 
 		//Clear the database filter
 		$this->db_filter->clear();
