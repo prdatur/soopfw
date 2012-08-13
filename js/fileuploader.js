@@ -553,7 +553,7 @@ qq.UploadButton.prototype = {
             // the right side of the input
         .css('right', 0)
         .css('top', 0)
-        .css('zIndex', 1)
+        .css('zIndex', 9998)
         .css('fontSize', '460px')
         .css('lineHeight', '516px')
         .css('margin', 0)
