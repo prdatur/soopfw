@@ -134,12 +134,11 @@ class Email extends Object
 			}
 			//Check if receiver is a User object, if so we try to get an address for that user and add the values
 			elseif ($receiver instanceof UserObj) {
-				$address = $receiver->get_addresses();
+				$address = $receiver->get_address_by_group();
 				if (empty($address)) {
 					throw new Exception("No valid address for given receiver found");
 				}
-				$address = $address[0];
-				$mail->AddAddress($address->email, $address->lastname." ".$address->firstname);
+				$mail->AddAddress($address['email']);
 			}
 			//Nothing matches so we just add it as a string
 			else {
