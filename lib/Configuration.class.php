@@ -55,9 +55,9 @@ class Configuration {
 	 * @param mixed $key
 	 *   the configuration key
 	 * @param mixed $default_value
-	 *   the default value which will be returned if the key is not set.
+	 *   the default value which will be returned if the key is not set. (optional, default = null)
 	 */
-	public function get($key, $default_value) {
+	public function get($key, $default_value = null) {
 		if (!isset($this->config[$key])) {
 			return $default_value;
 		}
@@ -92,6 +92,18 @@ class Configuration {
 			return $default_value;
 		}
 		return ($this->config[$key] === false);
+	}
+
+	/**
+	 * Returns wether the given configuration $key is set.
+	 *
+	 * @param string $key
+	 *   the configuration key.
+	 *
+	 * @return boolean true if config is set, else false
+	 */
+	public function is_set($key) {
+		return isset($this->config[$key]);
 	}
 
 	/**
