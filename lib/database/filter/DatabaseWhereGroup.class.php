@@ -125,7 +125,23 @@ class DatabaseWhereGroup
 				$k = safe($k);
 			}
 
-			if ($v['escape'] == true) {
+			if ($v['value'] instanceof DatabaseFilter) {
+				$limit_conditions = array(
+					'=' => true,
+					'!=' => true,
+					'>=' => true,
+					'<=' => true,
+					'<' => true,
+					'>' => true,
+					'LIKE' => true,
+				);
+
+				if (isset($limit_conditions[$v['condition_type']])) {
+					$v['value']->limit(1);
+				}
+				$val = '(' . $v['value']->get_select_sql() . ')';
+			}
+			else if ($v['escape'] == true) {
 				//Escape the value
 				$val = safe($v['value']);
 				// This removal of escape char is required if a % value was provided which was already escaped.
