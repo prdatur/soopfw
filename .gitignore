@@ -18,3 +18,5 @@ modules/*
 !modules/user
 !modules/system
 !modules/menu
+
+memcache.php
