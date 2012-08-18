@@ -589,7 +589,8 @@ abstract class AbstractDataManagment extends Object
 		 */
 		$filter = new DatabaseFilter();
 		foreach ($this->db_struct->get_reference_key() as $key) {
-			$filter->add_where($key, $this->old_values[$key]);
+			$search_v = (isset($this->old_values[$key])) ? $this->old_values[$key] : $this->values[$key];
+			$filter->add_where($key, $search_v);
 		}
 
 		//Save the data
