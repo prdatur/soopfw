@@ -86,7 +86,9 @@ class Pager extends Object
 	 * @param int $max_entries_per_page
 	 *   the max entries per page
 	 * @param int $entries
-	 *   the complete number of entries
+	 *   the complete number of entries,
+	 *   if not set yet we must set it before we call the assign_smarty method
+	 *   (optional, default = 0)
 	 * @param int $current_page
 	 *   the current page (optional, default = null)
 	 * @param string $link_template
@@ -94,7 +96,7 @@ class Pager extends Object
 	 * @param string $page_variable
 	 *   the page variable which will be used to determine the current page (optional, default = 'cpage')
 	 */
- 	public function __construct($max_entries_per_page, $entries, $current_page = null, $link_template = null, $page_variable = 'cpage') {
+ 	public function __construct($max_entries_per_page, $entries = 0, $current_page = null, $link_template = null, $page_variable = 'cpage') {
 		parent::__construct();
 		$this->max_entries_per_page = $max_entries_per_page;
 		$this->entries = $entries;
