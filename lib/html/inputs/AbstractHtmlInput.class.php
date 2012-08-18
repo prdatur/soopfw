@@ -567,7 +567,12 @@ abstract class AbstractHtmlInput extends Object
 
 		//Check if value_array is empty, if use $_POST
 		if (empty($value_array)) {
-			$value_array = $_POST;
+			if (!empty($_POST)) {
+				$value_array = $_POST;
+			}
+			else {
+				$value_array = $_GET;
+			}
 		}
 
 		//If search value is not an array transform it to an array
