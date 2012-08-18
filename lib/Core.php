@@ -1537,7 +1537,7 @@ class Core {
 	}
 
 	/**
-	 * This method will call all method for the specific hook.
+	 * This method will call all enabled modules for the specific hook.
 	 *
 	 * A hook is defined if a method exists hook_{hookname}
 	 *
