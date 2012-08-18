@@ -52,7 +52,7 @@ abstract class AbstractHtmlValidator extends Object
 	}
 
 	/**
-	 * Returns the error ,essage if it's invalid
+	 * Returns the error message if it's invalid
 	 *
 	 * @return string the error message
 	 */
