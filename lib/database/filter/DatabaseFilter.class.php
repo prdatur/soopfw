@@ -540,7 +540,7 @@ class DatabaseFilter extends Object
 	 *
 	 * @return string the sql string
 	 */
-	private function get_select_sql() {
+	public function get_select_sql() {
 		$table = '`' . safe($this->table) . '`';
 		if (!empty($this->alias)) {
 			$table .= ' AS ' . safe($this->alias);
