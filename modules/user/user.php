@@ -1021,12 +1021,108 @@ class user extends ActionModul
 			return false;
 		}
 
+		/**
+		 * Creating default user group.
+		 */
 		$user_group = new UserRightGroupObj();
 		$user_group->title = 'Registered users';
 		$user_group->permissions = 'admin.show_admin_menu';
 		$user_group_id = $user_group->insert();
 
 		$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array($user_group_id => $user_group_id), false, false, true);
+
+		/**
+		 * Creating default email templates
+		 */
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'admin_change_customer_password';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Password change';
+		$mail_tpl->body = "Dear {username},
+
+An administrator has changed your password.
+Your new password is:
+{password}";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, 'admin_change_customer_password');
+		}
+
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'customer_confirm_signup';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Welcome, confirmation needed';
+		$mail_tpl->body = "Dear {username},
+
+Welcome to our page.
+Your account was successfully created.
+For security, you need to confirm your account before you can use it.
+
+Click on the following link to confirm your account:
+{link}";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, 'customer_confirm_signup');
+		}
+
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'customer_signup_send_password';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Welcome';
+		$mail_tpl->body = "Dear {username},
+
+You have successfull signup to our page.
+You may now login to your account with the password below.
+You can change your password after you have logged in.
+
+Your password: {password}";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, 'customer_signup_send_password');
+		}
+
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'admin_change_customer_password';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Password change';
+		$mail_tpl->body = "Dear {username},
+
+An administrator has changed your password.
+Your new password is:
+{password}";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, 'admin_change_customer_password');
+		}
+
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'user_lost_password_random_pw';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Your new password.';
+		$mail_tpl->body = "Dear {username},
+
+You have requested to recovery your password.
+We have setup a new password for your account.
+
+Your new password: {password}";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, 'user_lost_password_random_pw');
+		}
+
+		$mail_tpl = new MailTemplateObj();
+		$mail_tpl->id = 'user_lost_password_one_time';
+		$mail_tpl->language = 'en';
+		$mail_tpl->subject = 'Recovery your password';
+		$mail_tpl->body = "Dear {username},
+
+You have requested to recovery your password.
+In order to complete this step we give you a one time login with your user account.
+Click on the link below and you will be logged in within your account where you can change your password.
+
+{link}
+
+Please aware, this link expires right after you used it. It can not be used twice.
+Also it expires after {expires} hours";
+		if ($mail_tpl->insert()) {
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, 'admin_change_customer_password');
+		}
+
 		return true;
 	}
 
