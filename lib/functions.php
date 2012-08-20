@@ -996,14 +996,23 @@ User's Browser......: " . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 			$errMsg .= "File: <b>" . $row['file'] . "</b><br>";
 			$errMsgPlain .= "File: " . $row['file'] . "\n";
 		}
+
+		$display_args = true;
+
 		$lastfile = $row['file'];
 		$errMsg .= "<b>  Line: " . $row['line'] . ": </b>";
 		$errMsgPlain .= "  Line: " . $row['line'] . ": \n";
 		if (!empty($row['class'])) {
+			if (strtolower($row['class']) == 'db' && (strtolower($row['function']) == '__construct' || strtolower($row['function']) == 'add_server')) {
+				$display_args = false;
+			}
 			$errMsg .= $row['class'] . $row['type'] . $row['function'];
 			$errMsgPlain .= $row['class'] . $row['type'] . $row['function'];
 		}
 		else {
+			if (preg_match("/mysql_.?connect/i", $row['function'])) {
+				$display_args = false;
+			}
 			$errMsg .= $row['function'];
 			$errMsgPlain .= $row['function'];
 		}
@@ -1016,8 +1025,16 @@ User's Browser......: " . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 			$errMsgPlain .= ' (Args: ';
 			$separator = '';
 			foreach ($row['args'] as $arg) {
-				$errMsg .= htmlspecialchars($separator . getArgument($arg));
-				$errMsgPlain .= $separator . getArgument($arg);
+
+				if ($display_args === true) {
+					$value = getArgument($arg);
+				}
+				else {
+					$value = '***';
+				}
+				
+				$errMsg .= htmlspecialchars($separator . $value);
+				$errMsgPlain .= $separator . $value;
 				$separator = ', ';
 			}
 			$errMsg .= ')';
