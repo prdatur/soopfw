@@ -100,7 +100,7 @@ class YuiCompressor
 		fwrite($fh, $this->string);
 
 		// start with basic command
-		$cmd = "java -Xmx32m -jar ".SITEPATH."/plugins/yuicompressor-".$this->yui_version.".jar ".$file." --charset UTF-8";
+		$cmd = "java -Xmx128m -jar ".SITEPATH."/plugins/yuicompressor-".$this->yui_version.".jar ".$file." --charset UTF-8";
 
 		// set the file type
 		$cmd .= " --type ".(strtolower($type) == "css" ? "css" : "js");
