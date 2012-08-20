@@ -864,42 +864,43 @@ class Core {
 
 					//Get the menu
 					$menu_array = $obj->menu();
+					if (!empty($menu_array) && is_array($menu_array)) {
+						//Loop through the menu entries
+						foreach ($menu_array AS $alias => $data) {
 
-					//Loop through the menu entries
-					foreach ($menu_array AS $alias => $data) {
-
-						//the array does not have a menu key, continue
-						if (empty($data['menu'])) {
-							continue;
-						}
-
-						//Transform a non array menu into an array
-						if (!is_array($data['menu'])) {
-							$data['menu'] = array($data['menu']);
-						}
-
-						//Setup the alias object with the menu values
-						$alias_obj = new UrlAliasObj();
-						$alias_obj->alias = $alias;
-						$alias_obj->type = 'module_menu';
-						if (isset($data['#perm'])) {
-							$alias_obj->perm = $data['#perm'];
-						}
-						if (count($data['menu']) > 1) {
-							$alias_obj->module = $data['menu'][0];
-							$alias_obj->action = $data['menu'][1];
-							unset($data['menu'][0]);
-							unset($data['menu'][1]);
-							if (!empty($data['menu'])) {
-								$alias_obj->params = json_encode($data['menu']);
+							//the array does not have a menu key, continue
+							if (empty($data['menu'])) {
+								continue;
 							}
-						}
-						else {
-							$alias_obj->module = $module;
-							$alias_obj->action = $data['menu'][0];
-						}
 
-						$alias_obj->insert();
+							//Transform a non array menu into an array
+							if (!is_array($data['menu'])) {
+								$data['menu'] = array($data['menu']);
+							}
+
+							//Setup the alias object with the menu values
+							$alias_obj = new UrlAliasObj();
+							$alias_obj->alias = $alias;
+							$alias_obj->type = 'module_menu';
+							if (isset($data['#perm'])) {
+								$alias_obj->perm = $data['#perm'];
+							}
+							if (count($data['menu']) > 1) {
+								$alias_obj->module = $data['menu'][0];
+								$alias_obj->action = $data['menu'][1];
+								unset($data['menu'][0]);
+								unset($data['menu'][1]);
+								if (!empty($data['menu'])) {
+									$alias_obj->params = json_encode($data['menu']);
+								}
+							}
+							else {
+								$alias_obj->module = $module;
+								$alias_obj->action = $data['menu'][0];
+							}
+
+							$alias_obj->insert();
+						}
 					}
 				}
 			}
