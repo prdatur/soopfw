@@ -253,20 +253,20 @@ class MainFileObj extends AbstractDataManagment
 		}
 
 		//Set http headers
-		header("Expires: ".gmdate("D, d M Y H:i:s", time() + (60 * 60 * 24))." GMT+1");
-		header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT+1");
-		header("Content-Length: ".filesize($file));
+		header("Expires: " . gmdate("D, d M Y H:i:s", time() + (60 * 60 * 24)) . " GMT+1");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s")." GMT+1");
+		header("Content-Length: " . filesize($file));
 
 		if (!isset($this->plain_text_extensions[$this->extension])) {
 			header("Content-Transfer-Encoding: binary");
-			$content_type = "application/".$this->extension;
+			$content_type = "application/" . $this->extension;
 
 			$obj = new MimeTypeObj($this->extension);
 			if ($obj->load_success()) {
 				$content_type = $obj->mime_type;
 			}
-			header("Content-type: ".$content_type."\n");
-			header("Content-Disposition: attachment; filename=\"".$this->filename."\";\n\n");
+			header("Content-type: " . $content_type . "\n");
+			header("Content-Disposition: attachment; filename=\"" . $this->filename . "\";\n\n");
 		}
 		else {
 			header("Content-type: " . $this->plain_text_extensions[$this->extension] . "\n");
@@ -306,7 +306,7 @@ class MainFileObj extends AbstractDataManagment
 	public function get_free_path() {
 
 		//Get the director for this file
-		$path = dirname($this->get_path())."/";
+		$path = dirname($this->get_path()) . "/";
 		$i = 0;
 		//Get the filename of the file
 		$filename = $this->filename;
@@ -315,7 +315,7 @@ class MainFileObj extends AbstractDataManagment
 		while (file_exists($path.$this->filename)) {
 
 			//Increment
-			$this->filename = $i++."-".$filename;
+			$this->filename = $i++ . "-" . $filename;
 		}
 		return $path.$this->filename;
 	}
@@ -329,11 +329,20 @@ class MainFileObj extends AbstractDataManagment
 	 * @return string the path
 	 */
 	public function get_path($without_sitepath = false) {
-		$path = "/uploads/".self::TYPE."/".$this->filename;
+		$path = "/uploads/" . self::TYPE . "/" . $this->filename;
 		if ($without_sitepath == false) {
-			$path = SITEPATH.$path;
+			$path = SITEPATH . $path;
 		}
 		return $path;
+	}
+
+	/**
+	 * Returns the path where we can "view" or "download" the file.
+	 *
+	 * @return string the path where we can view the file
+	 */
+	public function get_view_path() {
+		return $this->get_path(true);
 	}
 
 	/**

@@ -11,11 +11,6 @@ $params->add_param("fid", PDT_INT, 0);
 
 $params->fill();
 
-$get_params = new ParamStruct();
-$get_params->add_param("file_type", PDT_STRING, 'mainfile');
-
-$get_params->fill(ParamStruct::FILL_FROM_GET);
-
 //If we provided a file id it determines that we want to delete it. so do it.
 if (!empty($params->fid)) {
 
@@ -34,7 +29,6 @@ $allowed_extensions = array();
 $uploader = new qqFileUploader();
 
 $file_obj = new MainFileObj();
-$file_obj->type = $get_params->file_type;
 $result = $uploader->handle_upload($file_obj);
 if ($result !== AjaxModul::SUCCESS) {
 	$message = "";
@@ -48,7 +42,7 @@ if ($result !== AjaxModul::SUCCESS) {
 		case qqFileUploader::STATUS_INVALID_EXTENSION:
 			$message = t("File has an invalid extension, it should be one of @allowed_extensions.", array(
 				'@allowed_extensions' => implode(", ", $allowed_extensions)
-				));
+			));
 			break;
 		case qqFileUploader::STATUS_NOT_WRITEABLE:
 			$message = t("Server error. Upload directory isn't writable.");
