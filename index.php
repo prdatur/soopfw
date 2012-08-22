@@ -172,6 +172,14 @@
 				$module->clear_output();
 				aborting_loading();
 			}
+
+			// Prevent direct calling a hook method.
+			if (preg_match("/^hook_/", $module->action)) {
+				assign_default_js_css($core);
+				$module->wrong_params();
+				aborting_loading();
+			}
+
 			//Get the calling class method
 			$method = new ReflectionMethod($module, $module->action);
 
