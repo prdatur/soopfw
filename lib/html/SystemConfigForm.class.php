@@ -68,6 +68,9 @@ class SystemConfigForm extends Form
 		if ($this->is_submitted() && $this->is_valid()) {
 			//Save values on valid form
 			foreach ($this->get_values() AS $k => $v) {
+				if ($this->elements[self::ELEMENT_SCOPE_VISIBLE][$k] instanceof Fieldset) {
+					continue;
+				}
 				$this->core->dbconfig($this->action_module->modulname, $k, $v);
 			}
 
