@@ -713,8 +713,10 @@ class Core {
 
 				$return = array();
 				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
-					if ($serialize === true) {
-						$v['value'] = json_decode($v['value'], true);
+
+					$json_test = json_decode($v['value'], true);
+					if ($serialize === true || !empty($json_test)) {
+						$v['value'] = $json_test;
 					}
 					$return[$v['key']] = $v['value'];
 				}
@@ -742,8 +744,10 @@ class Core {
 
 			if (!empty($rows)) {
 				foreach ($rows AS $row) {
-					if ($serialize === true) {
-						$row['value'] = json_decode($row['value'], true);
+
+					$json_test = json_decode($row['value'], true);
+					if ($serialize === true || !empty($json_test)) {
+						$row['value'] = $json_test;
 					}
 					$return[$row['key']] = $row['value'];
 				}
@@ -766,7 +770,7 @@ class Core {
 			return $return;
 		}
 
-		if ($serialize === true) {
+		if ($serialize === true || !is_scalar($value)) {
 			$value = json_encode($value);
 		}
 
@@ -1004,7 +1008,7 @@ class Core {
 		/**
 		 * Provides hook: alter_menu
 		 *
-		 * Allow other modules to alter the menu entries for the menu id		 *
+		 * Allow other modules to alter the menu entries for the menu id
 		 *
 		 * The returning array will just merged, so we can not remove other
 		 * menu entries.
