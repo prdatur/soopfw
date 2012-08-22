@@ -19,6 +19,8 @@ class user extends ActionModul
 	const CONFIG_SIGNUP_NEED_CAPTCHA = 'signup_need_captcha';
 	const CONFIG_SIGNUP_TYPE = 'signup_type';
 	const CONFIG_SIGNUP_UNIQUE_EMAIL = 'signup_unique_email';
+	const CONFIG_LOGIN_PING = 'login_ping';
+	const CONFIG_INACTIVE_LOGOUT_TIME = 'login_default_logout_time';
 	const CONFIG_LOGIN_ALLOW_EMAIL = 'login_allow_email';
 	const CONFIG_LOST_PW_TYPE = 'lost_pw_type';
 	const CONFIG_LOST_PW_ONE_TIME_EXPIRE = 'lost_pw_one_time_expire';
@@ -81,6 +83,21 @@ class user extends ActionModul
 	}
 
 	/**
+	 * Implements hook_core_assign_default_vars().
+	 */
+	public function hook_core_assign_default_vars() {
+		if ($this->session->is_logged_in()) {
+			if ($this->core->get_dbconfig("user", self::CONFIG_LOGIN_PING, 'no') == 'yes') {
+				
+				// Load the ping javascript and setup ping timeout interval to prevent a logout while staying on the page inactive.
+				$logout_time = (int)($this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60) * 0.75);
+				$this->core->js_config('user_ping_time', $logout_time);
+				$this->core->add_js('/modules/user/js/ping.js');
+			}
+		}
+	}
+
+	/**
 	 * Action: config
 	 * Configurate the system main settings.
 	 */
@@ -104,6 +121,15 @@ class user extends ActionModul
 		}
 		$form->add(new Checkboxes(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $values, $this->core->get_dbconfig("user", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true), t('Default user groups'), t('The above selected groups will be automaticly assigned to newly created / registered users.')));
 
+		$form->add(new YesNoSelectfield(
+			self::CONFIG_LOGIN_PING,
+			$this->core->get_dbconfig("user", self::CONFIG_LOGIN_PING, 'no'),
+			t("Enable ping?"),
+			t('If enabled an ajax request will be executed sequently to prevent a logout timeout, the time will be the 3/4 of the time which is configured by "@config"', array(
+				'@config' => t('Default logout time while inactive'),
+			))
+		));
+		$form->add(new Textfield(self::CONFIG_INACTIVE_LOGOUT_TIME, (int)$this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60), t("Default logout time while inactive"), t('Value is in minutes')));
 		$form->add(new YesNoSelectfield(self::CONFIG_ENABLE_REGISTRATION, $this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no'), t("Enable user signup?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_CAPTCHA, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes'), t("user signups needs captcha?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_UNIQUE_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no'), t("Are the emails unique?")));

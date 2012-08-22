@@ -143,8 +143,12 @@ class Session extends Object
 		//Pre assign the loggedin to 0 (not logged in)
 		$this->smarty->assign("loggedin", "0");
 
+		$timeout_value = $this->core->get_dbconfig("user", user::CONFIG_INACTIVE_LOGOUT_TIME, 60);
 		//Remove all old session entries which are not available anymore
-		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE DATE_ADD(`date`, INTERVAL 60 MINUTE) <= @data", array("@data" => date(DB_DATETIME, TIME_NOW)));
+		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE DATE_ADD(`date`, INTERVAL iminutes MINUTE) <= @data", array(
+			"@data" => date(DB_DATETIME, TIME_NOW),
+			'iminutes' => $timeout_value,
+		));
 
 		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the reditAfterLogin session variable
 		//This variable will be used to redirect the user to this page after successfully login
