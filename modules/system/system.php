@@ -325,7 +325,7 @@ class system extends ActionModul
 
 		$form->add(new Fieldset('performance', t('Performance')));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
-			new FunctionValidator(t('Can not finde java, javascript cache can not be enabled, you need to install java first'), function($value) {
+			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
 					return (shell_exec('which java') !== null);
 				}
@@ -333,7 +333,7 @@ class system extends ActionModul
 			})
 		));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_JS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_JS, 'no'), t("Enable javascript cache?")), array(
-			new FunctionValidator(t('Can not finde java, javascript cache can not be enabled, you need to install java first'), function($value) {
+			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
 					return (shell_exec('which java') !== null);
 				}

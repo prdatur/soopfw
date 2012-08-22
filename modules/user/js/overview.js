@@ -30,12 +30,10 @@ Soopfw.behaviors.user_admin_overview = function() {
 	$("#add_user").unbind("click");
 	$("#add_user").click(function() {
 		add_user_id = Soopfw.default_action_dialog(Soopfw.t("Add user"), 'user', 'add_user');
-		console.log(add_user_id);
 	});
 
 	$("#form_id_form_add_user_btn_cancel").unbind("click");
 	$("#form_id_form_add_user_btn_cancel").click(function() {
-		console.log(add_user_id);
 		$("#"+add_user_id).dialog("destroy");
 		$("#"+add_user_id).remove();
 	});
