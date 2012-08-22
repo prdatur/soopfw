@@ -20,3 +20,6 @@ modules/*
 !modules/menu
 
 memcache.php
+
+sitemap.xml
+sitemap.xml.gz
