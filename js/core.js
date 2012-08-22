@@ -325,7 +325,8 @@ Soopfw.system_footer_behaviour = function() {
 
 	editor_styles.push(Soopfw.config.template_path+'/css/jquery.sceditor.overrides.css');
 	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').sceditorBBCodePlugin({
-		style: editor_styles
+		style: editor_styles,
+		height: 300
 	});
 	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').addClass("soopfw-proccessed");
 
