@@ -178,7 +178,7 @@ class ActionModul extends Object
 		$trace = debug_backtrace();
 		array_shift($trace);
 		$caller = array_shift($trace); //Get second stack trace
-		unset($trace); //free memory
+
 		//If system/install calls this method return that everything worked well
 		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install_module") {
 			return true;
@@ -191,6 +191,12 @@ class ActionModul extends Object
 		if (empty($caller['file'])) {
 			return false;
 		}
+
+		//Get third stack trace (if we have a trace left the module implemented install so get the real trace.)
+		if (count($trace) > 0) {
+				$caller = array_shift($trace);
+		}
+		unset($trace); //free memory
 
 		//only if file is system.php and caller method is install allow processing with install
 		if (SITEPATH."/modules/system/system.php" == $caller['file'] && $caller['function'] == "install_module") {
