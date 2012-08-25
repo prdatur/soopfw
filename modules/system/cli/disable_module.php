@@ -23,7 +23,7 @@ class cli_disable_module extends CLICommand
 	 */
 	public function execute() {
 		global $argv;
-		
+
 		unset($argv[0]);
 		$module = "";
 		foreach ($argv AS $param) {
@@ -43,6 +43,32 @@ class cli_disable_module extends CLICommand
 			return false;
 		}
 
+		$system_helper = new SystemHelper();
+		$dependencies = $system_helper->get_dependet_modules($module, true, SystemHelper::DEPENDENCY_FILTER_ENABLED);
+		if (!empty($dependencies)) {
+			$msg = t("The following module depends on the module you want to disabled, they will be also enabled/installed") . "\n";
+			foreach ($dependencies AS $mod) {
+				$msg .= " - " . $mod['name']. "\n   (" . $mod['description'] . ")\n";
+			}
+			echo $msg . "\n";
+			if (!get_boolean_input(t("Proceed with module disabling?"))) {
+				consoleLog(t('Module disabling aborted'), 'ok');
+				return false;
+			}
+		}
+
+		if (!empty($dependencies)) {
+			foreach ($dependencies AS $mod => $val) {
+				$dep_module_conf = new ModulConfigObj($mod);
+				if (!$dep_module_conf->load_success()) {
+					continue;
+				}
+				$dep_module_conf->enabled = 0;
+				$dep_module_conf->save();
+				consoleLog(t('Module "@module" disabled', array("@module" => $val['name'])), 'ok');
+			}
+		}
+
 		$module_conf->enabled = 0;
 		$module_conf->save();
 		return true;
@@ -53,7 +79,7 @@ class cli_disable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Module enabled.', 'ok');
+		consoleLog('Module disabled.', 'ok');
 	}
 
 }

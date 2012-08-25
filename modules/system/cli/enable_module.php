@@ -23,7 +23,7 @@ class cli_enable_module extends CLICommand
 	 */
 	public function execute() {
 		global $argv;
-		
+
 		unset($argv[0]);
 		$module = "";
 		foreach ($argv AS $param) {
@@ -37,14 +37,30 @@ class cli_enable_module extends CLICommand
 			consoleLog('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user', Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
-		$module_conf = new ModulConfigObj($module);
-		if (!$module_conf->load_success()) {
-			consoleLog('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
-			return false;
+
+		$system_helper = new SystemHelper();
+		$dependencies = $system_helper->get_module_dependencies($module, true, true, SystemHelper::DEPENDENCY_FILTER_DISABLED);
+		if (!empty($dependencies)) {
+			$msg = t("The module depends on the following modules, they will be also enabled/installed") . "\n";
+			foreach ($dependencies AS $mod) {
+				$msg .= " - " . $mod['name']. "\n   (" . $mod['description'] . ")\n";
+			}
+			echo $msg . "\n";
+			if (!get_boolean_input(t("Proceed with module installation?"))) {
+				consoleLog(t('Module installation aborted'), 'ok');
+				return false;
+			}
 		}
 
-		$module_conf->enabled = 1;
-		$module_conf->save();
+		$system = new system();
+		if (!empty($dependencies)) {
+			foreach ($dependencies AS $mod => $val) {
+				$system->install_module($mod);
+				consoleLog(t('Module "@module" enabled', array("@module" => $val['name'])), 'ok');
+			}
+		}
+
+		$system->install_module($module);
 		return true;
 	}
 

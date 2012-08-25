@@ -70,6 +70,10 @@ class SystemHelper extends Object {
 			}
 		}
 
+		foreach ($modules AS $mod => &$val) {
+			$val = parse_ini_file(SITEPATH . '/modules/' . $mod . '/' . $mod . '.info');
+		}
+
 		return $modules;
 	}
 
@@ -142,6 +146,7 @@ class SystemHelper extends Object {
 			if (!file_exists(SITEPATH . '/modules/' . $dependency. '/' . $dependency . '.info')) {
 				$results[$dependency] = array(
 					'name' => $dependency,
+					'description' => '-',
 					'state' => self::DEPENDENCY_UNAVAILABLE
 				);
 				continue;
@@ -154,6 +159,7 @@ class SystemHelper extends Object {
 			if ($dependency === 'system') {
 				$results[$dependency] = array(
 					'name' => $info_depends['name'],
+					'description' => $info_depends['description'],
 					'state' => self::DEPENDENCY_ENABLED
 				);
 				continue;
@@ -161,6 +167,7 @@ class SystemHelper extends Object {
 
 			$value = array(
 				'name' => $info_depends['name'],
+				'description' => $info_depends['description'],
 			);
 
 			// Check if module is enabled.

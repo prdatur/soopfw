@@ -8,7 +8,7 @@
 		<%t key='The following modules depends on the current module you want to disable, they will be also disabled.'%>
 		<ul>
 		<%foreach $dependencies AS $dependency => $value%>
-			<li><%$value%></li>
+			<li><%$value.name%><br />(<%$value.description%>)</li>
 		<%/foreach%>
 		</ul>
 	</div>
