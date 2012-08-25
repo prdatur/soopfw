@@ -1745,7 +1745,7 @@ class Core {
 
 				//If the modified file times equals the cached file is up to date, so we can skip this scope
 				if ($scope_latest_modified_file == $cache_last_modified) {
-					$this->css_files = array($cache_file_path);
+					$this->css_files = array($cache_file_path . '?' . $cache_last_modified);
 					$cache_css_file = false;
 				}
 			}
@@ -1795,7 +1795,7 @@ class Core {
 				touch(SITEPATH . $cache_file_path, $scope_latest_modified_file);
 
 				//set the cache file to be loaded instead of the original not compressed one.
-				$this->css_files = array($cache_file_path);
+				$this->css_files = array($cache_file_path . '?' . $scope_latest_modified_file);
 			}
 		}
 
@@ -1859,7 +1859,7 @@ class Core {
 
 					//If the modified file times equals the cached file is up to date, so we can skip this scope
 					if ($scope_latest_modified_file == $cache_last_modified) {
-						$this->js_files[$scope] = array($cache_file_path);
+						$this->js_files[$scope] = array($cache_file_path . '?' . $scope_latest_modified_file);
 						continue;
 					}
 				}
@@ -1885,7 +1885,7 @@ class Core {
 
 				//set the cache file to be loaded instead of the original not compressed one.
 				$files_to_add[] = $cache_file_path;
-				$this->js_files[$scope] = array($cache_file_path);
+				$this->js_files[$scope] = array($cache_file_path . '?' . $scope_latest_modified_file);
 			}
 		}
 	}
