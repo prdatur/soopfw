@@ -89,6 +89,8 @@ class YuiCompressor
 		//Get all contents from added files
 		foreach ($this->files as $file) {
 			$this->string .= file_get_contents($file) or die("Cannot read from uploaded file");
+			$this->string .= "\n";
+
 		}
 
 		// create single file from all input
