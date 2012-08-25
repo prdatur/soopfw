@@ -1,5 +1,7 @@
-; Configuration of Translation modul
+;Information
 version = 1
+name = "Translation"
+description = "Allows multi language handling"
 
 ;Define rights
 rights[] = "admin.translate"

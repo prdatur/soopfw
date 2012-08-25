@@ -33,6 +33,7 @@ table.ui-widget .ui-widget-header td {
 	color: #fefefe;
 }
 
+table.ui-widget-content tbody tr:nth-child(odd):hover td,
 table.ui-widget-content tbody tr:hover td {
 	background: url("../images/ui-bg_highlight-soft_80_eeeeee_1x100.png") repeat scroll 50% 50% #DDDDD4;
 	color: #4e4e4e;
@@ -40,6 +41,11 @@ table.ui-widget-content tbody tr:hover td {
 
 table.ui-widget-content tbody tr td {
 	background: url("../images/ui-bg_carbon-fiber_25_ffffff_8x9.png") repeat scroll 50% 50% #dfdfdf;
+}
+
+table.ui-widget-content tbody tr:nth-child(odd) td {
+	background-image: none;
+	background-color: #fafafa;
 }
 
 table.ui-widget-content td {

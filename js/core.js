@@ -128,7 +128,7 @@ $.extend(Soopfw, {
 	 */
 	ajax_queue_worker: function(identifier) {
 		if(!empty(soopfw_ajax_queue[identifier])) {
-			var o = soopfw_ajax_queue[identifier].pop();
+			var o = soopfw_ajax_queue[identifier].shift();
 			if(o == undefined) {
 				return;
 			}

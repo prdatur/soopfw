@@ -161,8 +161,8 @@ class soopfw_install {
 		$core = new Core('', true);
 		$core->boot();
 		$system = new system($core);
-		$system->install();
-		$system->install('user');
+		$system->install_module();
+		$system->install_module('user');
 
 		foreach($_SESSION['message'] AS $type => $messages) {
 			foreach($messages AS $message) {
@@ -200,7 +200,7 @@ class soopfw_install {
 		require SITEPATH . '/config/generate_mimetype_list.php';
 		$mime_type_cli = new cli_generate_mimetype_list();
 		$mime_type_cli->execute();
-		
+
 		$core->dbconfig("system", "installed", "1");
 
 		consoleLog('Soopfw is now installed. You can no navigate to http://'.$this->config['core']['domain'].'/user/login', 'ok');

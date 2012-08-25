@@ -281,6 +281,13 @@ class Core {
 	public $mime_types = array();
 
 	/**
+	 * Holds all modules.
+	 *
+	 * @var array
+	 */
+	public $modules = array();
+
+	/**
 	 * Constructor which reads configs, and setting up Database connection and creating an empty language  object
 	 * if $install is set to true it will no objects will be created, if $is_shell is set to true smarty will not be initialized,
 	 * also no session will be started
@@ -1072,13 +1079,24 @@ class Core {
 		$this->js_config("current_language", $this->current_language);
 
 		//Assign meta object
-		$this->smarty->assign_by_ref("meta", $this->meta);
+		if (!empty($this->meta)) {
+			$this->smarty->assign_by_ref("meta", $this->meta);
+		}
 
 		//Read out all previous setup messages and reset the session message array
 		$messages = array();
 
 		if (!empty($_SESSION['message'])) {
-			$messages = $_SESSION['message'];
+			$messages = array();
+			if (isset($_SESSION['message']['error'])) {
+				$messages['error'] = $_SESSION['message']['error'];
+			}
+			if (isset($_SESSION['message']['information'])) {
+				$messages['information'] = $_SESSION['message']['information'];
+			}
+			if (isset($_SESSION['message']['success'])) {
+				$messages['success'] = $_SESSION['message']['success'];
+			}
 			$_SESSION['message'] = array();
 		}
 		//Assign the messages
@@ -1273,6 +1291,9 @@ class Core {
 	public function module_enabled($module, $set_value = null) {
 		static $cache = array();
 
+		if ($module === 'system') {
+			return true;
+		}
 		// Set the cached value if we provide a $set_value
 		if ($set_value !== null) {
 			$cache[$module] = $set_value;

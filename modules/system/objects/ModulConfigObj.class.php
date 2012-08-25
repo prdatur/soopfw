@@ -50,7 +50,7 @@ class ModulConfigObj extends AbstractDataManagment
 
 		if (parent::save($save_if_unchanged)) {
 			// We access for performance the values direct.
-			$this->core->module_enabled($this->values['module'], $this->values['enabled']);
+			$this->core->module_enabled($this->values['modul'], $this->values['enabled']);
 			return true;
 		}
 		return false;

@@ -40,31 +40,31 @@ class Meta implements Iterator {
 	/**
 	 * Set the given meta key if it is a valid one
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The type, use one of the class consts
-	 * @param string $value 
+	 * @param string $value
 	 *   the value to be set
 	 */
 	function __set($name, $value) {
-		if(defined('self::'.$name)) {
-			$this->values = $value;
+		if(defined('self::'.strtoupper($name))) {
+			$this->values[strtoupper($name)] = $value;
 		}
 	}
 
 	/**
 	 * Get the given meta key if it is a valid one
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   The type, use one of the class consts
-	 * 
+	 *
 	 * @return string returns the value, if value was not set return an empty string or null if it is not a valid meta key
 	 */
 	function __get($name) {
 		//Only return the value if it is a valid meta key
-		if(defined('self::'.$name)) {
+		if(defined('self::'.strtoupper($name))) {
 			//Return the value if we had set it before, else we return an empty string
-			if(isset($this->values[$name])) {
-				return $this->values[$name];
+			if(isset($this->values[strtoupper($name)])) {
+				return $this->values[strtoupper($name)];
 			}
 			return "";
 		}
@@ -83,7 +83,7 @@ class Meta implements Iterator {
 
 	/**
 	 * Returns true if the current position do not exceed the array maximum values
-	 * 
+	 *
 	 * @return boolean true if valid, else false
 	 */
 	public function valid() {
@@ -100,7 +100,7 @@ class Meta implements Iterator {
 
 	/**
 	 * Returns the current key
-	 * 
+	 *
 	 * @return string the key
 	 */
 	public function key() {
@@ -109,7 +109,7 @@ class Meta implements Iterator {
 
 	/**
 	 * Returns the current value
-	 * 
+	 *
 	 * @return string the current element
 	 */
 	public function current() {

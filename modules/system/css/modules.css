@@ -1,0 +1,42 @@
+
+.module_info span {
+	font-weight: bold;
+}
+
+.module_description {
+	font-size: 10px;
+	font-style: italic;
+}
+
+.dependency_unavailable {
+	font-weight: bold;
+	text-decoration: line-through;
+}
+
+.dependency_enabled {
+	color: #208240;
+}
+
+.dependency_disabled {
+	color: #822920;
+}
+
+#status_icon_legend div > *{
+	vertical-align: middle;
+}
+
+#status_icon_legend > div > span {
+	margin-left: 7px;
+}
+
+#status_icon_legend > div {
+	margin-bottom: 5px;
+}
+
+#depends_on {
+	margin-top: 10px;
+}
+
+#depends_on li {
+	font-weight: bold;
+}

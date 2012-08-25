@@ -1,5 +1,7 @@
-; Configuration of System-Module
+;Information
 version = 1
+name = "System"
+description = "Main system module"
 
 ;Define rights
 rights[] = "admin.system.view_admin_menu"

@@ -95,6 +95,53 @@ class system extends ActionModul
 	}
 
 	/**
+	 * Action: precheck_module_state
+	 *
+	 * Displays a confirm dialog to active/deactivate the given module.
+	 * If dependency problems exist, display what to do.
+	 *
+	 * @param string $module
+	 *   the module name
+	 */
+	public function precheck_module_state($module) {
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.system.modules", true)) {
+			AjaxModul::return_code(AjaxModul::ERROR_NOT_LOGGEDIN);
+		}
+
+		if (empty($module) || !file_exists(SITEPATH . '/modules/' . $module . '/' . $module . '.info')) {
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
+		}
+
+		$info = parse_ini_file(SITEPATH . '/modules/' . $module . '/' . $module . '.info');
+		if (empty($module)) {
+			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER);
+		}
+
+		$system_helper = new SystemHelper();
+
+		$this->smarty->assign_by_ref('moduleinfo', $info);
+
+		if ($this->core->module_enabled($module)) {
+			$this->title(t('Disable module: @module', array('@module' => $module)));
+			$this->static_tpl = $this->module_tpl_dir. '/precheck_module_state_disable.tpl';
+
+			$dependencies = $system_helper->get_dependet_modules($module, true, SystemHelper::DEPENDENCY_FILTER_ENABLED);
+			$this->core->js_config('system_disable_dependencies', array_keys($dependencies));
+			$this->smarty->assign_by_ref('dependencies', $dependencies);
+		}
+		else {
+			$this->title(t('Enable module: @module', array('@module' => $module)));
+			$this->static_tpl = $this->module_tpl_dir. '/precheck_module_state_enable.tpl';
+			$dependencies = $system_helper->get_module_dependencies($module, true, true, SystemHelper::DEPENDENCY_FILTER_DISABLED);
+			$this->core->js_config('system_enable_dependencies', array_keys($dependencies));
+			$this->smarty->assign_by_ref('dependencies', $dependencies);
+		}
+
+
+	}
+
+	/**
 	 * Action: email_templates
 	 *
 	 * Configurate the email templates
@@ -400,25 +447,39 @@ class system extends ActionModul
 
 		//Set title
 		$this->title(t("Modul config"), t("Here you can enable or disable modules.
-			A [b]disabled[/b] module can not be accessed anymore, also menu items will not be displayed"));
+			A [b]disabled[/b] module can not be accessed anymore, also menu items will not be displayed.
+			To enable or disable a module please click on the status icon."));
 		$modules = array();
+
+		$helper = new SystemHelper();
 
 		//Loop through all available modules (from core dir scanning)
 		foreach ($this->core->modules AS $module) {
-			//skip system module couse we can not change anything there
-			if ($module == "system") {
-				continue;
-			}
-
 			//Try to load the module config object, if not found set it to disabled
 			$mobj = new ModulConfigObj($module);
 			if (!$mobj->load_success()) {
 				$mobj->modul = $module;
 				$mobj->enabled = false;
+				$db_version = "-";
+			}
+			else {
+				$db_version = $mobj->current_version-1;
+			}
+
+			$info = parse_ini_file(SITEPATH . '/modules/' . $module . '/' . $module . '.info');
+			$info['obj'] = $mobj;
+			$info['dependencies'] = $helper->get_module_dependencies($module);
+			$info['current_version'] = $db_version;
+
+			foreach ($info['dependencies'] AS $dependency) {
+				if ($dependency['state'] === SystemHelper::DEPENDENCY_UNAVAILABLE) {
+					$info['not_installable'] = true;
+					break;
+				}
 			}
 
 			//Add the module to the list
-			$modules[] = $mobj;
+			$modules[] = $info;
 		}
 
 		//Smarty assign
@@ -455,7 +516,7 @@ class system extends ActionModul
 	}
 
 	/**
-	 * Action: update
+	 * Action: update_module
 	 *
 	 * update a module
 	 *
@@ -464,8 +525,8 @@ class system extends ActionModul
 	 * @param string $op
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
-	public function update($module = "system", $op = '') {
-		$this->install($module, $op);
+	public function update_module($module = "system", $op = '') {
+		$this->install_module($module, $op);
 	}
 
 	/**
@@ -478,7 +539,7 @@ class system extends ActionModul
 	 * @param string $op
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
-	public function install($module = "system", $op = '') {
+	public function install_module($module = "system", $op = '') {
 
 		$this->clear_output();
 
@@ -488,11 +549,12 @@ class system extends ActionModul
 			$this->session->require_login();
 			//Check perms
 			if (!$this->right_manager->has_perm("admin.system.modules")) {
+				if ($op == 'js') {
+					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+				}
 				return $this->no_permission();
 			}
 		}
-
-		$installed = false;
 
 		//We do not need to generate every javascript request to generate the classlist, direct after form submission or direkt call is more enough
 		if ($op != "js") {
@@ -504,12 +566,28 @@ class system extends ActionModul
 		$info_file = SITEPATH."/modules/".$module."/".$module.".info";
 		if (!file_exists($info_file)) {
 			$this->core->message("\"".$module.".info\" file is missing within module dir: \"modules/".$module."\"", Core::MESSAGE_TYPE_ERROR);
+			if ($op == 'js') {
+				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+			}
 			return;
 		}
 
 		//Get the module information
 		$module_info = parse_ini_file($info_file, true);
 		$module_info['version'] = (int)$module_info['version'];
+
+
+		$helper = new SystemHelper();
+		$depends = $helper->get_module_dependencies($module);
+		foreach ($depends AS $dependency) {
+			if ($dependency['state'] != SystemHelper::DEPENDENCY_ENABLED) {
+				$this->core->message("\"".$module."\" can not be updated because one or more dependent modules are missing", Core::MESSAGE_TYPE_ERROR);
+				if ($op == 'js') {
+					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+				}
+				return;
+			}
+		}
 
 		$results = array();
 
@@ -519,7 +597,6 @@ class system extends ActionModul
 		foreach ($dir AS $entry) {
 			if (preg_match("/(.*)\.class\.php$/", $entry->filename, $matches)) {
 				$obj = $matches[1];
-
 				$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 			}
 		}
@@ -670,10 +747,6 @@ class system extends ActionModul
 				}
 			}
 
-			if ($module == "system" && $type != Core::MESSAGE_TYPE_ERROR) {
-				$installed = true;
-			}
-
 			$this->core->message($msg, $type);
 		}
 
@@ -687,46 +760,57 @@ class system extends ActionModul
 			}
 		}
 
-		//If we are not updateing the system module we must call the module update method to perform maybe needed actions on a module update
-		if ($module != "system") {
+		//Check if we are on a fresh module install or do just an update
+		$module_object = new $module();
+		$modul_config = new ModulConfigObj($module);
 
-			//Check if we are on a fresh module install or do just an update
-			$module_object = new $module();
-			$modul_config = new ModulConfigObj($module);
-
-			//Module exist within the database so we do only an update
-			if ($modul_config->load_success() && $modul_config->current_version != 1) {
-				$this->current_version = $modul_config->current_version;
-				$error = false;
-				//Loop through all version which we do not have run yet.
-				for ($i = $modul_config->current_version; $i <= $module_info['version']; $i++) {
-
-					//If update fails, display message
-					if (!$module_object->update($i)) {
-						$error = true;
-						$this->core->message(t("Could not update module @modul for version @version", array("@modul" => $module, "@version" => $i)), Core::MESSAGE_TYPE_ERROR);
-						break;
-					}
-				}
-				//Increment the current version if we succeed this update
-				if (!$error) {
-					$modul_config->current_version = $module_info['version'] + 1;
-					$modul_config->save();
-				}
-			}
-			else {
-				//Install the module fresh
-				if ($module_object->install()) {
-					$modul_config->modul = $module;
-					$modul_config->current_version = $module_info['version'] + 1;
-					$modul_config->save_or_insert();
-				}
-				else {
-					$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
-				}
+		$call_enable = false;
+		if ($modul_config->load_success()) {
+			if ($modul_config->enabled === 0) {
+				$call_enable = true;
 			}
 		}
 
+
+		$modul_config->enabled = 1;
+		//Module exist within the database so we do only an update
+		if ($modul_config->load_success() && $modul_config->current_version != 1) {
+			$this->current_version = $modul_config->current_version;
+			$error = false;
+			//Loop through all version which we do not have run yet.
+			for ($i = $modul_config->current_version; $i <= $module_info['version']; $i++) {
+
+				//If update fails, display message
+				if (!$module_object->update($i)) {
+					$error = true;
+					$this->core->message(t("Could not update module @modul for version @version", array("@modul" => $module, "@version" => $i)), Core::MESSAGE_TYPE_ERROR);
+					break;
+				}
+			}
+			//Increment the current version if we succeed this update
+			if (!$error) {
+				$modul_config->current_version = $module_info['version'] + 1;
+				$modul_config->save();
+			}
+		}
+		else {
+			//Install the module fresh
+			if ($module_object->install()) {
+				$modul_config->modul = $module;
+				$modul_config->current_version = $module_info['version'] + 1;
+				$modul_config->save_or_insert();
+			}
+			else {
+				$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
+			}
+		}
+
+		// If previous the module was not enabled but present (so it was disabled) and a enable method exists for this module, call it.
+		if ($call_enable) {
+			if (method_exists($module_object, 'enable')) {
+				$module_object->enable();
+			}
+		}
 		if ($op == "js") {
 			AjaxModul::return_code(core::GLOBEL_RETURN_CODE_SUCCESS, null, true);
 		}

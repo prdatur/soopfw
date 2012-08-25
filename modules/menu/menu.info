@@ -1,5 +1,11 @@
-; Configuration of Module menu
+;Information
 version = 1
+name ="Menu"
+description = "Allows creating menus";
+
+;Define which modules are required.
+depends[] = "user"
+depends[] = "translation"
 
 ;Define rights rights[] = "example.right.view"
 rights[] = "admin.menu.manage"

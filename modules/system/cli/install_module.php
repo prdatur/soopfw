@@ -38,7 +38,7 @@ class cli_install_module extends CLICommand
 			consoleLog('Module not specified, after --install_module you need to provide the module name like ./clifs --install_module user', Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
-		$system->install($module);
+		$system->install_module($module);
 		return true;
 	}
 

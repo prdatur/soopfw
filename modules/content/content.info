@@ -1,9 +1,12 @@
-; Configuration of Module content
+;Information
 version = 1
+name = "Content"
+description = "Provides creating content pages"
 
 ;Define which modules are required.
 depends[] = "translation"
 depends[] = "user"
+depends[] = "menu"
 
 ;Define rights rights[] = "example.right.view"
 rights[] = "admin.content.manage"

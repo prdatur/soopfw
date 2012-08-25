@@ -180,7 +180,7 @@ class ActionModul extends Object
 		$caller = array_shift($trace); //Get second stack trace
 		unset($trace); //free memory
 		//If system/install calls this method return that everything worked well
-		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install") {
+		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install_module") {
 			return true;
 		}
 
@@ -193,7 +193,7 @@ class ActionModul extends Object
 		}
 
 		//only if file is system.php and caller method is install allow processing with install
-		if (SITEPATH."/modules/system/system.php" == $caller['file'] && $caller['function'] == "install") {
+		if (SITEPATH."/modules/system/system.php" == $caller['file'] && $caller['function'] == "install_module") {
 			return true;
 		}
 

@@ -1,5 +1,10 @@
-; Configuration of Module user
+;Information
 version = 1
+name = "User"
+description = "Provides a user management"
+
+;Define which modules are required.
+depends[] = "system"
 
 ;Define rights rights[] = "example.right.view"
 rights[] = "admin.user.group.add"
