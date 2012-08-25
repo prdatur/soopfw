@@ -59,7 +59,7 @@ function read_rights()
 				$("#rights_tbody").append(
 					create_element({input: 'tr',append:[
 						create_element({input: 'td',append:[
-							create_element({input: 'label', attr:{"for": 'chk_'+right, html: Soopfw.t(right)}})
+							create_element({input: 'label', attr:{"for": 'chk_'+right, html: Soopfw.t(right) + '<br /><span class="right_description">' + Soopfw.t(rights[right]) + '</span>'}})
 						]}),
 						create_element({input: 'td',css: {"text-align": 'center'}, append:[right_checkbox]})
 					]})
