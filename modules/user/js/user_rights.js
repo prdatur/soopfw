@@ -209,4 +209,4 @@ Soopfw.behaviors.admin_user_rights = function() {
 			}
 		});
 	}
-}
+};

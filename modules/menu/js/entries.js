@@ -1,6 +1,6 @@
 Soopfw.behaviors.menu_overview = function() {
 	enable_clicks();
-}
+};
 
 function open_change_dialog(id) {
 

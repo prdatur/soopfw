@@ -6,7 +6,7 @@ Soopfw.behaviors.user_address = function() {
 		]);
 	});
 	enable_icon_clicks();
-}
+};
 
 function enable_icon_clicks() {
 	$(".editAddress").unbind("click");

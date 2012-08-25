@@ -44,7 +44,7 @@ Soopfw.behaviors.admin_user_groups = function() {
 		}
 	});
 
-}
+};
 
 function add_group(group)
 {

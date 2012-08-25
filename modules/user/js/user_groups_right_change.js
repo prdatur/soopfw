@@ -35,7 +35,7 @@ Soopfw.behaviors.admin_user_groups_right_change = function() {
 		read_rights($(this).prop("id"));
 
 	});
-}
+};
 
 function read_rights()
 {

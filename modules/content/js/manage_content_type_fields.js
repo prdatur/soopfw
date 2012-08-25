@@ -12,7 +12,7 @@ if(dlg_id == undefined) {
 
 Soopfw.behaviors.content_manage_field_groups = function() {
 	enable_clicks();
-}
+};
 
 function open_change_dialog(id) {
 	var params = [Soopfw.config.content_type];

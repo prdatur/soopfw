@@ -5,7 +5,7 @@ if(dlg_id == undefined) {
 
 Soopfw.behaviors.content_list_content_types = function() {
 	enable_clicks();
-}
+};
 
 function open_change_dialog(id) {
 	var params = null;

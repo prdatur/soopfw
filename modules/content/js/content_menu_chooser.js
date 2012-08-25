@@ -9,4 +9,4 @@ Soopfw.behaviors.content_content_menu_chooser = function() {
 		collapsed: false
 	});
 
-}
+};

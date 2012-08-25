@@ -64,4 +64,4 @@ Soopfw.behaviors.content_change_content = function() {
 
 
 	});
-}
+};

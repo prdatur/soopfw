@@ -5,7 +5,7 @@ if(dlg_id == undefined) {
 
 Soopfw.behaviors.system_email_templates = function() {
 	system_email_templates_enable_clicks();
-}
+};
 
 function open_change_dialog(id) {
 	var params = null;
