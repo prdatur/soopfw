@@ -36,6 +36,13 @@ class RightManager extends Object
 		foreach ($this->db->query_slave_all("SELECT `right`, `description` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
 			$this->all_string_rights[$right['right']] = $right['description'];
 		}
+
+		// Fallback of the version where descriptions did not exists.
+		if (empty($this->all_string_rights)) {
+			foreach ($this->db->query_slave_all("SELECT `right` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
+				$this->all_string_rights[$right['right']] = '';
+			}
+		}
 	}
 
 	/**
