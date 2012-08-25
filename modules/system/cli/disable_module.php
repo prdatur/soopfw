@@ -65,12 +65,21 @@ class cli_disable_module extends CLICommand
 				}
 				$dep_module_conf->enabled = 0;
 				$dep_module_conf->save();
+				$permissions = SystemHelper::get_module_permissions($mod, true);
+				if (!empty($permissions)) {
+					consoleLog(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+				}
 				consoleLog(t('Module "@module" disabled', array("@module" => $val['name'])), 'ok');
 			}
 		}
 
 		$module_conf->enabled = 0;
 		$module_conf->save();
+
+		$permissions = SystemHelper::get_module_permissions($module, true);
+		if (!empty($permissions)) {
+			consoleLog(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+		}
 		return true;
 	}
 

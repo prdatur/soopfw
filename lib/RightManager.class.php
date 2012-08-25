@@ -33,8 +33,8 @@ class RightManager extends Object
  	public function __construct(Core &$core = null) {
 		parent::__construct($core);
 
-		foreach ($this->db->query_slave_all("SELECT `right` FROM `".CoreRightObj::TABLE."` ORDER BY `right`") AS $right) {
-			$this->all_string_rights[$right['right']] = $right['right'];
+		foreach ($this->db->query_slave_all("SELECT `right`, `description` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
+			$this->all_string_rights[$right['right']] = $right['description'];
 		}
 	}
 
@@ -42,9 +42,9 @@ class RightManager extends Object
 	 * Get all groups where the provided user is a member
 	 * if the $user_id is not provided it will use the current logged in one
 	 *
-	 * @param int $user_id 
+	 * @param int $user_id
 	 *   the userid (optional, default = '')
-	 * 
+	 *
 	 * @return array the user groups
 	 */
 	public function get_user_groups($user_id = "") {
@@ -55,7 +55,7 @@ class RightManager extends Object
 
 		//Get the groups
 		$groups = array();
-		foreach ($this->db->query_slave_all("SELECT * FROM `".User2RightGroupObj::TABLE."` WHERE user_id = iuser_id", array('iuser_id' => $user_id)) AS $group) {
+		foreach ($this->db->query_slave_all("SELECT * FROM `" . User2RightGroupObj::TABLE . "` WHERE user_id = iuser_id", array('iuser_id' => $user_id)) AS $group) {
 			$groups[$group['group_id']] = $group['group_id'];
 		}
 		return $groups;
@@ -72,14 +72,14 @@ class RightManager extends Object
 
 	/**
 	 * Returns all owned rights for the specified group
-	 * 
-	 * @param int $group_id 
+	 *
+	 * @param int $group_id
 	 *   the group id
-	 * 
+	 *
 	 * @return array the parsed rights
 	 */
 	public function get_group_rights($group_id) {
-		$row = $this->db->query_slave_first("SELECT `permissions` FROM `".UserRightGroupObj::TABLE."` WHERE `group_id` = @group_id", array("@group_id" => $group_id));
+		$row = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightGroupObj::TABLE . "` WHERE `group_id` = @group_id", array("@group_id" => $group_id));
 
 		if (empty($row)) {
 			return array();
@@ -91,13 +91,13 @@ class RightManager extends Object
 	 * Checks the given user if he has given permission(s)
 	 * if $user is not provided the current one is used
 	 *
-	 * @param string $right 
+	 * @param string $right
 	 *   the right
-	 * @param boolean $login_check 
+	 * @param boolean $login_check
 	 *   Wether we want to redirect the user to the login page if not logged in or not (optional, default = false)
-	 * @param UserObj $user 
+	 * @param UserObj $user
 	 *   the user obj (optional, default = null)
-	 * 
+	 *
 	 * @return boolean if user has permission return true, else false
 	 */
 	public function has_perm($right, $login_check = false, UserObj $user = null) {
@@ -137,17 +137,17 @@ class RightManager extends Object
 	 * So returns true if one of the rights is present.
 	 * If you want that the user needs all additional permissions use .*
 	 *
-	 * @param string $right 
+	 * @param string $right
 	 *   the right to check for as a string like user.view.* or user.change
-	 * @param array $user_rights 
+	 * @param array $user_rights
 	 *   the current user rights
-	 * 
+	 *
 	 * @return boolean true if user has right, else false, if right is not found on global rights, return false
 	 */
 	public function has_rights($right, Array $user_rights) {
 		static $cache = array();
 
-		$cache_key = md5(implode("", $user_rights)."|".$right);
+		$cache_key = md5(implode("", $user_rights) . "|" . $right);
 
 		//Initialize the or condition
 		$condition = "or";
@@ -172,14 +172,14 @@ class RightManager extends Object
 			if (preg_match("/[a-z]$/iUs", $right)) {
 				$or = "(\.|$)";
 			}
-			$right_search = "/^".quote($right).$or."/iUs";
+			$right_search = "/^" . quote($right) . $or . "/iUs";
 
 			//The values within this array will be the rights which matched our right search regexp for the given right which we want to check
 			$right_array = array();
 			//Find all rights which matches the search reg exp
-			foreach ($this->all_string_rights AS $v) {
-				if (preg_match($right_search, $v)) {
-					$right_array[] = $v;
+			foreach ($this->all_string_rights AS $right => $description) {
+				if (preg_match($right_search, $right)) {
+					$right_array[] = $right;
 				}
 			}
 
@@ -211,13 +211,13 @@ class RightManager extends Object
 	/**
 	 * Gets an array with all the user rights
 	 *
-	 * @param int $userid 
+	 * @param int $userid
 	 *   the userid to look for
-	 * @param int $filter 
+	 * @param int $filter
 	 *   the filter type use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_ALL)
-	 * @param boolean $raw 
+	 * @param boolean $raw
 	 *   do we remove negative rights or print raw data? (optional, default = false
-	 * 
+	 *
 	 * @return array returns an array with user rights
 	 */
 	public function get_rights($userid, $filter = self::RIGHT_TYPE_ALL, $raw = false) {
@@ -226,7 +226,7 @@ class RightManager extends Object
 
 		//Get the rights which are owned from groups
 		if ($filter == self::RIGHT_TYPE_ALL || $filter == self::RIGHT_TYPE_GROUP) {
-			$sql = "SELECT urg.`permissions` FROM `".User2RightGroupObj::TABLE."` uu2rg JOIN `".UserRightGroupObj::TABLE."` urg ON (urg.`group_id` = uu2rg.`group_id` AND uu2rg.`user_id` = '".$userid."')";
+			$sql = "SELECT urg.`permissions` FROM `" . User2RightGroupObj::TABLE . "` uu2rg JOIN `" . UserRightGroupObj::TABLE . "` urg ON (urg.`group_id` = uu2rg.`group_id` AND uu2rg.`user_id` = '" . $userid . "')";
 			foreach ($this->db->query_slave_all($sql) AS $right) {
 				$row = array_merge($row, $this->parse_rights($right['permissions'], $raw));
 			}
@@ -234,7 +234,7 @@ class RightManager extends Object
 
 		//Get the direct user rights
 		if ($filter == self::RIGHT_TYPE_ALL || $filter == self::RIGHT_TYPE_USER) {
-			$right = $this->db->query_slave_first("SELECT `permissions` FROM `".UserRightObj::TABLE."` WHERE `user_id` = 'iuserid'", array("iuserid" => $userid));
+			$right = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightObj::TABLE . "` WHERE `user_id` = 'iuserid'", array("iuserid" => $userid));
 			if(!empty($right)) {
 				$row = array_merge($row, $this->parse_rights($right['permissions'], $raw));
 			}
@@ -249,11 +249,11 @@ class RightManager extends Object
 	 * if set to true it will just leave the minus right within the returning array and the "disallowed" right will be
 	 * still present if the user has this right
 	 *
-	 * @param array $permissions 
+	 * @param array $permissions
 	 *   the permissions array
-	 * @param boolean $raw 
+	 * @param boolean $raw
 	 *   set to true to get the raw rights (optional, default = false)
-	 * 
+	 *
 	 * @return array Returns an array with user rights
 	 */
 	public function parse_rights($permissions, $raw = false) {

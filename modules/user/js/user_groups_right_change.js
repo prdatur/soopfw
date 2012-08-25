@@ -44,7 +44,7 @@ function read_rights()
 		$("#rights_tbody").html("");
 		for(var i in rights) {
 			if(rights.hasOwnProperty(i)) {
-				var right = rights[i];
+				var right = i;
 
 				var right_checkbox = create_element({input: 'input', attr:{id:'chk_'+right, "class": 'rightCheckbox', type: 'checkbox', value: right}});
 

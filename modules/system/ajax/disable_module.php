@@ -34,9 +34,14 @@ if ($module_conf_obj->save_or_insert()) {
 	//If we the enabled field changed, call the disable function based up on the current value
 	if($old_enabled != $module_conf_obj->enabled)  {
 		$core->generate_classlist();
-		$module_obj = new $modul();
+		$module_obj = new $params->module();
 		if (method_exists($module_obj, 'disable')) {
 			$module_obj->disable();
+		}
+
+		$permissions = SystemHelper::get_module_permissions($params->module, true);
+		if (!empty($permissions)) {
+			$core->message(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), Core::MESSAGE_TYPE_SUCCESS);
 		}
 	}
 	AjaxModul::return_code(AjaxModul::SUCCESS);

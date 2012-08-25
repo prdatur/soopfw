@@ -8,7 +8,7 @@
 		<%t key='The module depends on the following modules which will be also enabled'%>
 		<ul>
 		<%foreach $dependencies AS $dependency => $value%>
-			<li><%$value.name%></li>
+			<li><%$value.name%><br />(<%$value.description%>)</li>
 		<%/foreach%>
 		</ul>
 	</div>

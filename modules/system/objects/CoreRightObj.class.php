@@ -18,9 +18,9 @@ class CoreRightObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $right 
+	 * @param string $right
 	 *   the right string (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($right = "", $force_db = false) {
@@ -30,6 +30,7 @@ class CoreRightObj extends AbstractDataManagment
 		$this->db_struct->set_cache(true);
 		$this->db_struct->add_reference_key("right");
 		$this->db_struct->add_field("right", t("Right"), PDT_STRING);
+		$this->db_struct->add_field("description", t("Description"), PDT_TEXT);
 
 		if (!empty($right)) {
 			if (!$this->load($right, $force_db)) {

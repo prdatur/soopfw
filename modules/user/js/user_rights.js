@@ -8,11 +8,9 @@ Soopfw.behaviors.admin_user_rights = function() {
 	var group_assignments = Soopfw.config.user_rights.group_assignments;
 
 	var tmp_right_group_check = {};
-	for(var i in all_rights)
-	{
-		if(all_rights.hasOwnProperty(i))
-		{
-			var right = all_rights[i];
+	for(var i in all_rights) {
+		if(all_rights.hasOwnProperty(i)) {
+			var right = i;
 			var lang_key = right.replace(/\./ig,"_");
 
 			var selected_not_yet_owned = true;
@@ -20,42 +18,35 @@ Soopfw.behaviors.admin_user_rights = function() {
 			var selected_force_yes = false;
 			var selected_force_no = false;
 
-			if(user_rights_user["-"+right] != undefined)
-			{
+			if(user_rights_user["-"+right] != undefined) {
 				selected_force_no = true;
-				//selected_not_yet_owned = false;
 			}
-			else if(user_rights_user[right] != undefined)
-			{
+			else if(user_rights_user[right] != undefined) {
 				selected_force_yes = true;
-				//selected_not_yet_owned = false;
 			}
-			else if(user_rights_group[right] != undefined)
-			{
+			else if(user_rights_group[right] != undefined) {
 				selected_group = true;
 				selected_not_yet_owned = false;
 			}
 
-			if(user_rights_group[right] != undefined)
-			{
+			if(user_rights_group[right] != undefined) {
 				selected_not_yet_owned = false;
 			}
 
-			var checkbox_notowned = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_notowned",value: 'notowned', checked: selected_not_yet_owned}, click: function(){
+			var checkbox_notowned = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_notowned",value: 'notowned', checked: selected_not_yet_owned}, click: function() {
 				prozess_permission_handler(this);
 			}});
-			var checkbox_group = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_g",value: 'g'}, click: function(){
+			var checkbox_group = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_g",value: 'g'}, click: function() {
 				prozess_permission_handler(this);
 			}});
-			var checkbox_yes = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_y",value: 'y'}, click: function(){
+			var checkbox_yes = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_y",value: 'y'}, click: function() {
 				prozess_permission_handler(this);
 			}});
-			var checkbox_no = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_n",value: 'n'}, click: function(){
+			var checkbox_no = create_element({input: 'input', css:{width:"20px"}, attr:{type: 'radio', name: right, id: lang_key.toLowerCase()+"_n",value: 'n'}, click: function() {
 				prozess_permission_handler(this);
 			}});
 
-			if(selected_not_yet_owned == false)
-			{
+			if(selected_not_yet_owned == false) {
 				$(checkbox_notowned).prop("disabled", true);
 			}
 
@@ -66,7 +57,7 @@ Soopfw.behaviors.admin_user_rights = function() {
 
 			$("#rights").append(
 				create_element({input: 'tr', append:[
-					create_element({input: 'td', attr:{html: Soopfw.t(right)}}),
+					create_element({input: 'td', attr:{html: Soopfw.t(right) + '<br /><span class="right_description">' + Soopfw.t(all_rights[right]) + '</span>'}}),
 					create_element({input: 'td', attr:{id: lang_key.toLowerCase()+"_td_notowned"}, append:[checkbox_notowned,create_element({input: 'img', attr:{src:'/1x1_spacer.gif'}})]}),
 					create_element({input: 'td', attr:{id: lang_key.toLowerCase()+"_td_g"}, append:[checkbox_group,create_element({input: 'img', attr:{src:'/1x1_spacer.gif'}})]}),
 					create_element({input: 'td', attr:{id: lang_key.toLowerCase()+"_td_y"}, append:[checkbox_yes,create_element({input: 'img', attr:{src:'/1x1_spacer.gif'}})]}),
@@ -74,18 +65,17 @@ Soopfw.behaviors.admin_user_rights = function() {
 				]})
 			);
 
-			if(selected_not_yet_owned == true)
-			{
+			if(selected_not_yet_owned == true) {
 				$(checkbox_notowned).addClass("linkedElement");
 				$("#"+lang_key.toLowerCase()+"_td_notowned").addClass("linkedElement");
 				$(checkbox_group).css("display", "none");
 			}
-			else
-			{
+			else {
 				$(checkbox_notowned).css("display", "none");
 				$(checkbox_group).addClass("linkedElement");
 				$("#"+lang_key.toLowerCase()+"_td_g").addClass("linkedElement");
 			}
+
 			$("#"+lang_key.toLowerCase()+"_td_y").addClass("linkedElement");
 			$("#"+lang_key.toLowerCase()+"_td_n").addClass("linkedElement");
 
@@ -99,22 +89,16 @@ Soopfw.behaviors.admin_user_rights = function() {
 		}
 	}
 
-	for(var i in right_groups)
-	{
-		if(right_groups.hasOwnProperty(i))
-		{
+	for(var i in right_groups) {
+		if(right_groups.hasOwnProperty(i)) {
 			var group = right_groups[i];
 			var isMember = false;
 
-			if(group_assignments[group.group_id] != undefined)
-			{
+			if(group_assignments[group.group_id] != undefined) {
 				isMember = true;
-				for(var right in group['rights'])
-				{
-					if(group['rights'].hasOwnProperty(right))
-					{
-						if(tmp_right_group_check[right] == undefined)
-						{
+				for(var right in group['rights']) {
+					if(group['rights'].hasOwnProperty(right)) {
+						if(tmp_right_group_check[right] == undefined) {
 							tmp_right_group_check[right] = [];
 						}
 						tmp_right_group_check[right].push(group.group_id);
@@ -148,28 +132,20 @@ Soopfw.behaviors.admin_user_rights = function() {
 	{
 		var id = $(elm).prop("id");
 		var value = "remove";
-		if($(elm).prop("checked") == true)
-		{
+		if($(elm).prop("checked") == true) {
 			value = "add";
 		}
 		var data = {'group_id': id, 'user_id': Soopfw.config.user_rights.user_id,'value': value};
-		ajax_request("/user/user_permission_group_change.ajax", data, function()
-		{
+		ajax_request("/user/user_permission_group_change.ajax", data, function() {
 			var group = right_groups[id];
-			for(var right in group['rights'])
-			{
-				if(group['rights'].hasOwnProperty(right))
-				{
+			for(var right in group['rights']) {
+				if(group['rights'].hasOwnProperty(right)) {
 					var check_key = right.replace(/\./ig,"_");
-					if(tmp_right_group_check[right] == undefined)
-					{
+					if(tmp_right_group_check[right] == undefined) {
 						tmp_right_group_check[right] = [];
 					}
-					if($(elm).prop("checked") == true)
-					{
-						if($("#"+check_key+"_notowned").prop("checked") == true)
-						{
-
+					if($(elm).prop("checked") == true) {
+						if($("#"+check_key+"_notowned").prop("checked") == true) {
 							$("#"+check_key+"_notowned").prop("checked", false);
 							$("#"+check_key+"_g").prop("checked", true);
 						}
@@ -185,13 +161,10 @@ Soopfw.behaviors.admin_user_rights = function() {
 
 						tmp_right_group_check[right].push(group.group_id);
 					}
-					else
-					{
+					else {
 						tmp_right_group_check[right] = $.grep(tmp_right_group_check[right], function(val) { return val != group.group_id });
-						if(tmp_right_group_check[right].length <= 0)
-						{
-							if($("#"+check_key+"_g").prop("checked") == true)
-							{
+						if(tmp_right_group_check[right].length <= 0) {
+							if($("#"+check_key+"_g").prop("checked") == true) {
 								$("#"+check_key+"_notowned").prop("checked", true);
 								$("#"+check_key+"_g").prop("checked", false);
 							}

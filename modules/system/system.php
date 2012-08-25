@@ -113,8 +113,8 @@ class system extends ActionModul
 			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
 		}
 
-		$info = parse_ini_file(SITEPATH . '/modules/' . $module . '/' . $module . '.info');
-		if (empty($module)) {
+		// Get the info for the current module
+		if (($info = SystemHelper::get_module_info($module)) === false) {
 			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER);
 		}
 
@@ -466,7 +466,7 @@ class system extends ActionModul
 				$db_version = $mobj->current_version-1;
 			}
 
-			$info = parse_ini_file(SITEPATH . '/modules/' . $module . '/' . $module . '.info');
+			$info = SystemHelper::get_module_info($module);
 			$info['obj'] = $mobj;
 			$info['dependencies'] = $helper->get_module_dependencies($module);
 			$info['current_version'] = $db_version;
@@ -573,9 +573,8 @@ class system extends ActionModul
 		}
 
 		//Get the module information
-		$module_info = parse_ini_file($info_file, true);
+		$module_info = SystemHelper::get_module_info($module);
 		$module_info['version'] = (int)$module_info['version'];
-
 
 		$helper = new SystemHelper();
 		$depends = $helper->get_module_dependencies($module);
@@ -752,11 +751,21 @@ class system extends ActionModul
 
 		//Generating rights
 		if (isset($module_info['rights'])) {
-			foreach ($module_info['rights'] AS $right) {
-				$right_obj = new CoreRightObj();
+			foreach ($module_info['rights'] AS $right => $description) {
+				if (((int)$right) . "" === $right."") {
+					$right = $description;
+					$description = "";
+				}
+				
+				$right_obj = new CoreRightObj($right, true);
 				$right_obj->right = $right;
-				$right_obj->insert(false);
-				$this->core->message("Right \"".$right."\" inserted", Core::MESSAGE_TYPE_SUCCESS);
+				$right_obj->description = $description;
+				if ($right_obj->save_or_insert()) {
+					$this->core->message("Right \"".$right."\" inserted/updated", Core::MESSAGE_TYPE_SUCCESS);
+				}
+				else {
+					$this->core->message("Right \"".$right."\" could not be inserted/updated", Core::MESSAGE_TYPE_ERROR);
+				}
 			}
 		}
 

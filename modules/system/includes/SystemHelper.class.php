@@ -42,13 +42,7 @@ class SystemHelper extends Object {
 				continue;
 			}
 
-			$info_file = SITEPATH . '/modules/' . $module . '/' . $module . '.info';
-			if (!file_exists($info_file)) {
-				continue;
-			}
-
-			$info = parse_ini_file($info_file);
-			if (empty($info)) {
+			if (($info = SystemHelper::get_module_info($module)) === false) {
 				continue;
 			}
 
@@ -71,7 +65,8 @@ class SystemHelper extends Object {
 		}
 
 		foreach ($modules AS $mod => &$val) {
-			$val = parse_ini_file(SITEPATH . '/modules/' . $mod . '/' . $mod . '.info');
+			// Get the info for the current dependency
+			$val = SystemHelper::get_module_info($mod);
 		}
 
 		return $modules;
@@ -111,21 +106,14 @@ class SystemHelper extends Object {
 	 *   if $recrusive is set to true and $sort to false each entry will have an additional key
 	 *		dependencies = another array which holds the dependencies for this module
 	 *
-	 *   or boolean false if checked module
-	 *   does not exist,
+	 *   or boolean false if checked module does not exist,
 	 */
 	public function get_module_dependencies($module_name, $recrusive = false, $sort = false, $filter = self::DEPENDENCY_FILTER_ALL, $loop_detection = array()) {
 
 		// Endless loop detection.
 		$loop_detection[$module_name] = true;
 
-		$info_file = SITEPATH . '/modules/' . $module_name . '/' . $module_name . '.info';
-		if (!file_exists($info_file)) {
-			return false;
-		}
-
-		$info = parse_ini_file($info_file);
-		if (empty($info)) {
+		if (($info = SystemHelper::get_module_info($module_name)) === false) {
 			return false;
 		}
 
@@ -153,7 +141,9 @@ class SystemHelper extends Object {
 			}
 
 			// Get the info for the current dependency
-			$info_depends = parse_ini_file(SITEPATH . '/modules/' . $dependency . '/' . $dependency . '.info');
+			if (($info_depends = SystemHelper::get_module_info($dependency)) === false) {
+				continue;
+			}
 
 			// If module is system it will always be enabled.
 			if ($dependency === 'system') {
@@ -228,6 +218,86 @@ class SystemHelper extends Object {
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Returns the info data for the given module.
+	 *
+	 * @staticvar array $cache
+	 *   cached return values.
+	 *
+	 * @param string $module
+	 *   the module name.
+	 *
+	 * @return array the parsed info data or if info file is not found boolean false
+	 */
+	public static function get_module_info($module) {
+		static $cache = array();
+
+		if (!isset($cache[$module])) {
+			$info_file = SITEPATH . '/modules/' . $module . '/' . $module . '.info';
+			if (!file_exists($info_file)) {
+				$cache[$module] = false;
+			}
+
+			$info = parse_ini_file($info_file, true);
+			if (empty($info)) {
+				$cache[$module] = false;
+			}
+			$cache[$module] = $info;
+		}
+
+		return $cache[$module];
+	}
+
+	/**
+	 * Returns an array with the permissions for the module.
+	 *
+	 * @static array $cache
+	 *   will cache the results.
+	 *
+	 * @param string $module
+	 *   the module.
+	 *
+	 * @param boolean $just_rights
+	 *   if set to true we get no descriptions just an array with the permission
+	 *   for the key and the value.
+	 *
+	 * @return array the permission array for the module
+	 */
+	public static function get_module_permissions($module, $just_rights = false) {
+		static $cache = array();
+
+		if (!isset($cache[$module . "|" . $just_rights])) {
+			$info = SystemHelper::get_module_info($module);
+			$rights = array();
+			if (!empty($info['rights'])) {
+				$rights = $info['rights'];
+				if ($just_rights === true) {
+					foreach ($rights AS $permission => &$description) {
+						if (((int)$permission) . "" !== $permission . "") {
+							$description = $permission;
+						}
+					}
+				}
+				else {
+					$new_rights = array();
+					foreach ($rights AS $permission => $description) {
+						if (((int)$permission) . "" === $permission . "") {
+							$permission = $description;
+							$description = "";
+						}
+						$new_rights[$permission] = $description;
+					}
+					$rights = $new_rights;
+					unset($new_rights);
+				}
+			}
+
+			$cache[$module . "|" . $just_rights] = $rights;
+		}
+
+		return $cache[$module . "|" . $just_rights];
 	}
 }
 ?>
