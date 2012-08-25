@@ -26,6 +26,7 @@ class Cron
 	const CRON_TIME_DAY = 'day';
 	const CRON_TIME_MONTH = 'month';
 	const CRON_TIME_DAY_OF_MONTH = 'dom';
+	const CRON_TIME_DAY_OF_WEEK = 'dow';
 
 	/**
 	 * Wether to output some debug information
@@ -177,7 +178,7 @@ class Cron
 
 		$now = explode(" ", trim(date("i H d m w", $timestamp)));
 
-		$check_type_array = array(self::CRON_TIME_MINUTE, self::CRON_TIME_HOUR, self::CRON_TIME_DAY, self::CRON_TIME_MONTH, self::CRON_TIME_DAY_OF_MONTH);
+		$check_type_array = array(self::CRON_TIME_MINUTE, self::CRON_TIME_HOUR, self::CRON_TIME_DAY, self::CRON_TIME_MONTH, self::CRON_TIME_DAY_OF_WEEK);
 
 		foreach ($now AS &$tmp_v) { //date func returns some values only with leading zeros, so cut them off
 			if (strlen($tmp_v) > 1 && substr($tmp_v, 0, 1) == "0") {
@@ -281,7 +282,7 @@ class Cron
 					case self::CRON_TIME_MONTH:
 						$max_value = 12;
 						break;
-					case self::CRON_TIME_DAY_OF_MONTH:
+					case self::CRON_TIME_DAY_OF_WEEK:
 						$max_value = 6;
 						break;
 				}
@@ -318,7 +319,7 @@ class Cron
 			$this->time_array[self::CRON_TIME_HOUR],
 			$this->time_array[self::CRON_TIME_DAY],
 			$this->time_array[self::CRON_TIME_MONTH],
-			$this->time_array[self::CRON_TIME_DAY_OF_MONTH]
+			$this->time_array[self::CRON_TIME_DAY_OF_WEEK]
 		);
 		return implode(" ", $tmp_arr);
 	}
