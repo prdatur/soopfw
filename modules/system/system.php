@@ -501,9 +501,9 @@ class system extends ActionModul
 		$form->assign_smarty("form");
 
 		if ($form->is_submitted()) {
-			$modules = array();
+			$modules = array('system');
 			foreach ($this->core->modules AS $module) {
-				if (!$this->core->module_enabled($module)) {
+				if ($module == 'system' || !$this->core->module_enabled($module)) {
 					continue;
 				}
 				$modules[] = $module;
@@ -756,7 +756,7 @@ class system extends ActionModul
 					$right = $description;
 					$description = "";
 				}
-				
+
 				$right_obj = new CoreRightObj($right, true);
 				$right_obj->right = $right;
 				$right_obj->description = $description;
