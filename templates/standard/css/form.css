@@ -124,3 +124,41 @@ label.invalid_input {
 .form > .ui-widget-header {
 	padding: 5px;
 }
+
+
+ul.tagit .tagit-choice {
+	display: inline-block;
+	padding: 6px 14px;
+	text-align: center;
+	vertical-align: middle;
+	border-radius: 4px;
+	border: 0;
+	background: #3b3b3b;
+	color: #fbfbfb;
+	/*box-shadow: 0 0 6px #7e7e7e;*/
+
+}
+ul.tagit .tagit-choice:hover {
+	background-color: #a3df02;
+	text-decoration: none;
+	outline: 0;
+	cursor: pointer;
+	box-shadow: 0 0 0;
+	box-shadow: none;
+}
+ul.tagit .tagit-choice:active {
+	background-color: #a3df02;
+	outline: 0;
+	text-decoration: none;
+	cursor: pointer;
+	border-radius: 4px;
+	/*box-shadow: 0 0 6px #7e7e7e;*/
+}
+
+ul.tagit {
+	padding: 3px 6px 3px 6px;
+}
+
+.ui-widget > ul.tagit.ui-widget-content, #content_wrapper ul.tagit.ui-widget-content  {
+	border: 1px solid #696868;
+}
