@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Provides helper methods for system operations.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package modules.system.includes
+ */
 class SystemHelper extends Object {
 
 	/**
