@@ -24,11 +24,11 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param int $entry_id 
+	 * @param int $entry_id
 	 *   the menu id (optional, default = "")
-	 * @param string $language 
+	 * @param string $language
 	 *   the language (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($entry_id = "", $language = "", $force_db = false) {
@@ -61,11 +61,11 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	 * module: menu_entry, key: insert_menu_id
 	 * if this is also it will be not created and returned false.
 	 *
-	 * @param string $menu_id 
+	 * @param string $menu_id
 	 *   the menu id (optional, default='')
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert($menu_id = "", $ignore = false) {
@@ -108,7 +108,7 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 
 	/**
 	 * Returns wether this menu entry has childs or not.
-	 * 
+	 *
 	 * @return boolean true if menu entry has childs or not
 	 */
 	public function has_childs() {
