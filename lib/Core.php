@@ -722,7 +722,7 @@ class Core {
 				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
 
 					$json_test = json_decode($v['value'], true);
-					if ($serialize === true || !empty($json_test)) {
+					if ($serialize === true || $json_test !== null) {
 						$v['value'] = $json_test;
 					}
 					$return[$v['key']] = $v['value'];
@@ -753,7 +753,7 @@ class Core {
 				foreach ($rows AS $row) {
 
 					$json_test = json_decode($row['value'], true);
-					if ($serialize === true || !empty($json_test)) {
+					if ($serialize === true || $json_test !== null) {
 						$row['value'] = $json_test;
 					}
 					$return[$row['key']] = $row['value'];
