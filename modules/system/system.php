@@ -602,6 +602,9 @@ class system extends ActionModul
 		//Creating Database tables from objects if the table does not exist or needs to be updated.
 		foreach (SystemHelper::get_updateable_objects($module) AS $module_info_obj) {
 			$obj = $module_info_obj->classname;
+			if (!class_exists($obj)) {
+				$this->core->generate_classlist();
+			}
 			$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 
 			$module_info_obj->classname = $obj;

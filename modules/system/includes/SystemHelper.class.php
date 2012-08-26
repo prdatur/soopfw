@@ -245,6 +245,8 @@ class SystemHelper extends Object {
 				$obj = $matches[1];
 
 				$model_info = new CoreModelObjectObj($obj);
+				$model_info->classname = $obj;
+
 				if ($model_info->load_success()) {
 					if ($model_info->last_modified == filemtime($entry->path)) {
 						continue;
