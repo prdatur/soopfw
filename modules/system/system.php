@@ -471,11 +471,20 @@ class system extends ActionModul
 			$info['dependencies'] = $helper->get_module_dependencies($module);
 			$info['current_version'] = $db_version;
 
+			if ($info['current_version'] != $info['version']) {
+				$info['updated_needed'] = 1;
+			}
+
 			foreach ($info['dependencies'] AS $dependency) {
 				if ($dependency['state'] === SystemHelper::DEPENDENCY_UNAVAILABLE) {
 					$info['not_installable'] = true;
 					break;
 				}
+			}
+
+			if (empty($info['updated_needed'])) {
+				$object_updates = SystemHelper::get_updateable_objects($module);
+				$info['updated_needed'] = !empty($object_updates);
 			}
 
 			//Add the module to the list
@@ -590,14 +599,14 @@ class system extends ActionModul
 
 		$results = array();
 
-		//Creating Database tables from objects if the table does not exist.
-		$dir = new Dir("modules/" . $module . "/objects");
+		//Creating Database tables from objects if the table does not exist or needs to be updated.
+		foreach (SystemHelper::get_updateable_objects($module) AS $module_info_obj) {
+			$obj = $module_info_obj->classname;
+			$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 
-		foreach ($dir AS $entry) {
-			if (preg_match("/(.*)\.class\.php$/", $entry->filename, $matches)) {
-				$obj = $matches[1];
-				$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
-			}
+			$module_info_obj->classname = $obj;
+			$module_info_obj->last_modified = filemtime(SITEPATH . '/modules/' . $module . '/objects/' . $obj . '.class.php');
+			$module_info_obj->save_or_insert();
 		}
 
 		//Loop through each results. and check if the creation was success, if not we need to update the current table

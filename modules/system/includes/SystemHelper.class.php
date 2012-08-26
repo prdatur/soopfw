@@ -221,6 +221,35 @@ class SystemHelper extends Object {
 	}
 
 	/**
+	 * Returns all objects from the given module which needs an update.
+	 *
+	 * @param string $module
+	 *   the module name.
+	 *
+	 * @return array returns an array with all objects which needs an update
+	 *   the array values are CoreModelObjectObj's.
+	 */
+	public static function get_updateable_objects($module) {
+		$dir = new Dir("modules/" . $module . "/objects");
+
+		$objects = array();
+		foreach ($dir AS $entry) {
+			if (preg_match("/(.*)\.class\.php$/", $entry->filename, $matches)) {
+				$obj = $matches[1];
+
+				$model_info = new CoreModelObjectObj($obj);
+				if ($model_info->load_success()) {
+					if ($model_info->last_modified == filemtime($entry->path)) {
+						continue;
+					}
+				}
+				$objects[$obj] = $model_info;
+			}
+		}
+		return $objects;
+	}
+
+	/**
 	 * Returns the info data for the given module.
 	 *
 	 * @staticvar array $cache

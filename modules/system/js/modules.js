@@ -24,6 +24,16 @@ Soopfw.behaviors.system_modules_config = function() {
 			disable_module(current_module);
 		}
 	});
+
+	$('.module_update').off('click').on('click', function() {
+		var object = $(this).attr('did');
+		confirm(Soopfw.t('Do you want to update this module?'), Soopfw.t('Module update'), function() {
+			wait_dialog();
+			ajax_request('/system/install_module/' + object + '/js', null, function() {
+				document.location.reload();
+			});
+		});
+	});
 };
 
 function enable_module(module) {

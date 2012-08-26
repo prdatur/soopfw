@@ -12,6 +12,7 @@
 			<td style="text-align: left;width: 150px;"><%t key='Dependencies'%></td>
 			<td style="text-align: center;width: 100px;"><%t key='Current version'%></td>
 			<td style="text-align: center;width: 100px;"><%t key='Module version'%></td>
+			<td style="text-align: center;width: 120px;"><%t key='Options'%></td>
 		</tr>
 	</thead>
 	<tbody>
@@ -49,6 +50,7 @@
 			</td>
 			<td style="text-align: center;"><%$module.current_version%></td>
 			<td style="text-align: center;"><%$module.version%></td>
+			<td style="text-align: center;"><%if !empty($module.updated_needed)%><span class="form_button module_update" did="<%$module.obj->modul%>"><%t key='Updated needed'%></span><%/if%></td>
 		</tr>
 	<%foreachelse%>
 	<tr>
