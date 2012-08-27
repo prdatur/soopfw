@@ -128,6 +128,9 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	 * @return boolean true on success, else false
 	 */
 	public function save_delete() {
+		if (!$this->load_success()) {
+			return true;
+		}
 		if($this->has_childs()) {
 			$this->active = MenuEntryTranslationObj::ACTIVE_NO;
 			$this->destination = '';
@@ -144,7 +147,13 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	 * @return boolean true on success, else false
 	 */
 	public function delete() {
+		if (!$this->load_success()) {
+			return true;
+		}
 		$entry_id = $this->get_value("entry_id");
+		if ($entry_id <= 0) {
+			return true;
+		}
 		if ($this->delete_childs() && parent::delete()) {
 			if($this->core->db->query_slave_count("SELECT 1 FROM `".MenuEntryTranslationObj::TABLE."` WHERE `entry_id` = ientry_id", array('ientry_id' => $entry_id), 1) <= 0) {
 				$menu_entry_obj = new MenuEntryObj($entry_id);
@@ -161,7 +170,13 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 	 * @return boolean true on sucess, else false
 	 */
 	public function delete_childs() {
+		if (!$this->load_success()) {
+			return true;
+		}
 		$entry_id = $this->get_value("entry_id");
+		if ($entry_id <= 0) {
+			return true;
+		}
 		$language = $this->get_value("language");
 		$menu_entry_obj = new MenuEntryObj($entry_id);
 		if($menu_entry_obj->load_success()) {

@@ -1297,7 +1297,7 @@ class content extends ActionModul {
 			$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
 
 			if($page_obj->delete($form->is_submitted("really_delete"))) {
-				$this->core->message(t("page deleted", Core::MESSAGE_TYPE_SUCCESS));
+				$this->core->message(t("page deleted"), Core::MESSAGE_TYPE_SUCCESS);
 				$this->core->location("/content/list_content");
 			}
 			else {
