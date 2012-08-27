@@ -323,10 +323,6 @@ abstract class AbstractFieldGroup extends Object
 			return $this->get_template();
 		}
 		else {
-
-
-
-
 			$html = "<div class='form-element-label'>".$this->get_label()."</div>";
 			$html .= "<table class='tablednd ui-widget-content' id='add_more_container_".$this->id."'>";
 			$html .= "	<tbody>";
