@@ -18,9 +18,9 @@ class ContentTypeObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 *
-	 * @param string $content_type 
+	 * @param string $content_type
 	 *   the content type (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($content_type = "", $force_db = false) {
@@ -50,7 +50,21 @@ class ContentTypeObj extends AbstractDataManagment
 		$content_type = $this->get_value("content_type");
 		if(parent::delete()) {
 
-			$this->db->query_master("DELETE FROM `".PageObj::TABLE."` WHERE `content_type` = @content_type", array("@content_type" => $content_type));
+			$filter = DatabaseFilter::create(PageObj::TABLE)
+				->add_where('content_type', $content_type)
+				->add_column('page_id')
+				->add_column('language');
+
+			foreach ($filter->select_all() AS $row) {
+				DatabaseFilter::create(PageRevisionObj::TABLE)
+					->add_where('page_id', $row['page_id'])
+					->add_where('language', $row['language'])
+					->delete();
+			}
+
+			DatabaseFilter::create(PageObj::TABLE)
+					->add_where('content_type', $content_type)
+					->delete();
 
 			$object_ids = array();
 
@@ -65,6 +79,20 @@ class ContentTypeObj extends AbstractDataManagment
 				//Load all groups for this content type
 				foreach($entry_obj->load_multiple($object_ids) AS $obj) {
 					$obj->delete();
+				}
+			}
+
+			// If solr exists and the content type was indexed, remove it.
+			if ($this->core->module_enabled('solr')) {
+
+				$indexed_content_types = $this->core->get_dbconfig("content", self::CONTENT_SOLR_INDEXED_TYPES, array());
+				unset($indexed_content_types[$content_type]);
+				$this->core->dbconfig("content", self::CONTENT_SOLR_INDEXED_TYPES, $indexed_content_types);
+
+				$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+				if ($solr !== false) {
+					$solr->deleteByQuery('contenttype_s:' . $content_type);
+					$solr->commit();
 				}
 			}
 			return true;

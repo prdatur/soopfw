@@ -11,6 +11,10 @@ class content extends ActionModul {
 	 //Default method
 	protected $default_methode = "list_content_types";
 
+	const CONTENT_SOLR_SERVER = 'solr_server';
+	const CONTENT_SOLR_INDEXED_TYPES = 'solr_index_types';
+	const CONTENT_SITEMAP_INDEXED_TYPES = 'sitemap_index_types';
+
 	/**
 	 * Implementation of get_admin_menu()
 	 * @return array the menu
@@ -23,7 +27,6 @@ class content extends ActionModul {
 			$content_types[] = array(
 				'#title' => $content_type['description'], //The main title
 				'#link' => "/admin/content/manage_content_type/".$content_type['content_type'], // The main link
-		#		'#perm' => $content_type['permission'], //Perm needed
 				'#childs' => array(
 					array(
 						'#title' => t("manage fields"), //The main title
@@ -43,6 +46,11 @@ class content extends ActionModul {
 				'#link' => "/admin/content", // The main link
 				'#perm' => 'admin.content', //Perm needed
 				'#childs' => array(
+					array(
+						'#title' => t("Config"), //The main title
+						'#link' => "/admin/content/config", // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+					),
 					array(
 						'#title' => t("content types"), //The main title
 						'#link' => "/admin/content/list_content_types", // The main link
@@ -81,6 +89,229 @@ class content extends ActionModul {
 			$this->session->require_login();
 		}
 
+	}
+
+	/**
+	 * Provides hook: sitemap_section
+	 *
+	 * Allow other modules to provide sections for sitemap generation.
+	 *
+	 * @return array
+	 *   An array with holds unique sections keys and a label as the value.
+	 */
+	public function hook_sitemap_section() {
+		$filter = DatabaseFilter::create(ContentTypeObj::TABLE)
+			->add_column('content_type');
+
+		$content_types = array();
+		foreach($filter->select_all(0, true) AS $content_type) {
+			$content_types['content::' . $content_type] = t("Content: @content_type", array('@content_type' => $content_type));
+		}
+
+		return $content_types;
+	}
+
+	/**
+	 * Provides hook: sitemap_get_entries
+	 *
+	 * All modules which implements hook_sitemap_section() must implement this method.
+	 * Each hook call will provide the array of all sections which we want back, so each
+	 * module needs to switch on the provided section if the choosen configuration want the section.
+	 *
+	 * @param array $sections
+	 *   the sections which we want back.
+	 *
+	 * @return array
+	 *   An array with all site pathes excluding the protocoll and domain, just the path.
+	 *   If you want to provide the last modified time or the update frequenz
+	 *   please provide an array as the value for the array.
+	 *   this "entry" array can have the following keys:
+	 *     'loc' => the path what you normaly return as the single array value.
+	 *     'changefreq' => the frequenz based up on changefreq http://www.sitemaps.org/protocol.html
+	 *     'lastmod' => the last modifiction date as YYYY-MM-DD
+	 *     'priority' => the priority (default priority is 0.5)
+	 */
+	public function hook_sitemap_get_entries($sections) {
+
+		$generate = false;
+		$where = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+		foreach ($sections AS $k => $val) {
+			if (preg_match("/^content::(.+)$/", $k, $matches)) {
+				$generate = true;
+				$where->add_where('content_type', $matches[1]);
+			}
+		}
+
+		if ($generate == false) {
+			return array();
+		}
+
+		$results = array();
+
+		$filter = DatabaseFilter::create(PageObj::TABLE)
+			->add_column('page_id')
+			->add_column('language')
+			->add_column('last_modified')
+			->add_where('deleted', 'no')
+			->add_where($where);
+
+		foreach ($filter->select_all() AS $row) {
+			$alias = $this->get_alias_for_page_id($row['page_id'], $row['language']);
+			$url = '/' . strtolower($row['language']) . '/content/view/' . $row['page_id'];
+			if ($alias !== false) {
+				$url = '/' . $alias . '.html';
+			}
+
+			$results[] = array(
+				'loc' => $url,
+				'lastmod' => date('Y.m.d', strtotime($row['last_modified'])),
+			);
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Action: config
+	 *
+	 * Configurate the docu settings.
+	 */
+	public function config() {
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.content.manage', true)) {
+			return $this->no_permission();
+		}
+
+		//Setting up title and description
+		$this->title(t("Content Config"), t("Here we can configure the main content settings"));
+
+		//Configurate the settings form
+		$form = new SystemConfigForm($this, "content_config");
+
+		$form->add(new Fieldset('main', t('Main')));
+
+
+
+		if ($this->core->module_enabled('solr')) {
+
+			// Solr server.
+			$old_solr_server = $this->core->get_dbconfig("content", self::CONTENT_SOLR_SERVER, 'none');
+			$factory = new SolrFactory();
+			$form->add(new Selectfield(self::CONTENT_SOLR_SERVER, $factory->get_all_instances(true), $old_solr_server, t("Solr server")));
+
+			// Solr index types.
+			$delete_check = array();
+			$content_types = array();
+
+			$filter = DatabaseFilter::create(ContentTypeObj::TABLE)
+				->add_column('content_type');
+
+			foreach($filter->select_all(0, true) AS $content_type) {
+				$content_types[$content_type] = t("Content: @content_type", array('@content_type' => $content_type));
+				$delete_check[$content_type] = $content_type;
+			}
+
+			$old_values = $this->core->get_dbconfig("content", self::CONTENT_SOLR_INDEXED_TYPES, array());
+			foreach ($old_values AS $k=>$v) {
+				$delete_check[$k] = $k;
+			}
+
+			$form->add(new Checkboxes(self::CONTENT_SOLR_INDEXED_TYPES, $content_types, $old_values, t('Indexed content'), t('Only the checked content types will be indexed within Solr')));
+		}
+
+		//Execute the settings form
+		if ($form->execute()) {
+
+			if ($this->core->module_enabled('solr')) {
+
+				$skip_delete = false;
+				$new_solr_server = $this->core->get_dbconfig("content", self::CONTENT_SOLR_SERVER, 'none');
+
+				// It was already disabled dont do anything.
+				if ($new_solr_server === 'none' && $old_solr_server === 'none') {
+					return;
+				}
+
+				// If we changed the solr server, be sure to remove all entries for the old server.
+				if (!empty($old_solr_server) && $old_solr_server !== 'none' && $old_solr_server != $new_solr_server) {
+					$skip_delete = true;
+					$solr = SolrFactory::create_instance($old_solr_server);
+					if ($solr !== false) {
+						$solr->deleteByQuery('type:content');
+					}
+
+					// We have choose to disable solr service so just commit the delete and return.
+					if ($new_solr_server === 'none') {
+						if ($solr !== false) {
+							$solr->commit();
+						}
+						return;
+					}
+				}
+
+
+				$force_insert_all = false;
+				if (!empty($new_solr_server) && $new_solr_server !== 'none' && $old_solr_server != $new_solr_server) {
+					$force_insert_all = true;
+				}
+
+
+				$add_types = false;
+
+				$new_index = $this->core->get_dbconfig("content", self::CONTENT_SOLR_INDEXED_TYPES, array());
+				$add_filter = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+
+				// Check if we need to direct add content types because it was checked.
+				foreach ($new_index AS $key => $val) {
+
+					// Only reindex the selected content type if it was not checked before.
+					if ($force_insert_all === true || !isset($old_values[$key])) {
+						$add_filter->add_where('content_type', $key);
+						$add_types = true;
+					}
+
+					// We need to check on $delete_check because this will be the merged values
+					// For current content types and previous selected.
+					// This is needed because maybe we removed a content type but did not removed it from the
+					// Index state.
+					if (isset($delete_check[$key])) {
+						unset($delete_check[$key]);
+					}
+				}
+
+				if ($add_types === true) {
+					$filter = DatabaseFilter::create(PageObj::TABLE)
+						->add_column('page_id')
+						->add_column('language')
+						->add_column('content_type')
+						->add_where('last_revision', '', '!=')
+						->add_where($add_filter);
+
+					foreach ($filter->select_all() AS $row) {
+						$revision = new PageRevisionObj($row['page_id'], $row['language']);
+						if (!$revision->load_success()) {
+							continue;
+						}
+						$revision->update_solr($row['content_type'], false);
+					}
+
+				}
+
+				if ($skip_delete === false) {
+					$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+					if ($solr !== false) {
+						// Those which are within this array are the old indexed content types which we removed now so delete them.
+						foreach ($delete_check AS $key => $val) {
+							$solr->deleteByQuery('contenttype_s:' . $key);
+						}
+					}
+				}
+
+				if ($solr !== false) {
+					$solr->commit();
+				}
+			}
+		}
 	}
 
 	/**
@@ -1007,7 +1238,12 @@ class content extends ActionModul {
 
 
 		$field_groups = array();
-		foreach($this->db->query_slave_all("SELECT * FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)) AS $field_group) {
+
+		$filter = DatabaseFilter::create(ContentTypeFieldGroupObj::TABLE)
+			->add_where('content_type', $content_type)
+			->order_by('order');
+
+		foreach($filter->select_all() AS $field_group) {
 			/* @var $field_object AbstractFieldGroup */
 			$field_object = new $field_group['field_group']($fill_values);
 
@@ -1078,7 +1314,8 @@ class content extends ActionModul {
 
 		if($groups_valid && $form->check_form()) {
 
-
+			// Reset variable.
+			$alias = "";
 
 			$values = $form->get_array_values(true);
 
@@ -1128,7 +1365,14 @@ class content extends ActionModul {
 			}
 			else {
 				$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
+
+				$alias_string = $this->get_alias_for_page_id($page_obj->page_id);
+
 				$force_insert_page_translation = ($page_obj->deleted == 'yes') ? true : false;
+				if ($force_insert_page_translation === false) {
+					$force_insert_page_translation = ($create_alias && $alias_string === false) ? true : false;
+				}
+
 				$page_obj->language = $this->core->current_language;
 				$page_obj->deleted = 'no';
 				$page_revision_obj = new PageRevisionObj($provided_load_values['page_id'], $provided_load_values['language'], $provided_load_values['revision']);
@@ -1136,12 +1380,14 @@ class content extends ActionModul {
 
 
 				if($form->is_submitted("cancel")) {
-					if($create_alias == true) {
-						$this->core->location("/" . $this->get_alias_for_page_id($page_obj->page_id) . ".html");
+					if ($create_alias === false || $alias_string === false) {
+						$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
 					}
 					else {
-						$this->core->location("/content/view/" . $page_obj->page_id);
+						$alias = '/' . $alias_string . '.html';
 					}
+
+					$this->core->location($alias);
 					return;
 				}
 
@@ -1153,13 +1399,29 @@ class content extends ActionModul {
 			$page_revision_obj->title = $title;
 			$page_revision_obj->serialized_data = str_replace("\t","    ", json_encode($values));
 
-			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias);
+			$publish_ct = $content_type;
+			if (empty($publish)) {
+
+				// Set NS to unpublish it from solr if needed.
+				$publish_ct = NS;
+			}
+
+			$old_published = !empty($page_obj->last_revision);
+			$revision_values_changed = !empty($page_revision_obj->values_changed);
+			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias, $publish_ct);
+
 			if($revision_inserted) {
 				$page_obj->last_revision = $page_revision_obj->revision;
 			}
 
 			if(empty($publish)) {
 				$page_obj->last_revision = "";
+			}
+
+			$new_published = !empty($page_obj->last_revision);
+
+			if ($revision_values_changed === false && $old_published != $new_published) {
+				$page_revision_obj->update_solr($publish_ct);
 			}
 
 			$inserted = false;
@@ -1173,7 +1435,16 @@ class content extends ActionModul {
 			}
 			if($inserted) {
 
-				$alias = "/".$this->get_alias_for_page_id($page_obj->page_id).".html";
+				if (empty($alias)) {
+					$alias_string = $this->get_alias_for_page_id($page_obj->page_id);
+					if ($create_alias === false || $alias_string === false) {
+						$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
+					}
+					else {
+						$alias = '/' . $alias_string . '.html';
+					}
+				}
+
 				//Just insert the content type fields and setup menu entry/alias if we have changed some values
 				if($force_create || $create_mode || $page_revision_obj->has_values_changed()) {
 					//Insert all content type field values
@@ -1275,25 +1546,41 @@ class content extends ActionModul {
 					}
 					//Update current one
 					else if(!empty($old_menu_values) && !empty($new_menu_values)) {
-
 						$menu_obj = new MenuEntryObj($old_menu_entry_id);
 						$menu_obj->menu_id = $new_menu_values[0];
 						$menu_obj->parent_id = $new_menu_values[1];
-						if(!$menu_obj->save()) {
+
+						if ($menu_obj->load_success()) {
+							$menu_result = $menu_obj->save();
+						}
+						else {
+							$menu_result = $menu_obj->insert();
+						}
+
+						if(!$menu_result) {
 							$this->core->message(t("Could not save menu entry"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
 						}
 						$entry_id = $menu_obj->entry_id;
 						$menu_translation_obj = new MenuEntryTranslationObj($old_menu_entry_id, $this->core->current_language);
+						$menu_translation_obj->entry_id = $menu_obj->entry_id;
+						$menu_translation_obj->language = $this->core->current_language;
 						$menu_translation_obj->destination = $alias;
 						$menu_translation_obj->title = $new_menu_title;
 						if(empty($publish) || $publish == 'no') {
 							$menu_translation_obj->active = 'no';
 						}
 
-						if(!$menu_translation_obj->save()) {
-							$this->core->message(t("Could not save menu entry"), Core::MESSAGE_TYPE_ERROR);
+						if ($menu_translation_obj->load_success()) {
+							$menu_trans_result = $menu_translation_obj->save();
+						}
+						else {
+							$menu_trans_result = $menu_translation_obj->insert();
+						}
+
+						if(!$menu_trans_result) {
+							$this->core->message(t("Could not save menu entry translation"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
 						}

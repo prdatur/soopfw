@@ -21,11 +21,11 @@ class PageObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 *
-	 * @param int $page_id 
+	 * @param int $page_id
 	 *   the page id (optional, default = "")
-	 * @param string $language 
+	 * @param string $language
 	 *   the language, if not provided current language will be used (optional, default = '')
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($page_id = "", $language = '', $force_db = false) {
@@ -58,9 +58,9 @@ class PageObj extends AbstractDataManagment
 	/**
 	 * Save the given Data, also de/re-activate the menu entry if we changed the publish status
 	 *
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -72,8 +72,10 @@ class PageObj extends AbstractDataManagment
 			if(!empty($menu_activiation) && !empty($this->values['current_menu_entry_id'])) {
 
 				$menu_entry_translation_obj = new MenuEntryTranslationObj($this->values['current_menu_entry_id'], $this->values['language']);
-				$menu_entry_translation_obj->active = $menu_activiation;
-				$menu_entry_translation_obj->save();
+				if ($menu_entry_translation_obj->load_success()) {
+					$menu_entry_translation_obj->active = $menu_activiation;
+					$menu_entry_translation_obj->save();
+				}
 			}
 			return true;
 		}
@@ -103,7 +105,13 @@ class PageObj extends AbstractDataManagment
 			if($really_delete == false) {
 				$this->deleted = self::DELETED_YES;
 				$this->last_revision = '';
-				return $this->save();
+				$return = $this->save();
+
+				if ($return === true) {
+					$this->delete_solr($page_id, $language);
+				}
+
+				return $return;
 			}
 
 
@@ -112,10 +120,16 @@ class PageObj extends AbstractDataManagment
 				'@language' => $this->values['language']
 			));
 
-			return $this->db->query_master("DELETE FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language", array(
+			$return = $this->db->query_master("DELETE FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language", array(
 				'ipage_id' => $this->values['page_id'],
 				'@language' => $this->values['language']
 			));
+
+			if ($return !== false) {
+				$this->delete_solr($page_id, $language);
+			}
+
+			return $return;
 		}
 		return false;
 	}
@@ -136,6 +150,11 @@ class PageObj extends AbstractDataManagment
 		return (int)(++$row['page_id']);
 	}
 
+	/**
+	 * Returns the pure content for this content.
+	 *
+	 * @return string the content
+	 */
 	public function get_content() {
 		$content = "";
 		$page_id = $this->page_id;
@@ -196,6 +215,39 @@ class PageObj extends AbstractDataManagment
 		}
 
 		return nl2br($content);
+	}
+
+	/**
+	 * Deletes the given entry from solr.
+	 *
+	 * @param int $id
+	 *   the page id
+	 *   if not provided it will try to get the current one. (optional, default = "")
+	 * @param string $language
+	 *   the page language
+	 *   if not provided it will try to get the current one. (optional, default = "")
+	 */
+	public function delete_solr($id = "", $language = "") {
+
+		if (!$this->core->module_enabled('solr')) {
+			return false;
+		}
+
+		$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+		if ($solr === false) {
+			return;
+		}
+
+		if (empty($id)) {
+			$id = $this->page_id;
+		}
+
+		if (empty($language)) {
+			$language = $this->language;
+		}
+
+		$solr->deleteById('content::' . $id . ':' . strtolower($language));
+		$solr->commit();
 	}
 }
 
