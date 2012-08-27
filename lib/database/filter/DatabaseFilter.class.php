@@ -91,12 +91,21 @@ class DatabaseFilter extends Object
 	 *   the table (optional, default = "")
 	 * @param string $alias
 	 *   the alias for this table (optional, default = "")
+	 * @param Db $db
+	 *   if provided it will set the db for our databasefilter.
+	 *   this is needed if we use this filter within the construct
+	 *   of the Core, normaly this is not needed because it will get it from
+	 *   the Object class
+	 *   (optional, default = null)
 	 */
- 	public function __construct($table = "", $alias = "") {
+ 	public function __construct($table = "", $alias = "", Db $db = null) {
 		$this->where = new DatabaseWhereGroup();
 		$this->table = $table;
 		$this->alias = $alias;
 		parent::__construct();
+		if ($db !== null) {
+			$this->db = $db;
+		}
 	}
 
 	/**
@@ -120,11 +129,17 @@ class DatabaseFilter extends Object
 	 *   the table (optional, default = "")
 	 * @param string $alias
 	 *   the alias for this table (optional, default = "")
+	 * @param Db $db
+	 *   if provided it will set the db for our databasefilter.
+	 *   this is needed if we use this filter within the construct
+	 *   of the Core, normaly this is not needed because it will get it from
+	 *   the Object class
+	 *   (optional, default = null)
 	 *
 	 * @return DatabaseFilter returns the newly created object
 	 */
-	public static function create($table = "", $alias = "") {
-		return new DatabaseFilter($table, $alias);
+	public static function create($table = "", $alias = "", Db &$db = null) {
+		return new DatabaseFilter($table, $alias, $db);
 	}
 
 	/**

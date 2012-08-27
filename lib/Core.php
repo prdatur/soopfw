@@ -740,14 +740,21 @@ class Core {
 			}
 
 			//Build up all wanted options (sql where statement)
-			$where = array();
+			$filter = DatabaseFilter::create(CoreModulConfigObj::TABLE, '', $this->db)
+				->add_column('value')
+				->add_column('key')
+				->add_where('modul', $modul);
+
+			$keys = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
 			foreach ($key AS $key_value) {
-				$where[] = "`key` = '" . safe($key_value) . "'";
+				$keys->add_where('key', $key_value);
 			}
+
+			$filter->add_where($keys);
 
 			//Get the data from database
 			$return = array();
-			$rows = $this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "` WHERE " . implode(" OR ", $where));
+			$rows = $filter->select_all();
 
 			if (!empty($rows)) {
 				foreach ($rows AS $row) {
