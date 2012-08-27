@@ -164,7 +164,7 @@ class content extends ActionModul {
 
 			$results[] = array(
 				'loc' => $url,
-				'lastmod' => date('Y.m.d', strtotime($row['last_modified'])),
+				'lastmod' => date('Y-m-d', strtotime($row['last_modified'])),
 			);
 		}
 
