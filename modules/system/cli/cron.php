@@ -23,13 +23,21 @@ class cli_cron extends CLICommand
 	 */
 	public function execute() {
 
+		$cron = new Cron();
+
 		/**
 		 * Provides hook: cron
 		 *
 		 * Allow other modules to run cron's
+		 *
+		 * @param Cron $cron
+		 *   A cron object.
+		 *   So we don't need to initialize this object within every hook
+		 *   to use it.
+		 *   Its just a helper for performance
 		 */
-		$this->core->hook('cron');
-		
+		$this->core->hook('cron', array(&$cron));
+
 		return true;
 	}
 
