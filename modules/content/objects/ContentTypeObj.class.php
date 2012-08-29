@@ -92,7 +92,6 @@ class ContentTypeObj extends AbstractDataManagment
 				$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
 				if ($solr !== false) {
 					$solr->deleteByQuery('contenttype_s:' . $content_type);
-					$solr->commit();
 				}
 			}
 			return true;

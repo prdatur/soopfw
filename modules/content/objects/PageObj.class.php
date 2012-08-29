@@ -247,7 +247,6 @@ class PageObj extends AbstractDataManagment
 		}
 
 		$solr->deleteById('content::' . $id . ':' . strtolower($language));
-		$solr->commit();
 	}
 }
 

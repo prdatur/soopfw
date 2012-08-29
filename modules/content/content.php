@@ -242,9 +242,6 @@ class content extends ActionModul {
 
 					// We have choose to disable solr service so just commit the delete and return.
 					if ($new_solr_server === 'none') {
-						if ($solr !== false) {
-							$solr->commit();
-						}
 						return;
 					}
 				}
@@ -305,10 +302,6 @@ class content extends ActionModul {
 							$solr->deleteByQuery('contenttype_s:' . $key);
 						}
 					}
-				}
-
-				if ($solr !== false) {
-					$solr->commit();
 				}
 			}
 		}
