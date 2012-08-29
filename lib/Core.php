@@ -376,6 +376,15 @@ class Core {
 	}
 
 	/**
+	 * Regenerates the CSRF-token and return it.
+	 *
+	 * @return string the token
+	 */
+	public function regenerate_csrf_token() {
+		return $_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
+	}
+
+	/**
 	 * Boot up the core, this is need because with creating the core object
 	 * no $GLOBALS['core'] exist and therefore the Object class can not get the
 	 * core from GLOBALS
