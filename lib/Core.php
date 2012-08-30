@@ -323,10 +323,7 @@ class Core {
 		}
 		unset($this->config['db']);
 
-		$db_default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
-		if (!empty($db_default_language)) {
-			$this->default_language = strtolower($db_default_language);
-		}
+		$this->default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
 
 		//Initialize our session
 		$this->session = new Session($this);
@@ -334,17 +331,17 @@ class Core {
 		//Only do a normal startup if we do not install the core system
 		if ($install == false) {
 
+			//Set the provided $language if it is not empty
+			if (!empty($language)) {
+				$_SESSION['language'] = $language;
+			}
+
 			//If we have not setup a language set the current language to the default language
-			if (empty($language) && empty($_SESSION['language'])) {
+			if (empty($_SESSION['language'])) {
 				$_SESSION['language'] = $this->default_language;
 			}
 
-			//Set the provided $language if it is not empty
-			if (!empty($language)) {
-				$_SESSION['language'] = strtolower($language);
-			}
-
-
+			$_SESSION['language'] = strtolower($_SESSION['language']);
 
 			//Set our current language
 			$this->current_language = $_SESSION['language'];

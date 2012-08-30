@@ -26,7 +26,6 @@ class LanguagesObj extends AbstractDataManagment
 	public function __construct($lang = "", $force_db = false) {
 		parent::__construct();
 
-		$lang = strtolower($lang);
 		$this->db_struct = new DbStruct(self::TABLE);
 		$this->db_struct->set_cache(true);
 		$this->db_struct->add_reference_key("lang");

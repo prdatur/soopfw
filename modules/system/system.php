@@ -390,7 +390,7 @@ class system extends ActionModul
 
 		$form->add(new Fieldset('system', t('System')));
 		if (!empty($this->lng)) {
-			$form->add(new Selectfield(self::CONFIG_DEFAULT_LANGUAGE, $this->lng->get_enabled_languages(), $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_LANGUAGE, 'EN'), t("Default language")));
+			$form->add(new Selectfield(self::CONFIG_DEFAULT_LANGUAGE, $this->lng->get_enabled_languages(), $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_LANGUAGE, 'en'), t("Default language")));
 		}
 
 		$form->add(new Fieldset('appearance', t('Appearance')));

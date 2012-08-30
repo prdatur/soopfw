@@ -157,7 +157,7 @@ class content extends ActionModul {
 
 		foreach ($filter->select_all() AS $row) {
 			$alias = $this->get_alias_for_page_id($row['page_id'], $row['language']);
-			$url = '/' . strtolower($row['language']) . '/content/view/' . $row['page_id'];
+			$url = '/' . $row['language'] . '/content/view/' . $row['page_id'];
 			if ($alias !== false) {
 				$url = '/' . $alias . '.html';
 			}
@@ -576,17 +576,17 @@ class content extends ActionModul {
 			if (empty($val)) {
 				continue;
 			}
-			$where[] = "`".sql_escape($field)."` LIKE '".$this->db->get_sql_string_search($val, "%{v}%")."'";
+			$where[] = "`".sql_escape($field)."` LIKE '" . $this->db->get_sql_string_search($val, "%{v}%") . "'";
 		}
 
 		if (empty($where)) {
-			$where[] = "`language` = '".strtoupper(safe($this->core->current_language))."'";
+			$where[] = "`language` = '" . safe($this->core->current_language) . "'";
 		}
 
-		$where = " WHERE ".implode(" AND ", $where);
+		$where = " WHERE " . implode(" AND ", $where);
 
 		//Build query string for pager
-		$query_string = "SELECT 1 FROM `".PageObj::TABLE."`".$where;
+		$query_string = "SELECT 1 FROM `" . PageObj::TABLE . "`".$where;
 
 		//Init pager
 		$max = $this->db->query_slave_count($query_string);
@@ -594,7 +594,7 @@ class content extends ActionModul {
 		$pager->assign_smarty("pager");
 
 		//Build query string
-		$query_string = "SELECT `page_id`,`deleted`,`last_revision` FROM `".PageObj::TABLE."`".$where;
+		$query_string = "SELECT `page_id`,`deleted`,`last_revision` FROM `".PageObj::TABLE . "`" . $where;
 
 		//Search in DB
 		$pages = $this->db->query_slave_all($query_string, array(), $pager->max_entries_per_page(), $pager->get_offset());
@@ -1071,7 +1071,7 @@ class content extends ActionModul {
 		if(empty($language)) {
 			$language = $this->core->current_language;
 		}
-		$language = strtoupper($language);
+
 		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $page_id, 'current_language' => $language));
 		if(!empty($alias_entry)) {
 			return $alias_entry['alias'];
@@ -1090,19 +1090,19 @@ class content extends ActionModul {
 	 */
 	public function get_translation_link($language_key) {
 		static $cache = array();
-		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
+		list($url) = explode('?', $_SERVER['REQUEST_URI'], 2);
 
 		// Remove all starting slashes.
 		$url = preg_replace('/^\/+/is','', $url);
 
 		// Replace a possible language indicator.
-		$url = preg_replace('/^[a-z]{2}\//is','', $url);
+		$url = preg_replace('/^[a-z]{2}\//is', '', $url);
 
 		// Remove the file ending
-		$url = preg_replace('/\.html?$/is','', $url);
+		$url = preg_replace('/\.html?$/is', '', $url);
 
 		// Check if cache has already this entry.
-		if(!isset($cache[$url."|".$language_key])) {
+		if(!isset($cache[$url . "|" . $language_key])) {
 
 			// Try to get the url alias for this url if cache was not setup.
 			if(!isset($cache[$url])) {
@@ -1113,7 +1113,7 @@ class content extends ActionModul {
 				// Check if the url alias exist, if not we must fallback to parent method.
 				if(!$alias_url->load_success()) {
 					$cache[$url] = false;
-					$cache[$url."|".$language_key] = false;
+					$cache[$url . "|" . $language_key] = false;
 					return parent::get_translation_link($language_key);
 				}
 				$cache[$url] = $alias_url->params;
@@ -1129,19 +1129,19 @@ class content extends ActionModul {
 
 			// If nothing could be found use the page id fallback.
 			if(empty($alias)) {
-				$alias = 'content/view/'.$data_array[0];
+				$alias = 'content/view/' . $data_array[0];
 			}
 
 			// Setup the cache key with the translated link.
-			$cache[$url."|".$language_key] = '/'.strtolower($language_key).'/'.$alias.'.html';
+			$cache[$url . "|" . $language_key] = '/' . $language_key . '/' . $alias . '.html';
 		}
 		// The url and language was cached but an alias could not be found, fallback to parent method.
-		else if($cache[$url."|".$language_key] == false) {
+		else if($cache[$url . "|" . $language_key] == false) {
 			return parent::get_translation_link($language_key);
 		}
 
 		// Return the alias for this language.
-		return $cache[$url."|".$language_key];
+		return $cache[$url . "|" . $language_key];
 	}
 
 	/**

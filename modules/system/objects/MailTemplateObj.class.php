@@ -27,7 +27,6 @@ class MailTemplateObj extends AbstractDataManagment
 	public function __construct($id = "", $language = 'en', $force_db = false) {
 		parent::__construct();
 
-		$language = strtolower($language);
 		$this->db_struct = new DbStruct(self::TABLE);
 		$this->db_struct->set_cache(false);
 		$this->db_struct->add_reference_key(array("id", 'language'));

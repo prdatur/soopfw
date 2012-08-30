@@ -112,8 +112,8 @@ class Language extends Object
 
 			//Unset "preferred" languages
 			foreach ($push_countries_to_front AS $language) {
-				unset($codes[strtoupper($language)]);
-				$merge_array[strtoupper($language)] = $this->codes[strtoupper($language)];
+				unset($codes[$language]);
+				$merge_array[$language] = $this->codes[$language];
 			}
 
 			$merge_array[''] = '----------------------';
@@ -147,8 +147,8 @@ class Language extends Object
 
 			//Unset "preferred" languages
 			foreach ($push_countries_to_front AS $language) {
-				unset($codes[strtoupper($language)]);
-				$merge_array[strtoupper($language)] = $this->currencies[strtoupper($language)];
+				unset($codes[$language]);
+				$merge_array[$language] = $this->currencies[$language];
 			}
 
 			$merge_array[''] = '----------------------';
@@ -180,8 +180,8 @@ class Language extends Object
 
 			//Unset "preferred" languages
 			foreach ($push_countries_to_front AS $language) {
-				unset($codes[strtolower($language)]);
-				$merge_array[strtolower($language)] = $this->languages[strtolower($language)];
+				unset($codes[$language]);
+				$merge_array[$language] = $this->languages[$language];
 			}
 
 			$merge_array[''] = '----------------------';
@@ -197,11 +197,11 @@ class Language extends Object
 
 
 			foreach ($this->db->query_slave_all("SELECT * FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $language) {
-				if (!isset($this->languages[strtolower($language['lang'])])) {
+				if (!isset($this->languages[$language['lang']])) {
 					continue;
 				}
 
-				$return_array[strtolower($language['lang'])] = $this->languages[strtolower($language['lang'])];
+				$return_array[$language['lang']] = $this->languages[$language['lang']];
 			}
 
 			$this->languages = $return_array;
@@ -214,7 +214,7 @@ class Language extends Object
 	 * @param string $lang the language key
 	 */
 	public function set_lang($lang) {
-		$this->language = $lang;
+		$this->language = strtolower($lang);
 		$this->load('_system');
 		$this->load_javascript('_system');
 	}
@@ -263,11 +263,11 @@ class Language extends Object
 
 			$this->loaded_cats[] = $tmp_cat;
 
-			if (file_exists(SITEPATH . "/language/" . strtolower($this->language) . "/" . $tmp_cat . "_js.php")) {
-				include(SITEPATH . "/language/" . strtolower($this->language) . "/" . $tmp_cat . "_js.php");
+			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . "_js.php")) {
+				include(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . "_js.php");
 			}
-			if (file_exists(SITEPATH . "/modules/" . $tmp_cat . "/language/" . strtolower($this->language) . "_js.php")) {
-				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . strtolower($this->language) . "_js.php");
+			if (file_exists(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . "_js.php")) {
+				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . "_js.php");
 			}
 		}
 	}
@@ -286,12 +286,12 @@ class Language extends Object
 
 			$this->loaded_cats[] = $tmp_cat;
 
-			if (file_exists(SITEPATH . "/language/" . strtolower($this->language) . "/" . $tmp_cat . ".php")) {
-				include(SITEPATH . "/language/" . strtolower($this->language) . "/" . $tmp_cat . ".php");
+			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . ".php")) {
+				include(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . ".php");
 			}
 
-			if (file_exists(SITEPATH . "/modules/" . $tmp_cat . "/language/" . strtolower($this->language) . ".php")) {
-				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . strtolower($this->language) . ".php");
+			if (file_exists(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . ".php")) {
+				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . ".php");
 			}
 		}
 		if (empty($this->items)) {
@@ -630,7 +630,7 @@ class Language extends Object
 		if (empty($this->languages)) {
 			return array();
 		}
-		foreach ($this->db->query_slave_all("SELECT LOWER(`lang`) as lang FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $row) {
+		foreach ($this->db->query_slave_all("SELECT `lang` FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $row) {
 			$return[$row['lang']] = $this->languages[$row['lang']];
 		}
 		return $return;
@@ -752,7 +752,7 @@ class Language extends Object
 			$language = $this->get_lang();
 		}
 		//Get the file path
-		$fn = SITEPATH . '/language/' . $type . '/' . strtolower($language) . '.php';
+		$fn = SITEPATH . '/language/' . $type . '/' . $language . '.php';
 
 		//Check if file exists
 		if (@!file_exists($fn)) {

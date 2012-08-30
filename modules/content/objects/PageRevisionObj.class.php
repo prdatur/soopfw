@@ -221,7 +221,7 @@ class PageRevisionObj extends AbstractDataManagment {
 		if ($solr === false) {
 			return;
 		}
-		
+
 		if ($content_type === NS) {
 
 			$page_obj = new PageObj($this->page_id, $this->language);
@@ -259,9 +259,12 @@ class PageRevisionObj extends AbstractDataManagment {
 			}
 		}
 
+		$bbcode = new BBCodeParser();
+		$content = $bbcode->parse($content);
+
 		$content_obj = new content();
 		$alias = $content_obj->get_alias_for_page_id($this->page_id, $this->language);
-		$url = '/' . strtolower($this->language) . '/content/view/' . $this->page_id;
+		$url = '/' . $this->language . '/content/view/' . $this->page_id;
 		if ($alias !== false) {
 			$url = '/' . $alias . '.html';
 		}
@@ -273,7 +276,9 @@ class PageRevisionObj extends AbstractDataManagment {
 		$document->addField('created', gmdate("Y-m-d\TH:i:s\Z", TIME_NOW));
 		$document->addField('url', $url);
 		$document->addField('title', $this->title);
-		$document->addField('description', str_replace("[br]", "\n", html_entity_decode(strip_tags($content))));
+		$content = str_replace("[br]", "\n", html_entity_decode(strip_tags($content)));
+		$document->addField('description', $content);
+		$document->addField('short_description_s', substr($content, 0, 500));
 
 		$solr->addDocument($document);
 

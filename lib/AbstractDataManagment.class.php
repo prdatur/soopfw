@@ -904,7 +904,7 @@ abstract class AbstractDataManagment extends Object
 				}
 				return $value;
 			case PDT_LANGUAGE :
-			case PDT_LANGUAGE_ENABLED : $value = strtoupper($value);
+			case PDT_LANGUAGE_ENABLED : $value = strtolower($value);
 			case PDT_ENUM :
 			case PDT_TEXT :
 			case PDT_PASSWORD :

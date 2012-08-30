@@ -246,7 +246,7 @@ class PageObj extends AbstractDataManagment
 			$language = $this->language;
 		}
 
-		$solr->deleteById('content::' . $id . ':' . strtolower($language));
+		$solr->deleteById('content::' . $id . ':' . $language);
 	}
 }
 
