@@ -26,12 +26,14 @@ class cli_enable_module extends CLICommand
 
 		unset($argv[0]);
 		$module = "";
-		foreach ($argv AS $param) {
-			if (preg_match("/^-/", $param)) {
-				continue;
+		if (!empty($argv)) {
+			foreach ($argv AS $param) {
+				if (preg_match("/^-/", $param)) {
+					continue;
+				}
+				$module = $param;
+				break;
 			}
-			$module = $param;
-			break;
 		}
 		if (empty($module)) {
 			consoleLog('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user', Core::MESSAGE_TYPE_ERROR);
