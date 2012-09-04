@@ -198,8 +198,13 @@ class ActionModul extends Object
 		}
 		unset($trace); //free memory
 
-		//only if file is system.php and caller method is install allow processing with install
-		if (SITEPATH."/modules/system/system.php" == $caller['file'] && $caller['function'] == "install_module") {
+		//If system/install calls this method return that everything worked well
+		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install_module") {
+			return true;
+		}
+
+		//only if file is system.php or /install and caller method is install allow processing with install
+		if ((SITEPATH . "/modules/system/system.php" == $caller['file'] || SITEPATH . "/install" == $caller['file']) && $caller['function'] == "install_module") {
 			return true;
 		}
 
