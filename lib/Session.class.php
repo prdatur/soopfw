@@ -92,6 +92,9 @@ class Session extends Object
 	 *   if we just want to logout the current user with no redirect (optional, default = false)
 	 */
 	public function logout($time = 0, $justreturn = false) {
+
+		SystemHelper::audit(t('User "@username" logged out.', array('@username' => $this->session->current_user()->username)), 'session', SystemLogObj::LEVEL_NOTICE);
+
 		//Loop through all user session keys and unset it
 		foreach ($this->session_keys AS $i) {
 			$this->session->delete($i);
@@ -199,6 +202,9 @@ class Session extends Object
 		else {
 			//We have a direct username password call, check the login handler and return result.
 			$this->logged_in = $this->login_handler->validate_login($username, $password);
+			if ($this->logged_in) {
+				SystemHelper::audit(t('User "@username" logged in.', array('@username' => $this->session->current_user()->username)), 'session', SystemLogObj::LEVEL_NOTICE);
+			}
 			return $this->logged_in;
 		}
 		$this->current_user = $return;
