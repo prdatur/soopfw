@@ -171,7 +171,7 @@ class Language extends Object
 		if ($this->load_list("languages", $language)) {
 			$this->languages = array_change_key_case($this->languages, CASE_LOWER);
 		}
-
+		
 		if (!empty($push_countries_to_front)) {
 			//Get the country codes
 			$codes = $this->languages;
@@ -626,7 +626,7 @@ class Language extends Object
 	 */
 	public function get_enabled_languages() {
 		$return = array();
-		$this->load_language_list();#
+		$this->load_language_list();
 		if (empty($this->languages)) {
 			return array();
 		}
