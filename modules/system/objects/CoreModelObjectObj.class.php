@@ -27,7 +27,7 @@ class CoreModelObjectObj extends AbstractDataManagment
 		parent::__construct();
 
 		$this->db_struct = new DbStruct(self::TABLE);
-		$this->db_struct->set_cache(true);
+		$this->db_struct->set_cache(false);
 		$this->db_struct->add_reference_key("classname");
 		$this->db_struct->add_field("classname", t("the classname"), PDT_STRING);
 		$this->db_struct->add_field("last_modified", t("last modification time"), PDT_INT);
