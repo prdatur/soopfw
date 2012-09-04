@@ -337,5 +337,26 @@ class SystemHelper extends Object {
 
 		return $cache[$module . "|" . $just_rights];
 	}
+
+	/**
+	 * Inserts a log entry.
+	 *
+	 * @param string $message
+	 *   the log message.
+	 * @param string $type
+	 *   the type, can be any string to identify this log entry better. (optional, default = 'default')
+	 * @param int $log_level
+	 *   the log level, use one of SystemLogObj::LEVEL_*
+	 *   default is LEVEL_NORMAL (2) (optional, default = 2)
+	 */
+	public static function audit($message, $type = 'default', $log_level = 2) {
+		if (class_exists('SystemLogObj')) {
+			$log = new SystemLogObj();
+			$log->type = $type;
+			$log->message = $message;
+			$log->log_level = $log_level;
+			$log->insert();
+		}
+	}
 }
 ?>
