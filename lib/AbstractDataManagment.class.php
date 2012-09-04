@@ -295,10 +295,6 @@ abstract class AbstractDataManagment extends Object
 		$ref_key = $this->db_struct->get_reference_key();
 		//Loop through all struct fields
 		foreach ($this->db_struct->get_struct() as $name => $struct) {
-			//If current field is a reference field, skip it
-			if (in_array($name, $ref_key)) {
-				continue;
-			}
 			//If struct defines a default value, set it
 			if (isset($struct['default'])) {
 				$this->values[$name] = $struct['default'];
@@ -844,7 +840,7 @@ abstract class AbstractDataManagment extends Object
 		if ($table === NS || $table === null) {
 			$table = $this->db_struct->get_table();
 		}
-
+		
 		if ($values === NS || $values === null) {
 			$values = array();
 			foreach ($this->values AS $field => &$v) {
