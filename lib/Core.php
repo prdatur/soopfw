@@ -309,12 +309,14 @@ class Core {
 		//Include core config
 		require(SITEPATH . "/config/core.php");
 
-		//Setup the default language
-		$this->default_language = $this->config['core']['default_language'];
-
 		//If we want to use a database connection initialize the database object
 		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
 			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $this->config['db']['debug']);
+
+			// Set the table prefix if configured.
+			if (!empty($this->config['db']['table_prefix'])) {
+				$this->db->table_prefix($this->config['db']['table_prefix']);
+			}
 			if ($this->get_dbconfig("system", system::CONFIG_RUN_MODE, self::RUN_MODE_DEVELOPEMENT) == self::RUN_MODE_PRODUCTION) {
 				error_reporting(E_ERROR);
 				ini_set('display_errors', 'off');
@@ -323,7 +325,12 @@ class Core {
 		}
 		unset($this->config['db']);
 
-		$this->default_language = $this->dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE);
+		//Setup the default language
+		if (empty($this->config['core']['default_language'])) {
+			$this->config['core']['default_language'] = 'en';
+		}
+
+		$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 
 		//Initialize our session
 		$this->session = new Session($this);
@@ -526,21 +533,23 @@ class Core {
 
 			if ($memcached_use) {
 				$this->memcache_obj = new memcached();
-				$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config("core", "domain") . ":");
 			}
 			//Memcached not exist, try to get memcache with the wrapper for memcached
 			else if (class_exists("memcache")) {
 				$this->memcache_obj = new MemcachedWrapper();
-				$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config("core", "domain") . ":");
 			}
 			//Memcache also not exist, try to use database memcached wrapper
 			else if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
 				$this->memcache_obj = new DBMemcached($this);
+
 			}
 			//We use no database connection so we have no realy cache, we use a static memcached wrapper
 			else {
 				$this->memcache_obj = new StaticMemcached($this);
 			}
+
+			// Setup memcached prefix.
+			$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $this->db->table_prefix() . ':');
 
 			//Add the current server to memcached object / wrapper
 			$this->memcache_obj->addServer($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
@@ -751,7 +760,7 @@ class Core {
 				->add_column('key')
 				->add_where('modul', $modul);
 
-			$keys = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+			$keys = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR, $this->db);
 			foreach ($key AS $key_value) {
 				$keys->add_where('key', $key_value);
 			}

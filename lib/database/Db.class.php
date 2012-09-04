@@ -109,6 +109,13 @@ class Db
 	private $altertable = array();
 
 	/**
+	 * The tablename prefix.
+	 *
+	 * @var string
+	 */
+	private $table_prefix = "";
+
+	/**
 	 * Constructor from class DB,
 	 * configurating mysql server,
 	 * and connecting to database
@@ -131,6 +138,23 @@ class Db
 		$this->set_server();
 
 		$this->_debug = $debug;
+	}
+
+	/**
+	 * Set or Get the table prefix.
+	 *
+	 * @param string $table_prefix
+	 *   the table prefix, if not provided we return the current one. (optional, default = NS)
+	 *
+	 * @return mixed returns the table_prefix as a string if provided $table_prefix is not provided.
+	 *   If $table_prefix is provided it will set the new value and returns nothing.
+	 */
+	public function table_prefix($table_prefix = NS) {
+		if ($table_prefix === NS) {
+			return $this->table_prefix;
+		}
+
+		$this->table_prefix = $table_prefix;
 	}
 
 	/**
@@ -399,7 +423,7 @@ class Db
 	 *   returned array key as a table field (optional, default=0)
 	 * @param int $type
 	 *   The result type (use one of MYSQL_*)
-	 *	 (optional, default = MYSQL_ASSOC)
+	 * 	 (optional, default = MYSQL_ASSOC)
 	 * @return array The Results
 	 */
 	public function query_slave_all($query_string, $args = array(), $limit = 0, $offset = 0, $array_key = 0, $type = MYSQL_ASSOC) {
@@ -433,17 +457,19 @@ class Db
 	 */
 	protected function query($query_string, $args = array(), $limit = 0, $offset = 0) {
 
+		$this->final_transform_query($query_string);
+
 		//Escape all arguments with the prefix
 		foreach ($args AS $key => $value) {
 			switch (substr($key, 0, 1)) {
 				case 'i':
-					$value = (int)$value;
+					$value = (int) $value;
 					break;
 				case 'f':
-					$value = (float)$value;
+					$value = (float) $value;
 					break;
 				case '@':
-					$value = "'".safe($value)."'";
+					$value = "'" . safe($value) . "'";
 					break;
 				default:
 					$value = safe($value);
@@ -452,20 +478,20 @@ class Db
 
 			$query_string = str_replace($key, $value, $query_string);
 		}
-		$limit = (int)$limit;
+		$limit = (int) $limit;
 		if ($limit > 0) {
-			$query_string .= " LIMIT ".$limit;
+			$query_string .= " LIMIT " . $limit;
 		}
 
-		$offset = (int)$offset;
+		$offset = (int) $offset;
 		if ($offset > 0) {
-			$query_string .= " OFFSET ".$offset;
+			$query_string .= " OFFSET " . $offset;
 		}
 
 		if ($this->_debug) {
-			echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">".$query_string."</div>\n";
+			echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
-				$sql = @mysql_query("EXPLAIN ".$query_string, $this->link_id);
+				$sql = @mysql_query("EXPLAIN " . $query_string, $this->link_id);
 				$res = @mysql_fetch_assoc($sql);
 				if (!empty($res)) {
 					foreach ($res AS $key => $val) {
@@ -544,7 +570,7 @@ class Db
 			$mode = "0";
 		}
 
-		mysql_query("SET AUTOCOMMIT=".$mode, $this->link_id);
+		mysql_query("SET AUTOCOMMIT=" . $mode, $this->link_id);
 	}
 
 	/**
@@ -644,7 +670,7 @@ class Db
 			//It was not so we setup the table and return the alter table SQL-String
 			//So the first query for this table queue will get the ALTER TABLE prefix.
 			$this->altertable[$table] = array();
-			$query = "ALTER TABLE `".$table."` ";
+			$query = "ALTER TABLE `" . $table . "` ";
 		}
 		return $query;
 	}
@@ -662,12 +688,12 @@ class Db
 	public function remove_table_field($table, $field, $queue = false) {
 		if ($queue === true) {
 			$query = $this->init_alter_table_queue($table);
-			$query .= "DROP COLUMN `".$field."`";
+			$query .= "DROP COLUMN `" . $field . "`";
 			$this->altertable[$table][] = $query;
 			return;
 		}
 
-		$this->query("ALTER TABLE `".$table."` DROP COLUMN `".$field."`");
+		$this->query("ALTER TABLE `" . $table . "` DROP COLUMN `" . $field . "`");
 	}
 
 	/**
@@ -692,15 +718,15 @@ class Db
 			$after = " FIRST";
 		}
 		else {
-			$after = " AFTER `".$after."`";
+			$after = " AFTER `" . $after . "`";
 		}
 		if ($queue === true) {
 			$query = $this->init_alter_table_queue($table);
-			$query .= "ADD ".$line.$after;
+			$query .= "ADD " . $line . $after;
 			$this->altertable[$table][] = $query;
 			return;
 		}
-		$this->query("ALTER TABLE `".$table."` ADD ".$line.$after);
+		$this->query("ALTER TABLE `" . $table . "` ADD " . $line . $after);
 	}
 
 	/**
@@ -725,11 +751,11 @@ class Db
 		$line = $this->mysql_table->create_database_get_line($field, $data, $autoincrement, true);
 		if ($queue === true) {
 			$query = $this->init_alter_table_queue($table);
-			$query .= "CHANGE ".$line;
+			$query .= "CHANGE " . $line;
 			$this->altertable[$table][] = $query;
 			return;
 		}
-		$this->query("ALTER TABLE `".$table."` CHANGE ".$line);
+		$this->query("ALTER TABLE `" . $table . "` CHANGE " . $line);
 	}
 
 	/**
@@ -747,15 +773,15 @@ class Db
 			$field = array($field);
 		}
 		foreach ($field AS &$val) {
-			$val = "`".safe($val)."`";
+			$val = "`" . safe($val) . "`";
 		}
 		if ($queue === true) {
 			$query = $this->init_alter_table_queue($table);
-			$query .= "DROP PRIMARY KEY, ADD PRIMARY KEY (".implode(", ", $field).")";
+			$query .= "DROP PRIMARY KEY, ADD PRIMARY KEY (" . implode(", ", $field) . ")";
 			$this->altertable[$table][] = $query;
 			return;
 		}
-		$this->query("ALTER TABLE `".$table."` DROP PRIMARY KEY, ADD PRIMARY KEY (".implode(", ", $field).")");
+		$this->query("ALTER TABLE `" . $table . "` DROP PRIMARY KEY, ADD PRIMARY KEY (" . implode(", ", $field) . ")");
 	}
 
 	/**
@@ -776,12 +802,12 @@ class Db
 	 */
 	public function move_table_field($table, $field, $data, $autoincrement, $after, $queue = false) {
 		$field_data = $this->mysql_table->create_database_get_line($field, $data, $autoincrement, true);
-		$alter_data = "CHANGE ".$field_data." AFTER `".$after."`";
+		$alter_data = "CHANGE " . $field_data . " AFTER `" . $after . "`";
 		if ($queue === true) {
-			$this->altertable[$table][] = $this->init_alter_table_queue($table).$alter_data;
+			$this->altertable[$table][] = $this->init_alter_table_queue($table) . $alter_data;
 			return;
 		}
-		$this->query("ALTER TABLE `".$table."` ".$alter_data);
+		$this->query("ALTER TABLE `" . $table . "` " . $alter_data);
 	}
 
 	/**
@@ -812,7 +838,7 @@ class Db
 	 */
 	public function get_table_fields($table) {
 		$fields = array();
-		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '".sql_escape($table)."' ORDER BY ORDINAL_POSITION") AS $row) {
+		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . sql_escape($table) . "' ORDER BY ORDINAL_POSITION") AS $row) {
 			$fields[$row['COLUMN_NAME']] = $row;
 		}
 		return $fields;
@@ -829,7 +855,7 @@ class Db
 	 * @return mixed the primary key as an array or a string comma seperated
 	 */
 	public function get_primary_key($table, $return_as_array = false) {
-		$sql = "SHOW COLUMNS FROM `".$table."`";
+		$sql = "SHOW COLUMNS FROM `" . safe($this->table_prefix) . $table . "`";
 		$this->query_id = mysql_query($sql, $this->link_id);
 		$primarykeys = array();
 		if (mysql_num_rows($this->query_id) > 0) {
@@ -874,7 +900,7 @@ class Db
 				$val = null;
 			}
 
-			$sqlfields[] = "`".$key."`";
+			$sqlfields[] = "`" . $key . "`";
 
 			if ((is_null($val) || $val === NS) && !empty($structval['default'])) {
 				$val = $structval['default'];
@@ -882,7 +908,7 @@ class Db
 			$insertvalues[] = $this->parse_value_type($val, $structval['typ']);
 		}
 
-		$sql = "INSERT ".($ignore ? 'IGNORE ' : '')." INTO `".$table."` (".implode(" , ", $sqlfields).") VALUES (".implode(" , ", $insertvalues).")";
+		$sql = "INSERT " . ($ignore ? 'IGNORE ' : '') . " INTO `" . $table . "` (" . implode(" , ", $sqlfields) . ") VALUES (" . implode(" , ", $insertvalues) . ")";
 		if ($this->query_master($sql)) {
 			return true;
 		}
@@ -930,7 +956,7 @@ class Db
 		}
 
 		//Update the data
-		if($this->query_master("UPDATE `".$table."` SET ".implode(" , ", $update_arr).$filter->get_where())) {
+		if ($this->query_master("UPDATE `" . $table . "` SET " . implode(" , ", $update_arr) . $filter->get_where())) {
 			return true;
 		}
 		return false;
@@ -949,7 +975,7 @@ class Db
 	 * @return string the parsed update string
 	 */
 	private function parse_value($val, $key, &$db_struct) {
-		return "`".$key."` = ".$this->parse_value_type($val, $db_struct[$key]['typ'])."";
+		return "`" . $key . "` = " . $this->parse_value_type($val, $db_struct[$key]['typ']) . "";
 	}
 
 	/**
@@ -965,16 +991,16 @@ class Db
 	private function parse_value_type($val, $type) {
 		switch ($type) {
 			case PDT_SERIALIZED:
-				return "'".safe(@json_encode($val))."'";
+				return "'" . safe(@json_encode($val)) . "'";
 			case PDT_FILE:
 			case PDT_INT:
 			case PDT_TINYINT:
 			case PDT_MEDIUMINT:
 			case PDT_BIGINT:
-				return (int)$val;
+				return (int) $val;
 			case PDT_FLOAT:
 			case PDT_DECIMAL:
-				return (float)$val;
+				return (float) $val;
 			case PDT_INET:
 				return ip2long($val);
 			case PDT_DATE:
@@ -986,8 +1012,29 @@ class Db
 					$val = "0000-00-00 00:00:00";
 				}
 			default:
-				return "'".safe($val)."'";
+				return "'" . safe($val) . "'";
 		}
+	}
+
+	/**
+	 * This transform finally the query to the needed one.
+	 * For now it will only setup the table prefix if present.
+	 *
+	 * @param string &$query_string
+	 *   the querystring.
+	 */
+	public function final_transform_query(&$query_string) {
+		if (empty($this->table_prefix)) {
+			return;
+		}
+		$prefix = safe($this->table_prefix);
+
+		$table_statements = "(((LEFT\s+)?JOIN|(INSERT|REPLACE)\s+(IGNORE\s+)?INTO|FROM|(?<!KEY )UPDATE|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE)\s+)";
+		$look_behind = "(?<!JOIN )(?<!INTO )(?<!CREATE TABLE )(?<!ALTER TABLE )(?<!DROP TABLE )(?<!(?<!KEY )UPDATE )";
+
+		$pattern = "/(" . $table_statements . "[^\s]*(`[^`]`\.)?`)([^`]+)`(\s|$)/";
+		$query_string = trim(preg_replace($pattern, "\${1}" . $prefix . "\${8}`\${9}", $query_string));
+		$query_string = preg_replace("/" . $look_behind . "(`[^`]+`\.)?`([^`]+)`\./", "\${1}`" . $prefix . "\${2}`.", $query_string);
 	}
 
 }

@@ -3,7 +3,7 @@
 /**
  * Provides a memcached wrapper with a static engine
  * Beware we can NOT use code design (underscore only) within the public methods
- * because these must be equals the original Memcached class
+ * because these must equals the original Memcached class
  *
  * Special not on this wrapper, it will NOT cache anything, will only cache for runtime
  *
@@ -13,7 +13,6 @@
  */
 class StaticMemcached extends Object
 {
-
 	/**
 	 * Holds the last result code
 	 * @var int
@@ -33,11 +32,18 @@ class StaticMemcached extends Object
 	private $values = array();
 
 	/**
+	 * The prefix for keys.
+	 *
+	 * @var string
+	 */
+	private $prefix_key = "";
+
+	/**
 	 * Construct
 	 *
 	 * @param Core $core
 	 */
- 	public function __construct(&$core) {
+	public function __construct(&$core) {
 		parent::__construct($core);
 		$this->last_result_code = Memcached::RES_SUCCESS;
 	}
@@ -59,6 +65,11 @@ class StaticMemcached extends Object
 	 * @return boolean true
 	 */
 	public function setOption($option, $value) {
+		switch ($option) {
+			case Memcached::OPT_PREFIX_KEY:
+				$this->prefix_key = substr($value, 0, 128);
+				break;
+		}
 		$this->last_result_code = Memcached::RES_SUCCESS;
 		return true;
 	}
@@ -83,11 +94,11 @@ class StaticMemcached extends Object
 	 * @param int $expiration The expiration time, defaults to 0. See Expiration Times for more info.  (optional, default = 0)
 	 */
 	public function set($key, $value, $expiration = 0) {
-		$expiration = (int)$expiration;
+		$expiration = (int) $expiration;
 		if ($expiration > 0 && $expiration < 2592000) {
 			$expiration += time();
 		}
-		$this->values[$key] = array(
+		$this->values[$this->prefix_key . $key] = array(
 			'expires' => $expiration,
 			'value' => serialize($value)
 		);
@@ -103,8 +114,8 @@ class StaticMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function increment($key, $offset) {
-		if (isset($this->values[$key])) {
-			$this->values[$key] += (int)$offset;
+		if (isset($this->values[$this->prefix_key . $key])) {
+			$this->values[$this->prefix_key . $key] += (int) $offset;
 		}
 		return true;
 	}
@@ -117,8 +128,8 @@ class StaticMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function decrement($key, $offset) {
-		if (isset($this->values[$key])) {
-			$this->values[$key] -= (int)$offset;
+		if (isset($this->values[$this->prefix_key . $key])) {
+			$this->values[$this->prefix_key . $key] -= (int) $offset;
 		}
 		return true;
 	}
@@ -133,11 +144,11 @@ class StaticMemcached extends Object
 		$this->last_result_code = Memcached::RES_FAILURE;
 
 		//Check if we have a value for that key
-		if (!isset($this->values[$key])) {
+		if (!isset($this->values[$this->prefix_key . $key])) {
 			return null;
 		}
 
-		$res = $this->values[$key];
+		$res = $this->values[$this->prefix_key . $key];
 
 		//Check if it was expired
 		if (!$this->check_expire($res)) {
@@ -173,8 +184,8 @@ class StaticMemcached extends Object
 
 		//try to get the values
 		foreach ($keys as $value) {
-			if (isset($rows[$value])) {
-				$rows[$value] = $rows[$value];
+			if (isset($this->values[$this->prefix_key . $value])) {
+				$rows[$value] = $this->values[$this->prefix_key . $value];
 			}
 		}
 
@@ -215,8 +226,8 @@ class StaticMemcached extends Object
 	 * @return boolean Returns true on success, else false.
 	 */
 	public function delete($key) {
-		if (isset($this->values[$key])) {
-			unset($this->values[$key]);
+		if (isset($this->values[$this->prefix_key . $key])) {
+			unset($this->values[$this->prefix_key . $key]);
 		}
 		return true;
 	}
@@ -236,6 +247,15 @@ class StaticMemcached extends Object
 		}
 		$this->delete_list[] = $res['key'];
 		return false;
+	}
+
+	/**
+	 * Flush all existing items at the server
+	 * @return boolean Returns true on success, else false.
+	 */
+	public function flush() {
+		$this->values = array();
+		return true;
 	}
 
 }

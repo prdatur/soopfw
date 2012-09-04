@@ -91,21 +91,21 @@ class DatabaseFilter extends Object
 	 *   the table (optional, default = "")
 	 * @param string $alias
 	 *   the alias for this table (optional, default = "")
-	 * @param Db $db
+	 * @param Db &$db
 	 *   if provided it will set the db for our databasefilter.
 	 *   this is needed if we use this filter within the construct
 	 *   of the Core, normaly this is not needed because it will get it from
 	 *   the Object class
 	 *   (optional, default = null)
 	 */
- 	public function __construct($table = "", $alias = "", Db $db = null) {
-		$this->where = new DatabaseWhereGroup();
+	public function __construct($table = "", $alias = "", Db &$db = null) {
 		$this->table = $table;
 		$this->alias = $alias;
 		parent::__construct();
 		if ($db !== null) {
 			$this->db = $db;
 		}
+		$this->where = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_AND, $this->db);
 	}
 
 	/**
@@ -174,7 +174,7 @@ class DatabaseFilter extends Object
 
 		$field = safe($field);
 		if (preg_match('/^[a-z_]+$/', $field)) {
-			$field = "`".$field."`";
+			$field = "`" . $field . "`";
 			if ($table !== NS) {
 				$field = $table . "." . $field;
 			}
@@ -249,7 +249,7 @@ class DatabaseFilter extends Object
 	 *   the condition type (=, !=, LIKE) (optional, default = "=")
 	 * @param boolean $escape
 	 *   if set to false the value will not be escaped
-	 *	 USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 * 	 USE THIS WITH CAUTION, not escaping value can be a security issue and
 	 *   can open SQL-Injections. (optional, default = true)
 	 *
 	 * @return DatabaseFilter Self returning
@@ -301,10 +301,10 @@ class DatabaseFilter extends Object
 	 */
 	public function limit($limit = NS) {
 		if ($limit !== NS) {
-			$this->limit = (int)$limit;
+			$this->limit = (int) $limit;
 			return $this;
 		}
-		return (int)$this->limit;
+		return (int) $this->limit;
 	}
 
 	/**
@@ -317,10 +317,10 @@ class DatabaseFilter extends Object
 	 */
 	public function offset($offset = NS) {
 		if ($offset !== NS) {
-			$this->offset = (int)$offset;
+			$this->offset = (int) $offset;
 			return $this;
 		}
-		return (int)$this->offset;
+		return (int) $this->offset;
 	}
 
 	/**
@@ -360,7 +360,7 @@ class DatabaseFilter extends Object
 	 */
 	public function &order_by($field, $direction = self::ASC, $table = NS) {
 		if ($table === NS) {
-			$table = $this->get_table_or_alias().'.';
+			$table = $this->get_table_or_alias() . '.';
 		}
 		elseif ($table !== null) {
 			$table = "`" . safe($table) . "`.";
@@ -375,7 +375,7 @@ class DatabaseFilter extends Object
 
 		$field = safe($field);
 		if (preg_match('/^[a-z_]+$/', $field)) {
-			$field = "`".$field."`";
+			$field = "`" . $field . "`";
 		}
 		$this->order_by[] = $table . $field . ' ' . $direction;
 		return $this;
@@ -443,7 +443,7 @@ class DatabaseFilter extends Object
 		if ($single_row_field == true && is_array($values)) {
 			$current_first_row = current($values);
 			if (is_array($current_first_row)) {
-				foreach($values AS &$value) {
+				foreach ($values AS &$value) {
 					if (!empty($array_key) && count($value) > 1) {
 						unset($value[$array_key]);
 					}
@@ -496,18 +496,10 @@ class DatabaseFilter extends Object
 	 * @return boolean returns true if the update succeeds, else false
 	 */
 	public function update() {
-		$table = '`' . safe($this->table) . '`';
-		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
-		}
 		if (empty($this->change_fields)) {
 			return true;
 		}
-		$update_fields = array();
-		foreach ($this->change_fields AS $field) {
-			$update_fields[] = $field['field'] . " = '" . $field['value'] . "'";
-		}
-		return $this->db->query_master("UPDATE " . $table . " SET " . implode(", ", $update_fields) . $this->get_where());
+		return $this->db->query_master($this->get_update_sql());
 	}
 
 	/**
@@ -516,12 +508,7 @@ class DatabaseFilter extends Object
 	 * @return boolean returns true if the delete succeeds, else false
 	 */
 	public function delete() {
-		$table = '`' . safe($this->table) . '`';
-		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
-		}
-
-		return $this->db->query_master("DELETE FROM " . $table . $this->get_where(), array(), $this->limit(), $this->offset());
+		return $this->db->query_master($this->get_delete_sql(), array(), $this->limit(), $this->offset());
 	}
 
 	/**
@@ -530,6 +517,23 @@ class DatabaseFilter extends Object
 	 * @return mixed returns the last inserted id if available, if not it will return boolean if the insert was successfully.
 	 */
 	public function insert() {
+
+		if ($this->db->query_master($this->get_insert_sql())) {
+			$inserted_id = $this->db->insert_id();
+			if ($inserted_id !== false) {
+				return $inserted_id;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Generates a insert sql statement.
+	 *
+	 * @return string the sql string
+	 */
+	public function get_insert_sql() {
 		$table = '`' . safe($this->table) . '`';
 		if (!empty($this->alias)) {
 			$table .= ' AS ' . safe($this->alias);
@@ -540,14 +544,37 @@ class DatabaseFilter extends Object
 			$fields[] = $field['field'];
 			$values[] = "'" . $field['value'] . "'";
 		}
-		if ($this->db->query_master("INSERT INTO " . $table . " (" . $fields . ") VALUES (" . $values . ")")) {
-			$inserted_id = $this->db->insert_id();
-			if ($inserted_id !== false) {
-				return $inserted_id;
-			}
-			return true;
+		return "INSERT INTO " . $table . " (" . implode(" , ", $fields) . ") VALUES (" . implode(", ", $values) . ")";
+	}
+
+	/**
+	 * Generates a delete sql statement.
+	 *
+	 * @return string the sql string
+	 */
+	public function get_delete_sql() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
 		}
-		return false;
+		return "DELETE FROM " . $table . $this->get_where();
+	}
+
+	/**
+	 * Generates a update sql statement.
+	 *
+	 * @return string the sql string
+	 */
+	public function get_update_sql() {
+		$table = '`' . safe($this->table) . '`';
+		if (!empty($this->alias)) {
+			$table .= ' AS ' . safe($this->alias);
+		}
+		$update_fields = array();
+		foreach ($this->change_fields AS $field) {
+			$update_fields[] = $field['field'] . " = '" . $field['value'] . "'";
+		}
+		return "UPDATE " . $table . " SET " . implode(", ", $update_fields) . $this->get_where();
 	}
 
 	/**
@@ -570,7 +597,7 @@ class DatabaseFilter extends Object
 			$order_by .= ' ORDER BY ' . implode(', ', $this->order_by);
 		}
 
-		return "SELECT " . $this->get_columns() . " FROM " . $table . implode(' ' , $this->joins) . $this->get_where() . $group_by . $order_by;
+		return "SELECT " . $this->get_columns() . " FROM " . $table . implode(' ', $this->joins) . $this->get_where() . $group_by . $order_by;
 	}
 
 	/**
@@ -589,6 +616,7 @@ class DatabaseFilter extends Object
 		}
 		return $table;
 	}
+
 }
 
 ?>

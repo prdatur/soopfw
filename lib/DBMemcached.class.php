@@ -3,7 +3,10 @@
 /**
  * Provides a memcached wrapper with a database engine
  * Beware we can NOT use code design (underscore only) within the public methods
- * because these must be equals the original Memcached class
+ * because these must equals the original Memcached class
+ *
+ * Please notice that this is not really a good cache because database queries
+ * are much slower than a normal memcache or memcached.
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
@@ -11,7 +14,6 @@
  */
 class DBMemcached extends Object
 {
-
 	/**
 	 * Holds the last result code
 	 * @var int
@@ -25,11 +27,18 @@ class DBMemcached extends Object
 	private $delete_list = array();
 
 	/**
+	 * The prefix for keys.
+	 *
+	 * @var string
+	 */
+	private $prefix_key = "";
+
+	/**
 	 * Construct
 	 *
 	 * @param Core $core
 	 */
- 	public function __construct(&$core) {
+	public function __construct(&$core) {
 		parent::__construct($core);
 		$this->last_result_code = Memcached::RES_SUCCESS;
 	}
@@ -51,6 +60,11 @@ class DBMemcached extends Object
 	 * @return boolean true
 	 */
 	public function setOption($option, $value) {
+		switch ($option) {
+			case Memcached::OPT_PREFIX_KEY:
+				$this->prefix_key = substr($value, 0, 128);
+				break;
+		}
 		$this->last_result_code = Memcached::RES_SUCCESS;
 		return true;
 	}
@@ -75,11 +89,11 @@ class DBMemcached extends Object
 	 * @param int $expiration The expiration time, defaults to 0. See Expiration Times for more info.  (optional, default = 0)
 	 */
 	public function set($key, $value, $expiration = 0) {
-		$expiration = (int)$expiration;
+		$expiration = (int) $expiration;
 		if ($expiration > 0 && $expiration < 2592000) {
 			$expiration += time();
 		}
-		if ($this->db->query_master("REPLACE INTO __memcached SET `key` = '".safe($key)."', `value` = '".safe(serialize($value))."', `expires` = ".$expiration)) {
+		if ($this->db->query_master("REPLACE INTO `__memcached` SET `key` = '" . safe($this->prefix_key . $key) . "', `value` = '" . safe(serialize($value)) . "', `expires` = " . $expiration)) {
 			$this->last_result_code = Memcached::RES_SUCCESS;
 			return true;
 		}
@@ -94,7 +108,7 @@ class DBMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function increment($key, $offset) {
-		return $this->db->query_master("UPDATE __memcached SET value = value + ".(int)$offset." WHERE `key` = '".safe($key)."'");
+		return $this->db->query_master("UPDATE `__memcached` SET value = value + " . (int) $offset . " WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
 	}
 
 	/**
@@ -105,7 +119,7 @@ class DBMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function decrement($key, $offset) {
-		return $this->db->query_master("UPDATE __memcached SET value = value - ".(int)$offset." WHERE `key` = '".safe($key)."'");
+		return $this->db->query_master("UPDATE `__memcached` SET value = value - " . (int) $offset . " WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
 	}
 
 	/**
@@ -118,7 +132,7 @@ class DBMemcached extends Object
 		$this->last_result_code = Memcached::RES_FAILURE;
 
 		//try to get the value
-		$res = $this->db->query_slave_first("SELECT * FROM __memcached WHERE `key` = '".safe($key)."'");
+		$res = $this->db->query_slave_first("SELECT * FROM `__memcached` WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
 		if (!$res) {
 			return null;
 		}
@@ -154,12 +168,12 @@ class DBMemcached extends Object
 		$return = array();
 
 		//Setup all wanted keys
-		foreach ($keys as $key => $value) {
-			$keys[$key] = "'".safe($value)."'";
+		foreach ($keys AS $key => $value) {
+			$keys[$key] = "'" . safe($this->prefix_key . $value) . "'";
 		}
 
 		//try to get the values
-		$res = $this->db->query_master("SELECT * FROM __memcached WHERE `key` IN (".implode(',', $keys).")");
+		$res = $this->db->query_master("SELECT * FROM `__memcached` WHERE `key` IN (" . implode(',', $keys) . ")");
 		if (!$res) {
 			return false;
 		}
@@ -197,7 +211,15 @@ class DBMemcached extends Object
 	 * @return boolean Returns true on success, else false.
 	 */
 	public function delete($key) {
-		return $this->db->query_master("DELETE FROM	__memcached WHERE `key` = '".safe($key)."'");
+		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
+	}
+
+	/**
+	 * Flush all existing items at the server
+	 * @return boolean Returns true on success, else false.
+	 */
+	public function flush() {
+		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` LIKE '" . safe($this->prefix_key) . "%'");
 	}
 
 	/**

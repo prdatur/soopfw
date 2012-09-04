@@ -6,6 +6,7 @@ $this->config['db']['host'] = "localhost";
 $this->config['db']['user'] = "dbuser";
 $this->config['db']['pass'] = "dbpass";
 $this->config['db']['database'] = "db";
+$this->config['db']['table_prefix'] = "";
 $this->config['db']['debug'] = false;
 
 //Core configuration

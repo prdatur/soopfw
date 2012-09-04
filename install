@@ -107,9 +107,13 @@ class soopfw_install {
 
 
 		if(!empty($this->config['db']['host'])) {
-			$res = mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
-			if(mysql_select_db($this->config['db']['database'], $res)) {
-				$r = @mysql_fetch_assoc(@mysql_query("SELECT value FROM core_modul_config WHERE modul='system' AND `key`='installed'"));
+			$res = @mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
+			if (!isset($this->config['db']['table_prefix'])) {
+				$this->config['db']['table_prefix'] = "";
+			}
+			if(@mysql_select_db($this->config['db']['database'], $res)) {
+				$sql = "SELECT value FROM `".mysql_real_escape_string($this->config['db']['table_prefix'])."core_modul_config` WHERE modul='system' AND `key`='installed'";
+				$r = @mysql_fetch_assoc(mysql_query($sql));
 				if(!empty($r) && $r['value'] == '1') {
 					consoleLog('Soopfw is already installed, can not install it twice.', 'error');
 					exit;
@@ -147,11 +151,14 @@ class soopfw_install {
 	private function install_system() {
 		global $classes, $core, $_SESSION;
 		require_once 'lib/Core.php';
-		require_once 'cli/generate_classlist.php';
-		require_once 'cli/generate_smartylist.php';
+		require_once 'modules/system/cli/generate_classlist.php';
+		require_once 'modules/system/cli/generate_smartylist.php';
 		require_once 'modules/system/system.php';
 
 		$core = new Core('', true, true);
+		if (!empty($core->memcache_obj)) {
+			$core->memcache_obj->flush();
+		}
 		$obj = new cli_generate_classlist($core);
 		$obj->start();
 
@@ -197,9 +204,8 @@ class soopfw_install {
 		$user_address_obj->user_id = $user_obj->user_id;
 		$user_address_obj->insert();
 
-		require SITEPATH . '/config/generate_mimetype_list.php';
 		$mime_type_cli = new cli_generate_mimetype_list();
-		$mime_type_cli->execute();
+		$mime_type_cli->start();
 
 		$core->dbconfig("system", "installed", "1");
 

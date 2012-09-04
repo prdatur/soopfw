@@ -10,7 +10,7 @@
  * @package lib.database.filter
  * @category Database
  */
-class DatabaseWhereGroup
+class DatabaseWhereGroup extends Object
 {
 	/**
 	 * Define constances
@@ -36,9 +36,20 @@ class DatabaseWhereGroup
 	 *
 	 * @param string $type
 	 *   the link type use one of DatabaseWhereGroup::TYPE_* (optional, default = DatabaseWhereGroup::TYPE_AND)
+	 * @param Db $db
+	 *   if provided it will set the db for our database where group.
+	 *   this is needed if we use this filter within the construct
+	 *   of the Core, normaly this is not needed because it will get it from
+	 *   the Object class
+	 *   (optional, default = null)
 	 */
- 	public function __construct($type = DatabaseWhereGroup::TYPE_AND) {
+	public function __construct($type = DatabaseWhereGroup::TYPE_AND, Db &$db = null) {
 		$this->type = $type;
+		parent::__construct();
+
+		if ($db !== null) {
+			$this->db = $db;
+		}
 	}
 
 	/**
@@ -52,7 +63,7 @@ class DatabaseWhereGroup
 	 *   like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
 	 * @param boolean $escape
 	 *   if set to false the value will not be escaped
-	 *	 USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 * 	 USE THIS WITH CAUTION, not escaping value can be a security issue and
 	 *   can open SQL-Injections. (optional, default = true)
 	 *
 	 * @return DatabaseWhereGroup
@@ -118,8 +129,8 @@ class DatabaseWhereGroup
 			 * for example, original = my.db.field1, so we get this: `my`.`db`.`field1`
 			 * this will only be executed if the k is not a numeric integer because maybe we want just select 1
 			 */
-			if ((int)$k !== $k) {
-				$k = "`".safe(str_replace(".", "`.`",  $k))."`";
+			if ((int) $k !== $k) {
+				$k = "`" . safe(str_replace(".", "`.`", $k)) . "`";
 			}
 			else {
 				$k = safe($k);
@@ -147,27 +158,27 @@ class DatabaseWhereGroup
 				// This removal of escape char is required if a % value was provided which was already escaped.
 				$val = preg_replace("/[\\\]+\%/", "\\%", $val);
 				//Check if we have not a number, if so we need to add ''
-				if (((int)$v['value'] !== $v['value']) && ((float)$v['value'] !== $v['value'])) {
-					$val = "'".$val."'";
+				if (((int) $v['value'] !== $v['value']) && ((float) $v['value'] !== $v['value'])) {
+					$val = "'" . $val . "'";
 				}
 			}
 			else {
 				$val = $v['value'];
 			}
 			//Add the condition string
-			$tmp_array[] = $k." ".$v['condition_type']." ".$val;
+			$tmp_array[] = $k . " " . $v['condition_type'] . " " . $val;
 		}
 
 		//get all conditions to a string linked with the link type
-		$where_str = implode(" ".$this->type." ", $tmp_array);
+		$where_str = implode(" " . $this->type . " ", $tmp_array);
 		$where = "";
 		if (!empty($where_str)) {
-			$where = " (".$where_str.") ";
+			$where = " (" . $where_str . ") ";
 		}
 
 		//place the WHERE prefix statement
 		if ($first && !empty($where)) {
-			$where = " WHERE".$where;
+			$where = " WHERE" . $where;
 		}
 		return $where;
 	}
