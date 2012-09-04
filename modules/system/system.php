@@ -787,9 +787,7 @@ class system extends ActionModul
 
 		$call_enable = false;
 		if ($modul_config->load_success()) {
-			if ($modul_config->enabled === 0) {
-				$call_enable = true;
-			}
+			$call_enable = ($modul_config->enabled === 0);
 		}
 
 
@@ -812,6 +810,7 @@ class system extends ActionModul
 			if (!$error) {
 				$modul_config->current_version = $module_info['version'] + 1;
 				$modul_config->save();
+				$this->core->message(t("updated module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
 			}
 		}
 		else {
@@ -820,6 +819,7 @@ class system extends ActionModul
 				$modul_config->modul = $module;
 				$modul_config->current_version = $module_info['version'] + 1;
 				$modul_config->save_or_insert();
+				$this->core->message(t("installed module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
 			}
 			else {
 				$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
