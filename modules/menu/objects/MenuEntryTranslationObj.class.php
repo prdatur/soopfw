@@ -116,8 +116,8 @@ class MenuEntryTranslationObj extends AbstractDataManagment
 		$language = $this->get_value("language");
 		$has_childs = $this->db->query_slave_first("
 			SELECT 1
-			FROM `".MenuEntryObj::TABLE."`
-			JOIN `".MenuEntryTranslationObj::TABLE."` ON (`".MenuEntryObj::TABLE."`.`entry_id` = `".MenuEntryTranslationObj::TABLE."`.`entry_id`)
+			FROM `".MenuEntryObj::TABLE."` me
+			JOIN `".MenuEntryTranslationObj::TABLE."` met ON (me.`entry_id` = met.`entry_id`)
 			WHERE `parent_id` = ientry_id AND `language` = @language", array('ientry_id' => $entry_id, '@language' => $language));
 		return !empty($has_childs);
 	}

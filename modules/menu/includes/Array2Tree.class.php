@@ -112,15 +112,27 @@ class Array2Tree {
 	}
 
 	/**
-	 * Checks wether the child array has direct selected
+	 * Checks wether the child array has direct selected links
 	 *
-	 * @param array $array the child array
+	 * @param array $array
+	 *   the child array
+	 *
 	 * @return boolean true if selected, else false
 	 */
 	private function check_if_a_child_is_direct_selected(&$array) {
-		list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
+		static $request_uri = null;
+		static $cache = array();
+
+		if ($request_uri == null) {
+			$url = strtolower(current(explode('?', $_SERVER['REQUEST_URI'],2)));
+		}
+
 		foreach($array AS &$child) {
-			if(strtolower($url) == strtolower($child['#link'])) {
+			if (!isset($cache[$child['#link']])) {
+				$cache[$child['#link']] = strtolower($child['#link']);
+			}
+
+			if($url == $cache[$child['#link']]) {
 				return true;
 			}
 			if(!empty($child['#childs'])) {
