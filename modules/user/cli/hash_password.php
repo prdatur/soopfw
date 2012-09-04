@@ -16,7 +16,7 @@ class cli_hash_password extends CLICommand
 	 *
 	 * @var string
 	 */
-	protected $description = "Recreate class list (you needs to do this each time you add a new class)";
+	protected $description = "Returns the hash for a password";
 
 	/**
 	 * Execute the command
