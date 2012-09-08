@@ -63,7 +63,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_true($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is boolean true');
+			$message = t('Value is not boolean true');
 		}
 
 		$test = ($value === true);
@@ -88,7 +88,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_false($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is boolean false');
+			$message = t('Value is not boolean false');
 		}
 
 		$test = ($value !== true);
@@ -113,7 +113,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_null($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is NULL');
+			$message = t('Value is not NULL');
 		}
 
 		$test = ($value === null);
@@ -138,7 +138,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_not_null($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is NOT NULL');
+			$message = t('Value is NULL');
 		}
 
 		$test = ($value !== null);
@@ -163,7 +163,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_empty($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value empty');
+			$message = t('Value not empty');
 		}
 
 		$test = empty($value);
@@ -188,7 +188,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_not_empty($value, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value not empty');
+			$message = t('Value empty');
 		}
 
 		$test = !empty($value);
@@ -215,7 +215,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_regexp($value, $pattern, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Regular expression "@regexp" found within message', array(
+			$message = t('Regular expression "@regexp" not found within message', array(
 				'@regexp' => $pattern,
 			));
 		}
@@ -244,7 +244,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_not_regexp($value, $pattern, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Regular expression "@regexp" not found within message', array(
+			$message = t('Regular expression "@regexp" found within message', array(
 				'@regexp' => $pattern,
 			));
 		}
@@ -273,7 +273,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_instance_of($value, $instance_of, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is an instance of "@instance_of"', array(
+			$message = t('Value is not an instance of "@instance_of"', array(
 				'@instance_of' => $instance_of,
 			));
 		}
@@ -302,7 +302,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_not_instance_of($value, $instance_of, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('Value is NOT an instance of "@instance_of"', array(
+			$message = t('Value is an instance of "@instance_of"', array(
 				'@instance_of' => $instance_of,
 			));
 		}
@@ -330,6 +330,8 @@ class UnitTest extends Object {
 	 * @param boolean if test passes returns true, else false
 	 */
 	public function assert_equals($first, $second, $description, $message = "") {
+		$first = var_export($first, true);
+		$second = var_export($second, true);
 		$test = ($first === $second);
 
 		if (empty($message)) {
@@ -388,7 +390,7 @@ class UnitTest extends Object {
 	 */
 	public function assert_not_equals($first, $second, $description, $message = "") {
 		if (empty($message)) {
-			$message = t('"@first" not equals "@second"', array(
+			$message = t('"@first" equals "@second"', array(
 				'@first' => $first,
 				'@second' => $second,
 			));

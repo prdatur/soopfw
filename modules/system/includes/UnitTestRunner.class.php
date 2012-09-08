@@ -186,9 +186,8 @@ class UnitTestRunner extends Object {
 				continue;
 			}
 
-			if ($this->db->query_master('CREATE TABLE `test_' . $table_name . '`  LIKE `' . $table_name . '`')) {
-				$this->database_test_envoirements_tables[] = 'test_' . $table_name;
-			}
+			$this->db->query_master('CREATE TABLE `test_' . $table_name . '`  LIKE `' . $table_name . '`');
+			$this->database_test_envoirements_tables[] = 'test_' . $table_name;
 		}
 
 
