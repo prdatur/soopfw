@@ -585,6 +585,9 @@ function consoleLog($message, $type='notice') {
 
 	$format = sprintf("%%-%ds%%%ds", $width[0], $width[1]);
 
+	if (!is_scalar($message)) {
+		$message = print_r($message, true);
+	}
 	// Place the status message right aligned with the top line of the error message.
 	$message = wordwrap(rtrim($message), $width[0]);
 	$lines = explode("\n", $message);
