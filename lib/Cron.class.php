@@ -14,7 +14,7 @@ if (!defined('TIME_NOW')) {
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package lib
- ** @category Cli
+ * @category Cli
  */
 class Cron
 {
@@ -69,7 +69,7 @@ class Cron
 	 * @param int $timestamp
 	 *   the timestamp to be used as the check value (optional, default = NS)
 	 */
- 	public function __construct($match = NS, $timestamp = NS) {
+	public function __construct($match = NS, $timestamp = NS) {
 		$this->match = $match;
 		$this->timestamp = $timestamp;
 	}
@@ -174,11 +174,21 @@ class Cron
 			}
 		}
 
-		$this->log("Time: ".$timestamp." (".date("d.m.Y H:i:s", $timestamp).") match against: ".$match);
+		if ($match === '*') {
+			$match = '* * * * *';
+		}
+
+		$this->log("Time: " . $timestamp . " (" . date("d.m.Y H:i:s", $timestamp) . ") match against: " . $match);
 
 		$now = explode(" ", trim(date("i H d m w", $timestamp)));
 
-		$check_type_array = array(self::CRON_TIME_MINUTE, self::CRON_TIME_HOUR, self::CRON_TIME_DAY, self::CRON_TIME_MONTH, self::CRON_TIME_DAY_OF_WEEK);
+		$check_type_array = array(
+			self::CRON_TIME_MINUTE,
+			self::CRON_TIME_HOUR,
+			self::CRON_TIME_DAY,
+			self::CRON_TIME_MONTH,
+			self::CRON_TIME_DAY_OF_WEEK,
+		);
 
 		foreach ($now AS &$tmp_v) { //date func returns some values only with leading zeros, so cut them off
 			if (strlen($tmp_v) > 1 && substr($tmp_v, 0, 1) == "0") {
@@ -191,10 +201,12 @@ class Cron
 			return false;
 		}
 		else {
-			$this->log("match regexp found: ".var_export($matches, true));
+			$this->log("match regexp found: " . var_export($matches, true));
 		}
 
 		preg_match_all("/([0-9\*\/\-,]+)\s?/is", trim($matches[1]), $times); //get all match types (min, hour, day, month, day of week)
+
+		$this->log("match check against values:: " . var_export($times, true));
 		foreach ($times[1] AS $i => $check_time) {
 
 			//Check if the current entry matched
@@ -250,24 +262,24 @@ class Cron
 	 * @return boolean true on match, else false
 	 */
 	private function check_times($check_time, $check_value, $check_type) {
-		$this->log("check:".$check_time." against: ".$check_value." type: ".$check_type);
+		$this->log("check:" . $check_time . " against: " . $check_value . " type: " . $check_type);
 		if ($check_time == '*') { // check_time * passes always
 			$this->log("value was *: ", false);
 			return true;
 		}
-		$check_value = (int)$check_value;
+		$check_value = (int) $check_value;
 		$this->log($check_value);
 
 		//Loop through all or-statements (comma list)
 		foreach (explode(",", $check_time) AS $tmp_val) {
-
-			if (preg_match("/([0-9]+|\*)-([0-9]+|\*)/is", $check_time, $match)) { //check_time is min-max range
-				if (($match[0] == '*' || $check_value >= (int)$match[1]) && ($match[1] == '*' || $check_value <= (int)$match[2])) {
+			//check_time is min-max range
+			if (preg_match("/([0-9]+|\*)-([0-9]+|\*)/is", $tmp_val, $match)) {
+				if (($match[0] == '*' || $check_value >= (int) $match[1]) && ($match[1] == '*' || $check_value <= (int) $match[2])) {
 					return true;
 				}
 			}
 			//Checktime is a loop */[0-9]
-			else if (preg_match("/([0-9]+|\*)\/([0-9]+)/is", $check_time, $match)) {
+			else if (preg_match("/([0-9]+|\*)\/([0-9]+)/is", $tmp_val, $match)) {
 
 				switch ($check_type) { //setup max values for the given type
 					case self::CRON_TIME_MINUTE:
@@ -286,17 +298,17 @@ class Cron
 						$max_value = 6;
 						break;
 				}
-				$start = (int)$match[1];
+				$start = (int) $match[1];
 				if ($start > $max_value) { //start value can not be higher than max_value
 					$start = $max_value;
 				}
-				$this->log("value check ".$check_value." >= ".$start." && ".(int)$check_value."%".(int)$match[2]." == 0: ", false);
-				if ($check_value >= $start && $check_value % (int)$match[2] == 0) {
+				$this->log("value check " . $check_value . " >= " . $start . " && " . (int) $check_value . "%" . (int) $match[2] . " == 0: ", false);
+				if ($check_value >= $start && $check_value % (int) $match[2] == 0) {
 					return true;
 				}
 			}
 			//Checktime is just a number
-			else if ((int)$check_time === $check_value) {
+			else if ((int) $tmp_val === $check_value) {
 				$this->log("value was int: ", false);
 				return true;
 			}
@@ -314,6 +326,24 @@ class Cron
 		if (empty($this->time_array)) {
 			return false;
 		}
+
+		// Check if all needed arrays are setup.
+		if (!isset($this->time_array[self::CRON_TIME_MINUTE])) {
+			return false;
+		}
+		if (!isset($this->time_array[self::CRON_TIME_HOUR])) {
+			return false;
+		}
+		if (!isset($this->time_array[self::CRON_TIME_DAY])) {
+			return false;
+		}
+		if (!isset($this->time_array[self::CRON_TIME_MONTH])) {
+			return false;
+		}
+		if (!isset($this->time_array[self::CRON_TIME_DAY_OF_WEEK])) {
+			return false;
+		}
+
 		$tmp_arr = array(
 			$this->time_array[self::CRON_TIME_MINUTE],
 			$this->time_array[self::CRON_TIME_HOUR],
