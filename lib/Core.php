@@ -827,7 +827,7 @@ class Core {
 	}
 
 	public function load_mime_types() {
-		if (empty($this->mime_types)) {
+		if (empty($this->mime_types) && is_file(SITEPATH . '/config/mime_types.php')) {
 			include SITEPATH . '/config/mime_types.php';
 		}
 	}
