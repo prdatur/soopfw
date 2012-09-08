@@ -181,7 +181,7 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		$original_query = $filter->get_select_sql();
 		$this->db->final_transform_query($original_query);
 
-		$check_query = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename` JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `tests_soopfw_tablename`.`x` >= (SELECT count(*) FROM `tests_soopfw_subtable`  WHERE (`subfield1` = '34' AND `subfield1` = aliasjoin.`field1`) ))  GROUP BY `tests_soopfw_tablename`.`field1`, `tests_soopfw_tablename2`.`field2` ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
+		$check_query = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename` JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= (SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34' AND `subfield1` = aliasjoin.`field1`) ))  GROUP BY `" . $table_prefix . "tablename`.`field1`, `" . $table_prefix . "tablename2`.`field2` ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
 		if (!$this->assert_equals($original_query, $check_query, t("Check Databasefilter select, order_by, join, left_join, where, group by, where subquery"))) {
 			return false;
 		}
@@ -235,6 +235,9 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 			if (!preg_match("/^" . preg_quote($this->original_table_prefix, '/') . "/", $table_name)) {
 				continue;
 			}
+			if (preg_match("/^test_" . preg_quote($this->original_table_prefix, '/') . "/", $table_name)) {
+				continue;
+			}
 			$needed_test_tables['test_' . $table_name] = true;
 		}
 
@@ -262,7 +265,7 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 
 		$this->db->table_prefix('test_' . $this->original_table_prefix);
 
-		if (!$this->assert_empty($needed_test_tables, t('All test databases could be created'))) {
+		if (!$this->assert_empty($needed_test_tables, t('Not all test databases could be created: @dbases', array('@dbases' => var_export($needed_test_tables, true))))) {
 			return false;
 		}
 
@@ -448,6 +451,13 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 
 		######## Check load_mime_types #########################################
 		$this->core->load_mime_types();
+		if (empty($this->core->mime_types)) {
+			$this->core->message(t('Maybe we have not fetched it yet, try to get fresh mime type array. This may take a while... time to get a coffee.'), Core::MESSAGE_TYPE_NOTICE);
+			$mime_type_cli = new cli_generate_mimetype_list();
+			$mime_type_cli->start();
+			$this->core->load_mime_types();
+
+		}
 		if (!$this->assert_not_empty($this->core->mime_types, t('Check load_mime_types'))) {
 			return false;
 		}
