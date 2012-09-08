@@ -489,7 +489,12 @@ class Db
 		}
 
 		if ($this->_debug) {
-			echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
+			if (!defined('is_shell')) {
+				echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
+			}
+			else {
+				consoleLog($query_string);
+			}
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
 				$sql = @mysql_query("EXPLAIN " . $query_string, $this->link_id);
 				$res = @mysql_fetch_assoc($sql);
@@ -500,8 +505,14 @@ class Db
 						}
 					}
 				}
-				print_r($res);
-				echo "</div>";
+				if (!defined('is_shell')) {
+					echo "<div>";
+					print_r($res);
+					echo "</div>";
+				}
+				else {
+					consoleLog($res);
+				}
 			}
 		}
 		$this->query_id = mysql_query($query_string, $this->link_id);
