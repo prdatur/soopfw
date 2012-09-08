@@ -539,7 +539,7 @@ class Core {
 				$this->memcache_obj = new MemcachedWrapper();
 			}
 			//Memcache also not exist, try to use database memcached wrapper
-			else if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
+			else if (!empty($this->db)) {
 				$this->memcache_obj = new DBMemcached($this);
 
 			}
@@ -723,6 +723,7 @@ class Core {
 	 * 	Get mode
 	 * 		- return a single string value if $strict_array is set to false and just one value found
 	 * 		- returns an array if $strict_array is set to true or it has more than one value
+	 *		- returns NULL if nothing is found.
 	 *  Set mode
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
@@ -748,9 +749,9 @@ class Core {
 			if (!is_array($key)) {
 				$key = array($key);
 			}
-			$use_cache = false;
+
 			//Return cached value if we want cache mode and the variable was already cached
-			if ($use_cache == true && !is_null(($return = $this->cache($modul, implode("::", $key))))) {
+			if ($use_cache === true && !is_null(($return = $this->cache($modul, implode("::", $key))))) {
 				return $return;
 			}
 
@@ -782,8 +783,8 @@ class Core {
 				}
 
 				//If we do not want a strict array and have just one value left, return just the value
-				if ($strict_array == false && count($return) <= 1) {
-					if ($use_cache == true) {
+				if ($strict_array === false && count($return) <= 1) {
+					if ($use_cache === true) {
 						$this->cache($modul, implode("::", $key), current($return));
 					}
 					return current($return);
@@ -793,7 +794,7 @@ class Core {
 				$return = null;
 			}
 
-			if ($use_cache == true) {
+			if ($use_cache === true) {
 				$this->cache($modul, implode("::", $key), $return);
 			}
 			return $return;
@@ -806,10 +807,10 @@ class Core {
 		//Insert mode
 		$return = $this->db->query_master("INSERT INTO `" . CoreModulConfigObj::TABLE . "` (`modul`, `key`, `value`) VALUES (@modul,@key,@value)
 				ON DUPLICATE KEY UPDATE `value` = @value", array("@modul" => $modul, "@key" => $key, "@value" => $value));
-		if ($return) {
+		if ($return && $use_cache === true) {
 			$this->cache($modul, $key, $value);
 		}
-		return false;
+		return $return;
 	}
 
 	/**
@@ -1308,7 +1309,9 @@ class Core {
 	 *   to have the current state of the module if we changed it somewhere.
 	 *	 (optional, default = null)
 	 *
-	 * @return boolean true if enabled, else false
+	 * @return mixed
+	 *   - in GET-Mode, boolean true if enabled, else boolean false
+	 *   - in SET-Mode returns NULL
 	 */
 	public function module_enabled($module, $set_value = null) {
 		static $cache = array();
@@ -1319,7 +1322,7 @@ class Core {
 		// Set the cached value if we provide a $set_value
 		if ($set_value !== null) {
 			$cache[$module] = $set_value;
-			return;
+			return null;
 		}
 
 		//Check db/memcached only once.
@@ -1573,7 +1576,7 @@ class Core {
 	 * The module action which want this widget must call the
 	 * Framework smarty function <%get_widget type='type'%> where type is optional
 	 * if type is not provided it will get all widgets at this point which the action
-	 * created.
+	 * registered.
 	 *
 	 * @param string $name
 	 *   the unique name for this widget
