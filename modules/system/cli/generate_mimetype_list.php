@@ -23,7 +23,7 @@ class cli_generate_mimetype_list extends CLICommand
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
-		consoleLog('Try to generate mime type list, if you run this for the first time or you have not enabled memcached, this can take a while.', 'info');
+		consoleLog('Try to generate mime type list, if you run this for the first time or you have not enabled memcached, this can take a while.', Core::MESSAGE_TYPE_NOTICE);
 		$source_list = 'http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types';
 		$data = file_get_contents($source_list);
 		if (empty($data)) {
