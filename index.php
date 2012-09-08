@@ -352,7 +352,7 @@ function display_xhprof_run() {
 		$mem_usage = memory_get_usage(true)/1024/1024;
 		$wall_time = round($xhprof_data['main()']['wt']/1000/1000, 3);
 		$run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_foo");
-		echo "<br /><div style='text-align:right;'><a href='https://".$core->core_config("core", "xhprof_domain")."/index.php?run=$run_id&source=xhprof_foo' target='_blank''>".$wall_time."s ".$mem_usage."MB Profile data</a></div>";
+		echo "<br /><div style='text-align:right;'><a href='http://".$core->core_config("core", "xhprof_domain")."/index.php?run=$run_id&source=xhprof_foo' target='_blank''>".$wall_time."s ".$mem_usage."MB Profile data</a></div>";
 	}
 }
 
