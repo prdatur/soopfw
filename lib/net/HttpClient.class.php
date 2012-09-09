@@ -99,6 +99,16 @@ class HttpClient extends Object {
 
 		return true;
 	}
+
+	/**
+	 * Returns the full path to the cookie file.
+	 *
+	 * @return string the path.
+	 */
+	public function get_cookie_file_path() {
+		return $this->cookie_file_path;
+	}
+
 	/**
 	 * Clean up system before destroying the class.
 	 */
@@ -115,14 +125,10 @@ class HttpClient extends Object {
 	 *   the url
 	 * @param array $args
 	 *   The arguments which will be appended through ? http_build_query()
-	 * @param boolean $use_ssl
-	 *   Set to true to force ssl
-	 *   if not provided it will determine it by http schema (http|https)
-	 *   (optional, default = false)
 	 *
 	 * @return string the body content
 	 */
-	public function do_get($url, $args = array(), $use_ssl = false) {
+	public function do_get($url, $args = array()) {
 		if (!empty($args)) {
 			if (!preg_match("/\?/", $url)) {
 				$url .= "?";
@@ -130,7 +136,7 @@ class HttpClient extends Object {
 
 			$url .= http_build_query($args);
 		}
-		return $this->execute($url, $use_ssl);
+		return $this->execute($url);
 	}
 
 	/**
@@ -140,14 +146,10 @@ class HttpClient extends Object {
 	 *   the url
 	 * @param array $args
 	 *   The arguments which will be appended through ? http_build_query()
-	 * @param boolean $use_ssl
-	 *   Set to true to force ssl
-	 *   if not provided it will determine it by http schema (http|https)
-	 *   (optional, default = false)
 	 *
 	 * @return string the body content
 	 */
-	public function do_post($url, $args = array(), $use_ssl = false) {
+	public function do_post($url, $args = array()) {
 
 		$ch = curl_init();
 
@@ -156,7 +158,7 @@ class HttpClient extends Object {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $args);
 		}
 
-		return $this->execute($url, $use_ssl);
+		return $this->execute($url, $ch);
 	}
 
 	/**
@@ -164,10 +166,6 @@ class HttpClient extends Object {
 	 *
 	 * @param string $url
 	 *   the url.
-	 * @param boolean $use_ssl
-	 *   Set to true to force ssl
-	 *   if not provided it will determine it by http schema (http|https)
-	 *   (optional, default = false)
 	 * @param resource $ch
 	 *   the ressource returned by curl_init
 	 *   if not provided it will create a new one.
@@ -175,7 +173,7 @@ class HttpClient extends Object {
 	 *
 	 * @return string the body content
 	 */
-	protected function execute($url, $use_ssl = false, $ch = null) {
+	protected function execute($url, $ch = null) {
 
 		if (empty($ch)) {
 			$ch = curl_init();
@@ -183,10 +181,8 @@ class HttpClient extends Object {
 
 		curl_setopt($ch, CURLOPT_URL, $url);
 
-		if ($use_ssl == true || preg_match("/^https:\/\//", $url)) {
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		}
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
@@ -198,6 +194,12 @@ class HttpClient extends Object {
 		if ($this->current_referer != "") {
 			curl_setopt($ch, CURLOPT_REFERER, $this->current_referer);
 		}
+
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+		// Prevent a redirect loop.
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 15);
+
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$result = curl_exec($ch);
 		curl_close($ch);
