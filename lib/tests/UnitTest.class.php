@@ -220,7 +220,7 @@ class UnitTest extends Object {
 			));
 		}
 
-		$test = preg_match($pattern, $value);
+		$test = (preg_match($pattern, $value) == 1);
 		$this->add_log('assert_regexp', $description, $message, $test);
 		return $test;
 	}
