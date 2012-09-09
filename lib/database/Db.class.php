@@ -459,6 +459,22 @@ class Db
 
 		$this->final_transform_query($query_string);
 
+		// Sort the arg array descending by strlen.
+		if (!empty($args)) {
+			uksort($args, function($a, $b) {
+				$str_len_a = strlen($a)-1;
+				if (!isset($b{$str_len_a})) {
+					return 1;
+				}
+
+				if (!isset($b{$str_len_a+1})) {
+					return -1;
+				}
+
+				return 0;
+			});
+		}
+
 		//Escape all arguments with the prefix
 		foreach ($args AS $key => $value) {
 			switch (substr($key, 0, 1)) {

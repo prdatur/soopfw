@@ -652,6 +652,22 @@ function t($key, $args = array()) {
 	global $translation_cache, $core;
 
 	$save_key = strtolower($key);
+
+	// Sort the arg array descending by strlen.
+	if (!empty($args)) {
+		uksort($args, function($a, $b) {
+			$str_len_a = strlen($a)-1;
+			if (!isset($b{$str_len_a})) {
+				return 1;
+			}
+
+			if (!isset($b{$str_len_a+1})) {
+				return -1;
+			}
+
+			return 0;
+		});
+	}
 	$cache_key = $save_key."|".md5(json_encode($args));
 	if(isset($key_cache[$cache_key])) {
 		return $key_cache[$cache_key];
