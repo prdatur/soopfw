@@ -317,6 +317,9 @@ class Session extends Object
 			session_start();
 			$this->session_id = session_id();
 		}
+		else if (empty($this->session_id)) {
+			$this->session_id = $tmp_sessid;
+		}
 	}
 
 	/**
