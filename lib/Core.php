@@ -335,6 +335,19 @@ class Core {
 		//Initialize our session
 		$this->session = new Session($this);
 
+		// Check if current connection comes from WebUnitTest
+		if (!empty($this->db) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->session->get_session_id()) && is_local_ip()) {
+
+			// Use test envoirment.
+			$this->db->table_prefix('test_' . $this->db->table_prefix());
+
+			// Reinit default language.
+			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
+
+			// We need to reinit the session object.
+			$this->session = new Session($this);
+		}
+
 		//Only do a normal startup if we do not install the core system
 		if ($install == false) {
 
