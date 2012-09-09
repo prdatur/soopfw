@@ -162,7 +162,7 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		}
 
 		$sub_query = DatabaseFilter::create('subtable')
-				->add_where('subfield1', '34')
+				->add_where('subfield1', "34' OR 1=1;#")
 				->add_where('subfield1', 'aliasjoin.`field1`', '=', false)
 				->add_column('count(*)');
 
@@ -181,7 +181,14 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		$original_query = $filter->get_select_sql();
 		$this->db->final_transform_query($original_query);
 
-		$check_query = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename` JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= (SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34' AND `subfield1` = aliasjoin.`field1`) ))  GROUP BY `" . $table_prefix . "tablename`.`field1`, `" . $table_prefix . "tablename2`.`field2` ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
+		$check_query  = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename` ";
+		$check_query .= "JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) ";
+		$check_query .= "LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) ";
+		$check_query .= "WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= ";
+		$check_query .= "(SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34\' OR 1=1;#' AND `subfield1` = aliasjoin.`field1`) ))  ";
+		$check_query .= "GROUP BY `" . $table_prefix . "tablename`.`field1`, `" . $table_prefix . "tablename2`.`field2` ";
+		$check_query .= "ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
+
 		if (!$this->assert_equals($original_query, $check_query, t("Check Databasefilter select, order_by, join, left_join, where, group by, where subquery"))) {
 			return false;
 		}
