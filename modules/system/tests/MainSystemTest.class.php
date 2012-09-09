@@ -669,6 +669,70 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 
 	}
 
+	/**
+	 * Checks basic user creation.
+	 *
+	 * @return boolean true if all works, else false
+	 */
+	public function check_user_creation() {
+		$this->db->transaction_begin();
+		$user_obj = new UserObj();
+		$user_obj->username = 'admin_create';
+		$user_obj->password = 'admin';
+		$user_obj->active = 'yes';
+		if (!$this->assert_true($user_obj->insert(), t('Create user object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		$user_right_obj = new UserRightObj();
+		$user_right_obj->user_id = $user_obj->user_id;
+		$user_right_obj->permissions = "*";
+		if (!$this->assert_true($user_right_obj->insert(), t('Create user right object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		$user_address_obj = new UserAddressObj();
+		$user_address_obj->email = 'testadmin@localhost';
+		$user_address_obj->user_id = $user_obj->user_id;
+		if (!$this->assert_true($user_address_obj->insert(), t('Create user address object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		$load = new UserObj($user_obj->user_id);
+		if (!$this->assert_true($load->load_success(), t('Load user object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		if (!$this->assert_equals($load->username, 'admin_create', t('Verify correct user name'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		if (!$this->assert_not_equals($load->password, 'admin', t('Verify correct user password'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+		$load = new UserRightObj($user_obj->user_id);
+		if (!$this->assert_true($load->load_success(), t('Load user right object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+		$load = new UserAddressObj($user_address_obj->id);
+		if (!$this->assert_true($load->load_success(), t('Load user address object'))) {
+			$this->db->transaction_rollback();
+			return false;
+		}
+
+
+		$this->db->transaction_commit();
+		return true;
+	}
+
 }
 
 function callable_function() {
