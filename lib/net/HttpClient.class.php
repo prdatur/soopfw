@@ -125,10 +125,14 @@ class HttpClient extends Object {
 	 *   the url
 	 * @param array $args
 	 *   The arguments which will be appended through ? http_build_query()
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
 	 *
 	 * @return string the body content
 	 */
-	public function do_get($url, $args = array()) {
+	public function do_get($url, $args = array(), $use_ssl = false) {
 		if (!empty($args)) {
 			if (!preg_match("/\?/", $url)) {
 				$url .= "?";
@@ -136,7 +140,7 @@ class HttpClient extends Object {
 
 			$url .= http_build_query($args);
 		}
-		return $this->execute($url);
+		return $this->execute($url, null, $use_ssl);
 	}
 
 	/**
@@ -146,10 +150,14 @@ class HttpClient extends Object {
 	 *   the url
 	 * @param array $args
 	 *   The arguments which will be appended through ? http_build_query()
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
 	 *
 	 * @return string the body content
 	 */
-	public function do_post($url, $args = array()) {
+	public function do_post($url, $args = array(), $use_ssl = false) {
 
 		$ch = curl_init();
 
@@ -158,7 +166,7 @@ class HttpClient extends Object {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $args);
 		}
 
-		return $this->execute($url, $ch);
+		return $this->execute($url, $ch, $use_ssl);
 	}
 
 	/**
@@ -170,10 +178,18 @@ class HttpClient extends Object {
 	 *   the ressource returned by curl_init
 	 *   if not provided it will create a new one.
 	 *   (optional, default = null)
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
 	 *
 	 * @return string the body content
 	 */
-	protected function execute($url, $ch = null) {
+	protected function execute($url, $ch = null, $use_ssl = false) {
+
+		if ($use_ssl === true) {
+			$url = preg_replace('/^http:\/\//', 'https://', $url);
+		}
 
 		if (empty($ch)) {
 			$ch = curl_init();

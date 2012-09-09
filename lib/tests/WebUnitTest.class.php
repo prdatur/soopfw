@@ -66,6 +66,10 @@ class WebUnitTest extends UnitTest {
 	 *   the url.
 	 * @param array $args
 	 *   The GET arguments (optional, default = array())
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
 	 * @param boolean $full_path
 	 *   If set to true the provided url will be direct executed,
 	 *   else it will prepend the base_domain
@@ -73,7 +77,7 @@ class WebUnitTest extends UnitTest {
 	 *
 	 * @return string the body content.
 	 */
-	public function do_get($url, $args = array(), $full_path = false) {
+	public function do_get($url, $args = array(), $use_ssl = false, $full_path = false) {
 		if ($full_path === false && !empty($url) && $url{0} !== '/') {
 			$url = '/' . $url;
 		}
@@ -82,7 +86,9 @@ class WebUnitTest extends UnitTest {
 			$url = $this->base_domain . $url;
 		}
 
-		return $this->content = $this->client->do_get($url, $args);
+		$this->content = $this->client->do_get($url, $args, $use_ssl);
+		$this->assert_default_web_request($url, $args);
+		return $this->content;
 	}
 
 	/**
@@ -92,6 +98,10 @@ class WebUnitTest extends UnitTest {
 	 *   the url.
 	 * @param array $args
 	 *   The GET arguments (optional, default = array())
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
 	 * @param boolean $full_path
 	 *   If set to true the provided url will be direct executed,
 	 *   else it will prepend the base_domain
@@ -99,7 +109,7 @@ class WebUnitTest extends UnitTest {
 	 *
 	 * @return string the body content.
 	 */
-	public function do_post($url, $args = array(), $full_path = false) {
+	public function do_post($url, $args = array(), $use_ssl = false, $full_path = false) {
 		if ($full_path === false && !empty($url) && $url{0} !== '/') {
 			$url = '/' . $url;
 		}
@@ -108,7 +118,23 @@ class WebUnitTest extends UnitTest {
 			$url = $this->base_domain . $url;
 		}
 
-		return $this->content = $this->client->do_post($url, $args);
+		$this->content = $this->client->do_post($url, $args, $use_ssl);
+		$this->assert_default_web_request($url, $args);
+		return $this->content;
+	}
+
+	/**
+	 * Checks the returning result from a query for default errors like
+	 * php notice / error messages.
+	 *
+	 * @param string $url
+	 *   the request url
+	 * @param array &$args
+	 *   the arguments for the query (optional, default = array())
+	 */
+	protected function assert_default_web_request($url, Array &$args = array()) {
+		$errorType = 'ERROR|WARNING|PARSING ERROR|NOTICE|CORE ERROR|CORE WARNING|COMPILE ERROR|COMPILE WARNING|USER ERROR|USER WARNING|USER NOTICE|STRICT NOTICE|RECOVERABLE ERROR|CAUGHT EXCEPTION \([0-9]+\)';
+		$this->assert_web_not_regexp('/(' . $errorType . '): .* in .* on line [0-9]+/s', t("Check php errors: !url\nArguments: !args", array('!url' => $url, '!args' => print_r($args, true))), "Found one or more php error within the requested page.");
 	}
 
 	/**
