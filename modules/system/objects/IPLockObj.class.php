@@ -45,7 +45,7 @@ class IPLockObj extends AbstractDataManagment
 	public function __construct($locktime = 0, $type = "", $ip = "", $force_db = false) {
 		parent::__construct();
 		if (empty($ip)) {
-			$ip = getRealIP();
+			$ip = get_real_ip();
 		}
 		$this->locktime = (int)$locktime;
 		$this->db_struct = new DbStruct(self::TABLE);
