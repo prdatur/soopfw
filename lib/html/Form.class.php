@@ -570,7 +570,7 @@ class Form extends AbstractHtmlElement implements Iterator
 		$this->is_valid = true;
 
 		//Loop through all available inputs and check if the element is valid
-		foreach ($this->elements AS $type => &$elements) {
+		foreach ($this->elements AS &$elements) {
 			foreach ($elements AS $name => &$input) {
 
 				//Check if the elemen is valid, if not we add the errors to our internal error array
@@ -626,7 +626,6 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function &get_values($include_hidden = false) {
 		$return = array();
 
-		$return_array = array();
 		if ($include_hidden == true) {
 			$return_array = $this->elements;
 		}

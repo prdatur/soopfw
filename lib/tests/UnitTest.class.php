@@ -352,13 +352,13 @@ class UnitTest extends Object {
 					}
 				}
 				if (preg_match_all("/<del>(.*)<\/del>/U", $diff_string, $matches)) {
-					foreach ($matches[1] AS $k => $from) {
+					foreach ($matches[1] AS $from) {
 						$message .= 'Not found in "second" string: ' . $from;
 					}
 				}
 
 				if (preg_match_all("/<ins>(.*)<\/ins>/U", $diff_string, $matches)) {
-					foreach ($matches[1] AS $k => $from) {
+					foreach ($matches[1] AS $from) {
 						$message .= 'Not found in "first" string: ' . $from;
 					}
 				}

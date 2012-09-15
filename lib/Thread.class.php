@@ -62,11 +62,13 @@ abstract class Thread {
 	abstract protected function run();
 
 	/**
-     * sets the callback
-     *
-     * @param callback $runnable
-     * @return callback
-     */
+	 * sets the callback
+	 *
+	 * @param callback $runnable
+	 *
+	 * @throws Exception
+	 * @return callback
+	 */
     public function set_runnable( $runnable ) {
         if( self::runnable_ok( $runnable ) ) {
             $this->runnable = $runnable;

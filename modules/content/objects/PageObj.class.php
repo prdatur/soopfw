@@ -163,7 +163,6 @@ class PageObj extends AbstractDataManagment
 			$page_data_array[1] = '';
 		}
 
-		$page_id = $page_data_array[0];
 		$page = new PageObj($page_data_array[0], $page_data_array[1]);
 		if(!$page->load_success()) {
 			return $content;

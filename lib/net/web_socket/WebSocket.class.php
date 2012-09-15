@@ -1,10 +1,10 @@
 <?php
 /**
  * Provides the base class for a websocket.
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net
  * @category Websocket
  */
 abstract class WebSocket extends Object {
@@ -127,7 +127,7 @@ abstract class WebSocket extends Object {
 	 *
 	 * @param resource $resource
 	 *	 the resource
-	 * 
+	 *
 	 * @return string the result or FALSE on error
 	 */
 	public static function read_buffer($resource) {
@@ -213,7 +213,7 @@ abstract class WebSocket extends Object {
 	 *
 	 * @param resource $socket
 	 *	 The socket resource
-	 * 
+	 *
 	 * @return WebSocketUser The user by reference
 	 */
 	protected function &get_user_by_socket($socket) {

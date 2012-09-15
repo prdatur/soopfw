@@ -65,23 +65,28 @@ abstract class AbstractFieldGroup extends Object
 			$this->values = $values;
 		}
 	}
+
 	/**
 	 * Set the id prefix for all elements
 	 *
-	 * @param string $prefix the id prefix
-	 * @param int $index the element index for multi values (optional, default = "")
-	 * @param boolean $pre_fill wether we want to prefill data on a single element group or not (optional, default = false)
+	 * @param string $prefix
+	 *   the id prefix
+	 * @param int|string $index
+	 *   the element index for multi values (optional, default = "")
+	 * @param boolean $pre_fill
+	 *   whether we want to prefill data on a single element group or not (optional, default = false)
+	 *
+	 * @return void
 	 */
 	public function set_prefix($prefix, $index = "", $pre_fill = false) {
 		$this->id = $prefix;
 
 		if($pre_fill == true) {
 			$group_values = array();
-			$check_values = array();
 			if(isset($this->values[$this->id])) {
 				$check_values = $this->values[$this->id];
 
-				foreach($check_values AS $field_group_id => $elements) {
+				foreach($check_values AS $elements) {
 					$key = key($elements);
 					$group_values[$key] = current($elements);
 				}
@@ -153,12 +158,10 @@ abstract class AbstractFieldGroup extends Object
 				$fill_values = $_POST;
 			}
 			if($value == 0) {
-				$i = 0;
 				$index = 0;
 				if($posted || !empty($fill_values)) {
 
-					$names = array();
-					$element = reset($this->elements);
+					reset($this->elements);
 					$max_value = 0;
 					if(isset($fill_values[$this->id])) {
 						$max_value = count($fill_values[$this->id]);
@@ -381,14 +384,16 @@ abstract class AbstractFieldGroup extends Object
 		}
 
 		if(!empty($_POST)) {
-
-			$reg_exp_array = array();
-			foreach ($this->elements AS &$element) {
+			if(isset($_POST[$this->id])) {
+				$cache = true;
+				return true;
+			}
+			/*foreach ($this->elements AS &$element) {
 				if(isset($_POST[$this->id])) {
 					$cache = true;
 					return true;
 				}
-			}
+			}*/
 		}
 		$cache = false;
 		return false;

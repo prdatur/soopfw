@@ -183,7 +183,7 @@ class SSL
 	 * 
 	 * @return string The decrypted string
 	 */
-	public function decrypt($txt, $key_type = self::PUBLIC_KEY, $key = "") {
+	public function decrypt($txt, $key_type = self::KEY_PUBLIC, $key = "") {
 		$decrypted_data = "";
 		switch ($key_type) {
 			//If $key_type is public we decrypt it with the public key

@@ -1,10 +1,10 @@
 <?php
 /**
  * Provides the base class for a websocket service.
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net
  * @category Websocket
  */
 abstract class WebSocketListener extends WebSocket {
@@ -80,7 +80,7 @@ abstract class WebSocketListener extends WebSocket {
 	 *
 	 * @param WebSocketUser $user
 	 *	 The user
-	 * 
+	 *
 	 * @return bool true if limit is not yet reached. false if request limit is reached.
 	 */
 	protected function check_request_limit(WebSocketUser $user) {

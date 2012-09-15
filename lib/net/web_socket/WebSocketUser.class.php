@@ -2,10 +2,10 @@
 /**
  * The Websocket user which holds his unique id, socket and if the handshake was
  * done.
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net
  * @category Websocket
  */
 class WebSocketUser {

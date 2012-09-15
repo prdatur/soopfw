@@ -1,10 +1,10 @@
 <?php
 /**
  * Provides an abstract class which could be extended to provide a websocket server.
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net
  * @category Websocket
  */
 abstract class WebSocketServer extends WebSocketListener {
@@ -58,7 +58,7 @@ abstract class WebSocketServer extends WebSocketListener {
 			foreach ($changed_sockets as $socket) {
 				if ($socket == $this->master) {
 					if (($client_socket = stream_socket_accept($this->master)) === false) {
-						WebSocket::log_console('Socket error: ' . socket_strerror(socket_last_error($ressource)));
+						WebSocket::log_console('Socket error: ' . socket_strerror(socket_last_error($this->master)));
 						continue;
 					}
 					$this->connect($client_socket);

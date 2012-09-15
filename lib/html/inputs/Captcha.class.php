@@ -7,7 +7,7 @@
  * @package lib.html.inputs
  * @category Form.Inputs
  */
-require("plugins/recaptchalib.php");
+require(SITEPATH . "/plugins/recaptchalib.php");
 
 class Captcha extends AbstractHtmlInput
 {
@@ -45,7 +45,7 @@ class Captcha extends AbstractHtmlInput
 		$this->config("label", $label);
 
 		//It can happen that an input will override config('label') so to have the original label store it
-		$this->config("orig_label", (empty($label)) ? $name : $label);
+		$this->config("orig_label", (empty($label)) ? '' : $label);
 
 		//Set the element description
 		$this->config("description", $description);

@@ -104,6 +104,7 @@ class Cron
 			if (empty($line) || preg_match("/^(#|\/\/)/iUs", $line)) {
 				continue;
 			}
+			$call = '';
 			//Check if it is a valid line
 			if (preg_match("/(.+)\s([^\s]+)$/is", $line, $match)) {
 
@@ -296,6 +297,9 @@ class Cron
 						break;
 					case self::CRON_TIME_DAY_OF_WEEK:
 						$max_value = 6;
+						break;
+					default:
+						$max_value = 0;
 						break;
 				}
 				$start = (int) $match[1];

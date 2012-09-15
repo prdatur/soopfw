@@ -6,12 +6,12 @@
  */
 
 /**
- * Class to handle the handshake. 
+ * Class to handle the handshake.
  * decrypt/encrypt methods must be implemented within the "version" of websocket.
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net
  * @category Websocket
  */
 abstract class WebSocketHandshake {
@@ -82,7 +82,7 @@ abstract class WebSocketHandshake {
 		if (!empty($check_origin)) {
 			$origin = (isset($headers['Sec-WebSocket-Origin'])) ? $headers['Sec-WebSocket-Origin'] : false;
 			$origin = (isset($headers['Origin'])) ? $headers['Origin'] : $origin;
-			if (!$this->check_origin($origin)) {
+			if (!$this->check_origin($origin, $check_origin)) {
 				WebSocket::log_console('No, empty or invalid origin provided.');
 				$this->sendHttpResponse($this->client, WebSocket::HEADER_RESPONSE_UNAUTHORIZED);
 				return false;
@@ -100,14 +100,16 @@ abstract class WebSocketHandshake {
 	 *
 	 * @param string $domain
 	 *   The origin-domain from websocket handshake.
+	 * @param array $check_origin
+	 *   the allowed origin's.
 	 *
 	 * @return bool If domain is allowed to connect method returns true.
 	 */
-	private function check_origin($domain) {
-		if (empty($this->allowed_origins)) {
+	private function check_origin($domain, array $check_origin) {
+		if (empty($check_origin)) {
 			return true;
 		}
-		return isset($this->allowed_origins[str_replace(array(
+		return isset($check_origin[str_replace(array(
 			'http://',
 			'https://',
 			'www.',

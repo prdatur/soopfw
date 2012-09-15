@@ -43,7 +43,6 @@ class UnitTestRunner extends Object {
 		if (!empty($this->database_test_envoirements_tables)) {
 			$this->core->message(t('Removing database test envoirement.'), Core::MESSAGE_TYPE_NOTICE);
 			$this->db->table_prefix('');
-			$sql = "";
 			$i = 0;
 			$args = array();
 			$tables = array();

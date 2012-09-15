@@ -86,7 +86,7 @@ class qqFileUploader extends Object
 
 		//Check if the configured size limit is less than the post or upload max size configuration within the php ini
 		if ($post_size < $this->size_limit || $upload_size < $this->size_limit) {
-			$size = max(1, $this->size_limit / 1024 / 1024).'M';
+			// $size = max(1, $this->size_limit / 1024 / 1024).'M';
 			return self::STATUS_MAX_SIZE_TO_BIG;
 		}
 

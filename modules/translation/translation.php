@@ -126,7 +126,6 @@ class translation extends ActionModul
 		$form->assign_smarty();
 
 		$form->check_form();
-		$c = 0;
 		if ($form->is_submitted() && $form->is_valid()) {
 
 			//Get current form values
@@ -213,7 +212,6 @@ class translation extends ActionModul
 	 * Exporting translations to po-files
 	 */
 	public function export() {
-		global $translation_cache;
 		$this->session->require_login();
 
 		//Check perms
@@ -229,7 +227,6 @@ class translation extends ActionModul
 		//Add form
 		$form = new Form("select_translation_export", t("Select Export options"));
 
-		$i = $x = 0;
 		$form->add(new Fieldset('select_module', t("Select Modules")));
 		$modules = array(
 			'all' => t('All')
@@ -396,7 +393,6 @@ class translation extends ActionModul
 		$translation_objects = array();
 
 		//Build up our translation form
-		$language_obj = new LanguagesObj();
 		$form = new Form("translate", t("Translate: [b]@string[/b]", array("@string" => $translation->key)));
 		foreach ($this->lng->get_enabled_languages() AS $row => $language_string) {
 			$translation_objects[$row] = $translation_tmp = new TranslationObj($id, $row);

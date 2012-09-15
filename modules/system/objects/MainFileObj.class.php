@@ -116,10 +116,8 @@ class MainFileObj extends AbstractDataManagment
 	 *
 	 * @param string $tmp_file
 	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
-	 * @param boolean $save_if_unchanged
-	 *   Save this object even if no changes to it's values were made
 	 *
-	 * @return true on success, else false
+	 * @return boolean true on success, else false
 	 */
 	public function save_or_insert($tmp_file = "") {
 		if ($this->load_success()) {
@@ -139,7 +137,7 @@ class MainFileObj extends AbstractDataManagment
 	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
 	 *
-	 * @return true on success, else false
+	 * @return boolean true on success, else false
 	 */
 	public function save($tmp_file = "", $save_if_unchanged = false) {
 		$this->transaction_auto_begin();

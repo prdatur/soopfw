@@ -154,9 +154,6 @@ class menu extends ActionModul
 		$this->title(	t("\"@menu\" menu entries", array("@menu" => $menu_entry_obj->title)),
 						t("Change the order of one or more menu entries and add manually menu entries"));
 
-		$menu_entries = array();
-
-		$entry_holder = array();
 		$array_2_tree = new Array2Tree();
 		foreach($this->db->query_slave_all("SELECT `entry_id`, `parent_id`, `order` FROM `".MenuEntryObj::TABLE."` WHERE menu_id = @menu_id", array('@menu_id' => $menu_id)) AS $menu_entry) {
 
@@ -182,10 +179,12 @@ class menu extends ActionModul
 	 * Insert or add a menu
 	 * if $menu_id is provided, it will change this menu (save), else insert a new menu
 	 *
-	 * @param int $menu_id the menu_id
-	 * @param int $entry_id the entry_id (optional, default = 0)
+	 * @param int $menu_id
+	 *   the menu_id
+	 * @param int $entry_id
+	 *   the entry_id (optional, default = 0)
 	 */
-	public function change_menu_entry($menu_id, $entry_id = ""){
+	public function change_menu_entry($menu_id, $entry_id = 0){
 
 
 		$force_loaded = false;

@@ -292,7 +292,6 @@ abstract class AbstractDataManagment extends Object
 	 * Set all values to there given default values
 	 */
 	public function set_default_fields() {
-		$ref_key = $this->db_struct->get_reference_key();
 		//Loop through all struct fields
 		foreach ($this->db_struct->get_struct() as $name => $struct) {
 			//If struct defines a default value, set it
@@ -437,9 +436,9 @@ abstract class AbstractDataManagment extends Object
 			$this->db_filter = $keys;
 		}
 		else {
+			$return = array();
 			//If we did not provide any keys, we can do nothing.
 			if(empty($keys)) {
-				$return = array();
 				return $return;
 			}
 
@@ -448,7 +447,7 @@ abstract class AbstractDataManagment extends Object
 			$count_struct = count($struct);
 
 
-
+			$memcached_keys = array();
 			//Setup all wanted memcached keys to load
 			foreach ($keys as $value) {
 				$memcached_key = $this->get_memcached_key($value);
@@ -511,8 +510,8 @@ abstract class AbstractDataManagment extends Object
 				$where_group = new DatabaseWhereGroup();
 
 				//Loop through all reference keys and setup the database filter
-				foreach($this->db_struct->get_reference_key() AS $index => $key) {
-					$where_group->add_where($key, $value_array[$index]);
+				foreach($this->db_struct->get_reference_key() AS $index => $key_ref) {
+					$where_group->add_where($key_ref, $value_array[$index]);
 				}
 
 				$main_where_group->add_where($where_group);

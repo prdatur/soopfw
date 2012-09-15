@@ -10,11 +10,25 @@ class Array2Tree {
 	private $items = array();
 
 	/**
-	 * Determines if we already have found a selected menu, we only want the first matched entry
+	 * Determines if we already have found a selected menu, we only want the first matched entry.
+	 *
 	 * @var boolean
 	 */
 	private $menu_selected = false;
 
+	/**
+	 * Holds the current parsed request uri.
+	 *
+	 * @var string
+	 */
+	private $request_uri = "";
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->request_uri = preg_replace('/\/[a-z][a-z]\//i', '/', strtolower(current(explode('?', $_SERVER['REQUEST_URI'], 2))));
+	}
 	/**
 	 * Add an element to the entry.
 	 * Required array keys = parent_id, entry_id, #link and order
@@ -43,14 +57,10 @@ class Array2Tree {
 		$this->items[$parent_id] = $this->sort_menu($this->items[$parent_id]);
 		foreach($this->items[$parent_id] AS &$entry) {
 			if($just_active == true) {
-				list($url) = explode('?', $_SERVER['REQUEST_URI'],2);
 
-				//If a language prefix is within an url, remove it for active check
-				$url = preg_replace('/\/[a-z][a-z]\//i', '/', $url);
-				$check_active_link = preg_replace('/\/[a-z][a-z]\//i', '/', $entry['#link']);
-				if(($this->menu_selected == false && strtolower($url) == strtolower($check_active_link))) {
+				if($this->menu_selected === false && preg_match("/(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "/i", $this->request_uri)) {
 					$entry['#active'] = true;
-					if (strtolower($url) == strtolower($check_active_link)) {
+					if ($this->menu_selected !== false) {
 						$entry['#active_direct'] = true;
 						$this->menu_selected = true;
 					}
@@ -60,7 +70,7 @@ class Array2Tree {
 
 			$entry['#childs'] = $this->sort_menu($this->get_tree($entry['entry_id'], $just_active));
 
-			if($just_active == true && $this->check_if_a_child_is_active($entry['#childs'])) {
+			if($just_active === true && $this->check_if_a_child_is_active($entry['#childs'])) {
 				$entry['#active'] = true;
 			}
 
@@ -84,7 +94,7 @@ class Array2Tree {
 
 		foreach($array AS $k => &$childs) {
 
-			if($onetime_add_all == false && $childs['parent_id']."" !== "0" && empty($childs['#active']) && (!isset($childs['#always_open']) || $childs['#always_open'] != MenuEntryTranslationObj::ALWAYS_OPEN_YES) && !$this->check_if_a_child_is_direct_selected($array)) {
+			if($onetime_add_all === false && $childs['parent_id']."" !== "0" && empty($childs['#active']) && (!isset($childs['#always_open']) || $childs['#always_open'] !== MenuEntryTranslationObj::ALWAYS_OPEN_YES) && !$this->check_if_a_child_is_direct_selected($array)) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {
@@ -102,11 +112,11 @@ class Array2Tree {
 
 		foreach($array AS $k => &$childs) {
 
-			if($skip_remove == false && (!empty($childs['#active']) || (isset($childs['#always_open']) && $childs['#always_open'] == MenuEntryTranslationObj::ALWAYS_OPEN_YES))) {
+			if($skip_remove === false && (!empty($childs['#active']) || (isset($childs['#always_open']) && $childs['#always_open'] === MenuEntryTranslationObj::ALWAYS_OPEN_YES))) {
 				unset($array[$k]);
 			}
 			if(!empty($childs['#childs'])) {
-				$this->get_only_active($childs['#childs'], empty($childs['#active']));
+				$this->get_only_inactive($childs['#childs'], empty($childs['#active']));
 			}
 		}
 	}
@@ -120,19 +130,14 @@ class Array2Tree {
 	 * @return boolean true if selected, else false
 	 */
 	private function check_if_a_child_is_direct_selected(&$array) {
-		static $request_uri = null;
 		static $cache = array();
-
-		if ($request_uri == null) {
-			$url = strtolower(current(explode('?', $_SERVER['REQUEST_URI'],2)));
-		}
 
 		foreach($array AS &$child) {
 			if (!isset($cache[$child['#link']])) {
 				$cache[$child['#link']] = strtolower($child['#link']);
 			}
 
-			if($url == $cache[$child['#link']]) {
+			if($this->request_uri === $cache[$child['#link']]) {
 				return true;
 			}
 			if(!empty($child['#childs'])) {
@@ -165,7 +170,7 @@ class Array2Tree {
 	 */
 	private function sort_menu($menu) {
 		usort($menu, function($a, $b) {
-			if($a['order'] == $b['order']) {
+			if($a['order'] === $b['order']) {
 				return 0;
 			}
 			return ($a['order'] < $b['order']) ? -1 : 1;

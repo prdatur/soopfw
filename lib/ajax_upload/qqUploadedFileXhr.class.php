@@ -46,6 +46,7 @@ class qqUploadedFileXhr
 	/**
 	 * Returns the uploaded file size
 	 *
+	 * @throws Exception
 	 * @return int
 	 */
 	function get_size() {

@@ -25,7 +25,7 @@ class UrlValidator extends AbstractHtmlValidator
 			return true;
 		}
 
-		$filter_validator = new FilterValidator($val, array(FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED));
+		$filter_validator = new FilterValidator($this->get_value(), array(FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED));
 		return $filter_validator->is_valid();
 	}
 

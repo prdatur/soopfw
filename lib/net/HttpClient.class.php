@@ -5,8 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib
- * @category Tools
+ * @package lib.net
+ * @category NetTools
  */
 class HttpClient extends Object {
 

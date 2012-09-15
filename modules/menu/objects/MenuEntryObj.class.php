@@ -122,7 +122,6 @@ class MenuEntryObj extends AbstractDataManagment
 	 * @return array the menu entries
 	 */
 	public function get_all_deactivated_menu_entries() {
-		$result = array();
 
 		$tree = new Array2Tree();
 		foreach($this->db->query_slave_all("

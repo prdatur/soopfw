@@ -1,10 +1,10 @@
 <?php
 /**
  * Websocket Handshake version Hybi10
- * 
+ *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
+ * @package lib.net.version
  * @category Websocket
  */
 class WebSocketHybi10 extends WebSocketHandshake {
@@ -54,7 +54,6 @@ class WebSocketHybi10 extends WebSocketHandshake {
 	 */
 	public static function encode($data, $type = 'text', $masked = true) {
 		$frame_head = array();
-		$frame = '';
 		$payload_length = strlen($data);
 
 		switch ($type) {
@@ -88,7 +87,6 @@ class WebSocketHybi10 extends WebSocketHandshake {
 			}
 			// most significant bit MUST be 0 (close connection if frame too big)
 			if ($frame_head[2] > 127) {
-				$this->close(1004);
 				return false;
 			}
 		}
@@ -134,8 +132,6 @@ class WebSocketHybi10 extends WebSocketHandshake {
 	 *	 The data on success, else FALSE
 	 */
 	public static function decode($data) {
-		$payload_length = '';
-		$mask = '';
 		$unmaskedPayload = '';
 		$decoded_data = array();
 
@@ -148,7 +144,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 
 		// close connection if unmasked frame is received:
 		if ($is_masked === false) {
-			$this->close(1002);
+			return false;
 		}
 
 		switch ($opcode) {
@@ -178,8 +174,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 
 			default:
 				// Close connection on unknown opcode.
-				$this->close(1003);
-				break;
+				return false;
 		}
 
 		if ($payload_length === 126) {
