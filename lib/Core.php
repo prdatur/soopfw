@@ -1,4 +1,8 @@
 <?php
+if (!defined('SITEPATH')) {
+	define('SITEPATH', dirname(dirname(__FILE__)));
+}
+
 //Include important standalone functions
 require (SITEPATH . '/lib/common.php');
 
@@ -316,13 +320,22 @@ class Core
 	 *
 	 * @param boolean $force
 	 *   if set to true it will force reload the classes.
+	 * @param boolean $force_file
+	 *   Whether we want to force to load the classes.php file or not
+	 *   if not it can be retrieved through memcached (optiona, default = false)
 	 *
 	 * @return array the current classlist
 	 */
-	public static function load_classlist($force = false) {
+	public static function load_classlist($force = false, $force_file = false) {
 		global $memcached_obj;
-		if ($force === true || empty(Core::$classes)) {
-			Core::$classes = $memcached_obj->get('classloader_classes');
+		if ($force === true) {
+			Core::$classes = array();
+		}
+		if (empty(Core::$classes)) {
+			if ($force_file === false) {
+				Core::$classes = $memcached_obj->get('classloader_classes');
+			}
+
 			if (empty(Core::$classes)) {
 				include SITEPATH . '/config/classes.php';
 				Core::$classes = &$classes;
