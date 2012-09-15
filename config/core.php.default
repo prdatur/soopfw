@@ -14,7 +14,8 @@ $this->config['core']['debug_email'] = 'debug@mail.com';
 $this->config['core']['default_module'] = 'user';
 $this->config['core']['default_language'] = 'de';
 $this->config['core']['domain'] = 'domain';
-$this->config['core']['xhprof_domain'] = 'xhprof domain'; // Can be left empty
+$this->config['core']['xhprof_domain'] = ''; // Can be left empty
+$this->config['core']['xhprof_root'] = ''; // Can be left empty
 
 //Memcache configuration
 $this->config['memcache']['host'] = 'localhost';
