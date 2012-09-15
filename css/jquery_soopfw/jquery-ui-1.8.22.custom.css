@@ -53,9 +53,9 @@
 
 /* Component containers
 ----------------------------------*/
-.ui-widget { font-family: Verdana, Arial, sans-serif; font-size: 12px; }
+.ui-widget { font-size: 12px; }
 .ui-widget .ui-widget { font-size: 1em; }
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Verdana, Arial, sans-serif; font-size: 1em; }
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {font-size: 1em; }
 .ui-widget-content { border: 1px solid #cfcfcf; background: #ffffff url(images/ui-bg_carbon-fiber_25_ffffff_8x9.png) 50% 50% repeat; color: #666666; }
 .ui-widget-content a { color: #666666; }
 .ui-widget-header { border: 1px solid #fafafa; background: #000000 url(images/ui-bg_gloss-wave_70_000000_500x100.png) 50% 50% repeat-x; color: #e8e8e8; font-weight: bold; }
