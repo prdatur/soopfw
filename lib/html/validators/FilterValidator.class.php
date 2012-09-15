@@ -41,4 +41,3 @@ class FilterValidator extends AbstractHtmlValidator
 
 }
 
-?>

@@ -21,4 +21,3 @@ class Button extends Submitbutton
 
 }
 
-?>

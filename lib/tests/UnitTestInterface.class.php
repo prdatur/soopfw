@@ -18,4 +18,3 @@ interface UnitTestInterface {
 	 */
 	public function get_tests();
 }
-?>

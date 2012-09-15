@@ -355,4 +355,3 @@ class Pager extends Object
 
 }
 
-?>

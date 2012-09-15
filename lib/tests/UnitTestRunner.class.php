@@ -194,4 +194,3 @@ class UnitTestRunner extends Object {
 		$this->core->message(t('Test tables created.'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 }
-?>

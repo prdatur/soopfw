@@ -41,4 +41,3 @@ class CoreRightObj extends AbstractDataManagment
 
 }
 
-?>

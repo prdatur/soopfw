@@ -225,4 +225,3 @@ class HttpClient extends Object {
 		return $result;
 	}
 }
-?>

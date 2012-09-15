@@ -21,4 +21,3 @@ class Textfield extends AbstractHtmlInput
 
 }
 
-?>

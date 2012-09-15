@@ -88,4 +88,3 @@ class AjaxMenuSaveMenuEntryOrder extends AjaxModul {
 		return true;
 	}
 }
-?>

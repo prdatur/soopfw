@@ -40,4 +40,3 @@ class AjaxContentSaveFieldGroupOrder extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::SUCCESS);
 	}
 }
-?>

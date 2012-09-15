@@ -16,4 +16,3 @@ class AjaxUserPing extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::SUCCESS);
 	}
 }
-?>

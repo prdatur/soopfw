@@ -64,4 +64,4 @@ class EmailTemplateSelectField extends Selectfield {
 		return $output . $create_template . $change_template . '</div>';
 	}
 }
-?>
+

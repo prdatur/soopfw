@@ -1614,4 +1614,3 @@ class content extends ActionModul {
 	}
 
 }
-?>

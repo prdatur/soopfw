@@ -202,4 +202,3 @@ class WebUnitTest extends UnitTest {
 	}
 
 }
-?>

@@ -112,4 +112,3 @@ class ModulConfigObj extends AbstractDataManagment
 
 }
 
-?>

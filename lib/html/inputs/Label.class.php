@@ -33,4 +33,3 @@ class Label extends AbstractHtmlInput
 	}
 }
 
-?>

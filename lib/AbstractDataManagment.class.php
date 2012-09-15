@@ -950,5 +950,3 @@ abstract class AbstractDataManagment extends Object
 	}
 
 }
-
-?>

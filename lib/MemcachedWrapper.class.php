@@ -96,4 +96,4 @@ class MemcachedWrapper extends memcache {
 		return Memcached::RES_FAILURE;
 	}
 }
-?>
+

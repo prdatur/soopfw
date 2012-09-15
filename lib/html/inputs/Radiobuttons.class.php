@@ -115,4 +115,3 @@ class Radiobuttons extends Checkboxes
 
 }
 
-?>

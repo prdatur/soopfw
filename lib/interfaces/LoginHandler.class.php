@@ -79,4 +79,3 @@ interface LoginHandler
 	public function validate_login($username, $password);
 }
 
-?>

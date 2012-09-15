@@ -342,5 +342,3 @@ class ActionModul extends Object
 		return false;
 	}
 }
-
-?>

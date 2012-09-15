@@ -33,4 +33,4 @@ class AjaxUserGroupReadRights extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::SUCCESS, $return_array);
 	}
 }
-?>
+

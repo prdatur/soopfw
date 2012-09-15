@@ -29,4 +29,3 @@ class IssetValidator extends AbstractHtmlValidator
 
 }
 
-?>

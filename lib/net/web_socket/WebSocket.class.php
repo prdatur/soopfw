@@ -243,4 +243,3 @@ abstract class WebSocket extends Object {
 	}
 }
 
-?>

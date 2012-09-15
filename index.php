@@ -419,5 +419,3 @@ function display_xhprof_run() {
 		echo "<br /><div style='text-align:right;'><a href='" . $xhrprof_domain . "/index.php?run=" . $run_id . "&source=xhprof_soopfw' target='_blank'>" . $wall_time . "s " . $mem_usage . "MB Profile data</a></div>";
 	}
 }
-
-?>

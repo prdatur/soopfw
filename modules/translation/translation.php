@@ -463,4 +463,3 @@ class translation extends ActionModul
 
 }
 
-?>

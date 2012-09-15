@@ -81,4 +81,3 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagment
 
 }
 
-?>

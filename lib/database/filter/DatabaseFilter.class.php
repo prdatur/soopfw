@@ -619,4 +619,3 @@ class DatabaseFilter extends Object
 
 }
 
-?>

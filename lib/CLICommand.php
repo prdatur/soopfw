@@ -98,4 +98,3 @@ abstract class CLICommand extends Object {
         );
     }
 }
-?>

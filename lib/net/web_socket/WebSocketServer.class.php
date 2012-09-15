@@ -131,4 +131,3 @@ abstract class WebSocketServer extends WebSocketListener {
 	 */
 	abstract protected function on_connect(WebSocketUser &$client);
 }
-?>

@@ -460,4 +460,3 @@ class UnitTest extends Object {
 		return $this->test_log;
 	}
 }
-?>

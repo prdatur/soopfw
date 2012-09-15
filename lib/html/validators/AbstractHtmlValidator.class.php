@@ -150,4 +150,3 @@ abstract class AbstractHtmlValidator extends Object
 		return get_class($this);
 	}
 }
-?>

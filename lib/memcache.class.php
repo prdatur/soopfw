@@ -5,4 +5,4 @@
 if (!class_exists('memcache')) {
 	class memcache {}
 }
-?>
+

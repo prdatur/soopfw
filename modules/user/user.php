@@ -1198,4 +1198,3 @@ Also it expires after {expires} hours";
 
 }
 
-?>

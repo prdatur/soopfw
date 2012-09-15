@@ -44,4 +44,3 @@ class TranslationKeysObj extends AbstractDataManagment
 	}
 }
 
-?>

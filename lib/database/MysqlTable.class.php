@@ -323,4 +323,3 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 
 }
 
-?>

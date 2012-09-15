@@ -62,4 +62,3 @@ class MimeTypeObj extends AbstractDataManagment
 		}
 	}
 }
-?>

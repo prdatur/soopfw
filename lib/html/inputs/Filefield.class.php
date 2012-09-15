@@ -355,4 +355,3 @@ class Filefield extends AbstractHtmlInput
 
 }
 
-?>

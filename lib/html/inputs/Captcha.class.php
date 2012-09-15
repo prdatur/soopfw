@@ -101,4 +101,3 @@ class Captcha extends AbstractHtmlInput
 
 }
 
-?>

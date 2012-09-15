@@ -50,4 +50,4 @@ class cli_cron extends CLICommand
 
 }
 
-?>
+

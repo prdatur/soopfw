@@ -421,4 +421,3 @@ class DbStruct extends Object
 
 }
 
-?>

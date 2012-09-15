@@ -189,4 +189,3 @@ function t($key, $args = array()) {
 	return $key;
 }
 
-?>

@@ -178,4 +178,4 @@ class Array2Tree {
 		return $menu;
 	}
 }
-?>
+

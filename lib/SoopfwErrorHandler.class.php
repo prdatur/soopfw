@@ -275,4 +275,3 @@ User's Browser......: " . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 
 }
 
-?>

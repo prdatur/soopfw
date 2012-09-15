@@ -55,4 +55,3 @@ class FieldGroupUpload extends AbstractFieldGroup
 
 }
 
-?>

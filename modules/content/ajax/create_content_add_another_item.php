@@ -43,4 +43,3 @@ class AjaxContentCreateContentAddAnotherItem extends AjaxModul {
 		die();
 	}
 }
-?>

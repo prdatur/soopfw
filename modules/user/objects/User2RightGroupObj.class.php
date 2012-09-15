@@ -41,4 +41,3 @@ class User2RightGroupObj extends AbstractDataManagment
 
 }
 
-?>

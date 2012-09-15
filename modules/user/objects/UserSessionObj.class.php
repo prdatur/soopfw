@@ -47,4 +47,3 @@ class UserSessionObj extends AbstractDataManagment
 
 }
 
-?>

@@ -125,4 +125,3 @@ class Checkbox extends AbstractHtmlInput
 
 }
 
-?>

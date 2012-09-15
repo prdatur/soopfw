@@ -39,4 +39,3 @@ class LanguagesObj extends AbstractDataManagment
 
 }
 
-?>

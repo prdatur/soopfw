@@ -37,4 +37,3 @@ class FieldGroupList extends AbstractFieldGroup
 
 }
 
-?>

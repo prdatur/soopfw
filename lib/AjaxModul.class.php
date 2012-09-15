@@ -62,5 +62,3 @@ abstract class AjaxModul extends Object
 	abstract function run();
 
 }
-
-?>

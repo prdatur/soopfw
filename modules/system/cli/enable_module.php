@@ -76,4 +76,4 @@ class cli_enable_module extends CLICommand
 
 }
 
-?>
+

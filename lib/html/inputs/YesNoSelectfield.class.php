@@ -37,4 +37,3 @@ class YesNoSelectfield extends Selectfield
 	}
 }
 
-?>

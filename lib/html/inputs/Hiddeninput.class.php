@@ -44,4 +44,3 @@ class Hiddeninput extends AbstractHtmlInput
 
 }
 
-?>

@@ -288,4 +288,3 @@ class PageRevisionObj extends AbstractDataManagment {
 	}
 }
 
-?>

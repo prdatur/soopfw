@@ -38,4 +38,3 @@ class UserOneTimeActionObj extends AbstractDataManagment
 
 }
 
-?>

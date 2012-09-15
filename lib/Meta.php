@@ -116,4 +116,3 @@ class Meta implements Iterator {
 		return current($this->values);
 	}
 }
-?>

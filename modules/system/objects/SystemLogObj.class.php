@@ -58,4 +58,3 @@ class SystemLogObj extends AbstractDataManagment
 		}
 	}
 }
-?>

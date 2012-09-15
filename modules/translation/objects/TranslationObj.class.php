@@ -48,4 +48,3 @@ class TranslationObj extends AbstractDataManagment
 	}
 }
 
-?>

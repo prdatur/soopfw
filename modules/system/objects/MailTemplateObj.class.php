@@ -76,4 +76,3 @@ class MailTemplateObj extends AbstractDataManagment
 	}
 }
 
-?>

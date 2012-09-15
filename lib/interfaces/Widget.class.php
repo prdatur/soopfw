@@ -22,4 +22,4 @@ interface Widget {
 	 */
 	public function get_widget($name, $unique_id);
 }
-?>
+

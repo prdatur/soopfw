@@ -132,4 +132,3 @@ class RSSGenerator extends Object {
 		exit();
 	}
 }
-?>

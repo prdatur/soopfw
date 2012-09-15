@@ -58,4 +58,4 @@ class cli_generate_classlist extends CLICommand
 
 }
 
-?>
+

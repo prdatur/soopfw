@@ -38,4 +38,3 @@ class FieldGroupText extends AbstractFieldGroup
 
 }
 
-?>

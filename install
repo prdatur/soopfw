@@ -228,4 +228,3 @@ class soopfw_install {
 
 new soopfw_install();
 
-?>

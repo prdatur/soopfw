@@ -139,4 +139,3 @@ abstract class WebSocketListener extends WebSocket {
 	abstract protected function on_error(WebSocketUser &$client);
 }
 
-?>

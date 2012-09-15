@@ -20,4 +20,3 @@ class Passwordfield extends AbstractHtmlInput {
 
 }
 
-?>

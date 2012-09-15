@@ -42,4 +42,3 @@ class AjaxUserDeleteAddress extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
 	}
 }
-?>

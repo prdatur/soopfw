@@ -345,4 +345,3 @@ class menu extends ActionModul
 	}
 }
 
-?>

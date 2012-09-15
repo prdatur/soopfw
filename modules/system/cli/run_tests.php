@@ -94,4 +94,4 @@ class cli_run_tests extends CLICommand
 
 }
 
-?>
+

@@ -41,4 +41,3 @@ class CoreModelObjectObj extends AbstractDataManagment
 
 }
 
-?>

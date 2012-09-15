@@ -37,4 +37,3 @@ class FunctionValidator extends AbstractHtmlValidator
 
 }
 
-?>

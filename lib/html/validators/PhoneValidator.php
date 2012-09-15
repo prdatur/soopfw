@@ -33,4 +33,3 @@ class PhoneValidator extends AbstractHtmlValidator
 
 }
 
-?>

@@ -156,4 +156,3 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	}
 }
 
-?>

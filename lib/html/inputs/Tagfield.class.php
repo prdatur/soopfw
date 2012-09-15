@@ -76,4 +76,3 @@ class Tagfield extends Textfield
 
 }
 
-?>

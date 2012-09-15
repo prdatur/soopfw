@@ -39,4 +39,4 @@ class AjaxUserGroupAdd extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
 	}
 }
-?>
+

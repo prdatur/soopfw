@@ -36,4 +36,3 @@ class RequiredValidator extends AbstractHtmlValidator
 
 }
 
-?>

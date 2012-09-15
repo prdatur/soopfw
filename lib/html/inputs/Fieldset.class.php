@@ -52,4 +52,3 @@ class Fieldset extends AbstractHtmlInput
 
 }
 
-?>

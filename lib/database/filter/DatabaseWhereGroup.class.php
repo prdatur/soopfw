@@ -185,4 +185,3 @@ class DatabaseWhereGroup extends Object
 
 }
 
-?>

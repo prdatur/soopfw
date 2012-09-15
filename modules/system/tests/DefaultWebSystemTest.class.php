@@ -43,4 +43,4 @@ class DefaultWebSystemTest extends WebUnitTest implements UnitTestInterface
 		$this->assert_web_regexp('/>My account<\/a>/', t('Check valid login'));
 	}
 }
-?>
+

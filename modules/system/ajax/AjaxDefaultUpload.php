@@ -85,4 +85,3 @@ class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 		AjaxModul::return_code(AjaxModul::SUCCESS, $return);
 	}
 }
-?>

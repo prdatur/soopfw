@@ -38,4 +38,3 @@ class UserRightObj extends AbstractDataManagment
 
 }
 
-?>

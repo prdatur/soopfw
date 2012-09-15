@@ -36,4 +36,4 @@ class cli_reindex_menu extends CLICommand
 
 }
 
-?>
+

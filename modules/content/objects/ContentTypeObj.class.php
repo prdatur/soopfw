@@ -101,4 +101,3 @@ class ContentTypeObj extends AbstractDataManagment
 
 }
 
-?>

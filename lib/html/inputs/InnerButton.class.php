@@ -39,4 +39,3 @@ class InnerButton extends Button {
 
 }
 
-?>

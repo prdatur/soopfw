@@ -303,4 +303,3 @@ class UserObj extends AbstractDataManagment
 
 }
 
-?>

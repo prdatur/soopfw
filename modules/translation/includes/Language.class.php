@@ -773,4 +773,3 @@ class Language extends Object
 
 }
 
-?>

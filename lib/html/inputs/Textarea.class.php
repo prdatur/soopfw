@@ -34,4 +34,3 @@ class Textarea extends AbstractHtmlInput
 
 }
 
-?>

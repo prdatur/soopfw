@@ -746,4 +746,4 @@ class callable_class {
 		$cron_called = true;
 	}
 }
-?>
+

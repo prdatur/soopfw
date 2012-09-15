@@ -33,4 +33,3 @@ class IsNumberValidator extends AbstractHtmlValidator
 
 }
 
-?>

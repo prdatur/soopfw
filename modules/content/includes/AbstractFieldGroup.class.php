@@ -405,4 +405,3 @@ abstract class AbstractFieldGroup extends Object
 	abstract function get_template();
 }
 
-?>

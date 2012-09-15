@@ -650,4 +650,3 @@ abstract class AbstractHtmlInput extends Object
 	abstract function init();
 }
 
-?>

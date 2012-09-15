@@ -25,4 +25,3 @@ class Radiobutton extends Checkbox
 	}
 }
 
-?>

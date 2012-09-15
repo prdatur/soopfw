@@ -33,4 +33,3 @@ class AjaxSystemBuildLanguages extends AjaxModul {
 		}
 	}
 }
-?>

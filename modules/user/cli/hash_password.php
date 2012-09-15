@@ -38,4 +38,4 @@ class cli_hash_password extends CLICommand
 
 }
 
-?>
+

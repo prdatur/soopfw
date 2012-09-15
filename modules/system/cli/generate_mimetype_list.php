@@ -76,4 +76,3 @@ $this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_
 
 }
 
-?>

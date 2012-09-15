@@ -325,4 +325,3 @@ class RightManager extends Object
 	}
 }
 
-?>

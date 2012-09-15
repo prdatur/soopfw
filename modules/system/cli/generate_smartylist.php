@@ -83,4 +83,4 @@ class cli_generate_smartylist extends CLICommand
 
 }
 
-?>
+
