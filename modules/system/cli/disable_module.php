@@ -36,12 +36,12 @@ class cli_disable_module extends CLICommand
 			}
 		}
 		if (empty($module)) {
-			consoleLog('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user', Core::MESSAGE_TYPE_ERROR);
+			console_log('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user', Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 		$module_conf = new ModulConfigObj($module);
 		if (!$module_conf->load_success()) {
-			consoleLog('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
+			console_log('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 
@@ -53,8 +53,8 @@ class cli_disable_module extends CLICommand
 				$msg .= " - " . $mod['name']. "\n   (" . $mod['description'] . ")\n";
 			}
 			echo $msg . "\n";
-			if (!get_boolean_input(t("Proceed with module disabling?"))) {
-				consoleLog(t('Module disabling aborted'), 'ok');
+			if (!CliHelper::get_boolean_input(t("Proceed with module disabling?"))) {
+				console_log(t('Module disabling aborted'), 'ok');
 				return false;
 			}
 		}
@@ -69,9 +69,9 @@ class cli_disable_module extends CLICommand
 				$dep_module_conf->save();
 				$permissions = SystemHelper::get_module_permissions($mod, true);
 				if (!empty($permissions)) {
-					consoleLog(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+					console_log(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
 				}
-				consoleLog(t('Module "@module" disabled', array("@module" => $val['name'])), 'ok');
+				console_log(t('Module "@module" disabled', array("@module" => $val['name'])), 'ok');
 			}
 		}
 
@@ -80,7 +80,7 @@ class cli_disable_module extends CLICommand
 
 		$permissions = SystemHelper::get_module_permissions($module, true);
 		if (!empty($permissions)) {
-			consoleLog(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+			console_log(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
 		}
 		return true;
 	}
@@ -90,7 +90,7 @@ class cli_disable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Module disabled.', 'ok');
+		console_log('Module disabled.', 'ok');
 	}
 
 }

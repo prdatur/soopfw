@@ -24,9 +24,11 @@ class cli_run_tests extends CLICommand
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
-		global $classes, $argv;
+		global $argv;
 		$cmds = array();
 
+		$classes = Core::get_classlist();
+		
 		//Search cli commands and setup long options array
 		$c = 1;
 		foreach ($classes['classes'] AS $class => $v) {
@@ -43,7 +45,6 @@ class cli_run_tests extends CLICommand
 			echo "\nTests available:\n";
 			echo "all (runs all available tests)\n";
 			foreach ($cmds AS $cmd) {
-				$class = $cmd;
 				echo $cmd . "\n";
 			}
 			echo "\nExample:\n";
@@ -65,17 +66,17 @@ class cli_run_tests extends CLICommand
 			$tester = new UnitTestRunner();
 			$logs = $tester->run_tests($test);
 
-			consoleLog(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
-			consoleLog(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			console_log(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			console_log(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
 			if ($tester->failed_tests > 0) {
-				consoleLog(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
+				console_log(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
 			}
 
 			foreach ($logs AS $entry) {
 				/* @var $entry UnitTestLog */
 				if ($entry->passed !== true) {
-					consoleLog($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
-					consoleLog($entry->message, Core::MESSAGE_TYPE_ERROR);
+					console_log($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
+					console_log($entry->message, Core::MESSAGE_TYPE_ERROR);
 				}
 			}
 		}
@@ -88,7 +89,7 @@ class cli_run_tests extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Test complete', 'ok');
+		console_log('Test complete', 'ok');
 	}
 
 }

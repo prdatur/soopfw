@@ -23,11 +23,11 @@ class cli_generate_mimetype_list extends CLICommand
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
-		consoleLog('Try to generate mime type list, if you run this for the first time or you have not enabled memcached, this can take a while.', Core::MESSAGE_TYPE_NOTICE);
+		console_log('Try to generate mime type list, if you run this for the first time or you have not enabled memcached, this can take a while.', Core::MESSAGE_TYPE_NOTICE);
 		$source_list = 'http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types';
 		$data = file_get_contents($source_list);
 		if (empty($data)) {
-			consoleLog('Could not fetch mime type list using src: ' . $source_list, 'error');
+			console_log('Could not fetch mime type list using src: ' . $source_list, 'error');
 		}
 		$list = array();
 		foreach (explode("\n", $data) AS $line) {
@@ -57,11 +57,11 @@ $this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_
 				return true;
 			}
 			else {
-				consoleLog('Could not write mime type file to: ' . SITEPATH . '/config/mime.types please check write permissions', 'error');
+				console_log('Could not write mime type file to: ' . SITEPATH . '/config/mime.types please check write permissions', 'error');
 			}
 		}
 		else {
-			consoleLog('Could not find any mime type within content, please check the url: ' . $source_list . ' if it is a valid mime type list of apache', 'error');
+			console_log('Could not find any mime type within content, please check the url: ' . $source_list . ' if it is a valid mime type list of apache', 'error');
 		}
 		return false;
 	}
@@ -71,7 +71,7 @@ $this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Mimetype list generated', 'ok');
+		console_log('Mimetype list generated', 'ok');
 	}
 
 }

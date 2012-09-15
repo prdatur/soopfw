@@ -33,14 +33,16 @@ class RightManager extends Object
  	public function __construct(Core &$core = null) {
 		parent::__construct($core);
 
-		foreach ($this->db->query_slave_all("SELECT `right`, `description` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
-			$this->all_string_rights[$right['right']] = $right['description'];
-		}
+		if ($core->config['db']['use'] === true) {
+			foreach ($this->db->query_slave_all("SELECT `right`, `description` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
+				$this->all_string_rights[$right['right']] = $right['description'];
+			}
 
-		// Fallback of the version where descriptions did not exists.
-		if (empty($this->all_string_rights)) {
-			foreach ($this->db->query_slave_all("SELECT `right` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
-				$this->all_string_rights[$right['right']] = '';
+			// Fallback of the version where descriptions did not exists.
+			if (empty($this->all_string_rights)) {
+				foreach ($this->db->query_slave_all("SELECT `right` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
+					$this->all_string_rights[$right['right']] = '';
+				}
 			}
 		}
 	}
@@ -92,6 +94,23 @@ class RightManager extends Object
 			return array();
 		}
 		return $this->parse_rights($row['permissions']);
+	}
+
+	/**
+	 * Check a permission against the current user.
+	 *
+	 * @param string $perm
+	 *   the permission to check
+	 *
+	 * @return boolean true if current user has the permission, else false
+	 */
+	public static function has_permission($perm) {
+		$core = Core::get_instance();
+		if (empty($core) || empty($core->right_manager)) {
+			return false;
+		}
+
+		return $core->right_manager->has_perm($perm);
 	}
 
 	/**
@@ -179,7 +198,7 @@ class RightManager extends Object
 			if (preg_match("/[a-z]$/iUs", $right)) {
 				$or = "(\.|$)";
 			}
-			$right_search = "/^" . quote($right) . $or . "/iUs";
+			$right_search = "/^" . preg_quote($right, '/') . $or . "/iUs";
 
 			//The values within this array will be the rights which matched our right search regexp for the given right which we want to check
 			$right_array = array();
@@ -198,7 +217,6 @@ class RightManager extends Object
 			return false;
 		}
 
-		$result = array();
 		//Loop though all matched arrays
 		foreach ($right_array AS $v) {
 			//Check if the user owned the right and if we are in the or condition, if so we can safely return true

@@ -1,19 +1,20 @@
-<?php
+<?
 /**
- * Provides an ajax request to return a "ping".
+ * Provides an ajax request to print out hello world
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package modules.user.ajax
- * @category Module.User
+ * @package modules.system.ajax
+ * @category Example
  */
-class AjaxUserPing extends AjaxModul {
+class AjaxSystemHelloWorld extends AjaxModul {
 
 	/**
 	 * This function will be executed after ajax file initializing
 	 */
 	public function run() {
-		AjaxModul::return_code(AjaxModul::SUCCESS);
+		echo "hello world";
 	}
 }
+
 ?>

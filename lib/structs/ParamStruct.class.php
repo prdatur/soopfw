@@ -488,7 +488,7 @@ class ParamStruct extends Object
 			case PDT_LANGUAGE :
 			case PDT_LANGUAGE_ENABLED :
 			case PDT_STRING : return ''.trim($value);
-			case PDT_SQLSTRING : return ''.safe(trim($value));
+			case PDT_SQLSTRING : return ''.Db::safe(trim($value));
 			case PDT_JSON : return json_encode($value);
 			case PDT_TINYINT :
 			case PDT_SMALLINT :

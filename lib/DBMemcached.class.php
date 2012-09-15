@@ -93,7 +93,7 @@ class DBMemcached extends Object
 		if ($expiration > 0 && $expiration < 2592000) {
 			$expiration += time();
 		}
-		if ($this->db->query_master("REPLACE INTO `__memcached` SET `key` = '" . safe($this->prefix_key . $key) . "', `value` = '" . safe(serialize($value)) . "', `expires` = " . $expiration)) {
+		if ($this->db->query_master("REPLACE INTO `__memcached` SET `key` = '" . Db::safe($this->prefix_key . $key) . "', `value` = '" . Db::safe(serialize($value)) . "', `expires` = " . $expiration)) {
 			$this->last_result_code = Memcached::RES_SUCCESS;
 			return true;
 		}
@@ -108,7 +108,7 @@ class DBMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function increment($key, $offset) {
-		return $this->db->query_master("UPDATE `__memcached` SET value = value + " . (int) $offset . " WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
+		return $this->db->query_master("UPDATE `__memcached` SET value = value + " . (int) $offset . " WHERE `key` = '" . Db::safe($this->prefix_key . $key) . "'");
 	}
 
 	/**
@@ -119,7 +119,7 @@ class DBMemcached extends Object
 	 * @return boolean true on success, else false
 	 */
 	public function decrement($key, $offset) {
-		return $this->db->query_master("UPDATE `__memcached` SET value = value - " . (int) $offset . " WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
+		return $this->db->query_master("UPDATE `__memcached` SET value = value - " . (int) $offset . " WHERE `key` = '" . Db::safe($this->prefix_key . $key) . "'");
 	}
 
 	/**
@@ -132,7 +132,7 @@ class DBMemcached extends Object
 		$this->last_result_code = Memcached::RES_FAILURE;
 
 		//try to get the value
-		$res = $this->db->query_slave_first("SELECT * FROM `__memcached` WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
+		$res = $this->db->query_slave_first("SELECT * FROM `__memcached` WHERE `key` = '" . Db::safe($this->prefix_key . $key) . "'");
 		if (!$res) {
 			return null;
 		}
@@ -169,7 +169,7 @@ class DBMemcached extends Object
 
 		//Setup all wanted keys
 		foreach ($keys AS $key => $value) {
-			$keys[$key] = "'" . safe($this->prefix_key . $value) . "'";
+			$keys[$key] = "'" . Db::safe($this->prefix_key . $value) . "'";
 		}
 
 		//try to get the values
@@ -211,7 +211,7 @@ class DBMemcached extends Object
 	 * @return boolean Returns true on success, else false.
 	 */
 	public function delete($key) {
-		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` = '" . safe($this->prefix_key . $key) . "'");
+		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` = '" . Db::safe($this->prefix_key . $key) . "'");
 	}
 
 	/**
@@ -219,7 +219,7 @@ class DBMemcached extends Object
 	 * @return boolean Returns true on success, else false.
 	 */
 	public function flush() {
-		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` LIKE '" . safe($this->prefix_key) . "%'");
+		return $this->db->query_master("DELETE FROM	`__memcached` WHERE `key` LIKE '" . Db::safe($this->prefix_key) . "%'");
 	}
 
 	/**

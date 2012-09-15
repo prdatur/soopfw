@@ -277,7 +277,7 @@ class Db
 		$return_arr = array();
 		foreach (explode("*", $val) AS $sub_string) {
 			if ($escape) {
-				$sub_string = sql_escape($sub_string);
+				$sub_string = Db::sql_escape($sub_string);
 			}
 			else {
 				$sub_string = str_replace("%", "\\%", $sub_string);
@@ -286,7 +286,7 @@ class Db
 		}
 		if (count($return_arr) <= 1) {
 			if ($escape) {
-				$val = sql_escape($val);
+				$val = Db::sql_escape($val);
 			}
 			else {
 				$val = str_replace("%", "\\%", $val);
@@ -485,10 +485,10 @@ class Db
 					$value = (float) $value;
 					break;
 				case '@':
-					$value = "'" . safe($value) . "'";
+					$value = "'" . Db::safe($value) . "'";
 					break;
 				default:
-					$value = safe($value);
+					$value = Db::safe($value);
 					break;
 			}
 
@@ -509,7 +509,7 @@ class Db
 				echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
 			}
 			else {
-				consoleLog($query_string);
+				console_log($query_string);
 			}
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
 				$sql = @mysql_query("EXPLAIN " . $query_string, $this->link_id);
@@ -527,7 +527,7 @@ class Db
 					echo "</div>";
 				}
 				else {
-					consoleLog($res);
+					console_log($res);
 				}
 			}
 		}
@@ -800,7 +800,7 @@ class Db
 			$field = array($field);
 		}
 		foreach ($field AS &$val) {
-			$val = "`" . safe($val) . "`";
+			$val = "`" . Db::safe($val) . "`";
 		}
 		if ($queue === true) {
 			$query = $this->init_alter_table_queue($table);
@@ -865,7 +865,7 @@ class Db
 	 */
 	public function get_table_fields($table) {
 		$fields = array();
-		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . sql_escape($table) . "' ORDER BY ORDINAL_POSITION") AS $row) {
+		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . Db::sql_escape($table) . "' ORDER BY ORDINAL_POSITION") AS $row) {
 			$fields[$row['COLUMN_NAME']] = $row;
 		}
 		return $fields;
@@ -882,7 +882,7 @@ class Db
 	 * @return mixed the primary key as an array or a string comma seperated
 	 */
 	public function get_primary_key($table, $return_as_array = false) {
-		$sql = "SHOW COLUMNS FROM `" . safe($this->table_prefix) . $table . "`";
+		$sql = "SHOW COLUMNS FROM `" . Db::safe($this->table_prefix) . $table . "`";
 		$this->query_id = mysql_query($sql, $this->link_id);
 		$primarykeys = array();
 		if (mysql_num_rows($this->query_id) > 0) {
@@ -914,10 +914,11 @@ class Db
 	 */
 	public function insert($table, Array $values, Array $db_struct, $ignore = false) {
 
-		if (count($db_struct) <= 0)
+		if (count($db_struct) <= 0) {
 			return false;
+		}
 
-		$insertvalues = array();
+		$sqlfields = $insertvalues = array();
 
 		foreach ($db_struct AS $key => $structval) {
 			if (isset($values[$key])) {
@@ -1018,7 +1019,7 @@ class Db
 	private function parse_value_type($val, $type) {
 		switch ($type) {
 			case PDT_SERIALIZED:
-				return "'" . safe(@json_encode($val)) . "'";
+				return "'" . Db::safe(@json_encode($val)) . "'";
 			case PDT_FILE:
 			case PDT_INT:
 			case PDT_TINYINT:
@@ -1039,7 +1040,7 @@ class Db
 					$val = "0000-00-00 00:00:00";
 				}
 			default:
-				return "'" . safe($val) . "'";
+				return "'" . Db::safe($val) . "'";
 		}
 	}
 
@@ -1054,7 +1055,7 @@ class Db
 		if (empty($this->table_prefix)) {
 			return;
 		}
-		$prefix = safe($this->table_prefix);
+		$prefix = Db::safe($this->table_prefix);
 
 		$table_statements = "(((LEFT\s+)?JOIN|(INSERT|REPLACE)\s+(IGNORE\s+)?INTO|FROM|(?<!KEY )UPDATE|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE)\s+)";
 		$look_behind = "(?<!JOIN )(?<!INTO )(?<!CREATE TABLE )(?<!ALTER TABLE )(?<!DROP TABLE )(?<!(?<!KEY )UPDATE )";
@@ -1062,6 +1063,47 @@ class Db
 		$pattern = "/(" . $table_statements . "[^\s]*(`[^`]`\.)?`)([^`]+)`(\s|$)/";
 		$query_string = trim(preg_replace($pattern, "\${1}" . $prefix . "\${8}`\${9}", $query_string));
 		$query_string = preg_replace("/" . $look_behind . "(`[^`]+`\.)?`([^`]+)`\./", "\${1}`" . $prefix . "\${2}`.", $query_string);
+	}
+
+	/**
+	 * Strip a text to be a "save" text for not allowing SQL-Injections
+	 * and other bad things.
+	 *
+	 * @param string $text
+	 *   the text to escape
+	 * @param int $type
+	 *   the type value type
+	 *   if you provide PDT_INT it will be parsed as an integer
+	 *   provide PDT_FLOAT to be parsed as a float
+	 *   else it will be escaped through mysql_real_escape_string
+	 *   (optional, default = PDT_STRING)
+	 *
+	 * @return float|int|string the escaped value
+	 */
+	public static function safe($text, $type = PDT_STRING) {
+		switch ($type) {
+			case PDT_INT:
+				return (int)$text;
+				break;
+			case PDT_FLOAT:
+				return (float)$text;
+				break;
+		}
+
+		return mysql_real_escape_string($text);
+	}
+
+	/**
+	 * Escape the give string
+	 * with mysql_real_escape_string
+	 *
+	 * @param string $string
+	 *  The sql string
+	 *
+	 * @return string The escaped string.
+	 */
+	function sql_escape($string) {
+		return str_replace("%", "\\%", mysql_real_escape_string($string));
 	}
 
 }

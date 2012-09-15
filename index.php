@@ -1,6 +1,51 @@
 <?php
-	/* @var $core Core */
-    require("default_index.php");
+
+	ob_implicit_flush();
+	header('Content-Type: text/html; charset=utf-8');
+	if (!defined('SITEPATH')) {
+		define('SITEPATH', dirname(__FILE__));
+	}
+
+	require('lib/Core.php');
+
+	if (!isset($is_shell)) {
+		$is_shell = false;
+	}
+
+	$core = Core::get_instance($is_shell);
+
+	$override_params = UrlAliasObj::parse_url_string();
+	$language = $override_params['language'];
+	unset($override_params['language']);
+
+	$core->boot($language);
+
+	$core->cache('core', 'admin_theme', $override_params['admin_link']);
+	if ($override_params['admin_link'] === true) {
+		$core->need_ssl();
+	}
+
+	$alias_params = UrlAliasObj::get_alias_from_uri($override_params);
+	if ($alias_params !== false) {
+		$override_params = array_merge($override_params, $alias_params);
+	}
+
+	//Build the param array for the param struct (index.php or similar entry pages)
+	$additional_function_params = $override_params['additional_function_params'];
+	unset($override_params['additional_function_params']);
+
+	// Prevent predefining perms within _GET request.
+	if (isset($_GET['perm'])) {
+		unset($_GET['perm']);
+	}
+	$param_array = array_merge($_GET, $override_params);
+
+	$prof_enable = !empty($_GET['PROFILER']);
+
+	if ($prof_enable) {
+		xhprof_enable();
+	}
+
     $smarty = &$core->smarty;
 
     if(!empty($_REQUEST['logout'])) {
@@ -28,11 +73,11 @@
 	 * if not we just parse the url string
 	 */
 	if(empty($params->module)) {
-		$start_page = $core->dbconfig("system", System::CONFIG_DEFAULT_PAGE);
+		$start_page = $core->dbconfig("system", system::CONFIG_DEFAULT_PAGE);
 		if(!empty($start_page)) {
 			$start_page_params = UrlAliasObj::get_params_from_alias($start_page);
-			if($start_page === false) {
-				$start_page_params = parse_url_string($start_page);
+			if($start_page_params === false) {
+				$start_page_params = UrlAliasObj::parse_url_string($start_page);
 			}
 			else {
 				$start_page_params['type'] = "";
@@ -44,30 +89,33 @@
 		}
 	}
 
-	$loggedin = false;
-
-    if((!empty($core->db) && ($params->module == 'system' && $core->dbconfig("system", "installed") == "1") || $params->module != 'system')) {
-
+	/**
+	 * @TODO check if the !empty db is enough
+	 */
+    #if((!empty($core->db) && ($params->module == 'system' && $core->dbconfig("system", "installed") == "1") || $params->module != 'system')) {
+    if(!empty($core->db)) {
 		$session = $core->get_session();
 		if(!empty($session)) {
-
-			$loggedin = $session->check_login();
+			$session->check_login();
 		}
-
     }
 
+	// Parse additional function params.
 	if(!empty($additional_function_params)) {
 
 		$lastindex = count($additional_function_params)-1;
-		if(preg_match("/\/$/", $url)) {
+		// Check if the request uri ends with a slash, if so we should remove the last array element if it is empty.
+		if(preg_match("/\/$/", NetTools::get_request_uri())) {
 			if(empty($additional_function_params[$lastindex])) {
 				unset($additional_function_params[$lastindex]);
 				$lastindex--;
 			}
 		}
+
+		// Next we have a none empty last element, so check for common file endings and remove it.
+		// Last parameter will be without the extension.
 		if(!empty($additional_function_params)) {
 			if(preg_match("/(.*)\.(ajax|ajax_html|html)?$/is", $additional_function_params[$lastindex], $matches)) {
-
 				$additional_function_params[$lastindex] = $matches[1];
 			}
 		}
@@ -81,19 +129,31 @@
 				$module = $params->ajax_module;
 				$mod = "modules/".$params->ajax_module;
 			}
+			if (!empty($core->db)) {
+				$module_conf_obj = new ModulConfigObj($module);
+				if((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $module != "system") {
+					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+				}
 
-			$module_conf_obj = new ModulConfigObj($module);
-			if((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $module != "system") {
-				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+				if(!empty($params->perm) && !$core->get_right_manager()->has_perm($params->perm)) {
+					AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
+				}
 			}
-
-			if(!empty($params->perm) && !$core->get_right_manager()->has_perm($params->perm)) {
-				AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
-			}
-
 			$ajax_file = SITEPATH."/".$mod."/ajax/".$params->action.".php";
 			if(file_exists($ajax_file)) {
-				include($ajax_file);
+				$arr = explode("_", $params->action);
+				foreach ($arr AS &$val) {
+					$val = ucfirst($val);
+				}
+				$class = 'Ajax' . ucfirst($params->module) . implode("", $arr);
+
+				if (!class_exists($class)) {
+					include($ajax_file);
+				}
+
+				$ajax_run = new $class();
+				$ajax_run->run();
+
 			}
 			break;
 		case 'ajax_html':
@@ -230,8 +290,6 @@
 				default:
 					assign_default_js_css($core);
 					$core->assign_menus();
-					define("BUILD_END",microtime(true));
-					$core->smarty->assign("page_generated", (BUILD_END-BUILD_START));
 					break;
 			}
 			$module->assign_default();
@@ -250,6 +308,7 @@
 		display_xhprof_run();
 		die();
 	}
+
 	function assign_default_js_css(Core &$core) {
 
 		//Define default css files
@@ -336,23 +395,28 @@
 		}
 	}
 
-
-
 display_xhprof_run();
 
 function display_xhprof_run() {
-	global $prof_enable, $core;
+	global $prof_enable;
 	if($prof_enable) {
 		$xhprof_data = xhprof_disable();
-		$XHPROF_ROOT = "/opt/xhprof-0.9.2";
-		include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_lib.php";
-		include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_runs.php";
+		$xhrprof_domain = Core::get_instance()->core_config("core", "xhprof_domain");
+		$xhrprof_root = Core::get_instance()->core_config("core", "xhprof_root");
+		if (empty($xhrprof_domain) || empty($xhrprof_root)) {
+			return;
+		}
+		include $xhrprof_root . "/xhprof_lib/utils/xhprof_lib.php";
+		include $xhrprof_root . "/xhprof_lib/utils/xhprof_runs.php";
 
+		if (!class_exists('XHProfRuns_Default')) {
+			return;
+		}
 		$xhprof_runs = new XHProfRuns_Default();
 		$mem_usage = memory_get_usage(true)/1024/1024;
 		$wall_time = round($xhprof_data['main()']['wt']/1000/1000, 3);
-		$run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_foo");
-		echo "<br /><div style='text-align:right;'><a href='http://".$core->core_config("core", "xhprof_domain")."/index.php?run=$run_id&source=xhprof_foo' target='_blank''>".$wall_time."s ".$mem_usage."MB Profile data</a></div>";
+		$run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_soopfw");
+		echo "<br /><div style='text-align:right;'><a href='" . $xhrprof_domain . "/index.php?run=" . $run_id . "&source=xhprof_soopfw' target='_blank'>" . $wall_time . "s " . $mem_usage . "MB Profile data</a></div>";
 	}
 }
 

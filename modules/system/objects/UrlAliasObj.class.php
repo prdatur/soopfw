@@ -117,8 +117,12 @@ class UrlAliasObj extends AbstractDataManagment
 	 * @return array the array with module, action, and params for the action which is needed to call an action or false if nothing is found
 	 */
 	public static function get_params_from_alias($alias) {
-		/* @var $core Core */
-		global $core;
+		$core = Core::get_instance();
+		
+		if ($core->config['db']['use'] !== true) {
+			return false;
+		}
+
 		$return_array = array();
 
 		if (preg_match("/^\/?([a-z][a-z]\/)?(.*)$/i", $alias, $matches)) {
@@ -141,6 +145,16 @@ class UrlAliasObj extends AbstractDataManagment
 		else {
 			//We can determine a direct module action call with the _ prefix in a module, also we can provide .direct as "file-extension" so check for it
 			if (!empty($matches) && $matches[2] == "direct") {
+				$param_array = explode('/', $alias_url_check);
+				if (isset($param_array[0])) {
+					$return_array['module'] = array_shift($param_array);
+					if (isset($param_array[0])) {
+						$return_array['action'] = array_shift($param_array);
+					}
+				}
+
+				$additional_function_params = $param_array;
+
 				//We do not want the psyodo file extension within the last parameter, so remove it
 				$last_index = count($additional_function_params) - 1;
 				$additional_function_params[$last_index] = str_replace('.direct', '', $additional_function_params[$last_index]);
@@ -150,10 +164,6 @@ class UrlAliasObj extends AbstractDataManagment
 
 				$alias_priority = ((!empty($matches) && ($matches[2] == "html" || $matches[2] == "htm")));
 
-				//Get the most precise alias from db
-				$best_match_alias = "";
-
-				$rows = array();
 				$rows = $core->db->query_slave_first("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` = @alias", array("@alias" => $alias_url_check));
 
 				if (empty($rows)) {
@@ -171,8 +181,7 @@ class UrlAliasObj extends AbstractDataManagment
 					$regexp = '/^' . str_replace("%", "([^\/]*)", preg_quote($row['alias'], '/')) . '(\/.+)?$/is';
 					if (preg_match($regexp, $alias_url_check, $matches)) {
 
-						if (is_alias_preciser($row['alias'])) {
-							$best_match_alias = $row['alias'];
+						if (UrlAliasObj::is_alias_preciser($row['alias'])) {
 							$return_array['module'] = $row['module'];
 							$return_array['action'] = $row['action'];
 							$return_array['perm'] = $row['perm'];
@@ -221,7 +230,7 @@ class UrlAliasObj extends AbstractDataManagment
 							}
 						} //if alias is a better / longer option
 					} // if alias match
-				} // foreach url aliase
+				} // foreach url alases
 
 				//Cache the result if we have one
 				if (!empty($return_array)) {
@@ -237,7 +246,7 @@ class UrlAliasObj extends AbstractDataManagment
 					$core->mcache('url_alias_match_' . md5($alias_url_check), array(
 						'override_params' => $return_array,
 						'additional_function_params' => $additional_function_params,
-					), 1209600);
+					), 1209600); // 1209600 = 14 Days.
 				}
 			} //if matches .direct
 		} //Cached
@@ -250,18 +259,114 @@ class UrlAliasObj extends AbstractDataManagment
 		return $return_array;
 	}
 
-}
+	/**
+	 * Returns an array like parse_url_string but only if an alias exist.
+	 *
+	 * @param array $original_override_params
+	 *   The original override param array.
+	 *
+	 * @return array the overriding param array, if we did not override it return false
+	 */
+	public static function get_alias_from_uri($original_override_params) {
+		//Only check for url_aliase if a specific url was provided not just _GET params
+		if (!empty($original_override_params['module'])) {
 
-if (!function_exists("is_alias_preciser")) {
+			//If module starts with _ we do not want to override it through url_alias couse this form determines that we want to call direct the module action
+			if (preg_match("/^_(.*)$/is", $original_override_params['module'], $matches)) {
+				$original_override_params['module'] = $matches[1];
+			}
+			else {
+				$alias_params = UrlAliasObj::get_params_from_alias(NetTools::get_request_uri());
+				if ($alias_params !== false) {
+					$original_override_params = $alias_params;
+				}
+			} // If we have not a prefix of _ within module
+			return $original_override_params;
+		} // If we should search for url alases
+
+		return false;
+	}
 
 	/**
-	* Checks wether the given alias string is more precise than the last "best" one.
-	*
-	* @global mixed $best_match 0 if not initalized or nothing found, else the best match alias array
-	* @param string $alias the alias string
-	* @return boolean true if it is more precise, else false
-	*/
-	function is_alias_preciser($alias) {
+	 * parse the given url into an array which we can use for action calling.
+	 *
+	 * @param string $url
+	 *   the url.
+	 *   if not set it will use the current request uri (optional, default = NS)
+	 *
+	 * @return array the params for this url
+	 */
+	public static function parse_url_string($url = NS) {
+		if ($url === NS) {
+			$url = NetTools::get_request_uri();
+		}
+		$language = "";
+
+		//This params will be provided within the action callback
+		$override_params = array(
+			'type' => '',
+			'module' => '',
+			'action' => '',
+		);
+
+		$additional_function_params = array();
+
+		$admin_link = false;
+		if (!empty($url) && $url != '/') {
+			$additional_function_params = explode('/', substr($url, 1));
+
+			if (count($additional_function_params) > 0) {
+				if (preg_match('/^[a-z]{2}$/is', $additional_function_params[0], $matches)) {
+					$language = $matches[0];
+					array_shift($additional_function_params);
+				}
+			}
+			if (count($additional_function_params) > 0) {
+				if (preg_match('/^admin$/is', $additional_function_params[0])) {
+					$admin_link = true;
+					array_shift($additional_function_params);
+				}
+			}
+			if (preg_match('/.*\.([^\.]+)$/iUs', $url, $matches)) { //Handle custom file extensions
+				switch ($matches[1]) {
+					case 'ajax'://We have an ajax extension so handle this as an ajax request and set the type
+						$override_params['type'] = 'ajax_request';
+						break;
+					case 'ajax_html'://We have an ajax_html extension so handle this as an ajax_html (Normal PHP behaviour but do not display normal header and footer
+						$override_params['type'] = 'ajax_html';
+						break;
+				}
+			}
+			$len = count($additional_function_params);
+			for ($i = 0; $i <= $len; $i++) {
+				$shift = array_shift($additional_function_params);
+
+				if (empty($override_params['module'])) {
+					list($shift) = explode(".", $shift, 2);
+					$override_params['module'] = $shift;
+					continue;
+				}
+
+				if (empty($override_params['action'])) {
+					list($shift) = explode(".", $shift, 2);
+					$override_params['action'] = $shift;
+					break;
+				}
+			}
+		}
+		$override_params['admin_link'] = $admin_link;
+		$override_params['language'] = $language;
+		$override_params['additional_function_params'] = $additional_function_params;
+		return $override_params;
+	}
+	/**
+	 * Checks wether the given alias string is more precise than the last "best" one.
+	 *
+	 * @global mixed $best_match 0 if not initalized or nothing found, else the best match alias array
+	 * @param string $alias the alias string
+	 * @return boolean true if it is more precise, else false
+	 */
+	public static function is_alias_preciser($alias) {
 		/**
 		* Stores the last best match array
 		*/
@@ -303,5 +408,6 @@ if (!function_exists("is_alias_preciser")) {
 		//The current alias has less params than the last best match one, so return false
 		return false;
 	}
+
 }
 ?>

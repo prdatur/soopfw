@@ -576,11 +576,11 @@ class content extends ActionModul {
 			if (empty($val)) {
 				continue;
 			}
-			$where[] = "`".sql_escape($field)."` LIKE '" . $this->db->get_sql_string_search($val, "%{v}%") . "'";
+			$where[] = "`".Db::sql_escape($field)."` LIKE '" . $this->db->get_sql_string_search($val, "%{v}%") . "'";
 		}
 
 		if (empty($where)) {
-			$where[] = "`language` = '" . safe($this->core->current_language) . "'";
+			$where[] = "`language` = '" . Db::safe($this->core->current_language) . "'";
 		}
 
 		$where = " WHERE " . implode(" AND ", $where);
@@ -627,7 +627,7 @@ class content extends ActionModul {
 		$menu_entry_obj = new MenuEntryObj();
 		$unreachable_menus = $menu_entry_obj->get_all_deactivated_menu_entries();
 		foreach($unreachable_menus AS &$val) {
-			$val = safe($val);
+			$val = Db::safe($val);
 		}
 		$unreachable_pages = $this->db->query_slave_all("
 			SELECT *
@@ -947,8 +947,10 @@ class content extends ActionModul {
 	 * Insert or add a content type field group
 	 * if $field_group_id is provided, it will change this field group (save), else insert a new field group
 	 *
-	 * @param string $content_type the content type
-	 * @param string $field_group_id the field group id (optional, default = "")
+	 * @param string $content_type
+	 *   the content type
+	 * @param string $field_group_id
+	 *   the field group id (optional, default = "")
 	 */
 	public function change_content_type_field($content_type, $field_group_id = "") {
 		//Check perms
@@ -956,7 +958,6 @@ class content extends ActionModul {
 			return $this->no_permission();
 		}
 		$force_loaded = false;
-		$config_array = array();
 		//Save variables
 		if (!empty($field_group_id)) { //edit mode
 			$this->title(t("Save field"));
@@ -1011,7 +1012,7 @@ class content extends ActionModul {
 
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
 		if(!empty($additional_field_groups)) {
-			foreach($additional_field_groups AS $module => $return_values) {
+			foreach($additional_field_groups AS $return_values) {
 				if(!empty($return_values) && is_array($return_values)) {
 					foreach($return_values AS $id => $values) {
 						$options[$id] = $values['label'];

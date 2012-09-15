@@ -316,7 +316,7 @@ class Filefield extends AbstractHtmlInput
 			if (isset($_FILES[$this->config("name")]) && $_FILES[$this->config("name")]['error'] == 0) {
 
 				if (!empty($this->size_limit) && $this->file_size > $this->size_limit) {
-					$this->core->message(t('The uploaded file is too big, max file size is @max_file_size', array('@max_file_size' => format_bytes($this->size_limit))));
+					$this->core->message(t('The uploaded file is too big, max file size is @max_file_size', array('@max_file_size' => Converter::format_bytes($this->size_limit))));
 				}
 				else if(!empty($this->file_extensions) && !isset($this->file_extensions[$this->file_extension])) {
 					$this->core->message(t('File extension "@ext" is not allowed. Allowed are: @allowed_exts', array(

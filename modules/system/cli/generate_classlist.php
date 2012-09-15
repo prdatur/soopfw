@@ -24,9 +24,7 @@ class cli_generate_classlist extends CLICommand
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
-		global $classes;
-		$this->core->generate_classlist();
-		include(SITEPATH.'/config/classes.php');
+		$this->generate_classlist();
 		return true;
 	}
 
@@ -35,7 +33,27 @@ class cli_generate_classlist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Classlists generated', 'ok');
+		console_log('Classlists generated', 'ok');
+	}
+
+	/**
+	 * Generate the classlist for spl auto class loader
+	 */
+	public function generate_classlist() {
+		$argv = array(null,
+			SITEPATH . '/', // root directory
+			'true', // recursive?
+			SITEPATH . '/config/classes.php', // filename or 'false' to display results
+			'classes'   // variable name of Array
+		);
+
+		$argc = count($argv);
+
+		$_SERVER['argc'] = $argc;
+		$_SERVER['argv'] = $argv;
+
+		require_once(SITEPATH . '/plugins/classlist_autogenerator.php');
+		$this->core->load_classlist(true);
 	}
 
 }

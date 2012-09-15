@@ -1,112 +1,6 @@
 <?php
-if (isset($error_reporting)) {
-	error_reporting($error_reporting);
-}
-else {
-	error_reporting(E_ALL);
-}
-
-define("TIME_NOW", time());
-define("DB_DATE", "Y-m-d");
-define("DB_DATETIME", "Y-m-d H:i:s");
-define("DB_TIME", "H:i:s");
-
-mb_internal_encoding('UTF-8');
-
-global $memcached_use;
-/**
- * Determines if we use the original memcached class
- * @var boolean
- */
-$memcached_use = true;
-
-/**
- * If we have not a memcached class we must define it, and define needed constances
- * This is used within DBMemcached, MemcachedWrapper and where we need to check if a returning memcached result succeed
- */
-if (!class_exists("Memcached")) {
-	/**
-	 * We had no memcached class so we do not use the original memcached class, this is need by memcache_init so it can decide if the found
-	 * Memcached class is the original correct one or just the constances wrapper
-	 */
-	$memcached_use = false;
-
-	class Memcached {
-
-		const OPT_PREFIX_KEY = '';
-		const OPT_COMPRESSION = TRUE;
-		const OPT_LIBKETAMA_COMPATIBLE = FALSE;
-		const OPT_BUFFER_WRITES = FALSE;
-		const OPT_BINARY_PROTOCOL = FALSE;
-		const OPT_NO_BLOCK = FALSE;
-		const OPT_TCP_NODELAY = FALSE;
-		const OPT_SOCKET_RECV_SIZE = 1000;
-		const OPT_RETRY_TIMEOUT = 0;
-		const OPT_SEND_TIMEOUT = 0;
-		const OPT_RECV_TIMEOUT = 0;
-		const OPT_POLL_TIMEOUT = 1000;
-		const OPT_CACHE_LOOKUPS = FALSE;
-		const OPT_SERVER_FAILURE_LIMIT = 0;
-		const RES_SUCCESS = 0;
-		const RES_FAILURE = 1;
-
-	}
-
-}
-
-/**
- * Defince our primitive datatypes, these are used in several ways.
- * Most use is within parameter type checks.
- */
-$i = 1;
-define("PDT_INT", $i++, true);
-define("PDT_FLOAT", $i++, true);
-define("PDT_STRING", $i++, true);
-define("PDT_DECIMAL", $i++, true);
-define("PDT_DATE", $i++, true);
-define("PDT_OBJ", $i++, true);
-define("PDT_ARR", $i++, true);
-define("PDT_BOOL", $i++, true);
-define("PDT_INET", $i++, true);
-define("PDT_SQLSTRING", $i++, true);
-define("PDT_JSON", $i++, true);
-define("PDT_PASSWORD", $i++, true);
-define("PDT_ENUM", $i++, true);
-define("PDT_TEXT", $i++, true);
-define("PDT_TINYINT", $i++, true);
-define("PDT_MEDIUMINT", $i++, true);
-define("PDT_BIGINT", $i++, true);
-define("PDT_SMALLINT", $i++, true);
-define("PDT_DATETIME", $i++, true);
-define("PDT_TIME", $i++, true);
-define("PDT_FILE", $i++, true);
-define("PDT_LANGUAGE", $i++, true);
-define("PDT_LANGUAGE_ENABLED", $i++, true);
-define("PDT_SERIALIZED", $i++, true);
-
-/**
- * This is not a primitive datatype but it can be used as a real not set variable, so if we realy want to check if a
- * parameter was provided to a function/method we can default assign NS so if we pass "", null or something similar to empty
- * it is also a allowed "provided" value. The value behind NS is choosen with a string which should never be a value provided by a user
- */
-define("NS", "-||notset||-");
-
 //Include important standalone functions
-require_once (SITEPATH . '/lib/functions.php');
-
-//Import our classlist, this is needed by the auto classloader
-require_once (SITEPATH . '/config/classes.php');
-
-//Register the classloader, it is defined within functions.php
-spl_autoload_register("class_loader");
-
-//Set our error_reporting to E_ALL as default, if $error_reporting exists, we use this instead.
-if (isset($error_reporting)) {
-	set_error_handler('cc_error_handler', $error_reporting);
-}
-else {
-	set_error_handler('cc_error_handler', E_ALL);
-}
+require (SITEPATH . '/lib/common.php');
 
 /**
  * Main Core, It will initialize all needed classes (Smarty, Memcache, DB, ...)
@@ -124,11 +18,11 @@ else {
  * @package lib
  * @category Core
  */
-class Core {
+class Core
+{
 	/**
 	 * Define global return codes
 	 */
-
 	const GLOBEL_RETURN_CODE_SUCCESS = 200;
 
 	/**
@@ -288,19 +182,39 @@ class Core {
 	public $modules = array();
 
 	/**
-	 * Constructor which reads configs, and setting up Database connection and creating an empty language  object
-	 * if $install is set to true it will no objects will be created, if $is_shell is set to true smarty will not be initialized,
+	 * The run mode.
+	 *
+	 * @var string
+	 */
+	public $run_mode = self::RUN_MODE_DEVELOPEMENT;
+
+	/**
+	 * Holds all classes for the classloader.
+	 *
+	 * @var array
+	 */
+	public static $classes = array();
+
+	/**
+	 * Constructor which reads configs, and setting up Database connection and
+	 * if $install is set to true it will not initialize create objects,
 	 * also no session will be started
 	 *
-	 * @param string $language
-	 *   The language to be used, if not provided it will try to auto get it (optional, default = '')
-	 * @param bool $is_shell
+	 *
+	 * @param boolean $is_shell
 	 *   Whether we're running from the shell (and not in a webserver environment) (optional, default = false)
-	 * @param bool $install
-	 *   Whether we're want to install (optional, default = false)
+	 * @param string $run_mode
+	 *   Force default run mode.
+	 *   If database is enabled and run mode was saved within system configuration page
+	 *   the database value has priority, normally the force value is used within standalone apps
+	 *   which will be not configured normally with the default administration web interface.
+	 *
+	 *   Use one of Core::RUN_MODE_*
+	 *   (optional, default = Core::RUN_MODE_DEVELOPEMENT)
+	 *
+	 *
 	 */
- 	public function __construct($language = '', $is_shell = false, $install = false) {
-
+	public function __construct($is_shell = false, $run_mode = self::RUN_MODE_DEVELOPEMENT) {
 		//If we run as a shell command define the global constance is_shell
 		if ($is_shell == true && !defined('is_shell')) {
 			define('is_shell', $is_shell);
@@ -309,87 +223,148 @@ class Core {
 		//Include core config
 		require(SITEPATH . "/config/core.php");
 
+		// Init the database if wanted.
+		$this->init_database();
+
+		// Init always memcache.
+		$this->init_memcached();
+
+		// Init the classloader.
+		spl_autoload_register(array('Core', 'class_loader'));
+
+		if (isset($this->config['db']['use']) && $this->config['db']['use'] === true) {
+			$this->run_mode = $this->get_dbconfig("system", system::CONFIG_RUN_MODE, $run_mode);
+
+		}
+		else {
+			$this->run_mode = $run_mode;
+		}
+
+		if ($this->run_mode === self::RUN_MODE_PRODUCTION) {
+			error_reporting(E_ERROR);
+			ini_set('display_errors', 'off');
+			ini_set('html_errors', 'off');
+		}
+		else {
+			error_reporting(E_ALL);
+			ini_set('display_errors', 'on');
+			ini_set('html_errors', 'on');
+		}
+
+		set_error_handler(array('SoopfwErrorHandler', 'cc_error_handler'), error_reporting());
+	}
+
+	/**
+	 * Creates a singleton Core instance.
+	 *
+	 * @staticvar Core $core
+	 *   The Core instance.
+	 *
+	 * @param boolean $is_shell
+	 *   Whether we're running from the shell (and not in a webserver environment) (optional, default = false)
+	 * @param string $run_mode
+	 *   Force default run mode.
+	 *   If database is enabled and run mode was saved within system configuration page
+	 *   the database value has priority, normally the force value is used within standalone apps
+	 *   which will be not configured normally with the default administration web interface.
+	 *
+	 *   Use one of Core::RUN_MODE_*
+	 *   (optional, default = Core::RUN_MODE_DEVELOPEMENT)
+	 * @param mixed $force_new_instance
+	 *   If set to true it will force generating a new Core.
+	 *   Please be aware that any previous changes like static cache
+	 *   are resetted, a hole new clean core will be created.
+	 *
+	 *   Special note on this param.
+	 *   If you provide NULL it will be really negated and interprated as
+	 *   'force no Core creation eather Object is null'
+	 *
+	 *   (optional, default = false)
+	 *
+	 * @return Core the Core object instance.
+	 */
+	public static function get_instance($is_shell = false, $run_mode = self::RUN_MODE_DEVELOPEMENT, $force_new_instance = false) {
+		static $core = null;
+		if ($force_new_instance !== null && ($force_new_instance === true || $core === null)) {
+			$core = new Core($is_shell, $run_mode);
+		}
+		return $core;
+	}
+
+	/**
+	 * Initialize the database.
+	 */
+	public function init_database() {
+		require(SITEPATH . "/lib/database/Db.class.php");
 		//If we want to use a database connection initialize the database object
 		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
-			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $this->config['db']['debug']);
+			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database']);
 
 			// Set the table prefix if configured.
 			if (!empty($this->config['db']['table_prefix'])) {
 				$this->db->table_prefix($this->config['db']['table_prefix']);
 			}
-			if ($this->get_dbconfig("system", system::CONFIG_RUN_MODE, self::RUN_MODE_DEVELOPEMENT) == self::RUN_MODE_PRODUCTION) {
-				error_reporting(E_ERROR);
-				ini_set('display_errors', 'off');
-				ini_set('html_errors', 'off');
+
+		}
+		unset($this->config['db']['user']);
+		unset($this->config['db']['pass']);
+		unset($this->config['db']['database']);
+	}
+
+	/**
+	 * Load or reload the classlist
+	 *
+	 * @param boolean $force
+	 *   if set to true it will force reload the classes.
+	 *
+	 * @return array the current classlist
+	 */
+	public static function load_classlist($force = false) {
+		global $memcached_obj;
+		if ($force === true || empty(Core::$classes)) {
+			Core::$classes = $memcached_obj->get('classloader_classes');
+			if (empty(Core::$classes)) {
+				include SITEPATH . '/config/classes.php';
+				Core::$classes = &$classes;
+				$memcached_obj->set('classloader_classes', Core::$classes);
 			}
 		}
-		unset($this->config['db']);
 
-		//Setup the default language
-		if (empty($this->config['core']['default_language'])) {
-			$this->config['core']['default_language'] = 'en';
+		return Core::$classes;
+	}
+
+	/**
+	 * Returns the current loaded classlist.
+	 *
+	 * @return array the classlist
+	 */
+	public static function get_classlist() {
+		return Core::$classes;
+	}
+
+	/**
+	 * Class autoload loader.
+	 *
+	 * @param string
+	 *   class name
+	 * @return boolean whether the class has been loaded successfully
+	 */
+	public static function class_loader($classname) {
+		$classes = self::load_classlist();
+		if (array_key_exists($classname, $classes["classes"])) {
+			require(SITEPATH . $classes["classes"][$classname]['path']);
 		}
-
-		$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
-
-		//Initialize our session
-		$this->session = new Session($this);
-
-		// Check if current connection comes from WebUnitTest
-		if (!empty($this->db) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->session->get_session_id()) && is_local_ip()) {
-
-			// Use test envoirment.
-			$this->db->table_prefix('test_' . $this->db->table_prefix());
-
-			// Reinit default language.
-			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
-
-			// We need to reinit the session object.
-			$this->session = new Session($this);
+		elseif (array_key_exists($classname, $classes["interfaces"])) {
+			require(SITEPATH . $classes["interfaces"][$classname]['path']);
 		}
-
-		//Only do a normal startup if we do not install the core system
-		if ($install == false) {
-
-			//Set the provided $language if it is not empty
-			if (!empty($language)) {
-				$_SESSION['language'] = $language;
-			}
-
-			//If we have not setup a language set the current language to the default language
-			if (empty($_SESSION['language'])) {
-				$_SESSION['language'] = $this->default_language;
-			}
-
-			$_SESSION['language'] = strtolower($_SESSION['language']);
-
-			//Set our current language
-			$this->current_language = $_SESSION['language'];
-
-			//Init smarty and meta information if we are not in shell mode
-			if (!$is_shell) {
-				$this->meta = new Meta();
-			}
-
-			//Init always memcache
-			$this->init_memcached();
-
-			//Read all available modules
-			//We need to include the dir class because it can happend that we are in a fresh install
-			require_once 'Dir.class.php';
-			$dir = new Dir("modules", false);
-			$dir->just_dirs();
-			foreach ($dir AS $directory) {
-				if (file_exists(SITEPATH . "/modules/" . $directory->filename . "/" . $directory->filename . ".php")) {
-					$this->modules[$directory->filename] = $directory->filename;
-				}
-			}
-
-			//If CSRF Token is empty create a unique one
-			if (empty($_SESSION['CSRFtoken'])) {
-				$_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
-			}
+		elseif (file_exists($classname . ".php")) {
+			require($classname . ".php");
 		}
+		else {
+			return false;
+		}
+		return true;
+
 	}
 
 	/**
@@ -406,10 +381,60 @@ class Core {
 	 * no $GLOBALS['core'] exist and therefore the Object class can not get the
 	 * core from GLOBALS
 	 * This will be called near after creating the core class
+	 *
+	 * if $is_shell is defined and set to true smarty will not be initialized,
+	 *
+	 * @param string $language
+	 *   The language to be used, if not provided it will try to auto get it (optional, default = '')
+	 * @param bool $install
+	 *   Whether we're want to install (optional, default = false)
 	 */
-	public function boot() {
+	public function boot($language = '', $install = false) {
 
-		//Check if we should redirect
+		// Setup the default language.
+		if (empty($this->config['core']['default_language'])) {
+			$this->config['core']['default_language'] = 'en';
+		}
+
+		// Try to get a maybe overwritten default language from database.
+		if ($this->config['db']['use'] === true) {
+			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
+		}
+
+		// Initialize our session.
+		$this->session = new Session($this);
+
+		// Check if current connection comes from WebUnitTest.
+		if (!empty($this->db) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->session->get_session_id()) && NetTools::is_local_ip()) {
+
+			// Use test envoirment.
+			$this->db->table_prefix('test_' . $this->db->table_prefix());
+
+			// Reinit default language.
+			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
+
+			// We need to reinit the session object.
+			$this->session = new Session($this);
+		}
+
+		//Set the provided $language if it is not empty
+		if (!empty($language)) {
+			$_SESSION['language'] = $language;
+		}
+
+		// If we have not setup a language set the current language to the default language.
+		if (empty($_SESSION['language'])) {
+			$_SESSION['language'] = $this->default_language;
+		}
+
+		$_SESSION['language'] = strtolower($_SESSION['language']);
+
+		// Set our current language
+		$this->current_language = $_SESSION['language'];
+
+
+
+		// Check if we should redirect.
 		if (!defined('is_shell') && !empty($this->session)) {
 			$reload_page = $this->session->get("next_load_redirect", "");
 			if (!empty($reload_page)) {
@@ -418,9 +443,54 @@ class Core {
 			}
 		}
 
-		//If translation module is activated load the language class
-		if ($this->module_enabled("translation")) {
-			$this->lng = new Language($this->current_language, $this);
+		// Only do a normal startup if we do not install the core system.
+		if ($install == false) {
+
+			//Init smarty and meta information if we are not in shell mode.
+			if (defined('is_shell')) {
+				$this->meta = new Meta();
+			}
+
+			// Read all available modules.
+			// We need to include the dir class because it can happend that we are in a fresh install.
+			require_once 'Dir.class.php';
+			$dir = new Dir("modules", false);
+			$dir->just_dirs();
+			foreach ($dir AS $directory) {
+				if (file_exists(SITEPATH . "/modules/" . $directory->filename . "/" . $directory->filename . ".php")) {
+					$this->modules[$directory->filename] = $directory->filename;
+				}
+			}
+
+			//If CSRF Token is empty create a unique one
+			if (empty($_SESSION['CSRFtoken'])) {
+				$_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
+			}
+
+			// If translation module is activated load the language class.
+			if ($this->module_enabled("translation")) {
+				$this->lng = new Language($this->current_language, $this);
+
+				register_shutdown_function(function () {
+					global $translation_cache;
+
+					if (Core::get_instance()->module_enabled("translation")) {
+						$query = " INSERT IGNORE INTO `" . TranslationKeysObj::TABLE . "` (`id`,`key`) VALUES ";
+						$query_arr = array();
+						foreach ($translation_cache AS $id => $trans) {
+							$query_arr[] = "('" . Db::safe($id) . "', '" . Db::safe($trans) . "')";
+						}
+
+						$query .= implode(",", $query_arr);
+						if (!empty(Core::get_instance()->db)) {
+							Core::get_instance()->db->query_master($query);
+						}
+					}
+				});
+			}
+
+			// Initialize the right manager object.
+			$this->right_manager = new RightManager($this);
 		}
 
 		if (!empty($this->db)) {
@@ -430,29 +500,25 @@ class Core {
 		if (!defined('is_shell')) {
 			$this->init_smarty();
 		}
-
-		//Initialize the right manager object
-		$this->right_manager = new RightManager($this);
 	}
 
 	/**
-	 * Provide a method to run a shell (cli) command
+	 * Provide a method to run a shell (cli) command.
 	 */
 	public function run_cli() {
-		global $classes;
 		$cmds = array();
-
-		//Search cli commands and setup long options array
+		$classes = Core::get_classlist();
+		// Search cli commands and setup long options array.
 		$c = 1;
 		foreach ($classes['classes'] AS $class => $v) {
 			if (preg_match("/^cli_(.*)$/", $class, $matches)) {
 				$cmds[$c++] = $matches[1];
 			}
 		}
-		//Provide help options
+		// Provide help options.
 		$options_array = getopt('h', array("help") + $cmds);
 
-		//Display help information if h, help or no options provided
+		// Display help information if h, help or no options provided.
 		if (empty($options_array) || isset($options_array['h']) || isset($options_array['help'])) {
 
 			if (empty($options_array)) {
@@ -469,7 +535,7 @@ class Core {
 			echo "php -f clifs.php -- --help\n";
 			echo "./clifs.php -h\n";
 		}
-		//Run all provided commands
+		// Run all provided commands.
 		else {
 			foreach ($options_array AS $command => $isset) {
 				$class = "cli_" . $command;
@@ -489,7 +555,7 @@ class Core {
 	}
 
 	/**
-	 * function will redirect to https page if we are currently on http mode
+	 * Function will redirect to https page if we are currently on http mode.
 	 */
 	public function need_ssl() {
 
@@ -538,34 +604,39 @@ class Core {
 	 *   This is defined at the top of this file, it determines if we want to use the original memcached or if we must search for the best wrapper
 	 */
 	public function init_memcached() {
-		global $memcached_use;
+		global $memcached_use, $memcached_obj;
 
-		//Only create the memcached object if we do not have it already
+		// Only create the memcached object if we do not have it already.
 		if (is_null($this->memcache_obj)) {
-			//Init original memcached object
 
+			// Init original memcached object.
 			if ($memcached_use) {
-				$this->memcache_obj = new memcached();
+				$memcached_obj = new memcached();
 			}
-			//Memcached not exist, try to get memcache with the wrapper for memcached
+			// Memcached not exist, try to get memcache with the wrapper for memcached.
 			else if (class_exists("memcache")) {
-				$this->memcache_obj = new MemcachedWrapper();
+				$memcached_obj = new MemcachedWrapper();
 			}
-			//Memcache also not exist, try to use database memcached wrapper
+			// Memcache also not exist, try to use database memcached wrapper.
 			else if (!empty($this->db)) {
-				$this->memcache_obj = new DBMemcached($this);
-
+				$memcached_obj = new DBMemcached($this);
 			}
-			//We use no database connection so we have no realy cache, we use a static memcached wrapper
+			// We use no database connection so we have no realy cache, we use a static memcached wrapper.
 			else {
-				$this->memcache_obj = new StaticMemcached($this);
+				$memcached_obj = new StaticMemcached($this);
+			}
+
+			$prefix = "";
+			if ($this->config['db']['use'] === true) {
+				$prefix = $this->db->table_prefix();
 			}
 
 			// Setup memcached prefix.
-			$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $this->db->table_prefix() . ':');
+			$memcached_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
 
-			//Add the current server to memcached object / wrapper
-			$this->memcache_obj->addServer($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
+			// Add the current server to memcached object / wrapper.
+			$memcached_obj->addServer($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
+			$this->memcache_obj = &$memcached_obj;
 		}
 	}
 
@@ -596,17 +667,17 @@ class Core {
 	 */
 	public function core_config($modul, $key, $value = NS) {
 		if ($value === NS) {
-			//Get mode
+			// Get mode.
 			$return = null;
 
-			//Transform the provided key into an array if it is not already one
+			// Transform the provided key into an array if it is not already one.
 			if (!is_array($key)) {
 				$key = array($key);
 			}
-			//Get the complete module config
+			// Get the complete module config.
 			$return = $this->config[$modul];
 
-			//Loop through our $key "path" and try to get the value for that path
+			// Loop through our $key "path" and try to get the value for that path.
 			foreach ($key AS $k) {
 				if (isset($return[$k])) {
 					$return = $return[$k];
@@ -618,18 +689,18 @@ class Core {
 
 			return $return;
 		}
-		//Set mode
-		//return false if $key is an array couse this can just be within get mode
+		// Set mode.
+		// return false if $key is an array couse this can just be within get mode.
 		if (is_array($key)) {
 			return false;
 		}
 
-		//Pre init the config array for that module if it is ot set
+		// Pre init the config array for that module if it is ot set.
 		if (!isset($this->config[$modul])) {
 			$this->config[$modul] = array();
 		}
 
-		//Set the value
+		// Set the value.
 		$this->config[$modul][$key] = $value;
 		return true;
 	}
@@ -736,16 +807,19 @@ class Core {
 	 * 	Get mode
 	 * 		- return a single string value if $strict_array is set to false and just one value found
 	 * 		- returns an array if $strict_array is set to true or it has more than one value
-	 *		- returns NULL if nothing is found.
+	 * 		- returns NULL if nothing is found.
 	 *  Set mode
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
 	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false, $serialize = false) {
+		if ($this->config['db']['use'] === false) {
+			return null;
+		}
 		if ($value === NS) {
 			//Get mode
 			if ($key === NS) {
 				//Hole module config will be returned
-				$where = " WHERE `modul` = '" . safe($modul) . "'";
+				$where = " WHERE `modul` = '" . Db::safe($modul) . "'";
 
 				$return = array();
 				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
@@ -770,9 +844,9 @@ class Core {
 
 			//Build up all wanted options (sql where statement)
 			$filter = DatabaseFilter::create(CoreModulConfigObj::TABLE, '', $this->db)
-				->add_column('value')
-				->add_column('key')
-				->add_where('modul', $modul);
+					->add_column('value')
+					->add_column('key')
+					->add_where('modul', $modul);
 
 			$keys = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR, $this->db);
 			foreach ($key AS $key_value) {
@@ -862,32 +936,6 @@ class Core {
 	}
 
 	/**
-	 * Create the smarty secure directory index, only templates in this directories can be used within smarty
-	 *
-	 * @return boolean true if smartylist could be written successfully, else false
-	 */
-	public function create_smarty_sdi() {
-		//If the config file is not writeable, return false
-		if (!is_writable(SITEPATH . "/config/smarty.php")) {
-			return false;
-		}
-		//Init dir array with default template directory
-		$secure_dir = array(SITEPATH . "/templates");
-
-		//Get all templates directories within modules
-		$secure_dir = array_merge($secure_dir, $this->get_template_dirs("modules"));
-
-		//Build the secure directory variable
-		$content = "<?php\n\$secure_dir = " . var_export($secure_dir, true) . ";\n?>";
-
-		//Store the file
-		$fp = fopen(SITEPATH . "/config/smarty.php", "w+");
-		$return = ( fwrite($fp, $content) !== false) ? true : false;
-		fclose($fp);
-		return $return;
-	}
-
-	/**
 	 * Reindex the alias menu
 	 */
 	public function reindex_menu() {
@@ -952,30 +1000,6 @@ class Core {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Generate the classlist for spl auto class loader
-	 *
-	 * @global array $classes The classlist, we need to use the global one to override the current one
-	 */
-	public function generate_classlist() {
-		global $classes;
-		$argv = array(null,
-			SITEPATH . '/', // root directory
-			'true', // recursive?
-			SITEPATH . '/config/classes.php', // filename or 'false' to display results
-			'classes'   // variable name of Array
-		);
-
-		$argc = count($argv);
-
-		$_SERVER['argc'] = $argc;
-		$_SERVER['argv'] = $argv;
-
-		require_once(SITEPATH . '/plugins/classlist_autogenerator.php');
-
-		require(SITEPATH . '/config/classes.php');
 	}
 
 	/**
@@ -1063,7 +1087,7 @@ class Core {
 		 *   An array with a flat list of additional menu entries.
 		 *   the tree will be parsed from parent_id which are based up on entry_id
 		 */
-		foreach($this->hook('alter_menu', array('main_menu')) AS $alter_menu) {
+		foreach ($this->hook('alter_menu', array('main_menu')) AS $alter_menu) {
 			$alter_menus = array_merge_recursive($alter_menus, $alter_menu);
 		}
 
@@ -1173,6 +1197,9 @@ class Core {
 				list($url) = explode('?', $_SERVER['REQUEST_URI'], 2);
 				$base_link = '/' . preg_replace('/^\/[a-z]{2}(\/|$)/is', '', $url);
 			}
+			else {
+				$base_link = '';
+			}
 
 			$languages = $this->lng->languages;
 			foreach ($languages AS $key => &$language) {
@@ -1193,8 +1220,8 @@ class Core {
 			$this->smarty->assign("user_fullname", $this->session->current_user()->username);
 		}
 
-		$this->smarty->assign_by_ref("enabled_languages", $languages);
 		if (!empty($this->lng)) {
+			$this->smarty->assign_by_ref("enabled_languages", $languages);
 			$this->lng->load_language_list();
 		}
 
@@ -1302,12 +1329,12 @@ class Core {
 			$_SESSION['message'][$type] = array();
 		}
 
-		//Add the message if we are in html mode, on shell mode we call consoleLog
+		//Add the message if we are in html mode, on shell mode we call console_log
 		if (!defined('is_shell')) {
 			$_SESSION['message'][$type][] = $msg;
 		}
 		else {
-			consoleLog($msg, $type);
+			console_log($msg, $type);
 		}
 	}
 
@@ -1320,7 +1347,7 @@ class Core {
 	 *   if value is provided it will set the cache, else it will return the
 	 *   module status, the $set_value will be used within ModulConfigObj::save
 	 *   to have the current state of the module if we changed it somewhere.
-	 *	 (optional, default = null)
+	 * 	 (optional, default = null)
 	 *
 	 * @return mixed
 	 *   - in GET-Mode, boolean true if enabled, else boolean false
@@ -1346,6 +1373,10 @@ class Core {
 				return false;
 			}
 
+			if (empty($this->db)) {
+				$cache[$module] = false;
+				return false;
+			}
 			//Load the module config of the given $module
 			$modconfig = new ModulConfigObj($module);
 
@@ -1537,14 +1568,14 @@ class Core {
 		$check_template_file = $this->smarty->get_tpl() . $file;
 
 		$module = $this->cache("core", "current_module");
-		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' .  $file) && is_readable(SITEPATH . '/' . $module . '/templates/' .  $file)) {
-			$file = '/' . $module . '/templates/' .  $file;
+		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' . $file) && is_readable(SITEPATH . '/' . $module . '/templates/' . $file)) {
+			$file = '/' . $module . '/templates/' . $file;
 		}
 		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
 
-		if (file_exists(SITEPATH.$file)) {
+		if (file_exists(SITEPATH . $file)) {
 			$this->css_files[] = $file;
 		}
 	}
@@ -1573,13 +1604,13 @@ class Core {
 		$check_template_file = $this->smarty->get_tpl() . $file;
 
 		$module = $this->cache("core", "current_module");
-		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' .  $file) && is_readable(SITEPATH . '/' . $module . '/templates/' .  $file)) {
-			$file = '/' . $module . '/templates/' .  $file;
+		if (!empty($module) && !empty($action) && file_exists(SITEPATH . '/' . $module . '/templates/' . $file) && is_readable(SITEPATH . '/' . $module . '/templates/' . $file)) {
+			$file = '/' . $module . '/templates/' . $file;
 		}
 		elseif (file_exists(SITEPATH . $check_template_file) && is_readable(SITEPATH . $check_template_file)) {
 			$file = $check_template_file;
 		}
-		if (file_exists(SITEPATH.$file)) {
+		if (file_exists(SITEPATH . $file)) {
 			$this->js_files[$type][] = $file;
 		}
 	}
@@ -1695,24 +1726,6 @@ class Core {
 	}
 
 	/**
-	 *
-	 * @param string $current_dir
-	 *   current / start directory
-	 *
-	 * @return array a list of all path which has a templates directory
-	 */
-	private function get_template_dirs($current_dir) {
-		$tmp_array = array();
-		$dir = new Dir($current_dir);
-		$dir->just_dirs();
-		$dir->file_regexp('.*templates');
-		foreach ($dir AS $entry) {
-			$tmp_array[] = $entry->path;
-		}
-		return $tmp_array;
-	}
-
-	/**
 	 * Cache javascript files if wanted and removes all cached js file loads and replace it with the cached one
 	 */
 	private function cache_js_css() {
@@ -1758,10 +1771,10 @@ class Core {
 				}
 
 				/**
-				* Get the last modified filetime for this file and check if it is newer
-				* than the old newest modified file time, so at the end we have the newest
-				* modified file time
-				*/
+				 * Get the last modified filetime for this file and check if it is newer
+				 * than the old newest modified file time, so at the end we have the newest
+				 * modified file time
+				 */
 				$modified_time = filemtime($file_path);
 				if ($modified_time > $scope_latest_modified_file) {
 					$scope_latest_modified_file = $modified_time;
@@ -1791,7 +1804,7 @@ class Core {
 			if ($cache_css_file == true) {
 				//At this point we need to generate the cache file
 
-				foreach($original_css_files AS $file) {
+				foreach ($original_css_files AS $file) {
 					$search_replace = array();
 
 					if (!file_exists(SITEPATH . $file)) {
@@ -1801,15 +1814,14 @@ class Core {
 					$src = file_get_contents(SITEPATH . $file);
 					preg_match_all('~\bbackground(-image)?\s*:(.*?)url\(\s*(\'|")?(?<image>.*?)\3?\s*\)~i', $src, $matches);
 
-					if(!empty($matches['image'])) {
+					if (!empty($matches['image'])) {
 						$path = dirname($file);
-						foreach($matches['image'] AS $image_url) {
+						foreach ($matches['image'] AS $image_url) {
 							$search_replace[$image_url] = str_replace('//', '/', $path . '/' . $image_url);
 						}
 						ksort($search_replace);
-						$search = $replace = array();
-						foreach($search_replace as $s => $r) {
-							$src = preg_replace("/\((\"|')?" . preg_quote($s, "/") . "(\"|')?\)/", "(\$1".$r."\$2)", $src);
+						foreach ($search_replace as $s => $r) {
+							$src = preg_replace("/\((\"|')?" . preg_quote($s, "/") . "(\"|')?\)/", "(\$1" . $r . "\$2)", $src);
 						}
 					}
 
@@ -1822,7 +1834,7 @@ class Core {
 				}
 
 				$append_content = array();
-				foreach($files_to_add AS $append_files) {
+				foreach ($files_to_add AS $append_files) {
 					$append_content[] = file_get_contents(SITEPATH . $append_files);
 				}
 
@@ -1872,10 +1884,10 @@ class Core {
 					}
 
 					/**
-					* Get the last modified filetime for this file and check if it is newer
-					* than the old newest modified file time, so at the end we have the newest
-					* modified file time
-					*/
+					 * Get the last modified filetime for this file and check if it is newer
+					 * than the old newest modified file time, so at the end we have the newest
+					 * modified file time
+					 */
 					$modified_time = filemtime($file_path);
 					if ($modified_time > $scope_latest_modified_file) {
 						$scope_latest_modified_file = $modified_time;
@@ -1911,7 +1923,7 @@ class Core {
 
 				// Generate the append content to the cache file.
 				$append_content = array();
-				foreach($files_to_add AS $append_files) {
+				foreach ($files_to_add AS $append_files) {
 					$append_content[] = file_get_contents(SITEPATH . $append_files);
 				}
 
@@ -1927,6 +1939,7 @@ class Core {
 			}
 		}
 	}
+
 }
 
 ?>

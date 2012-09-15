@@ -70,7 +70,7 @@ class user extends ActionModul
 
 	/**
 	 * Implements menu().
-	 * @return  The alias mappings
+	 * @return array The alias mappings
 	 */
 	public function menu() {
 		if ($this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no') == 'yes') {
@@ -88,7 +88,7 @@ class user extends ActionModul
 	public function hook_core_assign_default_vars() {
 		if ($this->session->is_logged_in()) {
 			if ($this->core->get_dbconfig("user", self::CONFIG_LOGIN_PING, 'no') == 'yes') {
-				
+
 				// Load the ping javascript and setup ping timeout interval to prevent a logout while staying on the page inactive.
 				$logout_time = (int)($this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60) * 0.75);
 				$this->core->js_config('user_ping_time', $logout_time);
@@ -301,7 +301,7 @@ class user extends ActionModul
 				$user_obj = new UserObj($acc['user_id']);
 
 				if ($this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) == self::LOST_PW_TYPE_RANDOM) {
-					$new_pw = generatePW(12);
+					$new_pw = UserTools::generate_pw(12);
 
 					$user_obj->password = $new_pw;
 
@@ -405,7 +405,7 @@ class user extends ActionModul
 		if ($form->check_form()) {
 			$password = "";
 			if ($signup_type == user::SIGNUP_TYPE_RANDOM) {
-				$password = generatePW(12);
+				$password = UserTools::generate_pw(12);
 			}
 
 			$user_obj = $this->create_user($form, $password);
@@ -555,7 +555,7 @@ class user extends ActionModul
 			if (empty($val)) {
 				continue;
 			}
-			$where[] = "`" . sql_escape($field) . "` LIKE '" . $this->db->get_sql_string_search($val, "{v}%") . "'";
+			$where[] = "`" . Db::sql_escape($field) . "` LIKE '" . $this->db->get_sql_string_search($val, "{v}%") . "'";
 		}
 
 		//If where array is not empty add the where.
@@ -745,8 +745,6 @@ class user extends ActionModul
 			//Add save button
 			$submit_button = new Submitbutton("save", t("Save"));
 
-			//Set form title
-			$title = t("Change address");
 			$message = t("address changed");
 
 			$old_values = $address_obj->get_values();
@@ -761,8 +759,6 @@ class user extends ActionModul
 			//Add insert button
 			$submit_button = new Submitbutton("add", t("add"));
 
-			//Set form title
-			$title = t("Add address");
 			$message = t("address added");
 
 			//Create empty address object, prefill with userid

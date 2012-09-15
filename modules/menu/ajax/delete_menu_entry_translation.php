@@ -1,32 +1,47 @@
 <?php
-	/* @var $core Core */
-	//Define needed params
-	$params = new ParamStruct();
-	$params->add_required_param("entry_id", PDT_INT);
+/**
+ * Provides an ajax request to delete a menu entry translation.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package modules.menu.ajax
+ * @category Module.Menu
+ */
+class AjaxMenuDeleteMenuEntryTranslation extends AjaxModul {
 
-	//Fill the params
-	$params->fill();
+	/**
+	 * This function will be executed after ajax file initializing
+	 */
+	public function run() {
+		//Define needed params
+		$params = new ParamStruct();
+		$params->add_required_param("entry_id", PDT_INT);
 
-	//Display error if params are not valid
-	if(!$params->is_valid()) {
-		AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true);
+		//Fill the params
+		$params->fill();
+
+		//Display error if params are not valid
+		if(!$params->is_valid()) {
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
+		}
+
+		//Check perms
+		if(!$this->core->get_right_manager()->has_perm("admin.menu.manage")) {
+			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
+		}
+
+		$menu_entry_translation_obj = new MenuEntryTranslationObj($params->entry_id, $this->core->current_language);
+
+		//If the translation entry does not exist, return
+		if(!$menu_entry_translation_obj->load_success()) {
+			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true, 'no such menu entry');
+		}
+
+		//Delete the application
+		if($menu_entry_translation_obj->delete()) {
+			AjaxModul::return_code(AjaxModul::SUCCESS);
+		}
+		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
 	}
-
-	//Check perms
-	if(!$core->get_right_manager()->has_perm("admin.menu.manage")) {
-		AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true);
-	}
-
-	$menu_entry_translation_obj = new MenuEntryTranslationObj($params->entry_id, $core->current_language);
-
-	//If the translation entry does not exist, return
-	if(!$menu_entry_translation_obj->load_success()) {
-		AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true, 'no such menu entry');
-	}
-
-	//Delete the application
-	if($menu_entry_translation_obj->delete()) {
-		AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
-	}
-	AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, null, true);
+}
 ?>

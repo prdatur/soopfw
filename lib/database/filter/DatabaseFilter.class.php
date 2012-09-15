@@ -169,10 +169,10 @@ class DatabaseFilter extends Object
 			$table = $this->get_table_or_alias();
 		}
 		else {
-			$table = "`" . safe($table) . "`";
+			$table = "`" . Db::safe($table) . "`";
 		}
 
-		$field = safe($field);
+		$field = Db::safe($field);
 		if (preg_match('/^[a-z_]+$/', $field)) {
 			$field = "`" . $field . "`";
 			if ($table !== NS) {
@@ -199,17 +199,17 @@ class DatabaseFilter extends Object
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &change_fields($field, $value, $table = NS) {
-		$field = "`" . safe($field) . "`";
+		$field = "`" . Db::safe($field) . "`";
 		if ($table === NS) {
 			$table = $this->get_table_or_alias();
 		}
 		else {
-			$table = "`" . safe($table) . "`";
+			$table = "`" . Db::safe($table) . "`";
 		}
 		if ($table !== NS) {
 			$field = $table . "." . $field;
 		}
-		$this->change_fields[] = array('field' => $field, 'value' => safe($value));
+		$this->change_fields[] = array('field' => $field, 'value' => Db::safe($value));
 		return $this;
 	}
 
@@ -338,10 +338,10 @@ class DatabaseFilter extends Object
 			$table = $this->get_table_or_alias();
 		}
 		else {
-			$table = "`" . safe($table) . "`";
+			$table = "`" . Db::safe($table) . "`";
 		}
 
-		$this->group_by[] = $table . '.`' . safe($field) . '`';
+		$this->group_by[] = $table . '.`' . Db::safe($field) . '`';
 		return $this;
 	}
 
@@ -363,7 +363,7 @@ class DatabaseFilter extends Object
 			$table = $this->get_table_or_alias() . '.';
 		}
 		elseif ($table !== null) {
-			$table = "`" . safe($table) . "`.";
+			$table = "`" . Db::safe($table) . "`.";
 		}
 		else {
 			$table = '';
@@ -373,7 +373,7 @@ class DatabaseFilter extends Object
 			$direction = self::ASC;
 		}
 
-		$field = safe($field);
+		$field = Db::safe($field);
 		if (preg_match('/^[a-z_]+$/', $field)) {
 			$field = "`" . $field . "`";
 		}
@@ -394,9 +394,9 @@ class DatabaseFilter extends Object
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &join($table, $on, $alias = '') {
-		$table = "`" . safe($table) . "`";
+		$table = "`" . Db::safe($table) . "`";
 		if (!empty($alias)) {
-			$table .= ' AS ' . safe($alias);
+			$table .= ' AS ' . Db::safe($alias);
 		}
 		$this->joins[] = 'JOIN ' . $table . ' ON (' . $on . ')';
 		return $this;
@@ -415,9 +415,9 @@ class DatabaseFilter extends Object
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &left_join($table, $on, $alias = '') {
-		$table = "`" . safe($table) . "`";
+		$table = "`" . Db::safe($table) . "`";
 		if (!empty($alias)) {
-			$table .= ' AS ' . safe($alias);
+			$table .= ' AS ' . Db::safe($alias);
 		}
 		$this->joins[] = 'LEFT JOIN ' . $table . ' ON (' . $on . ')';
 		return $this;
@@ -534,9 +534,9 @@ class DatabaseFilter extends Object
 	 * @return string the sql string
 	 */
 	public function get_insert_sql() {
-		$table = '`' . safe($this->table) . '`';
+		$table = '`' . Db::safe($this->table) . '`';
 		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
+			$table .= ' AS ' . Db::safe($this->alias);
 		}
 
 		$fields = $values = array();
@@ -553,9 +553,9 @@ class DatabaseFilter extends Object
 	 * @return string the sql string
 	 */
 	public function get_delete_sql() {
-		$table = '`' . safe($this->table) . '`';
+		$table = '`' . Db::safe($this->table) . '`';
 		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
+			$table .= ' AS ' . Db::safe($this->alias);
 		}
 		return "DELETE FROM " . $table . $this->get_where();
 	}
@@ -566,9 +566,9 @@ class DatabaseFilter extends Object
 	 * @return string the sql string
 	 */
 	public function get_update_sql() {
-		$table = '`' . safe($this->table) . '`';
+		$table = '`' . Db::safe($this->table) . '`';
 		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
+			$table .= ' AS ' . Db::safe($this->alias);
 		}
 		$update_fields = array();
 		foreach ($this->change_fields AS $field) {
@@ -583,9 +583,9 @@ class DatabaseFilter extends Object
 	 * @return string the sql string
 	 */
 	public function get_select_sql() {
-		$table = '`' . safe($this->table) . '`';
+		$table = '`' . Db::safe($this->table) . '`';
 		if (!empty($this->alias)) {
-			$table .= ' AS ' . safe($this->alias);
+			$table .= ' AS ' . Db::safe($this->alias);
 		}
 		$table .= ' ';
 		$group_by = $order_by = "";
@@ -609,10 +609,10 @@ class DatabaseFilter extends Object
 	private function get_table_or_alias() {
 		$table = "";
 		if (!empty($this->table)) {
-			$table = "`" . safe($this->table) . "`";
+			$table = "`" . Db::safe($this->table) . "`";
 		}
 		if (!empty($this->alias)) {
-			$table = safe($this->alias);
+			$table = Db::safe($this->alias);
 		}
 		return $table;
 	}

@@ -130,10 +130,10 @@ class DatabaseWhereGroup extends Object
 			 * this will only be executed if the k is not a numeric integer because maybe we want just select 1
 			 */
 			if ((int) $k !== $k) {
-				$k = "`" . safe(str_replace(".", "`.`", $k)) . "`";
+				$k = "`" . Db::safe(str_replace(".", "`.`", $k)) . "`";
 			}
 			else {
-				$k = safe($k);
+				$k = Db::safe($k);
 			}
 
 			if ($v['value'] instanceof DatabaseFilter) {
@@ -154,7 +154,7 @@ class DatabaseWhereGroup extends Object
 			}
 			else if ($v['escape'] == true) {
 				//Escape the value
-				$val = safe($v['value']);
+				$val = Db::safe($v['value']);
 				// This removal of escape char is required if a % value was provided which was already escaped.
 				$val = preg_replace("/[\\\]+\%/", "\\%", $val);
 				//Check if we have not a number, if so we need to add ''

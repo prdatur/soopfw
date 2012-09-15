@@ -94,6 +94,10 @@ class system extends ActionModul
 		);
 	}
 
+	public function hello_world() {
+
+	}
+
 	/**
 	 * Action: precheck_module_state
 	 *
@@ -306,8 +310,8 @@ class system extends ActionModul
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			return $this->no_permission();
 		}
-
-		$this->core->generate_classlist();
+		$loader = new cli_generate_classlist();
+		$loader->generate_classlist();
 		$this->core->message(t('classlist generated'), Core::MESSAGE_TYPE_SUCCESS);
 
 		$this->clear_output();
@@ -325,7 +329,8 @@ class system extends ActionModul
 			return $this->no_permission();
 		}
 
-		if ($this->core->create_smarty_sdi()) {
+		$smarty_sdi = new cli_generate_smartylist();
+		if ($smarty_sdi->create_smarty_sdi()) {
 			$this->core->message(t('smartylist generated'), Core::MESSAGE_TYPE_SUCCESS);
 		}
 		else {
@@ -409,7 +414,7 @@ class system extends ActionModul
 		), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
-		global $classes;
+		$classes = $this->core->get_classlist();
 		$login_handler = array();
 		foreach($classes['classes'] AS $classname =>  &$class) {
 			if(!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
@@ -518,8 +523,11 @@ class system extends ActionModul
 				$modules[] = $module;
 			}
 
-			$this->core->generate_classlist();
-			$this->core->create_smarty_sdi();
+			$loader = new cli_generate_classlist();
+			$loader->generate_classlist();
+
+			$smarty_sdi = new cli_generate_smartylist();
+			$smarty_sdi->create_smarty_sdi();
 			$this->core->js_config("update_db_modules", $modules);
 		}
 	}
@@ -552,6 +560,7 @@ class system extends ActionModul
 
 		$this->clear_output();
 
+		$classlist_already_generated = false;
 
 		//Check only perms if we have installed the system before (first time a fresh install will pass the perm check)
 		if (!defined('is_shell') && $this->core->dbconfig("system", "installed") == "1" && $this->core->module_enabled("user")) {
@@ -567,8 +576,15 @@ class system extends ActionModul
 
 		//We do not need to generate every javascript request to generate the classlist, direct after form submission or direkt call is more enough
 		if ($op != "js") {
-			$this->core->generate_classlist();
-			$this->core->create_smarty_sdi();
+
+			$loader = new cli_generate_classlist();
+			$loader->generate_classlist();
+
+			$classlist_already_generated = true;
+
+			$smarty_sdi = new cli_generate_smartylist();
+			$smarty_sdi->create_smarty_sdi();
+
 		}
 
 		//Check if the provided module is a valid module (has a valid module info file)
@@ -599,11 +615,17 @@ class system extends ActionModul
 
 		$results = array();
 
+
 		//Creating Database tables from objects if the table does not exist or needs to be updated.
 		foreach (SystemHelper::get_updateable_objects($module) AS $module_info_obj) {
 			$obj = $module_info_obj->classname;
 			if (!class_exists($obj)) {
-				$this->core->generate_classlist();
+				if ($classlist_already_generated === true) {
+					continue;
+				}
+				$loader = new cli_generate_classlist();
+				$loader->generate_classlist();
+				$classlist_already_generated = true;
 			}
 			$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 
@@ -689,7 +711,7 @@ class system extends ActionModul
 								* if the found field is a primary key we can not add it as a new field, we must just rename it
 								*
 								*/
-								foreach ($db_fields AS $field_name => $db_options) {
+								foreach ($db_fields AS $db_options) {
 									if ($object_index == $db_options['ORDINAL_POSITION']) {
 										if ($db_options['COLUMN_KEY'] == 'PRI') {
 											$rename = $db_options['COLUMN_NAME'];

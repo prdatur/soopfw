@@ -19,10 +19,6 @@
  */
 function smarty_function_view_content($params, $smarty, $template)
 {
-	/* @var $core Core */
-	global $core;
-
-
 	$id = $params['id'];
 	if (!is_numeric($id)) {
 		$filter = DatabaseFilter::create(PageRevisionObj::TABLE)

@@ -28,7 +28,7 @@ class EmailValidator extends AbstractHtmlValidator
 		if (empty($val)) {
 			return true;
 		}
-		return checkMail($this->get_value());
+		return NetTools::check_mail($this->get_value());
 	}
 
 }

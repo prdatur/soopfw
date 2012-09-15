@@ -171,7 +171,7 @@ class Language extends Object
 		if ($this->load_list("languages", $language)) {
 			$this->languages = array_change_key_case($this->languages, CASE_LOWER);
 		}
-		
+
 		if (!empty($push_countries_to_front)) {
 			//Get the country codes
 			$codes = $this->languages;
@@ -355,11 +355,17 @@ class Language extends Object
 	 * Builds the language files or returns the translation keys.
 	 *
 	 * @global array $translation_cache
-	 * @param mixed $modules the modules or a single module as a string which we want to search, if not provided all modules will be used (optional, default = array()
-	 * @param mixed $language_array the language_array or a single language as a string which we want to read, if not provided all enabled languages will be used (optional, default = array())
-	 * @param boolean $return_values wether we want to store the files or we want to return the values (optional, default = false)
-	 * @param boolean $read_translations wether we should read the translation for the current language or not (optional, default = true)
-	 * @param array &$errors this array will be filled with all occured errors (optional, default = array())
+	 * @param mixed $modules
+	 *   the modules or a single module as a string which we want to search, if not provided all modules will be used (optional, default = array()
+	 * @param mixed $language_array
+	 *   the language_array or a single language as a string which we want to read, if not provided all enabled languages will be used (optional, default = array())
+	 * @param boolean $return_values
+	 *   wether we want to store the files or we want to return the values (optional, default = false)
+	 * @param boolean $read_translations
+	 *   wether we should read the translation for the current language or not (optional, default = true)
+	 * @param array &$errors
+	 *   this array will be filled with all occured errors (optional, default = array())
+	 *
 	 * @return array if $return_values is set to true we get the array, else nothing will be returnd
 	 */
 	public function build_language($modules = array(), $language_array = array(), $return_values = false, $read_translations = true, &$errors = array()) {
@@ -381,7 +387,6 @@ class Language extends Object
 
 		//Get all enabled languages if we did not provide a language array
 		if (empty($language_array)) {
-			$language_obj = new LanguagesObj();
 			$language_array = $this->get_enabled_languages();
 		}
 
@@ -449,15 +454,15 @@ class Language extends Object
 			foreach ($dir AS $entry) {
 				//file is javascript so parse it like that
 				if ($entry->ext == "js") {
-					$js_results = array_extend($js_results, $this->get_js_strings_by_file($entry->path));
+					$js_results = ArrayTools::array_extend($js_results, $this->get_js_strings_by_file($entry->path));
 				}
 				//File is template, parse as smarty but extend it to php couse it calls also the php t function
 				else if ($entry->ext == "tpl") {
-					$php_results = array_extend($php_results, $this->get_smarty_strings_by_file($entry->path));
+					$php_results = ArrayTools::array_extend($php_results, $this->get_smarty_strings_by_file($entry->path));
 				}
 				//Parse it as a php file
 				else {
-					$php_results = array_extend($php_results, $this->get_strings_by_file($entry->path));
+					$php_results = ArrayTools::array_extend($php_results, $this->get_strings_by_file($entry->path));
 				}
 			}
 
@@ -589,7 +594,7 @@ class Language extends Object
 		//If we only want to return the values
 		if ($return_values == true) {
 			//merge our php and js values into one array
-			$php_results = array_extend($php_results, $js_results);
+			$php_results = ArrayTools::array_extend($php_results, $js_results);
 			//Unset unneeded values (better to memory)
 			unset($js_results);
 
@@ -725,7 +730,10 @@ class Language extends Object
 	 * Escape quotes in a strings depending on the surrounding
 	 * quote type used.
 	 *
-	 * @param $str The strings to escape
+	 * @param string $str
+	 *   The strings to escape.
+	 *
+	 * @return string formatted string.
 	 */
 	private function format_quoted_string($str) {
 		$quo = substr($str, 0, 1);

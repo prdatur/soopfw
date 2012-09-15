@@ -23,7 +23,7 @@ class Smarty_Security {
     *
     * @var integer
     */
-    public $php_handling = SMARTY_PHP_PASSTHRU;
+    public $php_handling = SMARTY_PHP_QUOTE;
 
     /**
     * This is the list of template directories that are considered secure.
@@ -32,8 +32,7 @@ class Smarty_Security {
     *
     * @var array
     */
-    public $secure_dir = array(	"templates/",
-								"admin/templates/");
+    public $secure_dir = array("templates/");
 
 
     /**
@@ -68,7 +67,7 @@ class Smarty_Security {
 								   'is_int', 'intval',
 								   'true', 'false', 'null',
 								   'stripos', 'strpos',
-								   'substr', 'isAdmin', 'constant','var_dump', 'has_perm');
+								   'substr', 'constant','var_dump');
 
     /**
     * This is an array of trusted modifers.
@@ -77,7 +76,7 @@ class Smarty_Security {
     * If set to 'none' none is allowed.
     * @var array
     */
-    public $modifiers = array('escape','count', 'substr', 'constant');
+    public $modifiers = array('escape', 'count', 'substr', 'constant');
 
     /**
     * This is an array of trusted streams.
@@ -86,7 +85,7 @@ class Smarty_Security {
     * If set to 'none' none is allowed.
     * @var array
     */
-    public $streams = array('file');
+    public $streams = array('none');
     /**
     + flag if constants can be accessed from template
     */

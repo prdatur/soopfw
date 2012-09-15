@@ -36,7 +36,7 @@ class cli_enable_module extends CLICommand
 			}
 		}
 		if (empty($module)) {
-			consoleLog('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user', Core::MESSAGE_TYPE_ERROR);
+			console_log('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user', Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 
@@ -48,8 +48,8 @@ class cli_enable_module extends CLICommand
 				$msg .= " - " . $mod['name']. "\n   (" . $mod['description'] . ")\n";
 			}
 			echo $msg . "\n";
-			if (!get_boolean_input(t("Proceed with module installation?"))) {
-				consoleLog(t('Module installation aborted'), 'ok');
+			if (!CliHelper::get_boolean_input(t("Proceed with module installation?"))) {
+				console_log(t('Module installation aborted'), 'ok');
 				return false;
 			}
 		}
@@ -58,7 +58,7 @@ class cli_enable_module extends CLICommand
 		if (!empty($dependencies)) {
 			foreach ($dependencies AS $mod => $val) {
 				$system->install_module($mod);
-				consoleLog(t('Module "@module" enabled', array("@module" => $val['name'])), 'ok');
+				console_log(t('Module "@module" enabled', array("@module" => $val['name'])), 'ok');
 			}
 		}
 
@@ -71,7 +71,7 @@ class cli_enable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Module enabled.', 'ok');
+		console_log('Module enabled.', 'ok');
 	}
 
 }

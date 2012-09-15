@@ -28,7 +28,7 @@ class UserSessionObj extends AbstractDataManagment
 	public function __construct($session_id = "", $ip = '', $force_db = false) {
 		parent::__construct();
 		if(empty($ip)) {
-			$ip = get_real_ip();
+			$ip = NetTools::get_real_ip();
 		}
 
 		$this->db_struct = new DbStruct(self::TABLE);
@@ -38,7 +38,7 @@ class UserSessionObj extends AbstractDataManagment
 		$this->db_struct->add_field("session_id", t("Session ID"), PDT_STRING);
 		$this->db_struct->add_field("username", t("username"), PDT_STRING);
 		$this->db_struct->add_field("user_id", t("User ID"), PDT_INT);
-		$this->db_struct->add_field("ip", t("IP-address"), PDT_STRING, get_real_ip());
+		$this->db_struct->add_field("ip", t("IP-address"), PDT_STRING, NetTools::get_real_ip());
 		$this->db_struct->add_field("date", t("Date"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
 		if (!empty($session_id) && !empty($ip)) {
 			$this->load(array($session_id, $ip), $force_db);

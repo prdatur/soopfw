@@ -31,7 +31,7 @@ class cli_reindex_menu extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Menu reindexed', 'ok');
+		console_log('Menu reindexed', 'ok');
 	}
 
 }

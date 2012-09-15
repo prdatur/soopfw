@@ -26,13 +26,13 @@ function smarty_function_format($params, &$smarty)
 	{
 		$smarty->trigger_error("format: missing parameter 'value'");
 	}
-	$core = &$GLOBALS['core'];
+	
 	if (isset($params['ifEmpty']) && empty($params['value'])) return $params['ifEmpty'];
 
 	switch($params['type'])
 	{
 		case 'currency':
-			return	$core->lng->format_currency($params['value']);
+			return	Core::get_instance()->lng->format_currency($params['value']);
 			break;
 
 		default:

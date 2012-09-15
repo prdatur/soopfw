@@ -45,7 +45,7 @@ class SystemLogObj extends AbstractDataManagment
 		$this->db_struct->add_field("log_level", t("The log level"), PDT_INT, self::LEVEL_NORMAL, 'UNSIGNED');
 		$this->db_struct->add_field("uid", t("The user id"), PDT_INT, $this->session->current_user()->user_id, 'UNSIGNED');
 		$this->db_struct->add_field("date", t("The log date"), PDT_DATETIME, date(DB_DATETIME));
-		$this->db_struct->add_field("ip", t("The users ip"), PDT_STRING, get_real_ip());
+		$this->db_struct->add_field("ip", t("The users ip"), PDT_STRING, NetTools::get_real_ip());
 		$this->db_struct->add_field("referer", t("The browser referer"), PDT_STRING, (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''));
 		$this->db_struct->add_field("message", t("The log message"), PDT_TEXT);
 

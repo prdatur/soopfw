@@ -221,7 +221,7 @@ class UserObj extends AbstractDataManagment
 	/**
 	 * get the addresses of this user
 	 *
-	 * @return returns an array with all the address information
+	 * @return array returns an array with all the address information
 	 */
 	public function get_addresses() {
 		return $this->db->query_slave_all("SELECT * FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id", array(
@@ -245,7 +245,7 @@ class UserObj extends AbstractDataManagment
 		$return = "";
 		if (!empty($db_field)) {
 			$return = $db_field;
-			$db_field .= "`".sql_escape($db_field)."`";
+			$db_field .= "`".Db::sql_escape($db_field)."`";
 		}
 		else {
 			$db_field = "*";

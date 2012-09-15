@@ -1,30 +1,43 @@
 <?php
 /**
- * Deletes a right group
+ * Provides an ajax request to delete a right group.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ * @package modules.user.ajax
+ * @category Module.User
  */
-//Check perms
-if (!$core->get_right_manager()->has_perm("admin.user.group.delete")) {
-	AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true);
-}
+class AjaxUserGroupDelete extends AjaxModul {
 
-//Setup needed params
-$params = new ParamStruct();
-$params->add_required_param("group_id", PDT_INT);
-$params->fill();
+	/**
+	 * This function will be executed after ajax file initializing
+	 */
+	public function run() {
+		//Check perms
+		if (!$this->core->get_right_manager()->has_perm("admin.user.group.delete")) {
+			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
+		}
 
-//Check params
-if (!$params->is_valid()) {
-	AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true);
-}
+		//Setup needed params
+		$params = new ParamStruct();
+		$params->add_required_param("group_id", PDT_INT);
+		$params->fill();
 
-//Delete the group
-$group_obj = new UserRightGroupObj($params->group_id);
-if(!$group_obj->load_success()) {
-	AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true, 'invalid group');
-}
+		//Check params
+		if (!$params->is_valid()) {
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
+		}
 
-if ($group_obj->delete()) {
-	AjaxModul::return_code(AjaxModul::SUCCESS, null, true);
+		//Delete the group
+		$group_obj = new UserRightGroupObj($params->group_id);
+		if(!$group_obj->load_success()) {
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true, 'invalid group');
+		}
+
+		if ($group_obj->delete()) {
+			AjaxModul::return_code(AjaxModul::SUCCESS);
+		}
+		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
+	}
 }
-AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, null, true);
 ?>

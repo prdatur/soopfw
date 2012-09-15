@@ -15,6 +15,6 @@
  * @return string
  */
 function smarty_modifier_money_format($string, $currency) {
-	return formate_money($string, $currency);
+	return Converter::format_money($string, $currency);
 }
 ?>

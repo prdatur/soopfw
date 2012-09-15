@@ -22,8 +22,8 @@ class cli_generate_smartylist extends CLICommand
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
-		if (!$this->core->create_smarty_sdi()) {
-			consoleLog("config/smarty.php is not writeable", 'error');
+		if (!$this->create_smarty_sdi()) {
+			console_log("config/smarty.php is not writeable", 'error');
 		}
 		return true;
 	}
@@ -33,7 +33,52 @@ class cli_generate_smartylist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		consoleLog('Smartylists generated', 'ok');
+		console_log('Smartylists generated', 'ok');
+	}
+
+	/**
+	 * Create the smarty secure directory index, only templates in this directories can be used within smarty
+	 *
+	 * @return boolean true if smartylist could be written successfully, else false
+	 */
+	public function create_smarty_sdi() {
+		//If the config file is not writeable, return false
+		if (!is_writable(SITEPATH . "/config/smarty.php")) {
+			return false;
+		}
+		//Init dir array with default template directory
+		$secure_dir = array(SITEPATH . "/templates");
+
+		//Get all templates directories within modules
+		$secure_dir = array_merge($secure_dir, $this->get_template_dirs("modules"));
+
+		//Build the secure directory variable
+		$content = "<?php\n\$secure_dir = " . var_export($secure_dir, true) . ";\n?>";
+
+		//Store the file
+		$fp = fopen(SITEPATH . "/config/smarty.php", "w+");
+		$return = ( fwrite($fp, $content) !== false) ? true : false;
+		fclose($fp);
+		return $return;
+	}
+
+	/**
+	 * Returns all directories which are template directories.
+	 *
+	 * @param string $current_dir
+	 *   current / start directory
+	 *
+	 * @return array a list of all path which has a templates directory
+	 */
+	private function get_template_dirs($current_dir) {
+		$tmp_array = array();
+		$dir = new Dir($current_dir);
+		$dir->just_dirs();
+		$dir->file_regexp('.*templates');
+		foreach ($dir AS $entry) {
+			$tmp_array[] = $entry->path;
+		}
+		return $tmp_array;
 	}
 
 }

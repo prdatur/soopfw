@@ -24,7 +24,7 @@
  * @return string truncated string
  */
 function smarty_modifier_truncate_soopfw($string, $length = 80, $etc = '...', $break_words = false, $middle = false) {
-	return truncate_soopfw($string, $length, $etc, $break_words, $middle);
+	return StringTools::truncate_soopfw($string, $length, $etc, $break_words, $middle);
 }
 
 ?>
