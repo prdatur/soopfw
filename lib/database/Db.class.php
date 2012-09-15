@@ -1102,7 +1102,7 @@ class Db
 	 *
 	 * @return string The escaped string.
 	 */
-	function sql_escape($string) {
+	public static function sql_escape($string) {
 		return str_replace("%", "\\%", mysql_real_escape_string($string));
 	}
 
