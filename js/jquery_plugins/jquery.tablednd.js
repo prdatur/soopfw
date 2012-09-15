@@ -470,9 +470,7 @@ solution may need to take that into account, for now this seems to work in firef
 		var intent_template = '<span class="menu_tablednd_indent">&nbsp;</span>';
 		//var prev_from_dragObject = jQuery.tableDnD.prev_tr_from_drag_object;
 		var prev_from_dragObject = $(jQuery.tableDnD.dragObject).prev();
-		if(prev_from_dragObject.length <= 0) {
-			return;
-		}
+
 		var prev_intents = 0;
 
 		if(!empty(prev_from_dragObject)) {
@@ -485,6 +483,11 @@ solution may need to take that into account, for now this seems to work in firef
 		if(current_intent < 0) {
 			return;
 		}
+
+		if(prev_from_dragObject.length <= 0) {
+			current_intent = 0;
+		}
+
 		if(config.current_intent_level != current_intent) {
 			config.current_intent_level = current_intent;
 
