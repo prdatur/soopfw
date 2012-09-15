@@ -45,8 +45,7 @@ class cli_generate_mimetype_list extends CLICommand
 		if (!empty($list)) {
 			ksort($list);
 			$data = '<?php
-$this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_export($list, true)) . '
-?>';
+$this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_export($list, true)) . ';';
 			if (file_put_contents(SITEPATH . '/config/mime_types.php', $data) !== false) {
 				foreach ($list AS $ext => $mime) {
 					$mime_obj = new MimeTypeObj();

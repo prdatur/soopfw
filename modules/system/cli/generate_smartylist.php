@@ -53,7 +53,7 @@ class cli_generate_smartylist extends CLICommand
 		$secure_dir = array_merge($secure_dir, $this->get_template_dirs("modules"));
 
 		//Build the secure directory variable
-		$content = "<?php\n\$secure_dir = " . var_export($secure_dir, true) . ";\n?>";
+		$content = "<?php\n\$secure_dir = " . var_export($secure_dir, true) . ";";
 
 		//Store the file
 		$fp = fopen(SITEPATH . "/config/smarty.php", "w+");
