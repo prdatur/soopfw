@@ -53,7 +53,7 @@ class cli_generate_classlist extends CLICommand
 		$_SERVER['argv'] = $argv;
 
 		require_once(SITEPATH . '/plugins/classlist_autogenerator.php');
-		$this->core->load_classlist(true);
+		$this->core->load_classlist(true, true);
 	}
 
 }
