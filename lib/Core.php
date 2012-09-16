@@ -270,8 +270,10 @@ class Core
 			ini_set('display_errors', 'on');
 			ini_set('html_errors', 'on');
 		}
-
-		set_error_handler(array('SoopfwErrorHandler', 'cc_error_handler'), error_reporting());
+		
+		if (class_exists('SoopfwErrorHandler')) {
+			set_error_handler(array('SoopfwErrorHandler', 'cc_error_handler'), error_reporting());
+		}
 	}
 
 	/**
@@ -379,6 +381,7 @@ class Core
 	 * @return boolean whether the class has been loaded successfully
 	 */
 	public static function class_loader($classname) {
+		global $memcached_obj;
 		$classes = self::load_classlist();
 		if (array_key_exists($classname, $classes["classes"])) {
 			require SITEPATH . $classes["classes"][$classname]['path'];
@@ -390,6 +393,10 @@ class Core
 			require $classname . ".php";
 		}
 		else {
+			// If we tried to load an invalid class maybe memcached is corrupted, reload next time with a fresh one from classes.php.
+			if (!empty($memcached_obj)) {
+				$memcached_obj->set('classloader_classes', array());
+			}
 			return false;
 		}
 		return true;
