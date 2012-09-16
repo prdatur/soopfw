@@ -9,7 +9,7 @@ if(!defined('SITEPATH')) {
 }
 
 chdir(SITEPATH);
-
+require_once 'lib/Core.php';
 require_once 'lib/CliHelper.php';
 
 class soopfw_install {
@@ -129,7 +129,7 @@ class soopfw_install {
 		}
 
 		if($this->config['db']['use'] == '1') {
-			$res = mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
+			$res = @mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
 			if(empty($res)) {
 				CliHelper::console_log('Database connection could not be established, please try again.', 'error');
 				$this->main_configuration();
@@ -150,8 +150,6 @@ class soopfw_install {
 
 	private function install_system() {
 		global $_SESSION;
-
-		require_once 'lib/Core.php';
 		require_once 'modules/system/cli/generate_classlist.php';
 		require_once 'modules/system/cli/generate_smartylist.php';
 		require_once 'modules/system/system.php';
