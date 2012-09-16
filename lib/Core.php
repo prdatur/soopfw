@@ -193,6 +193,13 @@ class Core
 	public $run_mode = self::RUN_MODE_DEVELOPEMENT;
 
 	/**
+	 * Holds all objects which should exists the hole lifetime of the core.
+	 *
+	 * @var array
+	 */
+	public $class_holder = array();
+
+	/**
 	 * Holds all classes for the classloader.
 	 *
 	 * @var array
@@ -226,6 +233,15 @@ class Core
 
 		//Include core config
 		require(SITEPATH . "/config/core.php");
+
+		//Include Object because XhprofProfiler needs it.
+		require(SITEPATH . "/lib/Object.class.php");
+
+		//Include xhprof profiling class.
+		require(SITEPATH . "/lib/XhprofProfiler.class.php");
+
+		// Enable profiler.
+		$this->class_holder[] = new XhprofProfiler($this);
 
 		// Init the database if wanted.
 		$this->init_database();

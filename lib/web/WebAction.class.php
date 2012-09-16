@@ -36,7 +36,6 @@ class WebAction extends Object
 	 * Setup call params.
 	 */
 	private function setup_params() {
-		global $prof_enable;
 		// Parse our request uri
 		$override_params = UrlAliasObj::parse_url_string();
 		$language = $override_params['language'];
@@ -69,14 +68,6 @@ class WebAction extends Object
 
 		// Override the $_GET params with our override params.
 		$param_array = array_merge($_GET, $override_params);
-
-		/**
-		 * @TODO better profiler
-		 */
-		$prof_enable = !empty($_GET['PROFILER']);
-		if ($prof_enable) {
-			xhprof_enable();
-		}
 
 		// If we requested a logout, log the user out.
 		if (!empty($_REQUEST['logout'])) {
