@@ -510,17 +510,14 @@ class Core
 				register_shutdown_function(function () {
 					global $translation_cache;
 
-					if (Core::get_instance()->module_enabled("translation")) {
+					if (!empty(Core::get_instance()->db) && Core::get_instance()->module_enabled("translation")) {
 						$query = " INSERT IGNORE INTO `" . TranslationKeysObj::TABLE . "` (`id`,`key`) VALUES ";
 						$query_arr = array();
 						foreach ($translation_cache AS $id => $trans) {
 							$query_arr[] = "('" . Db::safe($id) . "', '" . Db::safe($trans) . "')";
 						}
-
 						$query .= implode(",", $query_arr);
-						if (!empty(Core::get_instance()->db)) {
-							Core::get_instance()->db->query_master($query);
-						}
+						Core::get_instance()->db->query_master($query);
 					}
 				});
 			}

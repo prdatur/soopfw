@@ -65,13 +65,14 @@ class Session extends Object
 		$this->current_user = new UserObj();
 		if (!defined('is_shell')) {
 			$this->start_session();
-		}
-		$login_handler = $this->core->dbconfig("system", system::CONFIG_LOGIN_HANDLER);
+			
+			$login_handler = $this->core->dbconfig("system", system::CONFIG_LOGIN_HANDLER);
 
-		if(empty($login_handler) || !class_exists($login_handler)) {
-			$login_handler = "DefaultLoginHandler";
+			if(empty($login_handler) || !class_exists($login_handler)) {
+				$login_handler = "DefaultLoginHandler";
+			}
+			$this->login_handler = new $login_handler($core);
 		}
-		$this->login_handler = new $login_handler($core);
 	}
 
 	/**
