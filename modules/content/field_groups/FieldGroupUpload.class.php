@@ -53,5 +53,24 @@ class FieldGroupUpload extends AbstractFieldGroup
 		return $file_input->fetch().$js;
 	}
 
+	/**
+	 * Parses all provided values for this field group.
+	 *
+	 * @param array $values
+	 *   The values for this field group id
+	 */
+	public static function parse_value(&$values) {
+		foreach($values AS &$field_group_values) {
+			foreach($field_group_values AS $field_group_field_name => $field_group_field_value) {
+				if ($field_group_field_name === 'file') {
+					$file_obj = new MainFileObj($field_group_field_value);
+					if ($file_obj->load_success()) {
+						$field_group_values['file_obj'] = &$file_obj;
+					}
+				}
+			}
+		}
+	}
+
 }
 

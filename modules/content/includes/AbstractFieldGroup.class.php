@@ -298,7 +298,7 @@ abstract class AbstractFieldGroup extends Object
 	 *
 	 * @param Form &$form the form
 	 */
-	public function add_elementy_to_form(Form &$form) {
+	public function add_element_to_form(Form &$form) {
 		if($this->max_value != 1) {
 			foreach ($this->multi_container AS &$elements) {
 				foreach ($elements AS &$element) {
@@ -397,6 +397,16 @@ abstract class AbstractFieldGroup extends Object
 		}
 		$cache = false;
 		return false;
+	}
+
+	/**
+	 * Parses all provided values for this field group.
+	 *
+	 * @param array $values
+	 *   The values for this field group id
+	 */
+	public static function parse_value(&$values) {
+
 	}
 
 	/**

@@ -1,2 +1,2 @@
 RewriteEngine   on
-RewriteRule !\.(css|js|jpeg|jpg|gif|png|tiff|tif)$ - [R=404]
+RewriteRule !(\.(css|js|jpeg|jpg|gif|png|tiff|tif)|mainfile/.*)$ - [R=404]

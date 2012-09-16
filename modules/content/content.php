@@ -439,9 +439,8 @@ class content extends ActionModul {
 				else {
 					$field_group_tpl = $field_groups_path . '/' . $field_group_id . ".tpl";
 				}
+				$group_obj = new ContentTypeFieldGroupObj($field_group_id);
 				if(!file_exists($field_group_tpl)) {
-					$group_obj = new ContentTypeFieldGroupObj($field_group_id);
-
 					if(isset($implemented_field_groups[$group_obj->field_group]) && file_exists(SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'])) {
 						$field_group_tpl = SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'];
 					}
@@ -458,6 +457,8 @@ class content extends ActionModul {
 				}
 
 				$content_smarty->clearAllAssign();
+				$class = $group_obj->field_group;
+				$class::parse_value($field_group_values);
 				$content_smarty->assign_by_ref("data", $field_group_values);
 				$content .= $content_smarty->fetch($field_group_tpl);
 			}
@@ -1245,7 +1246,7 @@ class content extends ActionModul {
 			$field_object->set_prefix($field_group['id'], '', ($field_group['max_value'] == 1) ? true : false);
 			$field_object->set_max_value($field_group['max_value']);
 			$field_object->set_required($field_group['required']);
-			$field_object->add_elementy_to_form($form);
+			$field_object->add_element_to_form($form);
 			$field_groups[] = $field_object;
 			$form_content .= $field_object->get_html();
 		}
@@ -1312,7 +1313,7 @@ class content extends ActionModul {
 			$alias = "";
 
 			$values = $form->get_array_values(true);
-
+			print_r($values);die();
 
 			$title = $values['title'];
 			$new_menu_title = $values['menu_title'];
