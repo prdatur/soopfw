@@ -9,8 +9,10 @@ if(!defined('SITEPATH')) {
 }
 
 chdir(SITEPATH);
+require_once 'lib/Object.class.php';
+require_once 'lib/CLICommand.class.php';
 require_once 'lib/Core.php';
-require_once 'lib/CliHelper.php';
+require_once 'lib/CliHelper.class.php';
 
 class soopfw_install {
 
@@ -150,10 +152,6 @@ class soopfw_install {
 
 	private function install_system() {
 		global $_SESSION;
-		require_once 'modules/system/cli/generate_classlist.php';
-		require_once 'modules/system/cli/generate_smartylist.php';
-		require_once 'modules/system/system.php';
-
 		$core = Core::get_instance(true);
 		$core->boot(true);
 		if (!empty($core->memcache_obj)) {

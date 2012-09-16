@@ -990,16 +990,6 @@ $classes = array (
       array (
       ),
     ),
-    'CliHelper' => 
-    array (
-      'path' => '/lib/CliHelper.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
     'Converter' => 
     array (
       'path' => '/lib/Converter.class.php',
@@ -1008,6 +998,17 @@ $classes = array (
       ),
       'implements' => 
       array (
+      ),
+    ),
+    'Meta' => 
+    array (
+      'path' => '/lib/Meta.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+        0 => 'Iterator',
       ),
     ),
     'Core' => 
@@ -1511,6 +1512,16 @@ $classes = array (
       array (
       ),
     ),
+    'CliHelper' => 
+    array (
+      'path' => '/lib/CliHelper.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Dir' => 
     array (
       'path' => '/lib/Dir.class.php',
@@ -1776,17 +1787,6 @@ $classes = array (
       array (
       ),
     ),
-    'Meta' => 
-    array (
-      'path' => '/lib/Meta.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-        0 => 'Iterator',
-      ),
-    ),
     'Memcached' => 
     array (
       'path' => '/lib/common.php',
@@ -1830,7 +1830,7 @@ $classes = array (
     ),
     'CLICommand' => 
     array (
-      'path' => '/lib/CLICommand.php',
+      'path' => '/lib/CLICommand.class.php',
       'extends' => 
       array (
         0 => 'Object',

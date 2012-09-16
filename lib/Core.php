@@ -232,13 +232,13 @@ class Core
 		}
 
 		//Include core config
-		require(SITEPATH . "/config/core.php");
+		require SITEPATH . "/config/core.php";
 
 		//Include Object because XhprofProfiler needs it.
-		require(SITEPATH . "/lib/Object.class.php");
+		require_once SITEPATH . "/lib/Object.class.php";
 
 		//Include xhprof profiling class.
-		require(SITEPATH . "/lib/XhprofProfiler.class.php");
+		require SITEPATH . "/lib/XhprofProfiler.class.php";
 
 		// Enable profiler.
 		$this->class_holder[] = new XhprofProfiler($this);
@@ -381,13 +381,13 @@ class Core
 	public static function class_loader($classname) {
 		$classes = self::load_classlist();
 		if (array_key_exists($classname, $classes["classes"])) {
-			require(SITEPATH . $classes["classes"][$classname]['path']);
+			require SITEPATH . $classes["classes"][$classname]['path'];
 		}
 		elseif (array_key_exists($classname, $classes["interfaces"])) {
-			require(SITEPATH . $classes["interfaces"][$classname]['path']);
+			require SITEPATH . $classes["interfaces"][$classname]['path'];
 		}
 		elseif (file_exists($classname . ".php")) {
-			require($classname . ".php");
+			require $classname . ".php";
 		}
 		else {
 			return false;
@@ -476,7 +476,7 @@ class Core
 		if ($install == false) {
 
 			//Init smarty and meta information if we are not in shell mode.
-			if (defined('is_shell')) {
+			if (!defined('is_shell')) {
 				$this->meta = new Meta();
 			}
 
@@ -537,6 +537,12 @@ class Core
 	public function run_cli() {
 		$cmds = array();
 		$classes = Core::get_classlist();
+
+		// Fallback if class not found load it.
+		if (!class_exists('CLICommand')) {
+			require_once SITEPATH . '/lib/CLICommand.class.php';
+		}
+
 		// Search cli commands and setup long options array.
 		$c = 1;
 		foreach ($classes['classes'] AS $class => $v) {
