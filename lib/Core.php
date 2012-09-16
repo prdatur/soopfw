@@ -232,13 +232,13 @@ class Core
 		}
 
 		//Include core config
-		require SITEPATH . "/config/core.php";
+		require_once SITEPATH . "/config/core.php";
 
 		//Include Object because XhprofProfiler needs it.
 		require_once SITEPATH . "/lib/Object.class.php";
 
 		//Include xhprof profiling class.
-		require SITEPATH . "/lib/XhprofProfiler.class.php";
+		require_once SITEPATH . "/lib/XhprofProfiler.class.php";
 
 		// Enable profiler.
 		$this->class_holder[] = new XhprofProfiler($this);
@@ -270,7 +270,7 @@ class Core
 			ini_set('display_errors', 'on');
 			ini_set('html_errors', 'on');
 		}
-		
+
 		if (class_exists('SoopfwErrorHandler')) {
 			set_error_handler(array('SoopfwErrorHandler', 'cc_error_handler'), error_reporting());
 		}
