@@ -51,6 +51,13 @@ class WebAction extends Object
 			$this->core->need_ssl();
 		}
 
+		if ($this->core->cache('core', 'admin_theme')) {
+			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", system::CONFIG_ADMIN_THEME, 'standard') . "/");
+		}
+		else {
+			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", system::CONFIG_DEFAULT_THEME, 'standard') . "/");
+		}
+
 		// Get params from a maybe existing alias for current uri.
 		$alias_params = UrlAliasObj::get_alias_from_uri($override_params);
 		if ($alias_params !== false) {

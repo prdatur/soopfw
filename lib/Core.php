@@ -426,7 +426,7 @@ class Core
 	 *   Whether we're want to install (optional, default = false)
 	 */
 	public function boot($language = '', $install = false) {
-		
+
 		// Setup the default language.
 		if (empty($this->config['core']['default_language'])) {
 			$this->config['core']['default_language'] = 'en';
@@ -965,13 +965,6 @@ class Core
 		$this->smarty = new Smarty();
 		$this->smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$this->smarty->init();
-
-		if ($this->cache('core', 'admin_theme')) {
-			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->get_dbconfig("system", system::CONFIG_ADMIN_THEME, 'standard') . "/");
-		}
-		else {
-			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->get_dbconfig("system", system::CONFIG_DEFAULT_THEME, 'standard') . "/");
-		}
 	}
 
 	/**
