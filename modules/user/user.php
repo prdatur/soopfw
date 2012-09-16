@@ -549,32 +549,25 @@ class user extends ActionModul
 			//Form was not submited so try to load session values
 			$form->set_values($this->session->get("search_user_overview", array()));
 		}
-		$where = array();
+
+		$filter = DatabaseFilter::create(UserObj::TABLE);
+
 		//Build up where statement
 		foreach ($this->session->get("search_user_overview", array()) AS $field => $val) {
 			if (empty($val)) {
 				continue;
 			}
-			$where[] = "`" . Db::sql_escape($field) . "` LIKE '" . $this->db->get_sql_string_search($val, "{v}%") . "'";
+			$filter->add_where($field, $this->db->get_sql_string_search($val, "{v}%"), false);
 		}
-
-		//If where array is not empty add the where.
-		if (!empty($where)) {
-			$where = " WHERE " . implode(" AND ", $where);
-		}
-
-		//Build query string for pager
-		$query_string = "SELECT 1 FROM `" . UserObj::TABLE . "`" . $where;
 
 		//Init pager
-		$pager = new Pager(50, $this->db->query_slave_count($query_string));
+		$pager = new Pager(50, $filter->select_count());
 		$pager->assign_smarty("pager");
 
-		//Build query string
-		$query_string = "SELECT * FROM `" . UserObj::TABLE . "`" . $where;
-
 		//Search in DB
-		$users = $this->db->query_slave_all($query_string, array(), $pager->max_entries_per_page(), $pager->get_offset());
+		$filter->limit($pager->max_entries_per_page());
+		$filter->offset($pager->get_offset());
+		$users = $filter->select_all();
 		foreach ($users AS &$user) {
 			switch ($user['active']) {
 				case 'yes': $user['status_color'] = 'green';
