@@ -57,6 +57,73 @@ $classes = array (
       array (
       ),
     ),
+    'AjaxMenuDeleteMenu' => 
+    array (
+      'path' => '/modules/menu/ajax/delete_menu.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxMenuSaveMenuEntryOrder' => 
+    array (
+      'path' => '/modules/menu/ajax/save_menu_entry_order.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxMenuDeleteMenuEntryTranslation' => 
+    array (
+      'path' => '/modules/menu/ajax/delete_menu_entry_translation.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'MainSystemTest' => 
+    array (
+      'path' => '/modules/system/tests/MainSystemTest.class.php',
+      'extends' => 
+      array (
+        0 => 'UnitTest',
+      ),
+      'implements' => 
+      array (
+        0 => 'UnitTestInterface',
+      ),
+    ),
+    'callable_class' => 
+    array (
+      'path' => '/modules/system/tests/MainSystemTest.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'DefaultWebSystemTest' => 
+    array (
+      'path' => '/modules/system/tests/DefaultWebSystemTest.class.php',
+      'extends' => 
+      array (
+        0 => 'WebUnitTest',
+      ),
+      'implements' => 
+      array (
+        0 => 'UnitTestInterface',
+      ),
+    ),
     'system' => 
     array (
       'path' => '/modules/system/system.php',
@@ -90,9 +157,31 @@ $classes = array (
       array (
       ),
     ),
+    'SystemLogObj' => 
+    array (
+      'path' => '/modules/system/objects/SystemLogObj.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'CoreRightObj' => 
     array (
       'path' => '/modules/system/objects/CoreRightObj.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'CoreModelObjectObj' => 
+    array (
+      'path' => '/modules/system/objects/CoreModelObjectObj.class.php',
       'extends' => 
       array (
         0 => 'AbstractDataManagment',
@@ -178,9 +267,64 @@ $classes = array (
       array (
       ),
     ),
-    'cli_install_module' => 
+    'SystemHelper' => 
     array (
-      'path' => '/modules/system/cli/install_module.php',
+      'path' => '/modules/system/includes/SystemHelper.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemDeleteEmailTemplate' => 
+    array (
+      'path' => '/modules/system/ajax/delete_email_template.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemAjaxDefaultUpload' => 
+    array (
+      'path' => '/modules/system/ajax/AjaxDefaultUpload.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemHelloWorld' => 
+    array (
+      'path' => '/modules/system/ajax/hello_world.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemDisableModule' => 
+    array (
+      'path' => '/modules/system/ajax/disable_module.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_run_tests' => 
+    array (
+      'path' => '/modules/system/cli/run_tests.php',
       'extends' => 
       array (
         0 => 'CLICommand',
@@ -225,6 +369,17 @@ $classes = array (
     'cli_generate_mimetype_list' => 
     array (
       'path' => '/modules/system/cli/generate_mimetype_list.php',
+      'extends' => 
+      array (
+        0 => 'CLICommand',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'cli_cron' => 
+    array (
+      'path' => '/modules/system/cli/cron.php',
       'extends' => 
       array (
         0 => 'CLICommand',
@@ -398,6 +553,50 @@ $classes = array (
       array (
       ),
     ),
+    'AjaxContentCreateContentAddAnotherItem' => 
+    array (
+      'path' => '/modules/content/ajax/create_content_add_another_item.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxContentSaveFieldGroupOrder' => 
+    array (
+      'path' => '/modules/content/ajax/save_field_group_order.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxContentDeleteContentType' => 
+    array (
+      'path' => '/modules/content/ajax/delete_content_type.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxContentDeleteFieldGroup' => 
+    array (
+      'path' => '/modules/content/ajax/delete_field_group.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'TranslationKeysObj' => 
     array (
       'path' => '/modules/translation/objects/TranslationKeysObj.class.php',
@@ -448,6 +647,28 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemBuildLanguages' => 
+    array (
+      'path' => '/modules/translation/ajax/build_languages.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxSystemLanguageChange' => 
+    array (
+      'path' => '/modules/translation/ajax/language_change.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
       ),
       'implements' => 
       array (
@@ -519,6 +740,17 @@ $classes = array (
       array (
       ),
     ),
+    'UserOneTimeActionObj' => 
+    array (
+      'path' => '/modules/user/objects/UserOneTimeActionObj.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'user' => 
     array (
       'path' => '/modules/user/user.php',
@@ -540,6 +772,16 @@ $classes = array (
       array (
       ),
     ),
+    'UserTools' => 
+    array (
+      'path' => '/modules/user/includes/UserTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'DefaultLoginHandler' => 
     array (
       'path' => '/modules/user/includes/DefaultLoginHandler.class.php',
@@ -550,6 +792,127 @@ $classes = array (
       'implements' => 
       array (
         0 => 'LoginHandler',
+      ),
+    ),
+    'AjaxUserGroupDelete' => 
+    array (
+      'path' => '/modules/user/ajax/group_delete.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserGroupSaveRights' => 
+    array (
+      'path' => '/modules/user/ajax/group_save_rights.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserUserDelete' => 
+    array (
+      'path' => '/modules/user/ajax/user_delete.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserPing' => 
+    array (
+      'path' => '/modules/user/ajax/ping.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserUserPermissionGroupChange' => 
+    array (
+      'path' => '/modules/user/ajax/user_permission_group_change.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserUserPermissionChange' => 
+    array (
+      'path' => '/modules/user/ajax/user_permission_change.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserGroupAdd' => 
+    array (
+      'path' => '/modules/user/ajax/group_add.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserUserChangePassword' => 
+    array (
+      'path' => '/modules/user/ajax/user_change_password.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserGroupReadRights' => 
+    array (
+      'path' => '/modules/user/ajax/group_read_rights.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserUserChange' => 
+    array (
+      'path' => '/modules/user/ajax/user_change.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AjaxUserDeleteAddress' => 
+    array (
+      'path' => '/modules/user/ajax/delete_address.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
       ),
     ),
     'cli_hash_password' => 
@@ -574,6 +937,49 @@ $classes = array (
       array (
       ),
     ),
+    'WebUnitTest' => 
+    array (
+      'path' => '/lib/tests/WebUnitTest.class.php',
+      'extends' => 
+      array (
+        0 => 'UnitTest',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'UnitTestLog' => 
+    array (
+      'path' => '/lib/tests/UnitTestLog.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'UnitTest' => 
+    array (
+      'path' => '/lib/tests/UnitTest.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'UnitTestRunner' => 
+    array (
+      'path' => '/lib/tests/UnitTestRunner.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Thread' => 
     array (
       'path' => '/lib/Thread.class.php',
@@ -584,9 +990,19 @@ $classes = array (
       array (
       ),
     ),
-    'Memcached' => 
+    'CliHelper' => 
     array (
-      'path' => '/lib/Core.php',
+      'path' => '/lib/CliHelper.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Converter' => 
+    array (
+      'path' => '/lib/Converter.class.php',
       'extends' => 
       array (
       ),
@@ -631,6 +1047,16 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'DesCrypt' => 
+    array (
+      'path' => '/lib/DesCrypt.class.php',
+      'extends' => 
+      array (
       ),
       'implements' => 
       array (
@@ -1075,6 +1501,16 @@ $classes = array (
       array (
       ),
     ),
+    'StringTools' => 
+    array (
+      'path' => '/lib/StringTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Dir' => 
     array (
       'path' => '/lib/Dir.class.php',
@@ -1112,6 +1548,7 @@ $classes = array (
       'path' => '/lib/database/filter/DatabaseWhereGroup.class.php',
       'extends' => 
       array (
+        0 => 'Object',
       ),
       'implements' => 
       array (
@@ -1162,6 +1599,26 @@ $classes = array (
     'qqUploadedFileForm' => 
     array (
       'path' => '/lib/ajax_upload/qqUploadedFileForm.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FloatTools' => 
+    array (
+      'path' => '/lib/FloatTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SoopfwErrorHandler' => 
+    array (
+      'path' => '/lib/SoopfwErrorHandler.class.php',
       'extends' => 
       array (
       ),
@@ -1276,11 +1733,33 @@ $classes = array (
       array (
       ),
     ),
+    'HttpClient' => 
+    array (
+      'path' => '/lib/net/HttpClient.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'NetTools' => 
+    array (
+      'path' => '/lib/net/NetTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'AjaxModul' => 
     array (
       'path' => '/lib/AjaxModul.class.php',
       'extends' => 
       array (
+        0 => 'Object',
       ),
       'implements' => 
       array (
@@ -1308,11 +1787,42 @@ $classes = array (
         0 => 'Iterator',
       ),
     ),
+    'Memcached' => 
+    array (
+      'path' => '/lib/common.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Download' => 
     array (
       'path' => '/lib/Download.class.php',
       'extends' => 
       array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'ArrayTools' => 
+    array (
+      'path' => '/lib/ArrayTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'XhprofProfiler' => 
+    array (
+      'path' => '/lib/XhprofProfiler.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
       ),
       'implements' => 
       array (
@@ -1343,6 +1853,28 @@ $classes = array (
     'AbstractDataManagment' => 
     array (
       'path' => '/lib/AbstractDataManagment.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'WebAction' => 
+    array (
+      'path' => '/lib/web/WebAction.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'RSSGenerator' => 
+    array (
+      'path' => '/lib/RSSGenerator.class.php',
       'extends' => 
       array (
         0 => 'Object',
@@ -1447,6 +1979,80 @@ $classes = array (
     'stackItem' => 
     array (
       'path' => '/plugins/BBCodeParser.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffReplaceOp' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffReplaceOp.class.php',
+      'extends' => 
+      array (
+        0 => 'FineDiffOp',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffOps' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffOps.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffOp' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffOp.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffInsertOp' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffInsertOp.class.php',
+      'extends' => 
+      array (
+        0 => 'FineDiffOp',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffCopyOp' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffCopyOp.class.php',
+      'extends' => 
+      array (
+        0 => 'FineDiffOp',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiffDeleteOp' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiffDeleteOp.class.php',
+      'extends' => 
+      array (
+        0 => 'FineDiffOp',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FineDiff' => 
+    array (
+      'path' => '/plugins/FineDiff/FineDiff.class.php',
       'extends' => 
       array (
       ),
@@ -3215,6 +3821,13 @@ $classes = array (
   ),
   'interfaces' => 
   array (
+    'UnitTestInterface' => 
+    array (
+      'path' => '/lib/tests/UnitTestInterface.class.php',
+      'extends' => 
+      array (
+      ),
+    ),
     'Widget' => 
     array (
       'path' => '/lib/interfaces/Widget.class.php',
@@ -3231,4 +3844,3 @@ $classes = array (
     ),
   ),
 );
-?>
