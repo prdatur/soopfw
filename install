@@ -107,7 +107,10 @@ class soopfw_install {
 
 		include 'config/core.php';
 
-
+		if (!isset($this->config['db']) || empty($this->config['db']['use'])) {
+			CliHelper::console_log('Soopfw is installed without a database connection, the installation is now finished.', 'ok');
+			return;
+		}
 		if(!empty($this->config['db']['host'])) {
 			$res = @mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
 			if (!isset($this->config['db']['table_prefix'])) {

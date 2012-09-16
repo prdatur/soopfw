@@ -433,7 +433,7 @@ class Core
 		}
 
 		// Try to get a maybe overwritten default language from database.
-		if ($this->config['db']['use'] === true) {
+		if (isset($this->config['db']) && $this->config['db']['use'] === true) {
 			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 		}
 
@@ -854,7 +854,7 @@ class Core
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
 	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false, $serialize = false) {
-		if ($this->config['db']['use'] === false) {
+		if (isset($this->config['db']) && $this->config['db']['use'] === false) {
 			return null;
 		}
 		if ($value === NS) {
