@@ -232,7 +232,7 @@ class Core
 		}
 
 		//Include core config
-		require_once SITEPATH . "/config/core.php";
+		require SITEPATH . "/config/core.php";
 
 		//Include Object because XhprofProfiler needs it.
 		require_once SITEPATH . "/lib/Object.class.php";
@@ -317,7 +317,7 @@ class Core
 	 * Initialize the database.
 	 */
 	public function init_database() {
-		require(SITEPATH . "/lib/database/Db.class.php");
+		require_once SITEPATH . "/lib/database/Db.class.php";
 		//If we want to use a database connection initialize the database object
 		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
 			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database']);
@@ -426,7 +426,7 @@ class Core
 	 *   Whether we're want to install (optional, default = false)
 	 */
 	public function boot($language = '', $install = false) {
-
+		
 		// Setup the default language.
 		if (empty($this->config['core']['default_language'])) {
 			$this->config['core']['default_language'] = 'en';

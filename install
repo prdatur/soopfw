@@ -150,7 +150,7 @@ class soopfw_install {
 	}
 
 	private function install_system() {
-		global $_SESSION;
+		global $_SESSION, $core;
 		$core = Core::get_instance(true);
 		$core->boot('', true);
 		if (!empty($core->memcache_obj)) {
@@ -168,7 +168,7 @@ class soopfw_install {
 		}
 
 		$core = Core::get_instance(true, Core::RUN_MODE_DEVELOPEMENT, true);
-		$core->boot('', true);
+		$core->boot();
 		$system = new system($core);
 		$system->install_module();
 		$system->install_module('user');
