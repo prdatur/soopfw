@@ -58,7 +58,7 @@ abstract class CLICommand extends Object {
         else {
 			//Display all added errors.
             foreach($this->errors AS $array) {
-                console_log($array['message'], $array['type']);
+                CliHelper::console_log($array['message'], $array['type']);
             }
             $this->on_error();
         }

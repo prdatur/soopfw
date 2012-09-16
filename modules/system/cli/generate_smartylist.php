@@ -23,7 +23,7 @@ class cli_generate_smartylist extends CLICommand
 	 */
 	public function execute() {
 		if (!$this->create_smarty_sdi()) {
-			console_log("config/smarty.php is not writeable", 'error');
+			CliHelper::console_log("config/smarty.php is not writeable", 'error');
 		}
 		return true;
 	}
@@ -33,7 +33,7 @@ class cli_generate_smartylist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		console_log('Smartylists generated', 'ok');
+		CliHelper::console_log('Smartylists generated', 'ok');
 	}
 
 	/**

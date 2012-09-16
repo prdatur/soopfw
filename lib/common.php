@@ -87,19 +87,6 @@ define("PDT_LANGUAGE_ENABLED", $i++, true);
 define("PDT_SERIALIZED", $i++, true);
 
 /**
- * Helper function if we are not within console mode but want to call it
- * This is always be an error but it can help to save performance
- * because we need no if.
- */
-if (!function_exists('console_log')) {
-
-	function console_log($message, $type = 'notice') {
-		return $message;
-	}
-
-}
-
-/**
  * Translate the given key, which should be always the english part of the translation.
  *
  * @param string $key

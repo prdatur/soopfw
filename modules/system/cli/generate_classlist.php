@@ -33,7 +33,7 @@ class cli_generate_classlist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		console_log('Classlists generated', 'ok');
+		CliHelper::console_log('Classlists generated', 'ok');
 	}
 
 	/**

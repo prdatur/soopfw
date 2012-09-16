@@ -17,7 +17,7 @@ class soopfw_install {
 	private $config;
 
 	public function __construct() {
-		consoleLog('Soopfw installation script.', 'plain');
+		CliHelper::console_log('Soopfw installation script.', 'plain');
 
 		if(!CliHelper::get_boolean_input("Do you really want to install soopfw?", true)) {
 			exit;
@@ -34,74 +34,74 @@ class soopfw_install {
 	 * Checks if the base is setup correctly (write permissions ...)
 	 */
 	private function main_check() {
-		consoleLog('Main check', 'plain');
+		CliHelper::console_log('Main check', 'plain');
 
 		$this->check_writeable('uploads');
 		$this->check_writeable('templates_c');
 
 		if(!file_exists('config/core.php')) {
-			consoleLog('Could not find main configuration file, try to get it', 'info');
+			CliHelper::console_log('Could not find main configuration file, try to get it', 'info');
 			if(!file_exists('config/core.php.default')) {
-				consoleLog('Could not find default configuration file, aborting...', 'error');
+				CliHelper::console_log('Could not find default configuration file, aborting...', 'error');
 				exit;
 			}
 			$this->check_writeable('config');
 			if(copy('config/core.php.default', 'config/core.php')) {
-				consoleLog('Recovered config/core.php', 'ok');
+				CliHelper::console_log('Recovered config/core.php', 'ok');
 			}
 		}
 		else {
-			consoleLog('config/core.php exists', 'ok');
+			CliHelper::console_log('config/core.php exists', 'ok');
 		}
 
 		if(!file_exists('config/classes.php')) {
-			consoleLog('Could not find classes, try to get it', 'info');
+			CliHelper::console_log('Could not find classes, try to get it', 'info');
 			if(!file_exists('config/classes.php.default')) {
-				consoleLog('Could not find default classes, aborting...', 'error');
+				CliHelper::console_log('Could not find default classes, aborting...', 'error');
 				exit;
 			}
 			$this->check_writeable('config');
 			if(copy('config/classes.php.default', 'config/classes.php')) {
-				consoleLog('Recovered config/classes.php', 'ok');
+				CliHelper::console_log('Recovered config/classes.php', 'ok');
 			}
 		}
 		else {
-			consoleLog('config/classes.php exists', 'ok');
+			CliHelper::console_log('config/classes.php exists', 'ok');
 		}
 
 		if(!file_exists('config/smarty.php')) {
-			consoleLog('Could not find smarty secure directory configuration file, try to get it', 'info');
+			CliHelper::console_log('Could not find smarty secure directory configuration file, try to get it', 'info');
 			if(!file_exists('config/smarty.php.default')) {
-				consoleLog('Could not find default smarty secure directory configuration file, aborting...', 'error');
+				CliHelper::console_log('Could not find default smarty secure directory configuration file, aborting...', 'error');
 				exit;
 			}
 			$this->check_writeable('config');
 			if(copy('config/smarty.php.default', 'config/smarty.php')) {
-				consoleLog('Recovered config/smarty.php', 'ok');
+				CliHelper::console_log('Recovered config/smarty.php', 'ok');
 			}
 		}
 		else {
-			consoleLog('config/smarty.php exists', 'ok');
+			CliHelper::console_log('config/smarty.php exists', 'ok');
 		}
 
 		if(!file_exists('config/mime_types.php')) {
-			consoleLog('Could not find mime type list, try to get it', 'info');
+			CliHelper::console_log('Could not find mime type list, try to get it', 'info');
 			if(!file_exists('config/mime_types.php.default')) {
-				consoleLog('Could not find default mime type list, aborting...', 'error');
+				CliHelper::console_log('Could not find default mime type list, aborting...', 'error');
 				exit;
 			}
 			$this->check_writeable('config');
 			if(copy('config/mime_types.php.default', 'config/mime_types.php')) {
-				consoleLog('Recovered config/mime_types.php', 'ok');
+				CliHelper::console_log('Recovered config/mime_types.php', 'ok');
 			}
 		}
 		else {
-			consoleLog('config/mime_types.php exists', 'ok');
+			CliHelper::console_log('config/mime_types.php exists', 'ok');
 		}
 	}
 
 	private function main_configuration() {
-		consoleLog('Main configuration', 'plain');
+		CliHelper::console_log('Main configuration', 'plain');
 
 		include 'config/core.php';
 
@@ -115,14 +115,14 @@ class soopfw_install {
 				$sql = "SELECT value FROM `" . mysql_real_escape_string($this->config['db']['table_prefix']) . "core_modul_config` WHERE modul='system' AND `key`='installed'";
 				$r = @mysql_fetch_assoc(mysql_query($sql));
 				if(!empty($r) && $r['value'] == '1') {
-					consoleLog('Soopfw is already installed, can not install it twice.', 'error');
+					CliHelper::console_log('Soopfw is already installed, can not install it twice.', 'error');
 					exit;
 				}
 			}
 		}
 
 		foreach($this->config AS $section => &$section_values) {
-			consoleLog('	Section:' . $section, 'plain');
+			CliHelper::console_log('	Section:' . $section, 'plain');
 			foreach ($section_values AS $k => $default) {
 				$section_values[$k] = CliHelper::get_string_input('		'.$k.':', $default);
 			}
@@ -131,19 +131,19 @@ class soopfw_install {
 		if($this->config['db']['use'] == '1') {
 			$res = mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
 			if(empty($res)) {
-				consoleLog('Database connection could not be established, please try again.', 'error');
+				CliHelper::console_log('Database connection could not be established, please try again.', 'error');
 				$this->main_configuration();
 				return;
 			}
 			else if(!mysql_select_db($this->config['db']['database'], $res)) {
-				consoleLog('Database could not be selected, please try again.', 'error');
+				CliHelper::console_log('Database could not be selected, please try again.', 'error');
 				$this->main_configuration();
 				return;
 			}
 		}
 
 		if(file_put_contents('config/core.php', "<?php\n\n \$this->config = " . var_export($this->config, true) . ';')) {
-			consoleLog('Configuration saved', 'ok');
+			CliHelper::console_log('Configuration saved', 'ok');
 			$this->install_system();
 		}
 	}
@@ -175,7 +175,7 @@ class soopfw_install {
 
 		foreach($_SESSION['message'] AS $type => $messages) {
 			foreach($messages AS $message) {
-				consoleLog($message, $type);
+				CliHelper::console_log($message, $type);
 			}
 		}
 
@@ -185,7 +185,7 @@ class soopfw_install {
 		$password2 = CliHelper::get_silent_string_input('Please re-type the choosen password: ', '');
 
 		while($password != $password2) {
-			consoleLog('You misstyped the two passwords, both must be equals...please try again', 'plain');
+			CliHelper::console_log('You misstyped the two passwords, both must be equals...please try again', 'plain');
 			$password = CliHelper::get_silent_string_input('Please choose a password: ', '');
 			$password2 = CliHelper::get_silent_string_input('Please re-type the choosen password: ', '');
 		}
@@ -211,7 +211,7 @@ class soopfw_install {
 
 		$core->dbconfig("system", "installed", "1");
 
-		consoleLog('Soopfw is now installed. You can no navigate to http://' . $this->config['core']['domain'] . '/user/login', 'ok');
+		CliHelper::console_log('Soopfw is now installed. You can no navigate to http://' . $this->config['core']['domain'] . '/user/login', 'ok');
 	}
 
 	private function check_writeable($dir) {
@@ -219,7 +219,7 @@ class soopfw_install {
 		if(!is_dir($dir) || !is_readable($dir) || !is_writable($dir) || !is_executable($dir)) {
 			$type = 'error';
 		}
-		if(!consoleLog('Directory writeable: ' . $dir, $type)) {
+		if(!CliHelper::console_log('Directory writeable: ' . $dir, $type)) {
 			echo "\n";
 			exit;
 		}

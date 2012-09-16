@@ -25,7 +25,7 @@ class cli_hash_password extends CLICommand
 	 */
 	public function execute() {
 		$hash_check = new PasswordHash();
-		console_log('Hash: ' . $hash_check->hash_password(CliHelper::get_string_input('Plaintext:')));
+		CliHelper::console_log('Hash: ' . $hash_check->hash_password(CliHelper::get_string_input('Plaintext:')));
 		return true;
 	}
 

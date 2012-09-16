@@ -66,17 +66,17 @@ class cli_run_tests extends CLICommand
 			$tester = new UnitTestRunner();
 			$logs = $tester->run_tests($test);
 
-			console_log(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
-			console_log(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			CliHelper::console_log(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			CliHelper::console_log(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
 			if ($tester->failed_tests > 0) {
-				console_log(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
+				CliHelper::console_log(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
 			}
 
 			foreach ($logs AS $entry) {
 				/* @var $entry UnitTestLog */
 				if ($entry->passed !== true) {
-					console_log($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
-					console_log($entry->message, Core::MESSAGE_TYPE_ERROR);
+					CliHelper::console_log($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
+					CliHelper::console_log($entry->message, Core::MESSAGE_TYPE_ERROR);
 				}
 			}
 		}
@@ -89,7 +89,7 @@ class cli_run_tests extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		console_log('Test complete', 'ok');
+		CliHelper::console_log('Test complete', 'ok');
 	}
 
 }

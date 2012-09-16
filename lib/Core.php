@@ -1363,7 +1363,7 @@ class Core
 			$_SESSION['message'][$type][] = $msg;
 		}
 		else {
-			console_log($msg, $type);
+			CliHelper::console_log($msg, $type);
 		}
 	}
 

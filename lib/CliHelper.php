@@ -12,6 +12,105 @@ class CliHelper
 {
 
 	/**
+	 * Display the log message
+	 *
+	 * By default, only warnings and errors will be displayed, if 'verbose' is specified, it will also display notices.
+	 *
+	 * @param string $message
+	 * @param string $type
+	 * @return
+	 *   False in case of an error or failed type, True in all other cases.
+	 */
+	public static function console_log($message, $type='notice') {
+		$red = "\033[31;40m\033[1m[%s]\033[0m";
+		$yellow = "\033[1;33;40m\033[1m[%s]\033[0m";
+		$green = "\033[1;32;40m\033[1m[%s]\033[0m";
+
+		$verbose = true;
+
+		$return = TRUE;
+		switch ($type) {
+			case 'plain':
+				$type_msg = "";
+				break;
+			case 'warning' :
+			case 'cancel' :
+				$type_msg = sprintf($yellow, $type);
+				break;
+			case Core::MESSAGE_TYPE_ERROR:
+			case 'failed' :
+				$type_msg = sprintf($red, $type);
+				$return = FALSE;
+				break;
+			case Core::MESSAGE_TYPE_SUCCESS:
+			case 'ok' :
+			case 'completed' :
+			case 'status':
+				$type_msg = sprintf($green, $type);
+				break;
+			case Core::MESSAGE_TYPE_NOTICE:
+			case 'notice' :
+			case 'message' :
+			case 'info' :
+				if (!$verbose) {
+					// print nothing. exit cleanly.
+					return TRUE;
+				}
+				$type_msg = sprintf($yellow, $type);
+				break;
+			default :
+				return TRUE;
+				break;
+		}
+
+		$columns = 120;
+
+		$width[1] = 11;
+
+		$width[0] = ($columns - 11);
+
+		$format = sprintf("%%-%ds%%%ds", $width[0], $width[1]);
+
+		if (!is_scalar($message)) {
+			$message = print_r($message, true);
+		}
+		// Place the status message right aligned with the top line of the error message.
+		$message = wordwrap(rtrim($message), $width[0]);
+		$lines = explode("\n", $message);
+		$lines[0] = sprintf($format, $lines[0], $type_msg);
+		$message = implode("\n", $lines) . "\n";
+
+		// try to log to file
+		if (defined('console_log_file')) {
+			if (!is_file(console_log_file)) {
+				$touch_status = @touch(console_log_file);
+				if (!$touch_status) {
+					trigger_error('Can not create file for loggin: ' . console_log_file, E_USER_ERROR);
+				}
+				elseif (!is_writable(console_log_file)) {
+					trigger_error('Loggin file isn ot writeable: ' . console_log_file, E_USER_ERROR);
+				}
+				else {
+					file_put_contents(console_log_file, $message, FILE_APPEND);
+				}
+			}
+		}
+
+		// if we run on cli, echo
+		if (empty($_SERVER['HTTP_HOST'])) {
+			$handle = STDERR;
+			if (isset($handle)) {
+				fwrite($handle, $message);
+			}
+			else {
+				print $message;
+			}
+		}
+
+		return $return;
+	}
+
+	/**
 	 * Reads a string from the command line.
 	 *
 	 * @param string $question
