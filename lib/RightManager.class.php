@@ -33,7 +33,8 @@ class RightManager extends Object
  	public function __construct(Core &$core = null) {
 		parent::__construct($core);
 
-		if ($core->config['db']['use'] === true) {
+		$db_use = $this->core->core_config('db', 'use');
+		if (!empty($db_use)) {
 			foreach ($this->db->query_slave_all("SELECT `right`, `description` FROM `" . CoreRightObj::TABLE . "` ORDER BY `right`") AS $right) {
 				$this->all_string_rights[$right['right']] = $right['description'];
 			}
