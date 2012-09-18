@@ -32,7 +32,7 @@ class AjaxContentDeleteFieldGroup extends AjaxModul {
 
 		$obj = new ContentTypeFieldGroupObj($params->id);
 		if (!$obj->load_success()) {
-			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true, 'no such field');
+			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER, null, true, 'no such field');
 		}
 
 		//Delete the application

@@ -32,7 +32,7 @@ class AjaxContentDeleteContentType extends AjaxModul {
 
 		$content_type_obj = new ContentTypeObj($params->content_type);
 		if (!$content_type_obj->load_success()) {
-			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true, 'no such content type');
+			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER, null, true, 'no such content type');
 		}
 
 		//Delete the application
