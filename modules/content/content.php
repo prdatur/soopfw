@@ -1044,8 +1044,8 @@ class content extends ActionModul {
 		if ($obj_form->check_form()) {
 
 			//If we are within insert mode, check if the entry already exists, if yes display the error
-			if(empty($content_type)) {
-				$obj_test = new ContentTypeObj($obj_form->get_value("id"));
+			if(empty($field_group_id)) {
+				$obj_test = new ContentTypeFieldGroupObj($obj_form->get_value("id"));
 				if($obj_test->load_success()) {
 					return $this->core->message(t("Could not insert field, field already exists"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
 				}
