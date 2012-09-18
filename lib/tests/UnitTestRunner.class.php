@@ -69,6 +69,9 @@ class UnitTestRunner extends Object {
 			$this->original_table_prefix = $this->db->table_prefix();
 			$this->db->table_prefix('tests_' . $this->original_table_prefix);
 		}
+		if (!empty($this->core->memcache_obj)) {
+			$this->core->memcache_obj->flush();
+		}
 
 	}
 
@@ -129,10 +132,10 @@ class UnitTestRunner extends Object {
 					$available_testes[] = $method->name;
 				}
 			}
-
+			$this->core->message(t('Running test: @test (@count test/s)', array('@test' => $test_classname, '@count' => count($available_testes))), Core::MESSAGE_TYPE_NOTICE);
 			// Run all wanted tests.
 			foreach ($available_testes AS $test_method) {
-
+				$this->core->message(t('Checking : @test', array('@test' => $test_method)), Core::MESSAGE_TYPE_NOTICE);
 				// Run the test.
 				$return = $test_class->$test_method();
 
