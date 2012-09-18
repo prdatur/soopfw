@@ -314,6 +314,7 @@ abstract class AbstractDataManagment extends Object
 	public function set_fields_bulk(Array $field_array) {
 		$this->values = $field_array;
 		$this->values_changed = array();
+		$this->load_success = true;
 	}
 
 	/**
@@ -839,7 +840,7 @@ abstract class AbstractDataManagment extends Object
 		if ($table === NS || $table === null) {
 			$table = $this->db_struct->get_table();
 		}
-		
+
 		if ($values === NS || $values === null) {
 			$values = array();
 			foreach ($this->values AS $field => &$v) {
