@@ -140,7 +140,7 @@ class HttpClient extends Object {
 
 			$url .= http_build_query($args);
 		}
-		return $this->execute($url, null, $use_ssl);
+		return $this->execute($url, $null = null, $use_ssl);
 	}
 
 	/**
@@ -185,9 +185,9 @@ class HttpClient extends Object {
 	 *
 	 * @return string the body content
 	 */
-	protected function execute($url, $ch = null, $use_ssl = false) {
+	protected function execute($url, &$ch = null, $use_ssl = false) {
 
-		if ($use_ssl === true) {
+		if (!empty($use_ssl) && $this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
 			$url = preg_replace('/^http:\/\//', 'https://', $url);
 		}
 
