@@ -36,10 +36,24 @@ class WebUnitTest extends UnitTest {
 	 */
 	private $client_session_id = "";
 
+	/**
+	 * This holds the current user.
+	 *
+	 * @var UserObj
+	 */
+	protected $current_user = null;
+
+	/**
+	 * Holds the last csrf token.
+	 *
+	 * @var string
+	 */
+	protected $csrf_token = '';
+
 	public function __construct(&$core = null) {
 		parent::__construct($core);
 
-		$this->base_domain = 'http://' . $this->core->core_config('core', 'domain');
+		$this->base_domain = 'http://' . $this->core->core_config('core', 'domain') . '/en';
 
 		$this->client = new HttpClient();
 		$this->client->do_get($this->base_domain . '/');
@@ -56,6 +70,29 @@ class WebUnitTest extends UnitTest {
 		// Remove test created file to identify this connection as a test envoirement.
 		if (!empty($this->client_session_id) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id)) {
 			@unlink(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id);
+		}
+	}
+
+	public function login($username) {
+		if (!empty($this->current_user)) {
+			$this->do_get('/user/logout');
+		}
+
+		$accounts = $this->core->cache('tests', 'user_accounts');
+		if (!$this->assert_true(isset($accounts[$username]), t('Username: @username does not exist.', array('@username' => $username)))) {
+			return;
+		}
+
+		$this->do_get('/user/login.html');
+		if ($this->assert_true((preg_match("/type=\"submit\"\s+value=\"([^\"]+)\"\s+name=\"soopfw_login\"/", $this->content, $matches) == 1), t('Validate user login form'))) {
+			$this->do_post('/user/login.html', array(
+				'soopfw_login' => $matches[1],
+				'user' => $username,
+				'pass' => $accounts[$username]['password'],
+			), true);
+
+			$this->assert_web_regexp('/<a[^>]+href\s*=\s*"[^"]*' . $accounts[$username]['user_id'] . '"[^>]+>My account<\/a>/', t('Check valid login'));
+			$this->current_user = new UserObj($accounts[$username]['user_id']);
 		}
 	}
 
@@ -82,17 +119,25 @@ class WebUnitTest extends UnitTest {
 			$url = '/' . $url;
 		}
 
+		if ($use_ssl == false) {
+			$use_ssl = preg_match('/^\/admin\//', $url);
+		}
+
 		if ($full_path === false) {
 			$url = $this->base_domain . $url;
 		}
 
 		$this->content = $this->client->do_get($url, $args, $use_ssl);
+		if (preg_match('/<\s*input\s*type\s*=\s*"\s*hidden\s*"\s*class\s*=\s*"[^"]*inputs[^"]*"\s*name\s*=\s*"[^"]*_submit"\s*value\s*=\s*"(.+)"\s*id\s*=\s*"[^"]+_submit"\s*\/\s*>/', $this->content, $matches)) {
+			$this->csrf_token = $matches[1];
+		}
 		$this->assert_default_web_request($url, $args);
 		return $this->content;
 	}
 
 	/**
-	 * Do a POST and store the content within the current content variable.
+	 * Do a Ajax-GET and store the content within the current content variable.
+	 * The returning content will be checked for valid json.
 	 *
 	 * @param string $url
 	 *   the url.
@@ -109,9 +154,44 @@ class WebUnitTest extends UnitTest {
 	 *
 	 * @return string the body content.
 	 */
+	public function do_ajax_get($url, $args = array(), $use_ssl = false, $full_path = false) {
+		$this->do_get($url, $args, $use_ssl, $full_path);
+		$json = json_decode($this->content, true);
+		if ($this->assert_true(!empty($json), t('Ajax get "@url" did not returned valid json, return was\n @return', array(
+			'@url' => $url,
+			'@return' => $this->content,
+		)))) {
+			$this->content = $json;
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Do a POST and store the content within the current content variable.
+	 *
+	 * @param string $url
+	 *   the url.
+	 * @param array $args
+	 *   The POST arguments (optional, default = array())
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
+	 * @param boolean $full_path
+	 *   If set to true the provided url will be direct executed,
+	 *   else it will prepend the base_domain
+	 *   which is http://{domain} (optional, default = false)
+	 *
+	 * @return string the body content.
+	 */
 	public function do_post($url, $args = array(), $use_ssl = false, $full_path = false) {
 		if ($full_path === false && !empty($url) && $url{0} !== '/') {
 			$url = '/' . $url;
+		}
+
+		if ($use_ssl == false) {
+			$use_ssl = preg_match('/^\/admin\//', $url);
 		}
 
 		if ($full_path === false) {
@@ -119,8 +199,43 @@ class WebUnitTest extends UnitTest {
 		}
 
 		$this->content = $this->client->do_post($url, $args, $use_ssl);
+		if (preg_match('/<\s*input\s*type\s*=\s*"\s*hidden\s*"\s*class\s*=\s*"[^"]*inputs[^"]*"\s*name\s*=\s*"[^"]*_submit"\s*value\s*=\s*"(.+)"\s*id\s*=\s*"[^"]+_submit"\s*\/\s*>/', $this->content, $matches)) {
+			$this->csrf_token = $matches[1];
+		}
 		$this->assert_default_web_request($url, $args);
 		return $this->content;
+	}
+
+	/**
+	 * Do a Ajax-POST and store the content within the current content variable.
+	 * The returning content will be checked for valid json.
+	 *
+	 * @param string $url
+	 *   the url.
+	 * @param array $args
+	 *   The POST arguments (optional, default = array())
+	 * @param boolean $use_ssl
+	 *   Set to true to force ssl
+	 *   this will replace http to https if set to true
+	 *   (optional, default = false)
+	 * @param boolean $full_path
+	 *   If set to true the provided url will be direct executed,
+	 *   else it will prepend the base_domain
+	 *   which is http://{domain} (optional, default = false)
+	 *
+	 * @return string the body content.
+	 */
+	public function do_ajax_post($url, $args = array(), $use_ssl = false, $full_path = false) {
+		$this->do_post($url, $args, $use_ssl, $full_path);
+		$json = json_decode($this->content, true);
+		if ($this->assert_true(!empty($json), t('Ajax post "@url" did not returned valid json, return was\n@return', array(
+			'@url' => $url,
+			'@return' => $this->content,
+		)))) {
+			$this->content = $json;
+			return true;
+		}
+		return false;
 	}
 
 	/**
