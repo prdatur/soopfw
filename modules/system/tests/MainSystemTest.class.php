@@ -730,6 +730,12 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 
 
 		$this->db->transaction_commit();
+
+		$accounts[$user_obj->username] = array(
+			'password' => 'admin',
+			'user_id' => $user_obj->user_id,
+		);
+		$this->core->cache('tests', 'user_accounts', $accounts);
 		return true;
 	}
 
