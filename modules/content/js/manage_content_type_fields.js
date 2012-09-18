@@ -57,7 +57,7 @@ function enable_clicks() {
 		if(params[0] != undefined) {
 			params = params[0];
 			params['content_type'] = Soopfw.config.content_type;
-			ajax_success("/content/save_field_group_order.ajax", params, Soopfw.t("New field order saved successfully"), Soopfw.t("success"), function() {
+			ajax_success("/admin/content/save_field_group_order.ajax", params, Soopfw.t("New field order saved successfully"), Soopfw.t("success"), function() {
 				$("#new_order").find(".sortorder_changed").remove();
 				$('#draggable_warning').hide();
 			});
@@ -78,7 +78,7 @@ function enable_clicks() {
 	$(".dmyDelete").click(function() {
 		var id = $(this).attr("id");
 		confirm(Soopfw.t("Do you really want to delete this menu entry"), Soopfw.t("delete?"), function() {
-			ajax_success("/content/delete_field_group.ajax", {id: id}, Soopfw.t("field group deleted"), Soopfw.t("Success"), function() {
+			ajax_success("/admin/content/delete_field_group.ajax", {id: id}, Soopfw.t("field group deleted"), Soopfw.t("Success"), function() {
 				entry_changed();
 			});
 		})
