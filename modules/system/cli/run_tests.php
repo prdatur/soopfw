@@ -28,14 +28,24 @@ class cli_run_tests extends CLICommand
 		$cmds = array();
 
 		$classes = Core::get_classlist();
-		
+
 		//Search cli commands and setup long options array
 		$c = 1;
 		foreach ($classes['classes'] AS $class => $v) {
 			if (in_array('UnitTestInterface', $v['implements'])) {
+				if (preg_match('/^\/modules\/([^\/]+)\//', $v['path'], $matches)) {
+
+					// Skip module if not enabled.
+					if (!$this->core->module_enabled($matches[1])) {
+						continue;
+					}
+				}
 				$cmds[$c++] = $class;
 			}
+
 		}
+
+
 
 		//Display help information if no argument supplied
 		if (!isset($argv[2])) {
