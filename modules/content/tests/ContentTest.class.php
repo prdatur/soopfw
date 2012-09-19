@@ -113,6 +113,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 
 		$this->assert_web_regexp('/"' . preg_quote($content_type, '/') . '" fields/',t('Check valid content type field manage page'));
 		$this->assert_web_regexp('/>add new field</',t('Check valid add content type field button'));
+		$this->assert_web_regexp('/>save new order</',t('Check if save new order button is found'));
 
 		$this->do_get('/admin/content/change_content_type_field/' . $content_type . '.ajax_html');
 		$this->assert_web_regexp('/form_id_form_content_types_field_groups_add/', t('Find content type field add form'));
@@ -300,6 +301,32 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 
 		$this->assert_equals(405, $this->content['code'], t('Check if content type field was already deleted by content type deletion'));
 		$this->assert_equals('no such field', $this->content['desc'], t('Check if not existing field was not deleted (on description)'));
+	}
+
+	/**
+	 * Check if config form is correct.
+	 */
+	public function check_config() {
+
+		$this->do_get('/admin/content/config');
+
+		if ($this->core->module_enabled('solr')) {
+			$this->assert_web_regexp('/form_id_content_config_solr_server/i', t('Check if solr config was found if solr module is enabled'));
+			$this->assert_web_regexp('/Content:\s*webtest_content_type/i', t('Check if content type checkbox is found'));
+
+			$this->do_post('/admin/content/config', array(
+				'solr_index_types[webtest_content_type]' => 'webtest_content_type',
+				'saveconfig' => 'Save Config',
+				'content_config_submit' => $this->csrf_token,
+			));
+			$this->assert_web_regexp('/Configuration saved/i', t('Check if config was saved'));
+			$this->do_get('/admin/content/config');
+			$this->assert_web_regexp('/name\s*=\s*"solr_index_types\[webtest_content_type\]"[^>]*checked\s*=\s*"checked"/i', t('Check if config was really saved'));
+		}
+		else {
+			$this->assert_web_not_regexp('/form_id_content_config_solr_server/i', t('Check if solr config was not found if solr module is not enabled'));
+		}
+
 	}
 }
 
