@@ -354,7 +354,6 @@ class WebAction extends Object
 		$this->core->assign_menus();
 		$this->core->smarty_assign_default_vars();
 		$this->core->smarty->display($this->core->template);
-		display_xhprof_run();
 		die();
 	}
 
