@@ -7,7 +7,7 @@
  * @package modules.system.ajax
  * @category Module.System
  */
-class AjaxSystemLanguageChange extends AjaxModul {
+class AjaxTranslationLanguageChange extends AjaxModul {
 
 	/**
 	 * This function will be executed after ajax file initializing
