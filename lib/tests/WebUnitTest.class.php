@@ -316,4 +316,33 @@ class WebUnitTest extends UnitTest {
 		return $this->assert_not_regexp($this->content, $pattern, $description, $message);
 	}
 
+	/**
+	 * Check if ajax returned a valid success return code.
+	 *
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_ajax_success($description, $message = "") {
+		if (empty($message)) {
+			if (isset($this->content['code'])) {
+				$message = t('Returning ajax code is not valid, code was: icode (message: @desc)', array(
+					'icode' => $this->content['code'],
+					'@desc' => (!empty($this->content['desc'])) ? $this->content['desc'] : t('none'),
+				));
+			}
+			else {
+				$message = t('Return code not found, maybe invalid json.');
+			}
+		}
+
+		$test = (isset($this->content['code']) && $this->content['code'] >= 200 && $this->content['code'] <= 299);
+		$this->add_log('assert_ajax_valid_return', $description, $message, $test);
+		return $test;
+	}
+
 }
