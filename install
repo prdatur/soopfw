@@ -129,7 +129,9 @@ class soopfw_install {
 			}
 		}
 
-		if($this->config['db']['use'] == '1') {
+		$this->config['db']['use'] = !empty($this->config['db']['use']);
+
+		if($this->config['db']['use'] === true) {
 			$res = @mysql_connect($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass']);
 			if(empty($res)) {
 				CliHelper::console_log('Database connection could not be established, please try again.', 'error');
@@ -162,7 +164,7 @@ class soopfw_install {
 		$obj = new cli_generate_smartylist($core);
 		$obj->start();
 
-		if($this->config['db']['use'] != '1') {
+		if($this->config['db']['use'] !== true) {
 			CliHelper::console_log('Soopfw is now installed without a database connection.', 'ok');
 			return;
 		}

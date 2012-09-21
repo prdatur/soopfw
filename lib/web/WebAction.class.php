@@ -38,8 +38,11 @@ class WebAction extends Object
 	private function setup_params() {
 		// Parse our request uri
 		$override_params = UrlAliasObj::parse_url_string();
-		$language = $override_params['language'];
-		unset($override_params['language']);
+		$language = '';
+		if (!empty($override_params['language'])) {
+			$language = $override_params['language'];
+			unset($override_params['language']);
+		}
 
 		// Now we have the required language which is needed to boot up the core.
 		// So we do it.

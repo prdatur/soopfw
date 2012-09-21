@@ -234,6 +234,12 @@ class Core
 		//Include core config
 		require SITEPATH . "/config/core.php";
 
+		if (!isset($this->config['db']['use'])) {
+			$this->config['db']['use'] = false;
+		}
+
+		$this->config['db']['use'] = !empty($this->config['db']['use']);
+
 		//Include Object because XhprofProfiler needs it.
 		require_once SITEPATH . "/lib/Object.class.php";
 
@@ -252,7 +258,7 @@ class Core
 		// Init the classloader.
 		spl_autoload_register(array('Core', 'class_loader'));
 
-		if (isset($this->config['db']['use']) && $this->config['db']['use'] === true) {
+		if ($this->config['db']['use'] === true) {
 			$this->run_mode = $this->get_dbconfig("system", system::CONFIG_RUN_MODE, $run_mode);
 
 		}
@@ -319,7 +325,7 @@ class Core
 	public function init_database() {
 		require_once SITEPATH . "/lib/database/Db.class.php";
 		//If we want to use a database connection initialize the database object
-		if (isset($this->config['db']['use']) && $this->config['db']['use'] == true) {
+		if ($this->config['db']['use'] == true) {
 			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database']);
 
 			// Set the table prefix if configured.
@@ -433,7 +439,7 @@ class Core
 		}
 
 		// Try to get a maybe overwritten default language from database.
-		if (isset($this->config['db']) && $this->config['db']['use'] === true) {
+		if ($this->config['db']['use'] === true) {
 			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 		}
 
@@ -851,7 +857,7 @@ class Core
 	 * 		- returns boolean true or false if the insert / update process within the database succeed or not
 	 */
 	public function dbconfig($modul, $key = NS, $value = NS, $use_cache = false, $strict_array = false, $serialize = false) {
-		if (isset($this->config['db']) && $this->config['db']['use'] === false) {
+		if ($this->config['db']['use'] === false) {
 			return null;
 		}
 		if ($value === NS) {
