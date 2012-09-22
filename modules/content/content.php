@@ -700,19 +700,25 @@ class content extends ActionModul {
 	public function edit($page_id, $revision = '') {
 
 
-		$this->title(t("change content"), t('Please fill out all required fields to create this content page'));
+		$this->title(t("change content"), t('Please fill out all required fields to create this content page.
+Current language: [b]@language[/b]', array(
+			'@language' => $this->core->current_language
+		)));
 
 		$page = new PageObj($page_id);
 		if(!$page->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			return $this->wrong_params(t("No such page or wrong language"));
 		}
 
-		$page_revision = new PageRevisionObj($page_id, '', $revision);
+		$page_revision = new PageRevisionObj($page_id, $this->core->current_language, $revision);
 		if(!$page_revision->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			return $this->wrong_params(t("No such page / wrong language"));
 		}
 
-		$this->title(t("change content: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page'));
+		$this->title(t("change content: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page.
+Current language: [b]@language[/b]', array(
+			'@language' => $this->core->current_language
+		)));
 
 
 		$values = array_merge($page->get_values(true), $page_revision->get_values(true));
@@ -729,7 +735,10 @@ class content extends ActionModul {
 	 * @param string $content_type the content type (optional, default = '')
 	 */
 	public function create($content_type = "") {
-		$this->title(t("create content: @content_type", array("@content_type" => $content_type)), t('Please fill out all required fields to create this content page'));
+		$this->title(t("create content: @content_type", array("@content_type" => $content_type)), t('Please fill out all required fields to create this content page.
+Current language: [b]@language[/b]', array(
+			'@language' => $this->core->current_language
+		)));
 
 		if(!empty($content_type)) {
 			$this->change_content($content_type);
@@ -1243,7 +1252,7 @@ class content extends ActionModul {
 			$field_object = new $field_group['field_group']($fill_values);
 
 			$field_object->set_label($field_group['name']);
-			$field_object->set_prefix($field_group['id'], '', ($field_group['max_value'] == 1) ? true : false);
+			$field_object->set_prefix($field_group['id'], '0', ($field_group['max_value'] == 1) ? true : false);
 			$field_object->set_max_value($field_group['max_value']);
 			$field_object->set_required($field_group['required']);
 			$field_object->add_element_to_form($form);
@@ -1313,7 +1322,6 @@ class content extends ActionModul {
 			$alias = "";
 
 			$values = $form->get_array_values(true);
-			print_r($values);die();
 
 			$title = $values['title'];
 			$new_menu_title = $values['menu_title'];

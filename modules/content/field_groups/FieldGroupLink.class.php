@@ -24,7 +24,7 @@ class FieldGroupLink extends AbstractFieldGroup
 	public function get_template(Array &$elements = null) {
 
 
-		if($elements == null) {
+		if ($elements == null) {
 			$text_input = $this->get_field('text');
 			$link_input = $this->get_field('link');
 		}
@@ -33,25 +33,25 @@ class FieldGroupLink extends AbstractFieldGroup
 			$link_input = &$elements['link'];
 		}
 
-		if($this->max_value == 1) {
+		if ($this->max_value == 1) {
 
 			$required_string = '';
-			if($this->required == true) {
+			if ($this->required == true) {
 				$required_string = '<span title="This field is required." class="form-required">*</span>';
 			}
 
 			//Setup label for link text
-			$text_input->config("label", $this->label." ".$text_input->config("label|pure").$required_string);
+			$text_input->config("label", $this->label . " " . $text_input->config("label|pure") . $required_string);
 
 			//Setup label for link link
-			$link_input->config("label", $this->label." ".$link_input->config("label|pure").$required_string);
+			$link_input->config("label", $this->label . " " . $link_input->config("label|pure") . $required_string);
 		}
 
 		//Build up our input forms
 		$text = "";
 		$text .= '<div>';
-		$text .= '	<div style="float:left; width:50%;">'.$text_input->fetch().'</div>';
-		$text .= '	<div style="float:left; width:50%;">'.$link_input->fetch().'</div>';
+		$text .= '	<div style="float:left; width:50%;">' . $text_input->fetch() . '</div>';
+		$text .= '	<div style="float:left; width:50%;">' . $link_input->fetch() . '</div>';
 		$text .='	<div style="clear:left;"></div>';
 		$text .= '</div>';
 		$text .= '</fieldset>';

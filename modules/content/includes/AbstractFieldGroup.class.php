@@ -148,7 +148,6 @@ abstract class AbstractFieldGroup extends Object
 	public function set_max_value($value) {
 		$this->max_value = (int)$value;
 		if($value != 1 && empty($this->multi_container)) {
-
 			$posted = $this->check_if_posted();
 
 			if(!$posted) {
@@ -192,20 +191,15 @@ abstract class AbstractFieldGroup extends Object
 									}
 								}
 
-
 								$add = true;
 								break;
 							}
-
-
-
 						}
 						if($add == true) {
 							$this->multi_container[] = $elements;
 							$index++;
 						}
 					}
-
 				}
 
 				$elements = array();
@@ -220,7 +214,6 @@ abstract class AbstractFieldGroup extends Object
 				}
 
 				$this->multi_container[] = $elements;
-
 			}
 			else {
 
