@@ -50,6 +50,14 @@ class WebUnitTest extends UnitTest {
 	 */
 	protected $csrf_token = '';
 
+	/**
+	 * Holds the form parser.
+	 * This variable is only available after parse_forms() is called.
+	 *
+	 * @var UnitTestFormParser
+	 */
+	protected $form_parser = null;
+
 	public function __construct(&$core = null) {
 		parent::__construct($core);
 
@@ -97,6 +105,14 @@ class WebUnitTest extends UnitTest {
 	}
 
 	/**
+	 * Parses all forms which are found within the current content.
+	 */
+	public function parse_forms() {
+		$this->form_parser = new UnitTestFormParser();
+		$this->form_parser->parse_forms($this->content);
+	}
+
+	/**
 	 * Do a GET and store the content within the current content variable.
 	 *
 	 * @param string $url
@@ -115,6 +131,7 @@ class WebUnitTest extends UnitTest {
 	 * @return string the body content.
 	 */
 	public function do_get($url, $args = array(), $use_ssl = false, $full_path = false) {
+		$this->form_parser = null;
 		if ($full_path === false && !empty($url) && $url{0} !== '/') {
 			$url = '/' . $url;
 		}
@@ -186,6 +203,7 @@ class WebUnitTest extends UnitTest {
 	 * @return string the body content.
 	 */
 	public function do_post($url, $args = array(), $use_ssl = false, $full_path = false) {
+		$this->form_parser = null;
 		if ($full_path === false && !empty($url) && $url{0} !== '/') {
 			$url = '/' . $url;
 		}
@@ -250,6 +268,116 @@ class WebUnitTest extends UnitTest {
 	protected function assert_default_web_request($url, Array &$args = array()) {
 		$errorType = 'ERROR|WARNING|PARSING ERROR|NOTICE|CORE ERROR|CORE WARNING|COMPILE ERROR|COMPILE WARNING|USER ERROR|USER WARNING|USER NOTICE|STRICT NOTICE|RECOVERABLE ERROR|CAUGHT EXCEPTION \([0-9]+\)';
 		$this->assert_web_not_regexp('/(' . $errorType . '): .* in .* on line [0-9]+/s', t("Check php errors: !url\nArguments: !args", array('!url' => $url, '!args' => print_r($args, true))), "Found one or more php error within the requested page.");
+	}
+
+	/**
+	 * Check if the given form, identified by $form_id, exist.
+	 *
+	 * @param string $form_id
+	 *   the form id to check.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_exists($form_id, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		if (empty($message)) {
+			$message = t('Form "@form_id" not found', array(
+				'@form_id' => $form_id,
+			));
+		}
+		$this->assert_true($this->form_parser->form_exists($form_id), $description, $message);
+	}
+
+	/**
+	 * Check if the given form field, identified by $form_id and $field_id, exist.
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 * @param string $field_id
+	 *   the form field id.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_field_exists($form_id, $field_id, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		if (empty($message)) {
+			$message = t('Form field "@form_id/@field_id" not found', array(
+				'@form_id' => $form_id,
+				'@field_id' => $field_id,
+			));
+		}
+		$this->assert_true($this->form_parser->form_field_exists($form_id, $field_id), $description, $message);
+	}
+
+	/**
+	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, exist.
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 * @param string $field_id
+	 *   the form field id.
+	 * @param string $tag
+	 *   the tag name.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_field_tag_exists($form_id, $field_id, $tag, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		if (empty($message)) {
+			$message = t('Form field "@form_id/@field_id/@tag" not found', array(
+				'@form_id' => $form_id,
+				'@field_id' => $field_id,
+				'@tag' => $tag,
+			));
+		}
+		$this->assert_true($this->form_parser->form_field_tag_exists($form_id, $field_id, $tag), $description, $message);
+	}
+
+	/**
+	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, exist.
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 * @param string $field_id
+	 *   the form field id.
+	 * @param string $tag
+	 *   the tag name.
+	 * @param string $value
+	 *   the value to be checked.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_field_tag_equals($form_id, $field_id, $tag, $value, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		$this->assert_equals($this->form_parser->get_form_field_tag($form_id, $field_id, $tag), $value, $description, $message);
 	}
 
 	/**
