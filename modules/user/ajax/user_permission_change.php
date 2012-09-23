@@ -36,49 +36,21 @@ class AjaxUserUserPermissionChange extends AjaxModul {
 			$user_right_obj->user_id = $params->user_id;
 		}
 
-		//Get the current rights because we do not want to lose the current rights the user owns
-		$current_rights = $user_right_obj->permissions;
-
-		//Add all current rights to an temporary array but without the given param right couse this will be handled below
-		$tmp_arr = array();
-		$regexp = "/^-?".preg_quote($params->right, '/')."$/is";
-		foreach (explode("\n", $current_rights) AS $right) {
-			$right = str_replace("\r", "", $right);
-			$right = str_replace("\n", "", $right);
-			if (!preg_match($regexp, $right, $matches)) {
-				$tmp_arr[] = $right;
-			}
-		}
-
-		//Add, remove or disallow the given right
+		//grant, revoke or remove the given right
 		switch ($params->value) {
 			case 'y':
-				$tmp_arr[] = $params->right;
+				$user_right_obj->grant_permission($params->right);
 				break;
 			case 'n':
-				$tmp_arr[] = "-".$params->right;
+				$user_right_obj->revoke_permission($params->right);
 				break;
 			case 'notowned':
 			case 'g':
+				$user_right_obj->remove_permission($params->right);
 				break;
 		}
 
-		//Get the new right string, set it as the permissions attribute and save or insert it.
-		$current_rights = implode("\n", $tmp_arr);
-		$user_right_obj->permissions = $current_rights;
-		if ($user_right_obj->save_or_insert()) {
-
-			/**
-			 * Provides hook: user_permission_change
-			 *
-			 * Allow other modules to do tasks if the rights changed for the specific user
-			 *
-			 * @param int $user_id
-			 *   The user id
-			 * @param array $permissions
-			 *   the current permissions for the user (includes the changes)
-			 */
-			$this->core->hook('user_permission_change', array($params->user_id, $user_right_obj->permissions));
+		if ($user_right_obj->flush_permissions()) {
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
