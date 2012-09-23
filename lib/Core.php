@@ -1682,6 +1682,13 @@ class Core
 	 */
 	public function hook($name, $args = array()) {
 		static $cache = null;
+		static $loop_detection = array();
+
+		if (isset($loop_detection[$name])) {
+			return array();
+		}
+
+		$loop_detection[$name] = true;
 
 		if ($cache == null) {
 			$cache = array();
@@ -1703,6 +1710,7 @@ class Core
 		}
 
 		if (!isset($cache[$name])) {
+			unset($loop_detection[$name]);
 			return array();
 		}
 
@@ -1711,6 +1719,8 @@ class Core
 		foreach ($cache[$name] AS $module) {
 			$return_results[$module] = call_user_func_array(array(new $module(), $hook_method), $args);
 		}
+
+		unset($loop_detection[$name]);
 		return $return_results;
 	}
 
