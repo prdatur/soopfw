@@ -203,19 +203,55 @@ class UserObj extends AbstractDataManagment
 	}
 
 	/**
-	 * Add a right to the current user
+	 * Add one or more right's to this user.
+	 *
 	 * Use this method with caution
 	 *
-	 * @param string $right
-	 *   add a string to the current rights
+	 * This will only grant the permission for the current request, it will be not
+	 * saved into the user rights database table entry.
+	 *
+	 * @param mixed $right
+	 *   the right, can be an array with right's as values or a single right string.
 	 */
-	public function add_perm($right) {
+	public function grant_static_permission($right) {
 		if (empty($this->rights) && $this->rights_loaded == false) {
 			$this->rights = $this->right_manager->get_rights($this->user_id);
 			$this->rights_loaded = true;
 		}
 
-		$this->rights[$right] = true;
+		if (!is_array($right)) {
+			$right = array($right);
+		}
+
+		foreach ($right AS $single_right) {
+			$this->rights[$single_right] = true;
+		}
+	}
+
+	/**
+	 * Revoke one or more right's from this user.
+	 *
+	 * Use this method with caution
+	 *
+	 * This will only revoke the permission for the current request, it will be not
+	 * saved into the user rights database table entry.
+	 *
+	 * @param mixed $right
+	 *   the right, can be an array with right's as values or a single right string.
+	 */
+	public function revoke_static_permission($right) {
+		if (empty($this->rights) && $this->rights_loaded == false) {
+			$this->rights = $this->right_manager->get_rights($this->user_id);
+			$this->rights_loaded = true;
+		}
+
+		if (!is_array($right)) {
+			$right = array($right);
+		}
+
+		foreach ($right AS $single_right) {
+			$this->rights[$single_right] = false;
+		}
 	}
 
 	/**

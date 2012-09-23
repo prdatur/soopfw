@@ -65,7 +65,7 @@ class Session extends Object
 		$this->current_user = new UserObj();
 		if (!defined('is_shell')) {
 			$this->start_session();
-			
+
 			$login_handler = $this->core->dbconfig("system", system::CONFIG_LOGIN_HANDLER);
 
 			if(empty($login_handler) || !class_exists($login_handler)) {
@@ -164,7 +164,7 @@ class Session extends Object
 			$this->smarty->assign("loggedin", "1");
 			//Set the loggedin fast check variable to true
 			$this->logged_in = true;
-			$this->current_user()->add_perm('user.loggedin');
+			$this->current_user()->grant_static_permission('user.loggedin');
 
 		}
 		return $this->logged_in;
