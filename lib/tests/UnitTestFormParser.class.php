@@ -24,7 +24,7 @@ class UnitTestFormParser
 	 *
 	 * @return boolean returns true if given form exist, else false
 	 */
-	public function form_exists($form_id) {
+	public function form_exist($form_id) {
 		return isset($this->forms[$form_id]);
 	}
 
@@ -53,7 +53,7 @@ class UnitTestFormParser
 	 *
 	 * @return boolean returns true if given form field exist, else false
 	 */
-	public function form_field_exists($form_id, $field_id) {
+	public function form_field_exist($form_id, $field_id) {
 		return isset($this->forms[$form_id]) && isset($this->forms[$form_id][$field_id]);
 	}
 
@@ -87,8 +87,8 @@ class UnitTestFormParser
 	 *
 	 * @return boolean returns true if given form field tag exist, else false
 	 */
-	public function form_field_tag_exists($form_id, $field_id, $tag) {
-		return isset($this->forms[$form_id]) && isset($this->forms[$form_id][$field_id]) && isset($this->forms[$form_id][$tag]);
+	public function form_field_tag_exist($form_id, $field_id, $tag) {
+		return isset($this->forms[$form_id]) && isset($this->forms[$form_id][$field_id]) && isset($this->forms[$form_id][$field_id][$tag]);
 	}
 
 	/**

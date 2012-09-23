@@ -94,6 +94,65 @@ class system extends ActionModul
 		);
 	}
 
+	/**
+	 * Displays information about a web unit test request.
+	 *
+	 * @param string $report_id
+	 *   the unit test report id.
+	 * @param int $count_id
+	 *   the count id.
+	 */
+	public function view_webtest_report($report_id, $count_id) {
+		if (!$this->right_manager->has_perm("admin.system.config", true)) {
+			return $this->no_permission();
+		}
+
+		$data = $this->core->mcache('webtest_report::' . $report_id . '::' . $count_id);
+		if (empty($data)) {
+			return $this->wrong_params();
+		}
+
+		$max_count_id = (int)$this->core->mcache('webtest_report::' . $report_id . '::max_counter');
+		$prev_counter_id = $count_id - 1;
+		$header = "<div style='padding: 15px'>";
+		if ($prev_counter_id > 0) {
+			$header .= "<a href='/admin/system/view_webtest_report/" . $report_id . "/" . $prev_counter_id . "' class='form_button' style='margin-right: 20px;'>" . t('Previous') . "</a>";
+		}
+		if ($max_count_id > 0 && ($count_id + 1) <= $max_count_id) {
+			$header .= "<a href='/admin/system/view_webtest_report/" . $report_id . "/" . ($count_id + 1) . "' class='form_button'>" . t('Next') . "</a>";
+		}
+		$header .= "<br /><br />Request url: " . $data['url'] . "<br />";
+		$header .= "Request type: " . $data['type'] . "<br />";
+
+		if (!empty($data['args'])) {
+			$args = print_r($data['args'], true);
+			$args = str_replace("\n", "<br>", $args);
+			$args = preg_replace("/\s/", "&nbsp;&nbsp;", $args);
+
+			$header .= "Request arguments: <br />" . $args . "<br />";
+		}
+		$header .= "</div>";
+		$content = $data['data'];
+		if (preg_match('/^(.*<\s*body\s*>)(.*)$/iUs', $content, $matches)) {
+			echo $matches[1] . $header . $matches[2];
+		}
+		else {
+		$header .= "############### RETURN DATA ################### <br />";
+			echo $header;
+			$json_content = json_decode($content, true);
+			if (!empty($json_content)) {
+				$json_content = print_r($json_content, true);
+				$json_content = str_replace("\n", "<br>", $json_content);
+				$json_content = preg_replace("/\s/", "&nbsp;&nbsp;", $json_content);
+				echo "Data is JSON:<br />" . $json_content;
+			}
+			else {
+				echo $content;
+			}
+		}
+		die();
+	}
+
 	public function hello_world() {
 
 	}

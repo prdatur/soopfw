@@ -51,6 +51,13 @@ class WebUnitTest extends UnitTest {
 	protected $csrf_token = '';
 
 	/**
+	 * Holds the current report id which is used to display the opened pages.
+	 *
+	 * @var array
+	 */
+	protected $report_id = "";
+
+	/**
 	 * Holds the form parser.
 	 * This variable is only available after parse_forms() is called.
 	 *
@@ -58,11 +65,18 @@ class WebUnitTest extends UnitTest {
 	 */
 	protected $form_parser = null;
 
+	/**
+	 * Holds the report counter.
+	 *
+	 * @var int
+	 */
+	public static $report_counter = 0;
+
 	public function __construct(&$core = null) {
 		parent::__construct($core);
 
 		$this->base_domain = 'http://' . $this->core->core_config('core', 'domain') . '/en';
-
+		$this->report_id = md5(uniqid());
 		$this->client = new HttpClient();
 		$this->client->do_get($this->base_domain . '/');
 		if (preg_match("/" . preg_quote($this->core->core_config('core', 'domain'), '/') . "\t+FALSE\t+\/\t+FALSE\t+0\t+PHPSESSID\t+(.+)\n$/", file_get_contents($this->client->get_cookie_file_path()), $matches)) {
@@ -78,6 +92,11 @@ class WebUnitTest extends UnitTest {
 		// Remove test created file to identify this connection as a test envoirement.
 		if (!empty($this->client_session_id) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id)) {
 			@unlink(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id);
+		}
+
+		$this->core->mcache('webtest_report::' . $this->report_id . '::max_counter', WebUnitTest::$report_counter);
+		if (WebUnitTest::$report_counter > 0) {
+			$this->core->message('WebTest request reports viewable at http://' . $this->core->core_config('core', 'domain') . '/admin/system/view_webtest_report/' . $this->report_id. '/1');
 		}
 	}
 
@@ -148,6 +167,14 @@ class WebUnitTest extends UnitTest {
 		if (preg_match('/<\s*input\s*type\s*=\s*"\s*hidden\s*"\s*class\s*=\s*"[^"]*inputs[^"]*"\s*name\s*=\s*"[^"]*_submit"\s*value\s*=\s*"(.+)"\s*id\s*=\s*"[^"]+_submit"\s*\/\s*>/', $this->content, $matches)) {
 			$this->csrf_token = $matches[1];
 		}
+
+		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter, array(
+			'type' => 'get',
+			'url' => $url,
+			'args' => $args,
+			'data' => $this->content,
+		), 1800);
+
 		$this->assert_default_web_request($url, $args);
 		return $this->content;
 	}
@@ -220,6 +247,14 @@ class WebUnitTest extends UnitTest {
 		if (preg_match('/<\s*input\s*type\s*=\s*"\s*hidden\s*"\s*class\s*=\s*"[^"]*inputs[^"]*"\s*name\s*=\s*"[^"]*_submit"\s*value\s*=\s*"(.+)"\s*id\s*=\s*"[^"]+_submit"\s*\/\s*>/', $this->content, $matches)) {
 			$this->csrf_token = $matches[1];
 		}
+
+		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter, array(
+			'type' => 'post',
+			'url' => $url,
+			'args' => $args,
+			'data' => $this->content,
+		), 1800);
+
 		$this->assert_default_web_request($url, $args);
 		return $this->content;
 	}
@@ -283,7 +318,7 @@ class WebUnitTest extends UnitTest {
 	 *   message defined within this test.
 	 *   (optional, default = "")
 	 */
-	public function assert_form_exists($form_id, $description, $message = "") {
+	public function assert_form_exist($form_id, $description, $message = "") {
 		if ($this->form_parser === null) {
 			$this->parse_forms();
 		}
@@ -292,7 +327,7 @@ class WebUnitTest extends UnitTest {
 				'@form_id' => $form_id,
 			));
 		}
-		$this->assert_true($this->form_parser->form_exists($form_id), $description, $message);
+		$this->assert_true($this->form_parser->form_exist($form_id), $description, $message);
 	}
 
 	/**
@@ -310,7 +345,7 @@ class WebUnitTest extends UnitTest {
 	 *   message defined within this test.
 	 *   (optional, default = "")
 	 */
-	public function assert_form_field_exists($form_id, $field_id, $description, $message = "") {
+	public function assert_form_field_exist($form_id, $field_id, $description, $message = "") {
 		if ($this->form_parser === null) {
 			$this->parse_forms();
 		}
@@ -320,7 +355,7 @@ class WebUnitTest extends UnitTest {
 				'@field_id' => $field_id,
 			));
 		}
-		$this->assert_true($this->form_parser->form_field_exists($form_id, $field_id), $description, $message);
+		$this->assert_true($this->form_parser->form_field_exist($form_id, $field_id), $description, $message);
 	}
 
 	/**
@@ -340,22 +375,53 @@ class WebUnitTest extends UnitTest {
 	 *   message defined within this test.
 	 *   (optional, default = "")
 	 */
-	public function assert_form_field_tag_exists($form_id, $field_id, $tag, $description, $message = "") {
+	public function assert_form_field_tag_exist($form_id, $field_id, $tag, $description, $message = "") {
 		if ($this->form_parser === null) {
 			$this->parse_forms();
 		}
 		if (empty($message)) {
-			$message = t('Form field "@form_id/@field_id/@tag" not found', array(
+			$message = t('Form field tag "@form_id/@field_id/@tag" not found', array(
 				'@form_id' => $form_id,
 				'@field_id' => $field_id,
 				'@tag' => $tag,
 			));
 		}
-		$this->assert_true($this->form_parser->form_field_tag_exists($form_id, $field_id, $tag), $description, $message);
+		$this->assert_true($this->form_parser->form_field_tag_exist($form_id, $field_id, $tag), $description, $message);
 	}
 
 	/**
-	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, exist.
+	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, does not exist.
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 * @param string $field_id
+	 *   the form field id.
+	 * @param string $tag
+	 *   the tag name.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_field_tag_exist_not($form_id, $field_id, $tag, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		if (empty($message)) {
+			$message = t('Form field tag "@form_id/@field_id/@tag" found', array(
+				'@form_id' => $form_id,
+				'@field_id' => $field_id,
+				'@tag' => $tag,
+			));
+		}
+		$this->assert_false($this->form_parser->form_field_tag_exist($form_id, $field_id, $tag), $description, $message);
+	}
+
+	/**
+	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, exist and equals given $value.
 	 *
 	 * @param string $form_id
 	 *   the form id.
@@ -378,6 +444,32 @@ class WebUnitTest extends UnitTest {
 			$this->parse_forms();
 		}
 		$this->assert_equals($this->form_parser->get_form_field_tag($form_id, $field_id, $tag), $value, $description, $message);
+	}
+
+	/**
+	 * Check if the given form field tag, identified by $form_id, $field_id and $tag, exist and equals NOT the given $value.
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 * @param string $field_id
+	 *   the form field id.
+	 * @param string $tag
+	 *   the tag name.
+	 * @param string $value
+	 *   the value to be checked.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_form_field_tag_equals_not($form_id, $field_id, $tag, $value, $description, $message = "") {
+		if ($this->form_parser === null) {
+			$this->parse_forms();
+		}
+		$this->assert_not_equals($this->form_parser->get_form_field_tag($form_id, $field_id, $tag), $value, $description, $message);
 	}
 
 	/**
