@@ -1,3 +1,3 @@
 <%foreach $data AS $link_data%>
-<p><%$link_data.text|markdown%></p>
+<%$link_data.text|markdown%>
 <%/foreach%>
