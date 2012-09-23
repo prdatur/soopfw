@@ -83,3 +83,8 @@ a:hover,
 .ui-dialog {
 	padding: 0px;
 }
+
+
+a:link.form_button, a:visited.form_button, a:active.form_button, .ui-widget-content td a.form_button {
+	color: #fefefe;
+}
