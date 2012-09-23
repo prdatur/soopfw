@@ -80,16 +80,10 @@ abstract class AbstractFieldGroup extends Object
 	 */
 	public function set_prefix($prefix, $index = "", $pre_fill = false) {
 		$this->id = $prefix;
-
 		if($pre_fill == true) {
 			$group_values = array();
 			if(isset($this->values[$this->id])) {
-				$check_values = $this->values[$this->id];
-
-				foreach($check_values AS $elements) {
-					$key = key($elements);
-					$group_values[$key] = current($elements);
-				}
+				$group_values = current($this->values[$this->id]);
 			}
 		}
 		/* @var $element AbstractHtmlInput */
