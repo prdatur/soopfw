@@ -135,7 +135,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *   Set to false if you do not want to check the $submit value
 	 *   against the $_POST value, only check if $submit is not empty (optional, default = true)
 	 */
- 	public function __construct($form_name, $title = '', $submit = 'auto', $is_post = true) {
+	public function __construct($form_name, $title = '', $submit = 'auto', $is_post = true) {
 		parent::__construct();
 
 		//Set the form title
@@ -177,8 +177,8 @@ class Form extends AbstractHtmlElement implements Iterator
 		}
 		else {
 			//Create our unique CSRF-Token hidden field which we use as to determine if the form was submitted or not.
-			$this->add(new Hiddeninput($form_name.'_submit', $_SESSION['CSRFtoken']));
-			if (isset($_POST[$form_name.'_submit']) && $_POST[$form_name.'_submit'] == $_SESSION['CSRFtoken']) {
+			$this->add(new Hiddeninput($form_name . '_submit', $_SESSION['CSRFtoken']));
+			if (isset($_POST[$form_name . '_submit']) && $_POST[$form_name . '_submit'] == $_SESSION['CSRFtoken']) {
 				$this->is_submit = true;
 			}
 		}
@@ -338,13 +338,13 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *
 	 * @return mixed if we are in return mode (type = NS) return the current type, else return nothing
 	 */
-	public function ajax_return_type ($type = NS) {
-		if($type != NS) {
+	public function ajax_return_type($type = NS) {
+		if ($type != NS) {
 			$this->ajax_return_type = $type;
 			return;
 		}
 
-		if(empty($this->ajax_return_type)) {
+		if (empty($this->ajax_return_type)) {
 			return 'json';
 		}
 		return $this->ajax_return_type;
@@ -358,14 +358,15 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *
 	 * @return mixed if we are in return mode (type = NS) return the current handler, else return nothing
 	 */
-	public function ajax_return_type_handler ($ajax_return_type_handler = NS) {
-		if($ajax_return_type_handler != NS) {
+	public function ajax_return_type_handler($ajax_return_type_handler = NS) {
+		if ($ajax_return_type_handler != NS) {
 			$this->ajax_return_type_handler = $ajax_return_type_handler;
 			return;
 		}
 
 		return $this->ajax_return_type_handler;
 	}
+
 	/**
 	 * Set or get the form action
 	 *
@@ -459,12 +460,12 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * @return boolean true if submitted, else false
 	 */
 	public function is_submitted($submit_element_key = "") {
-		if(empty($submit_element_key)) {
+		if (empty($submit_element_key)) {
 			return $this->is_submit;
 		}
 
 		$element = $this->get($submit_element_key, "button");
-		if($element !== false && $element instanceof Submitbutton) {
+		if ($element !== false && $element instanceof Submitbutton) {
 			return $element->is_submitted();
 		}
 		return false;
@@ -515,13 +516,13 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public function add(AbstractHtmlInput &$input, $validators = array()) {
 
-		if(!empty($validators)) {
-			if(!is_array($validators)) {
+		if (!empty($validators)) {
+			if (!is_array($validators)) {
 				$validators = array($validators);
 			}
 
-			foreach($validators AS &$validator) {
-				if(!($validator instanceof AbstractHtmlValidator)) {
+			foreach ($validators AS &$validator) {
+				if (!($validator instanceof AbstractHtmlValidator)) {
 					continue;
 				}
 				$input->add_validator($validator);
@@ -532,10 +533,10 @@ class Form extends AbstractHtmlElement implements Iterator
 		$input->config_array("css_class", $this->css_class());
 
 		//Provide a css class which can be used within JQuery to select all elements for this form
-		$input->config_array("css_class", "inputs_".$this->formname);
+		$input->config_array("css_class", "inputs_" . $this->formname);
 
 		//Set a unique id
-		$input->config("id", "form_id_".$this->formname."_".$input->config("name"));
+		$input->config("id", "form_id_" . $this->formname . "_" . $input->config("name"));
 
 		//Check which scope the input should be
 		$type = "visible";
@@ -661,8 +662,8 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function &get_array_values($include_hidden = false) {
 		$v = $this->get_values($include_hidden);
 		array_walk($v, function(&$val, $key) {
-			//IMPORTANT to use urlencode function because parse_str expects the value as url encoded if not we have a security issue to provide some bad chars
-			$val = $key.'='.urlencode($val);
+			//IMPORTANT to use urlencode function because parse_str expects the value as url encoded, if we do not urlencode we have a security issue to allow bad chars.
+			$val = $key . '=' . urlencode($val);
 		});
 		parse_str(implode('&', $v), $values);
 		return $values;
@@ -803,7 +804,7 @@ class Form extends AbstractHtmlElement implements Iterator
 		if (current($this->elements[$this->get_type])->has_validator("RequiredValidator")) {
 			$required = '<span title="This field is required." class="form-required">*</span>';
 		}
-		return $label.$required;
+		return $label . $required;
 	}
 
 	/**
@@ -827,5 +828,4 @@ class Form extends AbstractHtmlElement implements Iterator
 	}
 
 }
-
 
