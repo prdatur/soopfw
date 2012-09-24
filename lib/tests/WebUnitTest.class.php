@@ -70,19 +70,23 @@ class WebUnitTest extends UnitTest {
 	 *
 	 * @var int
 	 */
-	public static $report_counter = 0;
+	public static $report_counter = array();
 
 	public function __construct(&$core = null) {
 		parent::__construct($core);
 
 		$this->base_domain = 'http://' . $this->core->core_config('core', 'domain') . '/en';
 		$this->report_id = md5(uniqid());
+		WebUnitTest::$report_counter[$this->report_id] = 0;
 		$this->client = new HttpClient();
 		$this->client->do_get($this->base_domain . '/');
 		if (preg_match("/" . preg_quote($this->core->core_config('core', 'domain'), '/') . "\t+FALSE\t+\/\t+FALSE\t+0\t+PHPSESSID\t+(.+)\n$/", file_get_contents($this->client->get_cookie_file_path()), $matches)) {
 			$this->client_session_id = $matches[1];
-			file_put_contents(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id, '1');
+			$this->core->mcache_set_prefix($this->original_table_prefix);
+			$this->core->mcache($this->report_id, true);
+			file_put_contents(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id, $this->report_id);
 		}
+		$this->core->mcache_set_prefix('test_' . $this->original_table_prefix);
 	}
 
 	/**
@@ -94,8 +98,12 @@ class WebUnitTest extends UnitTest {
 			@unlink(SITEPATH . '/uploads/session_is_test_' . $this->client_session_id);
 		}
 
-		$this->core->mcache('webtest_report::' . $this->report_id . '::max_counter', WebUnitTest::$report_counter);
-		if (WebUnitTest::$report_counter > 0) {
+		$this->core->mcache_set_prefix($this->original_table_prefix);
+		$this->core->memcache_obj->delete($this->report_id);
+		$this->core->mcache_set_prefix('test_' . $this->original_table_prefix);
+
+		$this->core->mcache('webtest_report::' . $this->report_id . '::max_counter', WebUnitTest::$report_counter[$this->report_id]);
+		if (WebUnitTest::$report_counter[$this->report_id] > 0) {
 			$this->core->message('WebTest request reports viewable at http://' . $this->core->core_config('core', 'domain') . '/admin/system/view_webtest_report/' . $this->report_id. '/1');
 		}
 	}
@@ -168,7 +176,7 @@ class WebUnitTest extends UnitTest {
 			$this->csrf_token = $matches[1];
 		}
 
-		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter, array(
+		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter[$this->report_id], array(
 			'type' => 'get',
 			'url' => $url,
 			'args' => $args,
@@ -248,7 +256,7 @@ class WebUnitTest extends UnitTest {
 			$this->csrf_token = $matches[1];
 		}
 
-		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter, array(
+		$this->core->mcache('webtest_report::' . $this->report_id . '::' . ++WebUnitTest::$report_counter[$this->report_id], array(
 			'type' => 'post',
 			'url' => $url,
 			'args' => $args,

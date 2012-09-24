@@ -67,10 +67,11 @@ class UnitTestRunner extends Object {
 
 		if (!empty($this->db)) {
 			$this->original_table_prefix = $this->db->table_prefix();
-			$this->db->table_prefix('tests_' . $this->original_table_prefix);
+			$this->db->table_prefix('test_' . $this->original_table_prefix);
 		}
 		if (!empty($this->core->memcache_obj)) {
 			$this->core->memcache_obj->flush();
+			$this->core->mcache_set_prefix('test_' . $this->original_table_prefix);
 		}
 
 	}
@@ -193,7 +194,7 @@ class UnitTestRunner extends Object {
 		}
 
 
-		$this->db->table_prefix('tests_' . $this->original_table_prefix);
+		$this->db->table_prefix('test_' . $this->original_table_prefix);
 		$this->core->message(t('Test tables created.'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 }

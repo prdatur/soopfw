@@ -447,16 +447,19 @@ class Core
 		$this->session = new Session($this);
 
 		// Check if current connection comes from WebUnitTest.
-		if (!empty($this->db) && file_exists(SITEPATH . '/uploads/session_is_test_' . $this->session->get_session_id()) && NetTools::is_local_ip()) {
+		$test_session_file = SITEPATH . '/uploads/session_is_test_' . $this->session->get_session_id();
+		if (!empty($this->db) && file_exists($test_session_file)) {
+			if ($this->mcache(file_get_contents($test_session_file))) {
+				// Use test envoirment.
+				$this->db->table_prefix('test_' . $this->db->table_prefix());
 
-			// Use test envoirment.
-			$this->db->table_prefix('test_' . $this->db->table_prefix());
+				// Reinit default language.
+				$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 
-			// Reinit default language.
-			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
-
-			// We need to reinit the session object.
-			$this->session = new Session($this);
+				$this->mcache_set_prefix('test_' . $this->db->table_prefix());
+				// We need to reinit the session object.
+				$this->session = new Session($this);
+			}
 		}
 
 		//Set the provided $language if it is not empty
@@ -541,6 +544,11 @@ class Core
 		}
 	}
 
+	public function mcache_set_prefix($prefix) {
+		if (!empty($this->memcache_obj)) {
+			$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
+		}
+	}
 	/**
 	 * Provide a method to run a shell (cli) command.
 	 */
@@ -1066,6 +1074,9 @@ class Core
 
 				//Get the menu (key = order of this menu, value = menu_entries)
 				$tmpmenu = $module_obj->get_admin_menu();
+				if (empty($tmpmenu)) {
+					continue;
+				}
 				$index = key($tmpmenu);
 				//Get the menu entries for the menu
 				$currentmenu = current($tmpmenu);

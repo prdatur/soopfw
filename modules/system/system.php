@@ -107,12 +107,15 @@ class system extends ActionModul
 			return $this->no_permission();
 		}
 
+		$this->core->mcache_set_prefix('test_' . $this->db->table_prefix());
 		$data = $this->core->mcache('webtest_report::' . $report_id . '::' . $count_id);
+		$max_count_id = (int)$this->core->mcache('webtest_report::' . $report_id . '::max_counter');
+		$this->core->mcache_set_prefix($this->db->table_prefix());
 		if (empty($data)) {
 			return $this->wrong_params();
 		}
 
-		$max_count_id = (int)$this->core->mcache('webtest_report::' . $report_id . '::max_counter');
+
 		$prev_counter_id = $count_id - 1;
 		$header = "<div style='padding: 15px'>";
 		if ($prev_counter_id > 0) {
