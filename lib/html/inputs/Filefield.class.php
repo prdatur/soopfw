@@ -115,6 +115,7 @@ class Filefield extends AbstractHtmlInput
 		parent::__construct($name, $value, $label, $description, $class, $id);
 		$this->config("id", (empty($id)) ? "form_id_".$name : $id);
 		$this->config("handle_upload", $handle_upload);
+		$this->config("default_file_id", $value);
 
 		$this->size_limit($this->core->get_dbconfig('system', system::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit));
 		$this->init();
@@ -289,6 +290,13 @@ class Filefield extends AbstractHtmlInput
 			$return .= $tmp_tpl.$this->get_description();
 			return $return;
 		}
+		else {
+			$current_fid = (int)$this->config('value');
+			if (!empty($current_fid)) {
+				$file = new MainFileObj($current_fid);
+				$html .= '<br /><span>' . t('Current file: <b>@filename</b>', array('@filename' => $file->filename)) . '</span>';
+			}
+		}
 		return $html;
 	}
 
@@ -306,7 +314,7 @@ class Filefield extends AbstractHtmlInput
 			$this->file_mimetype = $_FILES[$this->config("name")]['type'];
 			$this->file_tmpname = $_FILES[$this->config("name")]['tmp_name'];
 
-			if (preg_match(".*\.([^.]+)$", $this->file_name, $matches)) {
+			if (preg_match("/.*\.([^.]+)$/", $this->file_name, $matches)) {
 				$this->file_extension = $matches[1];
 			}
 		}
@@ -340,6 +348,14 @@ class Filefield extends AbstractHtmlInput
 
 					//If we saved the file successfully provide the fileid as the element value
 					if ($main_file_obj->save_or_insert($this->file_tmpname)) {
+
+						$old_fid = (int)$this->config("default_file_id");
+						if (!empty($old_fid)) {
+							$file = new MainFileObj($old_fid);
+							if ($file->load_success()) {
+								$file->delete();
+							}
+						}
 						$this->config("value", $main_file_obj->fid);
 					}
 				}
@@ -354,4 +370,3 @@ class Filefield extends AbstractHtmlInput
 	}
 
 }
-
