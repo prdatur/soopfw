@@ -67,7 +67,7 @@ class Smarty_Security {
 								   'is_int', 'intval',
 								   'true', 'false', 'null',
 								   'stripos', 'strpos',
-								   'substr', 'constant','var_dump');
+								   'substr', 'constant','var_dump', 'is_a');
 
     /**
     * This is an array of trusted modifers.
@@ -76,7 +76,7 @@ class Smarty_Security {
     * If set to 'none' none is allowed.
     * @var array
     */
-    public $modifiers = array('escape', 'count', 'substr', 'constant');
+    public $modifiers = array('escape', 'count', 'substr', 'constant', 'is_a');
 
     /**
     * This is an array of trusted streams.
