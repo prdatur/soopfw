@@ -280,8 +280,6 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 	}
 
 	public function check_core() {
-		global $memcached_use;
-
 		######## Check static core cache #######################################
 		$this->core->cache('test', 'key1', 'check');
 		if (!$this->assert_equals($this->core->cache('test', 'key1'), 'check', t('Check static core cache'))) {
@@ -294,33 +292,13 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		}
 
 		######## Check if we have a memcached object ###########################
-		if ($memcached_use) {
-			if (!$this->assert_true(($this->core->memcache_obj instanceof memcached), t('Check memcached object instance: memcached'))) {
-				return false;
-			}
-		}
-		//Memcached not exist, try to get memcache with the wrapper for memcached
-		else if (class_exists("memcache")) {
-			if (!$this->assert_true(($this->core->memcache_obj instanceof MemcachedWrapper), t('Check memcached object instance: MemcachedWrapper'))) {
-				return false;
-			}
-		}
-		//Memcache also not exist, try to use database memcached wrapper
-		else if (!empty($this->db)) {
-			if (!$this->assert_true(($this->core->memcache_obj instanceof DBMemcached), t('Check memcached object instance: DBMemcached'))) {
-				return false;
-			}
-		}
-		//We use no database connection so we have no realy cache, we use a static memcached wrapper
-		else {
-			if (!$this->assert_true(($this->core->memcache_obj instanceof StaticMemcached), t('Check memcached object instance: StaticMemcached'))) {
-				return false;
-			}
+		if (!$this->assert_true(($this->core->memcache_obj instanceof CacheProviderInterface), t('Check for cache provider'))) {
+			return false;
 		}
 
 		######## Check memcache functions ######################################
 		$this->core->memcache_obj->get('notfound');
-		if (!$this->assert_true(($this->core->memcache_obj->getResultCode() != Memcached::RES_SUCCESS), t('Memcache check res not found'))) {
+		if (!$this->assert_true(($this->core->memcache_obj->get_result_code() != CacheProvider::RES_SUCCESS), t('Memcache check res not found'))) {
 			return false;
 		}
 

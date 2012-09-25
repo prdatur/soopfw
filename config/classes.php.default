@@ -1011,6 +1011,65 @@ $classes = array (
         0 => 'Iterator',
       ),
     ),
+    'MemcachedEngine' =>
+    array (
+      'path' => '/lib/cache/default_provider/MemcachedEngine.class.php',
+      'extends' =>
+      array (
+        0 => 'CacheProvider',
+      ),
+      'implements' =>
+      array (
+        0 => 'CacheProviderInterface',
+      ),
+    ),
+    'StaticMemcached' =>
+    array (
+      'path' => '/lib/cache/default_provider/StaticMemcached.class.php',
+      'extends' =>
+      array (
+        0 => 'CacheProvider',
+      ),
+      'implements' =>
+      array (
+        0 => 'CacheProviderInterface',
+      ),
+    ),
+    'DBMemcached' =>
+    array (
+      'path' => '/lib/cache/default_provider/DBMemcached.class.php',
+      'extends' =>
+      array (
+        0 => 'CacheProvider',
+      ),
+      'implements' =>
+      array (
+        0 => 'CacheProviderInterface',
+      ),
+    ),
+    'MemcachedWrapper' =>
+    array (
+      'path' => '/lib/cache/default_provider/MemcachedWrapper.class.php',
+      'extends' =>
+      array (
+        0 => 'CacheProvider',
+      ),
+      'implements' =>
+      array (
+        0 => 'CacheProviderInterface',
+      ),
+    ),
+    'CacheProvider' =>
+    array (
+      'path' => '/lib/cache/CacheProvider.class.php',
+      'extends' =>
+      array (
+        0 => 'Object',
+      ),
+      'implements' =>
+      array (
+      ),
+    ),
     'Core' => 
     array (
       'path' => '/lib/Core.php',
@@ -1034,17 +1093,6 @@ $classes = array (
     'ActionModul' => 
     array (
       'path' => '/lib/ActionModul.class.php',
-      'extends' => 
-      array (
-        0 => 'Object',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'StaticMemcached' => 
-    array (
-      'path' => '/lib/StaticMemcached.class.php',
       'extends' => 
       array (
         0 => 'Object',
@@ -1787,16 +1835,6 @@ $classes = array (
       array (
       ),
     ),
-    'Memcached' => 
-    array (
-      'path' => '/lib/common.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
     'Download' => 
     array (
       'path' => '/lib/Download.class.php',
@@ -1839,17 +1877,6 @@ $classes = array (
       array (
       ),
     ),
-    'DBMemcached' => 
-    array (
-      'path' => '/lib/DBMemcached.class.php',
-      'extends' => 
-      array (
-        0 => 'Object',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
     'AbstractDataManagment' => 
     array (
       'path' => '/lib/AbstractDataManagment.class.php',
@@ -1878,17 +1905,6 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'MemcachedWrapper' => 
-    array (
-      'path' => '/lib/MemcachedWrapper.class.php',
-      'extends' => 
-      array (
-        0 => 'memcache',
       ),
       'implements' => 
       array (

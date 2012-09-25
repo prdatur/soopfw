@@ -350,7 +350,7 @@ abstract class AbstractDataManagment extends Object
 			$values = $this->core->memcache_obj->get($memcached_key);
 
 			//Check if cache loaded successfully
-			if (!empty($values) && $this->core->memcache_obj->getResultCode() == Memcached::RES_SUCCESS) {
+			if (!empty($values) && $this->core->memcache_obj->get_result_code() == CacheProvider::RES_SUCCESS) {
 
 				// Check if the field count from cache is the same as the structure, if not we need to load it fresh from database, because the object could have changed
 				if (count($values) == $this->db_struct->get_struct_count()) {
@@ -460,7 +460,7 @@ abstract class AbstractDataManagment extends Object
 			 * we also check if some wanted data is missed, if so we try to load it from the database
 			 */
 			if ($this->db_struct->is_cacheable()) {
-				$memcached_return = $this->core->memcache_obj->getMulti($memcached_keys);
+				$memcached_return = $this->core->memcache_obj->get_multi($memcached_keys);
 
 				if ($memcached_return) {
 					//Add the found data to our return array
@@ -719,7 +719,7 @@ abstract class AbstractDataManagment extends Object
 		 * If the operation succeeds, add the memcache key to the changed memcached keys, because this must be deleted
 		 * if a transaction is active and a rollback is called.
 		 */
-		if ($this->core->memcache_obj->getResultCode() == Memcached::RES_SUCCESS) {
+		if ($this->core->memcache_obj->get_result_code() == CacheProvider::RES_SUCCESS) {
 			$this->db->add_changed_memcached_key($memcached_key);
 			return true;
 		}

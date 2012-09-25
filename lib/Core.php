@@ -3,6 +3,53 @@ if (!defined('SITEPATH')) {
 	define('SITEPATH', dirname(dirname(__FILE__)));
 }
 
+define("TIME_NOW", time());
+define("DB_DATE", "Y-m-d");
+define("DB_DATETIME", "Y-m-d H:i:s");
+define("DB_TIME", "H:i:s");
+
+mb_internal_encoding('UTF-8');
+
+/**
+ * This is not a primitive datatype but it can be used as a real not set variable, so if we realy want to check if a
+ * parameter was provided to a function/method we can default assign NS so if we pass "", null or something similar to empty
+ * it is also a allowed "provided" value. The value behind NS is choosen with a string which should never be a value provided by a user
+ */
+define("NS", "-||notset||-");
+
+global $memcached_obj, $translation_cache;
+$translation_cache = array();
+
+/**
+ * Define our primitive datatypes, these are used in several ways.
+ * Most use is within parameter type checks.
+ */
+$i = 1;
+define("PDT_INT", $i++, true);
+define("PDT_FLOAT", $i++, true);
+define("PDT_STRING", $i++, true);
+define("PDT_DECIMAL", $i++, true);
+define("PDT_DATE", $i++, true);
+define("PDT_OBJ", $i++, true);
+define("PDT_ARR", $i++, true);
+define("PDT_BOOL", $i++, true);
+define("PDT_INET", $i++, true);
+define("PDT_SQLSTRING", $i++, true);
+define("PDT_JSON", $i++, true);
+define("PDT_PASSWORD", $i++, true);
+define("PDT_ENUM", $i++, true);
+define("PDT_TEXT", $i++, true);
+define("PDT_TINYINT", $i++, true);
+define("PDT_MEDIUMINT", $i++, true);
+define("PDT_BIGINT", $i++, true);
+define("PDT_SMALLINT", $i++, true);
+define("PDT_DATETIME", $i++, true);
+define("PDT_TIME", $i++, true);
+define("PDT_FILE", $i++, true);
+define("PDT_LANGUAGE", $i++, true);
+define("PDT_LANGUAGE_ENABLED", $i++, true);
+define("PDT_SERIALIZED", $i++, true);
+
 //Include important standalone functions
 require (SITEPATH . '/lib/common.php');
 
@@ -546,7 +593,7 @@ class Core
 
 	public function mcache_set_prefix($prefix) {
 		if (!empty($this->memcache_obj)) {
-			$this->memcache_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
+			$this->memcache_obj->set_option(CacheProvider::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
 		}
 	}
 	/**
@@ -652,30 +699,34 @@ class Core
 
 	/**
 	 * Initialize the memcached object or an equivalent wrapper
-	 *
-	 * @global boolean $memcached_use
-	 *   This is defined at the top of this file, it determines if we want to use the original memcached or if we must search for the best wrapper
 	 */
 	public function init_memcached() {
-		global $memcached_use, $memcached_obj;
+		global $memcached_obj;
 
 		// Only create the memcached object if we do not have it already.
 		if (is_null($this->memcache_obj)) {
 
+			require_once SITEPATH . '/lib/cache/CacheProviderInterface.class.php';
+			require_once SITEPATH . '/lib/cache/CacheProvider.class.php';
+
 			// Init original memcached object.
-			if ($memcached_use) {
-				$memcached_obj = new memcached();
+			if (class_exists("memcached")) {
+				require_once SITEPATH . '/lib/cache/default_provider/MemcachedEngine.class.php';
+				$memcached_obj = new MemcachedEngine($this);
 			}
 			// Memcached not exist, try to get memcache with the wrapper for memcached.
 			else if (class_exists("memcache")) {
-				$memcached_obj = new MemcachedWrapper();
+				require_once SITEPATH . '/lib/cache/default_provider/MemcachedWrapper.class.php';
+				$memcached_obj = new MemcachedWrapper($this);
 			}
 			// Memcache also not exist, try to use database memcached wrapper.
 			else if (!empty($this->db)) {
+				require_once SITEPATH . '/lib/cache/default_provider/DBMemcached.class.php';
 				$memcached_obj = new DBMemcached($this);
 			}
 			// We use no database connection so we have no realy cache, we use a static memcached wrapper.
 			else {
+				require_once SITEPATH . '/lib/cache/default_provider/StaticMemcached.class.php';
 				$memcached_obj = new StaticMemcached($this);
 			}
 
@@ -685,10 +736,10 @@ class Core
 			}
 
 			// Setup memcached prefix.
-			$memcached_obj->setOption(Memcached::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
+			$memcached_obj->set_option(CacheProvider::OPT_PREFIX_KEY, $this->core_config('core', 'domain') . ':' . $prefix . ':');
 
 			// Add the current server to memcached object / wrapper.
-			$memcached_obj->addServer($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
+			$memcached_obj->add_server($this->core_config("memcache", "host"), $this->core_config("memcache", "port"));
 			$this->memcache_obj = &$memcached_obj;
 		}
 	}
