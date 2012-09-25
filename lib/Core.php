@@ -659,7 +659,7 @@ class Core
 	 */
 	public function need_ssl() {
 
-		if (!$this->is_ssl() && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+		if (!$this->is_ssl() && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 			exit();
 		}
@@ -686,7 +686,7 @@ class Core
 	 * @return string the secure base url
 	 */
 	public function get_secure_url($strict = false) {
-		if ($this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+		if ($this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 			return 'https://' . $this->get_dbconfig("system", system::CONFIG_SECURE_DOMAIN, $this->core_config('core', 'domain'));
 		}
 

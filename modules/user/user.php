@@ -423,7 +423,7 @@ class user extends ActionModul
 						$mail_tpl_key = user::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP;
 
 						$tpl_vals['link'] = 'http';
-						if ($this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+						if ($this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 							$tpl_vals['link'] .= 's';
 						}
 						$tpl_vals['link'] .= '://' . $this->core->core_config('core', 'domain') . '/user/confirm/' . $user_obj->confirm_key;

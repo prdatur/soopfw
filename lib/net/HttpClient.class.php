@@ -187,7 +187,7 @@ class HttpClient extends Object {
 	 */
 	protected function execute($url, &$ch = null, $use_ssl = false) {
 
-		if (!empty($use_ssl) && $this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'yes') === 'yes') {
+		if (!empty($use_ssl) && $this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 			$url = preg_replace('/^http:\/\//', 'https://', $url);
 		}
 

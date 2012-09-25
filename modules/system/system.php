@@ -485,7 +485,7 @@ class system extends ActionModul
 		}
 
 		$form->add(new Fieldset('security', t('Security')));
-		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'yes'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
+		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'no'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
 		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
 
 
