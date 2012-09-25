@@ -49,7 +49,7 @@ class Captcha extends AbstractHtmlInput
 
 		//Set the element description
 		$this->config("description", $description);
-		
+
 		if (empty($privatekey) && empty($publickey)) {
 			$privatekey = $this->core->dbconfig('system', system::CONFIG_RECAPTCHA_PRIVATE_KEY);
 			$publickey = $this->core->dbconfig('system', system::CONFIG_RECAPTCHA_PUPLIC_KEY);
@@ -86,7 +86,6 @@ class Captcha extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", recaptcha_get_html($this->publickey));
-		$this->config("type", "captcha");
 	}
 
 	/**

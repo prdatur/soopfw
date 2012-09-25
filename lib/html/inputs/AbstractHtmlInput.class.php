@@ -520,7 +520,7 @@ abstract class AbstractHtmlInput extends Object
 	 *   the label html code
 	 */
 	public function get_label() {
-		if($this->config("type") == "fieldset") {
+		if($this instanceof Fieldset) {
 			return '';
 		}
 		$label = $this->config("label|pure");

@@ -15,7 +15,6 @@ class Passwordfield extends AbstractHtmlInput {
 	 */
 	public function init() {
 		$this->config("template", "<input type=\"password\" {name}{value}{id}{class}{style}{other}/>");
-		$this->config("type", "passwordfield");
 	}
 
 }

@@ -11,7 +11,7 @@
 		<%$inner_fieldset_count = 0%>
 		<%foreach from=$form item=element%>
 			<%$label=$element->config('label')%>
-			<%if $element->config('type') == "fieldset"%>
+			<%if $element|is_a:'Fieldset'%>
 				<%$inner=$element->config('inner')%>
 				<%if $inner_fieldset_count > 0 && !empty($inner) && $inner != 'yes'%>
 					<%for $x=1 to $inner%>

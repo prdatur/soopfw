@@ -14,13 +14,13 @@ class Submitbutton extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $value 
+	 * @param string $value
 	 *   the value for this input (optional, default='')
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
  	public function __construct($name, $value = "", $class = "", $id = "") {
@@ -41,7 +41,6 @@ class Submitbutton extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", "<button type=\"submit\" {value}{name}{id}{class}{style}{other}>{value_button}</button>");
-		$this->config("type", "submit");
 	}
 
 	/**

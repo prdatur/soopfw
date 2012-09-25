@@ -305,7 +305,6 @@ class Filefield extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", "<input type=\"file\" {name}{value}{id}{class}{style}{other}/>");
-		$this->config("type", "Filefield");
 
 		//Check if the file was uploaded, if so set our variables
 		if (isset($_FILES[$this->config("name")]) && $_FILES[$this->config("name")]['error'] == 0) {

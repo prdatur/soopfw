@@ -8,9 +8,8 @@
  * @package lib.html.inputs
  * @category Form.Inputs
  */
-class HtmlContainerInput extends AbstractHtmlInput
+class HtmlContainerInput extends AbstractNoValueInput
 {
-
 	/**
 	 * The value to display.
 	 *
@@ -43,7 +42,6 @@ class HtmlContainerInput extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", "<div {class} {name} {id} {other}>{value}</div>");
-		$this->config("type", "html_container");
 	}
 
 	/**

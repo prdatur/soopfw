@@ -16,17 +16,17 @@ class Hiddeninput extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $value 
+	 * @param string $value
 	 *   the value for this input (optional, default = "")
-	 * @param string $label 
+	 * @param string $label
 	 *   the label (optional, default = "")
-	 * @param string $description 
+	 * @param string $description
 	 *   the description (optional, default = "")
-	 * @param string $class 
+	 * @param string $class
 	 *   the css class (optional, default = "")
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = "")
 	 */
 	public function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "") {
@@ -39,7 +39,6 @@ class Hiddeninput extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", "<input type=\"hidden\" {class} {name} {value} {id} {other}/>");
-		$this->config("type", "hidden");
 	}
 
 }

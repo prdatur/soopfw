@@ -16,7 +16,6 @@ class Textfield extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", '<input type="text" {name}{value}{id}{class}{style}{other}/>');
-		$this->config("type", 'textfield');
 	}
 
 }

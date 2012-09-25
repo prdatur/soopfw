@@ -49,7 +49,6 @@ class Selectfield extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", "<select {name} {id} {class} {style} {other}>{options}</select>");
-		$this->config("type", "selectfield");
 	}
 
 	/**

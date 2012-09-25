@@ -28,19 +28,19 @@ class Checkbox extends AbstractHtmlInput
 	/**
 	 * constructor
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the input name
-	 * @param string $value 
+	 * @param string $value
 	 *   the input value
-	 * @param string $checkvalue 
+	 * @param string $checkvalue
 	 *   the check value wether to preselect this element or not
-	 * @param string $label 
+	 * @param string $label
 	 *   the input label (optional, default='')
-	 * @param string $description 
+	 * @param string $description
 	 *   the input description (optional, default = '')
-	 * @param string $class 
+	 * @param string $class
 	 *   the input css class (optional, default = '')
-	 * @param string $id 
+	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
  	public function __construct($name, $value, $checkvalue, $label = "", $description = "", $class = "", $id = "") {
@@ -90,7 +90,6 @@ class Checkbox extends AbstractHtmlInput
 		//The hidden input is used as a work around to have also the key within the post array if checkbox was not submitted
 		//This "hack" works within FF (win/linux), IE 9 and Chrome (win/linux) older version of IE are NOT tested.
 		$this->config("template", '<input type="hidden" {name} value="" />'."<input type=\"checkbox\" {name}{value}{id}{class}{style}{other}{checked}/>".$label);
-		$this->config("type", "checkbox");
 	}
 
 	/**

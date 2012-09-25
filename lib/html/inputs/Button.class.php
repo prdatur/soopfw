@@ -16,7 +16,6 @@ class Button extends Submitbutton
 	 */
 	public function init() {
 		$this->config("template", "<button {value}{name}{id}{class}{style}{other}>{value_button}</button>");
-		$this->config("type", "button");
 	}
 
 }

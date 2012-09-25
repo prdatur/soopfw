@@ -16,7 +16,6 @@ class Textarea extends AbstractHtmlInput
 
 	public function init() {
 		$this->config("template", "<textarea {name}{id}{class}{style}{other}>{value}</textarea>");
-		$this->config("type", "textarea");
 	}
 
 	/**

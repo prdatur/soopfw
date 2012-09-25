@@ -265,13 +265,13 @@ class Form extends AbstractHtmlElement implements Iterator
 		if ($this->is_ajax) {
 			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
-				if ($elem->config("type") == "submit") {
+				if ($elem instanceof Submitbutton) {
 					$elem->config_array("css_class", "ajax_submit_handler");
 				}
 			}
 			//We need to find all filefields to set it also to ajax mode if the form is ajax.
 			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
-				if ($elem->config("type") == "Filefield") {
+				if ($elem instanceof Filefield) {
 					$elem->set_ajax(true);
 				}
 			}
@@ -296,13 +296,13 @@ class Form extends AbstractHtmlElement implements Iterator
 		if ($this->is_ajax) {
 			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
-				if ($elem->config("type") == "submit") {
+				if ($elem instanceof Submitbutton) {
 					$elem->config_array("css_class", "ajax_submit_handler");
 				}
 			}
 			//We need to find all filefields to set it also to ajax mode if the form is ajax.
 			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
-				if ($elem->config("type") == "Filefield") {
+				if ($elem instanceof Filefield) {
 					$elem->set_ajax(true);
 				}
 			}
@@ -532,24 +532,26 @@ class Form extends AbstractHtmlElement implements Iterator
 		//Add the current css_class to the newly added one
 		$input->config_array("css_class", $this->css_class());
 
-		//Provide a css class which can be used within JQuery to select all elements for this form
-		$input->config_array("css_class", "inputs_" . $this->formname);
+		// Do this only for "real" inputs.
+		if (!($input instanceof AbstractNoValueInput)) {
+			//Provide a css class which can be used within JQuery to select all elements for this form
+			$input->config_array("css_class", "inputs_" . $this->formname);
 
-		//Set a unique id
-		$input->config("id", "form_id_" . $this->formname . "_" . $input->config("name"));
-
+			//Set a unique id
+			$input->config("id", "form_id_" . $this->formname . "_" . $input->config("name"));
+		}
 		//Check which scope the input should be
 		$type = "visible";
-		if ($input->config("type") == "hidden") {
+		if ($input instanceof Hiddeninput) {
 			$type = "hidden";
 		}
-		else if ($input->config("type") == "submit" || $input->config("type") == "button") {
+		else if ($input instanceof Submitbutton || $input instanceof Button) {
 			$input->config_array("css_class", "form_button");
 			$type = "button";
 		}
 
 		//Set the enctype to the needed multipart/form-data if we have add a Filefield
-		if ($input->config("type") == "Filefield") {
+		if ($input instanceof Filefield) {
 			$this->enctype("multipart/form-data");
 		}
 
@@ -636,6 +638,10 @@ class Form extends AbstractHtmlElement implements Iterator
 
 		foreach ($return_array as $arr) {
 			foreach ($arr as $key => &$obj) {
+				if ($obj instanceof AbstractNoValueInput) {
+					continue;
+				}
+
 				$value = $obj->config("value");
 
 				//If the element is an datefield we transform the value to a well formed date string
@@ -703,7 +709,7 @@ class Form extends AbstractHtmlElement implements Iterator
 				continue;
 			}
 			$obj = &$this->elements[$scope][$key];
-			if ($obj->config("type") == 'submit') {
+			if ($obj instanceof Submitbutton) {
 				continue;
 			}
 			$obj->config("value", $value);

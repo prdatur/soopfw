@@ -21,7 +21,6 @@ class Radiobutton extends Checkbox
 			$label = "<label for=\"{clearId}\">{label_own}</label>";
 		}
 		$this->config("template", "<input type=\"radio\" {name}{value}{id}{class}{style}{other}{checked}/>".$label);
-		$this->config("type", "radio");
 	}
 }
 

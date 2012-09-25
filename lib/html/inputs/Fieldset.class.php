@@ -22,13 +22,13 @@ class Fieldset extends AbstractHtmlInput
 	 * so for current 4 and want to 2, provide 2, current 6 and want to 1 provide 5.
 	 * 0 will just place it within the current depth after the last one.
 	 *
-	 * @param string $id 
+	 * @param string $id
 	 *   the fieldset id
-	 * @param string $label 
+	 * @param string $label
 	 *   the label  (optional, default = '')
-	 * @param string $description 
+	 * @param string $description
 	 *   the description for this fieldset (optional, default = '')
-	 * @param mixed $inner 
+	 * @param mixed $inner
 	 *   int for depth change and true to place it within the previous one (optional, default = 0)
 	 */
  	public function __construct($id, $label = "", $description = "", $inner = 0) {
@@ -47,7 +47,6 @@ class Fieldset extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", '<fieldset {id}{class}>');
-		$this->config("type", 'fieldset');
 	}
 
 }
