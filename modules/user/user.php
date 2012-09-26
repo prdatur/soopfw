@@ -104,7 +104,7 @@ class user extends ActionModul
 	public function config() {
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.user.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$this->static_tpl = "form.tpl";
@@ -226,8 +226,7 @@ class user extends ActionModul
 	public function lost_password($id = "") {
 		$this->core->need_ssl();
 		if ($this->session->is_logged_in()) {
-			$this->core->message(t('You are logged in, you can not recovery your password'));
-			return $this->clear_output();
+			throw new SoopfwWrongParameterException(t('You are logged in, you can not recovery your password'));
 		}
 
 		if (!empty($id)) {
@@ -235,20 +234,17 @@ class user extends ActionModul
 			$err_msg = t('Invalid secret key or key is expired or one time access is disabled');
 			$one_time_access = new UserOneTimeActionObj($id);
 			if (!$one_time_access->load_success() || $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) != self::LOST_PW_TYPE_ONE_TIME_ACCESS) {
-				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
-				return $this->clear_output();
+				throw new SoopfwWrongParameterException($err_msg);
 			}
 
 			$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
 			if (TIME_NOW >= strtotime($one_time_access->date) + ((int)$expire_hours * 60)) {
-				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
-				return $this->clear_output();
+				throw new SoopfwWrongParameterException($err_msg);
 			}
 
 			$user = new UserObj($one_time_access->user_id);
 			if (!$user->load_success()) {
-				$this->core->message($err_msg, Core::MESSAGE_TYPE_ERROR);
-				return $this->clear_output();
+				throw new SoopfwWrongParameterException($err_msg);
 			}
 			$one_time_access->delete();
 			$this->session->validate_login($user);
@@ -526,7 +522,7 @@ class user extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.view")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//add js to get password change function
@@ -596,7 +592,7 @@ class user extends ActionModul
 		$this->session->require_login();
 
 		if (!$this->right_manager->has_perm("admin.user.add")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 
@@ -653,12 +649,12 @@ class user extends ActionModul
 		$user_id = (int)$user_id;
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.view") && $this->session->current_user()->user_id != $user_id) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Check if a userid was provided
 		if (empty($user_id)) {
-			return $this->wrong_params();
+			throw new SoopfwWrongParameterException();
 		}
 
 		//add js to get password change function
@@ -689,12 +685,12 @@ class user extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.view") && $this->session->current_user()->user_id != $user_id) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Check if a userid was provided
 		if (empty($user_id)) {
-			return $this->wrong_params();
+			throw new SoopfwWrongParameterException();
 		}
 
 		//Provide user_id to javascript
@@ -733,7 +729,7 @@ class user extends ActionModul
 			$address_obj = new UserAddressObj($address_id);
 			//Check perms
 			if ($this->session->current_user()->user_id != $address_obj->user_id && !$this->right_manager->has_perm("admin.user.change")) {
-				return $this->wrong_params();
+				throw new SoopfwNoPermissionException();
 			}
 			//Add save button
 			$submit_button = new Submitbutton("save", t("Save"));
@@ -745,7 +741,7 @@ class user extends ActionModul
 		else {
 			//Check perms
 			if ($this->session->current_user()->user_id != $user_id && !$this->right_manager->has_perm("admin.user.change")) {
-				return $this->wrong_params();
+				throw new SoopfwNoPermissionException();
 			}
 			$this->title(t("Add address"));
 
@@ -855,12 +851,12 @@ class user extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.rights.change")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$user_id = (int)$user_id;
 		if (empty($user_id)) {
-			return $this->wrong_params();
+			throw new SoopfwWrongParameterException();
 		}
 		$user_obj = new UserObj($user_id);
 
@@ -942,7 +938,7 @@ class user extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.group.view")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$this->core->js_config("admin_user_groups", $this->get_right_groups(true));
 	}
@@ -959,13 +955,13 @@ class user extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.group.view")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$group_id = (int)$group_id;
 
 		//Check if a group_id was provided
 		if (empty($group_id)) {
-			return $this->wrong_params();
+			throw new SoopfwWrongParameterException();
 		}
 		$all_rights = $this->right_manager->get_all_rights();
 		foreach ($all_rights AS $k => $right) {

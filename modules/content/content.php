@@ -179,7 +179,7 @@ class content extends ActionModul {
 	public function config() {
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.content.manage', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Setting up title and description
@@ -499,15 +499,11 @@ class content extends ActionModul {
 	}
 
 	public function content_menu_chooser() {
-
-		//Need to be logged in
-		$this->session->require_login();
-
 		$this->title(t("Select a menu entry"), t("Please select the parent entry for this content page. Click on the +/- to show/hide subentries"));
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.create")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.content.create", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		$entries = array();
@@ -531,14 +527,11 @@ class content extends ActionModul {
 	 * Lists all content pages, provide filter functionality to search for content
 	 */
 	public function list_content() {
-		//Need to be logged in
-		$this->session->require_login();
-
 		$this->title(t("list/search content"), t("Here we can search for content pages"));
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.create")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.content.create", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Setup search form
@@ -615,14 +608,11 @@ class content extends ActionModul {
 	 * Lists all content pages, provide filter functionality to search for content
 	 */
 	public function list_unreachable_content() {
-		//Need to be logged in
-		$this->session->require_login();
-
 		$this->title(t("list unreachable content"), t("Here we see all content pages which are not reachable by a normal user if he do not know the direct link"));
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.create")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.content.create", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		$menu_entry_obj = new MenuEntryObj();
@@ -656,18 +646,18 @@ class content extends ActionModul {
 
 		$page = new PageObj($page_id);
 		if(!$page->load_success()) {
-			return $this->wrong_params(t("no such page"));
+			throw new SoopfwWrongParameterException(t('no such page'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id);
 		if(!$page_revision->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t('no such page'));
 		}
 		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("this displays all available revisions for this page"));
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
@@ -707,12 +697,12 @@ Current language: [b]@language[/b]', array(
 
 		$page = new PageObj($page_id);
 		if(!$page->load_success()) {
-			return $this->wrong_params(t("No such page or wrong language"));
+			throw new SoopfwWrongParameterException(t('No such page or wrong language'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id, $this->core->current_language, $revision);
 		if(!$page_revision->load_success()) {
-			return $this->wrong_params(t("No such page / wrong language"));
+			throw new SoopfwWrongParameterException(t('No such page or wrong language'));
 		}
 
 		$this->title(t("change content: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page.
@@ -746,7 +736,7 @@ Current language: [b]@language[/b]', array(
 		else {
 			//Check perms
 			if (!$this->right_manager->has_perm("admin.content.create")) {
-				return $this->no_permission();
+				throw new SoopfwNoPermissionException();
 			}
 
 			$this->smarty->assign_by_ref("list", $this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`"));
@@ -765,17 +755,17 @@ Current language: [b]@language[/b]', array(
 		$this->title(t("translate"), t('Please fill out all required fields to create this content page'));
 
 		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$page = new PageObj($page_id, $language);
 		if(!$page->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t('No such page'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id, $language);
 		if(!$page_revision->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t('No such page'));
 		}
 		$this->title(t("translate: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page'));
 
@@ -790,7 +780,7 @@ Current language: [b]@language[/b]', array(
 		$this->title(t("content types"), t('add or change content types'));
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		//Get content types and assign it
 		$this->smarty->assign_by_ref("values", $this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`"));
@@ -809,7 +799,7 @@ Current language: [b]@language[/b]', array(
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$already_translated = $this->db->query_slave_all("
@@ -854,7 +844,7 @@ Current language: [b]@language[/b]', array(
 	public function manage_content_type($content_type = "") {
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$force_loaded = false;
 		$config_array = array();
@@ -944,7 +934,7 @@ Current language: [b]@language[/b]', array(
 		$this->title(t('"@content_type" fields', array("@content_type" => $content_type)), t('add or change content type fields'));
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$this->core->js_config("content_type", $content_type);
 
@@ -965,7 +955,7 @@ Current language: [b]@language[/b]', array(
 	public function change_content_type_field($content_type, $field_group_id = "") {
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$force_loaded = false;
 		//Save variables
@@ -1167,7 +1157,7 @@ Current language: [b]@language[/b]', array(
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.create")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$this->static_tpl = $this->module_tpl_dir.'/change_content.tpl';

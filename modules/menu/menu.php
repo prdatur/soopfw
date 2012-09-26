@@ -42,7 +42,7 @@ class menu extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.menu.manage")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 	}
 

@@ -55,11 +55,9 @@ class translation extends ActionModul
 	 * Enable or disable languages
 	 */
 	public function manage() {
-		$this->session->require_login();
-
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.translate", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Set title and description
@@ -86,12 +84,9 @@ class translation extends ActionModul
 	 * Import a translation PO-File
 	 */
 	public function import() {
-
-		$this->session->require_login();
-
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.translate", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Set title and description
@@ -212,11 +207,9 @@ class translation extends ActionModul
 	 * Exporting translations to po-files
 	 */
 	public function export() {
-		$this->session->require_login();
-
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.translate", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		$this->title(t("Translation Export"), t("Export translation to a PO-File.
@@ -299,11 +292,9 @@ class translation extends ActionModul
 	 * Search for translations
 	 */
 	public function search() {
-		$this->session->require_login();
-
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+		if (!$this->right_manager->has_perm("admin.translate", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
 		$this->title(t("Translation"), t("Search for a translation key.
@@ -374,21 +365,19 @@ class translation extends ActionModul
 	 * @param string $id the translation key
 	 */
 	public function translate($id) {
-		$this->session->require_login();
-		if (empty($id)) {
-			return $this->wrong_params();
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.translate", true)) {
+			throw new SoopfwNoPermissionException();
 		}
 
-		//Check perms
-		if (!$this->right_manager->has_perm("admin.translate")) {
-			return $this->no_permission();
+		if (empty($id)) {
+			throw new SoopfwWrongParameterException();
 		}
 
 		//Check if we have such a translation key
 		$translation = new TranslationKeysObj($id);
 		if (!$translation->load_success()) {
-			$this->core->message(t("Translation string not found"), Core::MESSAGE_TYPE_ERROR);
-			return $this->clear_output();
+			throw new SoopfwWrongParameterException(t("Translation string not found"));
 		}
 		$translation_objects = array();
 

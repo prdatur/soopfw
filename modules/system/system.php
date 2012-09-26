@@ -104,7 +104,7 @@ class system extends ActionModul
 	 */
 	public function view_webtest_report($report_id, $count_id) {
 		if (!$this->right_manager->has_perm("admin.system.config", true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$this->core->mcache_set_prefix('test_' . $this->db->table_prefix());
@@ -112,7 +112,7 @@ class system extends ActionModul
 		$max_count_id = (int)$this->core->mcache('webtest_report::' . $report_id . '::max_counter');
 		$this->core->mcache_set_prefix($this->db->table_prefix());
 		if (empty($data)) {
-			return $this->wrong_params();
+			throw new SoopfwWrongParameterException();
 		}
 
 
@@ -216,7 +216,7 @@ class system extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Setup search form
@@ -283,7 +283,7 @@ class system extends ActionModul
 		$this->session->require_login();
 
 		if (!$this->right_manager->has_perm("admin.system.config")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$description = "";
 		if (!empty($available_variables)) {
@@ -370,7 +370,7 @@ class system extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 		$loader = new cli_generate_classlist();
 		$loader->generate_classlist();
@@ -388,7 +388,7 @@ class system extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		$smarty_sdi = new cli_generate_smartylist();
@@ -411,7 +411,7 @@ class system extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		if ($this->core->reindex_menu());
@@ -428,7 +428,7 @@ class system extends ActionModul
 	public function config() {
 		//Check perms
 		if (!$this->right_manager->has_perm('admin.system.config', true)) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Setting up title and description
@@ -509,7 +509,7 @@ class system extends ActionModul
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.system.modules")) {
-			return $this->no_permission();
+			throw new SoopfwNoPermissionException();
 		}
 
 		//Set title
@@ -572,6 +572,12 @@ class system extends ActionModul
 		$this->session->require_login();
 
 		$this->title(t("Update modules"));
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.system.modules")) {
+			throw new SoopfwNoPermissionException();
+		}
+
 		$form = new Form("Start update");
 		$form->add(new Submitbutton("update", t("Start update")));
 		$form->assign_smarty("form");
@@ -632,7 +638,7 @@ class system extends ActionModul
 				if ($op == 'js') {
 					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
 				}
-				return $this->no_permission();
+				throw new SoopfwNoPermissionException();
 			}
 		}
 
