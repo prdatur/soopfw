@@ -10,6 +10,22 @@
  */
 class WebAction extends Object
 {
+
+	/**
+	 * Define constances.
+	 */
+	const ABORT_NO_PERMISSION = 0;
+	const ABORT_WRONG_PARAMS = 1;
+	const ABORT_CLEAR_OUTPUT = 2;
+	const ABORT_MODULE_NOT_FOUND = 3;
+
+	/**
+	 * The current action module.
+	 *
+	 * @var ActionModul
+	 */
+	protected $current_action_module = null;
+
 	/**
 	 * The parameters to determine which action we should call.
 	 *
@@ -116,7 +132,7 @@ class WebAction extends Object
 					$start_page_params['type'] = "";
 				}
 				$params->type = $start_page_params['type'];
-				$this->action_params['module'] = $start_page_params['module'];
+				$params->module = $start_page_params['module'];
 				$params->action = $start_page_params['action'];
 				$additional_function_params = $start_page_params['additional_function_params'];
 			}
@@ -180,36 +196,53 @@ class WebAction extends Object
 	 * Request an ajax call.
 	 */
 	private function request_ajax() {
-		$module = $this->action_params['module'];
-		$mod = "modules/" . $this->action_params['module'];
-		if (!empty($this->action_params['ajax_module'])) {
-			$module = $this->action_params['ajax_module'];
-			$mod = "modules/" . $this->action_params['ajax_module'];
+
+		try {
+
+			$module = $this->action_params['module'];
+			$mod = "modules/" . $this->action_params['module'];
+			if (!empty($this->action_params['ajax_module'])) {
+				$module = $this->action_params['ajax_module'];
+				$mod = "modules/" . $this->action_params['ajax_module'];
+			}
+			if (!empty($this->db)) {
+				$module_conf_obj = new ModulConfigObj($module);
+				if ((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $module != "system") {
+					throw new SoopfwModuleNotFoundException();
+				}
+
+				if (!empty($this->action_params['perm']) && !$this->core->get_right_manager()->has_perm($this->action_params['perm'])) {
+					throw new SoopfwNoPermissionException();
+				}
+			}
+			$ajax_file = SITEPATH . "/" . $mod . "/ajax/" . $this->action_params['action'] . ".php";
+			if (file_exists($ajax_file)) {
+				$arr = explode("_", $this->action_params['action']);
+				foreach ($arr AS &$val) {
+					$val = ucfirst($val);
+				}
+				$class = 'Ajax' . ucfirst($this->action_params['module']) . implode("", $arr);
+
+				if (!class_exists($class)) {
+					include($ajax_file);
+				}
+
+				$ajax_run = new $class();
+				$ajax_run->run();
+			}
+
 		}
-		if (!empty($this->db)) {
-			$module_conf_obj = new ModulConfigObj($module);
-			if ((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $module != "system") {
-				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
-			}
-
-			if (!empty($this->action_params['perm']) && !$this->core->get_right_manager()->has_perm($this->action_params['perm'])) {
-				AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
-			}
+		catch (SoopfwWrongParameterException $e) {
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
 		}
-		$ajax_file = SITEPATH . "/" . $mod . "/ajax/" . $this->action_params['action'] . ".php";
-		if (file_exists($ajax_file)) {
-			$arr = explode("_", $this->action_params['action']);
-			foreach ($arr AS &$val) {
-				$val = ucfirst($val);
-			}
-			$class = 'Ajax' . ucfirst($this->action_params['module']) . implode("", $arr);
-
-			if (!class_exists($class)) {
-				include($ajax_file);
-			}
-
-			$ajax_run = new $class();
-			$ajax_run->run();
+		catch (SoopfwNoPermissionException $e) {
+			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
+		}
+		catch (SoopfwModuleNotFoundException $e) {
+			AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+		}
+		catch (Exception $e) {
+			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
 		}
 	}
 
@@ -217,140 +250,179 @@ class WebAction extends Object
 	 * Request a normal page.
 	 */
 	private function request_normal() {
-		$used_default_module = false;
-		$original_module = $this->action_params['module'];
-		if (!file_exists(SITEPATH . "/modules/" . $this->action_params['module'] . "/" . $this->action_params['module'] . ".php")) {
-			$this->action_params['module'] = $this->core->core_config("core", "default_module");
-			$used_default_module = true;
-		}
 
-		if ($this->core->lng) {
-			$this->core->lng->load("intl");
-			$this->core->lng->load("menu");
-			$this->core->lng->load($this->action_params['module']);
-			$this->core->lng->load_javascript($this->action_params['module']);
-		}
-		$modulname = $this->action_params['module'];
-		$module_conf_obj = new ModulConfigObj($modulname);
-		if ((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $modulname != "system") {
-			$this->assign_default_js_css();
-			$this->core->message(t("Module not found or disabled"), Core::MESSAGE_TYPE_ERROR);
-			$this->smarty->assign("module_tpl", "");
-			$this->aborting_loading();
-		}
-		$actions_path = SITEPATH . '/modules/' . $modulname . '/actions';
-		if ($used_default_module && (file_exists($actions_path . '/' . $original_module . '.php') || method_exists($modulname, $original_module))) {
+		try {
 
-			if (!empty($this->action_params['action'])) {
-				array_unshift($this->action_params['action_params'], $this->action_params['action']);
+			$used_default_module = false;
+			$original_module = $this->action_params['module'];
+			if (!file_exists(SITEPATH . "/modules/" . $this->action_params['module'] . "/" . $this->action_params['module'] . ".php")) {
+				$this->action_params['module'] = $this->core->core_config("core", "default_module");
+				$used_default_module = true;
 			}
-			$this->action_params['action'] = $original_module;
-		}
-		$action = $this->action_params['action'];
 
-		if (file_exists($actions_path . '/' . $action . '.php')) {
-			$load_class = $modulname . "_" . $action;
-		}
-		else {
-			$load_class = $modulname;
-		}
-
-		/* @var $module ActionModul */
-		$module = new $load_class();
-		$module->modulname = $this->action_params['module'];
-		$module->action = $action;
-		$module->additional_params = $this->action_params['action_params'];
-
-		$module->__init();
-
-		if (!empty($this->action_params['perm']) && !$this->core->get_right_manager()->has_perm($this->action_params['perm'])) {
-			$this->assign_default_js_css();
-			$module->no_permission();
-			$this->aborting_loading();
-		}
-
-		$this->core->cache("core", "current_module", $module->modulname);
-
-		$parent = get_parent_class($modulname);
-		if ($parent != "ActionModul" && get_parent_class($parent) != "ActionModul") {
-			$this->assign_default_js_css();
-			$module->wrong_params();
-			$this->aborting_loading();
-		}
-
-		if ($module->action == ActionModul::NO_DEFAULT_METHOD || !method_exists($module, $module->action)) {
-			$this->assign_default_js_css();
-			$module->clear_output();
-			$this->aborting_loading();
-		}
-
-		// Prevent direct calling a hook method.
-		if (preg_match("/^hook_/", $module->action)) {
-			$this->assign_default_js_css();
-			$module->wrong_params();
-			$this->aborting_loading();
-		}
-
-		//Get the calling class method
-		$method = new ReflectionMethod($module, $module->action);
-
-		//Check if we provided all required parameters, if not abort loading and display error message
-		if ($method->getNumberOfRequiredParameters() > count($this->action_params['action_params'])) {
-			$this->assign_default_js_css();
-			$module->wrong_params();
-			$this->aborting_loading();
-		}
-
-		//Call the wanted module action
-		call_user_func_array(array($module, $action), $this->action_params['action_params']);
-
-		$module_template = "";
-
-		if (!empty($module->static_tpl)) {
-			if ($module->static_tpl === NS) {
-				$module->static_tpl = "";
+			if ($this->core->lng) {
+				$this->core->lng->load("intl");
+				$this->core->lng->load("menu");
+				$this->core->lng->load($this->action_params['module']);
+				$this->core->lng->load_javascript($this->action_params['module']);
 			}
-			$module_template = $module->static_tpl;
-		}
-		else {
-			$module_template = SITEPATH . "/modules/" . $module->modulname . "/templates/" . $module->module_tpl;
-		}
 
-		if (!empty($module_template) && $this->smarty->templateExists($module_template)) {
-			$this->smarty->assign("module_tpl", $module_template);
-		}
-		else if (!empty($module_template)) {
-			$this->smarty->assign("module_tpl_old", $module_template);
-			$this->smarty->assign("module_tpl", "template_not_exists.tpl");
-		}
+			$modulname = $this->action_params['module'];
+			$module_conf_obj = new ModulConfigObj($modulname);
+			if ((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $modulname != "system") {
+				throw new SoopfwModuleNotFoundException(t("Module not found or disabled"));
+			}
 
-		if (!empty($this->action_params['popup'])) {
-			$this->smarty->assign("popup", "1");
-		}
+			$actions_path = SITEPATH . '/modules/' . $modulname . '/actions';
+			if ($used_default_module && (file_exists($actions_path . '/' . $original_module . '.php') || method_exists($modulname, $original_module))) {
 
-		if (!empty($this->action_params['dialog'])) {
-			$this->smarty->assign("dialog", "1");
-		}
+				if (!empty($this->action_params['action'])) {
+					array_unshift($this->action_params['action_params'], $this->action_params['action']);
+				}
+				$this->action_params['action'] = $original_module;
+			}
+			$action = $this->action_params['action'];
 
-		switch ($this->action_params['type']) {
-			case 'ajax_html':
-				$this->core->js_config("is_ajax_html", true);
-				$this->core->template = "index_ajax_html.tpl";
-				break;
-			default:
-				$this->assign_default_js_css();
-				$this->core->assign_menus();
-				break;
+			if (file_exists($actions_path . '/' . $action . '.php')) {
+				$load_class = $modulname . "_" . $action;
+			}
+			else {
+				$load_class = $modulname;
+			}
+
+			/* @var $module ActionModul */
+			$module = new $load_class();
+			$this->current_action_module = &$module;
+			$this->current_action_module->modulname = $this->action_params['module'];
+			$this->current_action_module->action = $action;
+			$this->current_action_module->additional_params = $this->action_params['action_params'];
+
+			$this->current_action_module->__init();
+
+
+			if (!empty($this->action_params['perm']) && !$this->core->get_right_manager()->has_perm($this->action_params['perm'])) {
+				throw new SoopfwNoPermissionException();
+			}
+
+			$this->core->cache("core", "current_module", $this->current_action_module->modulname);
+
+			$parent = get_parent_class($modulname);
+			if ($parent != "ActionModul" && get_parent_class($parent) != "ActionModul") {
+				throw new SoopfwWrongParameterException();
+			}
+
+			if ($this->current_action_module->action == ActionModul::NO_DEFAULT_METHOD || !method_exists($this->current_action_module, $this->current_action_module->action)) {
+				$this->aborting_loading(self::ABORT_CLEAR_OUTPUT);
+			}
+
+			// Prevent direct calling a hook method.
+			if (preg_match("/^hook_/", $this->current_action_module->action)) {
+				throw new SoopfwWrongParameterException();
+			}
+
+			//Get the calling class method
+			$method = new ReflectionMethod($this->current_action_module, $this->current_action_module->action);
+
+			//Check if we provided all required parameters, if not abort loading and display error message
+			if ($method->getNumberOfRequiredParameters() > count($this->action_params['action_params'])) {
+				throw new SoopfwWrongParameterException();
+			}
+
+			//Call the wanted module action
+			call_user_func_array(array($this->current_action_module, $action), $this->action_params['action_params']);
+
+			$module_template = "";
+
+			if (!empty($this->current_action_module->static_tpl)) {
+				if ($this->current_action_module->static_tpl === NS) {
+					$this->current_action_module->static_tpl = "";
+				}
+				$module_template = $this->current_action_module->static_tpl;
+			}
+			else {
+				$module_template = SITEPATH . "/modules/" . $this->current_action_module->modulname . "/templates/" . $this->current_action_module->module_tpl;
+			}
+
+			if (!empty($module_template) && $this->smarty->templateExists($module_template)) {
+				$this->smarty->assign("module_tpl", $module_template);
+			}
+			else if (!empty($module_template)) {
+				$this->smarty->assign("module_tpl_old", $module_template);
+				$this->smarty->assign("module_tpl", "template_not_exists.tpl");
+			}
+
+			if (!empty($this->action_params['popup'])) {
+				$this->smarty->assign("popup", "1");
+			}
+
+			if (!empty($this->action_params['dialog'])) {
+				$this->smarty->assign("dialog", "1");
+			}
+
+			switch ($this->action_params['type']) {
+				case 'ajax_html':
+					$this->core->js_config("is_ajax_html", true);
+					$this->core->template = "index_ajax_html.tpl";
+					break;
+				default:
+					$this->assign_default_js_css();
+					$this->core->assign_menus();
+					break;
+			}
+			$this->current_action_module->assign_default();
+			$this->core->smarty_assign_default_vars();
+			$this->smarty->display($this->core->template);
+
 		}
-		$module->assign_default();
-		$this->core->smarty_assign_default_vars();
-		$this->smarty->display($this->core->template);
+		catch (SoopfwWrongParameterException $e) {
+			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
+		}
+		catch (SoopfwNoPermissionException $e) {
+			$this->aborting_loading(self::ABORT_NO_PERMISSION, $e->getMessage());
+		}
+		catch (SoopfwModuleNotFoundException $e) {
+			$this->aborting_loading(self::ABORT_MODULE_NOT_FOUND, $e->getMessage());
+		}
+		catch (Exception $e) {
+			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
+		}
 	}
 
 	/**
 	 * Abort loading.
+	 * @param int $type
+	 *   Why are we aborting? use one of WebAction::ABORT_*
+	 *   (optional, default = WebAction::ABORT_CLEAR_OUTPUT)
+	 * @param string $message
+	 *   the message to display (optional, default = '')
+	 * @param string $message_type
+	 *   the message type, use one of Core::MESSAGE_TYPE_*
+	 *   this has only an effect if $message is not empty
+	 *   (optional, default = Core::MESSAGE_TYPE_ERROR)
 	 */
-	private function aborting_loading() {
+	private function aborting_loading($type = self::ABORT_CLEAR_OUTPUT, $message = '', $message_type = Core::MESSAGE_TYPE_ERROR) {
+
+		if (!empty($message)) {
+			$this->core->message($message, $message_type);
+		}
+
+		$this->assign_default_js_css();
+
+		switch($type) {
+			case self::ABORT_CLEAR_OUTPUT:
+				$this->current_action_module->clear_output();
+				break;
+			case self::ABORT_NO_PERMISSION:
+				$this->current_action_module->no_permission();
+				break;
+			case self::ABORT_MODULE_NOT_FOUND:
+				$this->smarty->assign("module_tpl", "");
+				break;
+			case self::ABORT_WRONG_PARAMS:
+				$this->current_action_module->wrong_params();
+				break;
+		}
+
 		$this->core->assign_menus();
 		$this->core->smarty_assign_default_vars();
 		$this->core->smarty->display($this->core->template);

@@ -297,7 +297,7 @@ class ActionModul extends Object
 		if (empty($message) || $message === NS) {
 			$message = t('Wrong params');
 		}
-
+		
 		$this->core->message($message, Core::MESSAGE_TYPE_ERROR);
 		if ($clear_output) {
 			$this->clear_output();
