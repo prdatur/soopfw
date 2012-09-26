@@ -410,6 +410,18 @@ $classes = array (
       array (
       ),
     ),
+    'ContentTest' => 
+    array (
+      'path' => '/modules/content/tests/ContentTest.class.php',
+      'extends' => 
+      array (
+        0 => 'WebUnitTest',
+      ),
+      'implements' => 
+      array (
+        0 => 'UnitTestInterface',
+      ),
+    ),
     'ContentTypeFieldGroupObj' => 
     array (
       'path' => '/modules/content/objects/ContentTypeFieldGroupObj.class.php',
@@ -652,7 +664,7 @@ $classes = array (
       array (
       ),
     ),
-    'AjaxSystemBuildLanguages' => 
+    'AjaxLanguageBuildLanguages' => 
     array (
       'path' => '/modules/translation/ajax/build_languages.php',
       'extends' => 
@@ -663,7 +675,7 @@ $classes = array (
       array (
       ),
     ),
-    'AjaxSystemLanguageChange' => 
+    'AjaxTranslationLanguageChange' => 
     array (
       'path' => '/modules/translation/ajax/language_change.php',
       'extends' => 
@@ -980,6 +992,16 @@ $classes = array (
       array (
       ),
     ),
+    'UnitTestFormParser' => 
+    array (
+      'path' => '/lib/tests/UnitTestFormParser.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Thread' => 
     array (
       'path' => '/lib/Thread.class.php',
@@ -1011,62 +1033,95 @@ $classes = array (
         0 => 'Iterator',
       ),
     ),
-    'MemcachedEngine' =>
+    'SoopfwWrongParameterException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwWrongParameterException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SoopfwNoPermissionException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwNoPermissionException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SoopfwModuleNotFoundException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwModuleNotFoundException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'MemcachedEngine' => 
     array (
       'path' => '/lib/cache/default_provider/MemcachedEngine.class.php',
-      'extends' =>
+      'extends' => 
       array (
         0 => 'CacheProvider',
       ),
-      'implements' =>
+      'implements' => 
       array (
         0 => 'CacheProviderInterface',
       ),
     ),
-    'StaticMemcached' =>
+    'StaticMemcached' => 
     array (
       'path' => '/lib/cache/default_provider/StaticMemcached.class.php',
-      'extends' =>
+      'extends' => 
       array (
         0 => 'CacheProvider',
       ),
-      'implements' =>
+      'implements' => 
       array (
         0 => 'CacheProviderInterface',
       ),
     ),
-    'DBMemcached' =>
+    'DBMemcached' => 
     array (
       'path' => '/lib/cache/default_provider/DBMemcached.class.php',
-      'extends' =>
+      'extends' => 
       array (
         0 => 'CacheProvider',
       ),
-      'implements' =>
+      'implements' => 
       array (
         0 => 'CacheProviderInterface',
       ),
     ),
-    'MemcachedWrapper' =>
+    'MemcachedWrapper' => 
     array (
       'path' => '/lib/cache/default_provider/MemcachedWrapper.class.php',
-      'extends' =>
+      'extends' => 
       array (
         0 => 'CacheProvider',
       ),
-      'implements' =>
+      'implements' => 
       array (
         0 => 'CacheProviderInterface',
       ),
     ),
-    'CacheProvider' =>
+    'CacheProvider' => 
     array (
       'path' => '/lib/cache/CacheProvider.class.php',
-      'extends' =>
+      'extends' => 
       array (
         0 => 'Object',
       ),
-      'implements' =>
+      'implements' => 
       array (
       ),
     ),
@@ -1142,6 +1197,17 @@ $classes = array (
       array (
       ),
     ),
+    'HtmlContainerInput' => 
+    array (
+      'path' => '/lib/html/inputs/HtmlContainerInput.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractNoValueInput',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'Submitbutton' => 
     array (
       'path' => '/lib/html/inputs/Submitbutton.class.php',
@@ -1156,6 +1222,17 @@ $classes = array (
     'Textarea' => 
     array (
       'path' => '/lib/html/inputs/Textarea.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractHtmlInput',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'AbstractNoValueInput' => 
+    array (
+      'path' => '/lib/html/inputs/AbstractNoValueInput.class.php',
       'extends' => 
       array (
         0 => 'AbstractHtmlInput',
@@ -1702,16 +1779,6 @@ $classes = array (
       'extends' => 
       array (
         0 => 'Object',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'memcache' => 
-    array (
-      'path' => '/lib/memcache.class.php',
-      'extends' => 
-      array (
       ),
       'implements' => 
       array (
@@ -3840,6 +3907,13 @@ $classes = array (
     'UnitTestInterface' => 
     array (
       'path' => '/lib/tests/UnitTestInterface.class.php',
+      'extends' => 
+      array (
+      ),
+    ),
+    'CacheProviderInterface' => 
+    array (
+      'path' => '/lib/cache/CacheProviderInterface.class.php',
       'extends' => 
       array (
       ),
