@@ -185,7 +185,7 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		$check_query .= "JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) ";
 		$check_query .= "LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) ";
 		$check_query .= "WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= ";
-		$check_query .= "(SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34\' OR 1=1;#' AND `subfield1` = aliasjoin.`field1`) ))  ";
+		$check_query .= "(SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34\' OR 1=1;#' AND `subfield1` = aliasjoin.`field1`)  LIMIT 1))  ";
 		$check_query .= "GROUP BY `" . $table_prefix . "tablename`.`field1`, `" . $table_prefix . "tablename2`.`field2` ";
 		$check_query .= "ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
 
