@@ -22,6 +22,15 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 	}
 
 	/**
+	 * Check all needed module dependencies.
+	 */
+	public function check_dependencies() {
+		$this->assert_true($this->core->module_enabled('translation'), t('Check dependency: translation'));
+		$this->assert_true($this->core->module_enabled('user'), t('Check dependency: user'));
+		$this->assert_true($this->core->module_enabled('menu'), t('Check dependency: menu'));
+	}
+
+	/**
 	 * Checks main database functionality.
 	 *
 	 */
@@ -326,6 +335,228 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 		else {
 			$this->assert_web_not_regexp('/form_id_content_config_solr_server/i', t('Check if solr config was not found if solr module is not enabled'));
 		}
+	}
+
+	/**
+	 * Check content create / delete / translate..
+	 */
+	public function check_content() {
+
+		// Get enabled languages.
+		$enabled_languages = $this->lng->get_enabled_languages();
+
+		// Activate english language if not already.
+		if (!isset($enabled_languages['en'])) {
+			$this->do_ajax_post('/admin/translation/language_change.ajax', array(
+				'lang' => 'en',
+				'value' => 1,
+			));
+
+			$this->assert_ajax_success(t('Check if english language could be enabled'));
+		}
+
+		// Activate german language if not already.
+		if (!isset($enabled_languages['de'])) {
+			$this->do_ajax_post('/admin/translation/language_change.ajax', array(
+				'lang' => 'de',
+				'value' => 1,
+			));
+
+			$this->assert_ajax_success(t('Check if german language could be enabled'));
+		}
+
+		// Get enabled languages again, because maybe we have activated a missing one.
+		$enabled_languages = $this->lng->get_enabled_languages();
+
+		// Check if needed languages are available.
+		$this->assert_true(isset($enabled_languages['en']), t('Check if language is enabled: english'));
+		$this->assert_true(isset($enabled_languages['de']), t('Check if language is enabled: english'));
+
+		$this->do_get('/admin/content/create/webtest_content_type');
+		$this->assert_web_regexp('/create content: webtest_content_type/', t('Check for correct create page'));
+		$this->assert_form_exist('create_content_form', t('Check if create form exists'));
+		$this->assert_form_field_exist('create_content_form','create_alias', t('Check if create alias form field exists'));
+
+		$needed_fields = array(
+			'title',
+			'menu_chooser',
+			'menu_title',
+			'webtest_field_group_link_0_text',
+			'webtest_field_group_link_0_link',
+			'webtest_field_group_list_0_list',
+			'webtest_field_group_textfield_0_text',
+			'publish',
+			'create_alias',
+			'create_content_form_submit',
+			'menu_chooser_hidden',
+			'force_create',
+			'webtest_field_group_text_0_text',
+			'webtest_field_group_wysiwyg_0_text',
+		);
+		foreach ($needed_fields AS $field) {
+			$this->assert_form_field_exist('create_content_form', $field, t('Check if form field exists "@field"', array(
+				'@field' => $field,
+			)));
+		}
+		$this->assert_form_field_tag_equals('create_content_form','create_alias', 'checked', 'checked', t('Check if create alias is checked by default'));
+		$this->assert_form_field_tag_equals('create_content_form','publish', 'checked', 'checked', t('Check if publish is checked by default'));
+
+		$this->do_post('/admin/content/create/webtest_content_type', array(
+			'create_content_form_submit' => $this->csrf_token,
+		));
+		$this->assert_web_regexp('/The field "title" is required./', t('Check if title is required'));
+
+
+		$post_values = array(
+			'title' => 'test create content',
+			'webtest_field_group_link[0][text]' => 'this is a link',
+			'webtest_field_group_link[0][link]' => 'http://www.google.de',
+			'webtest_field_group_list[0][list]' => 'list element',
+			'webtest_field_group_textfield[0][text]' => 'textfield element',
+			'create_content_form_submit' => $this->csrf_token,
+			'webtest_field_group_text[0][text]' => 'testarea field',
+			'webtest_field_group_wysiwyg[0][text]' => 'wysiwyg testarea field',
+			'webtest_textfield[0][text]' => 'testarea2 field',
+		);
+		$this->do_post('/admin/content/create/webtest_content_type', $post_values);
+		$this->assert_web_regexp('/<li>Page created<\/li>/', t('Check if page was created'));
+
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test create content') . '.html');
+
+		$this->assert_web_not_regexp('/test create content/', t('Check if alias was not created'));
+
+		// Create an alias.
+		$post_values['create_alias'] = '1';
+		$this->do_post('/admin/content/edit/1', $post_values);
+
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test create content') . '.html');
+		
+		foreach ($post_values AS $k => $value) {
+			if ($k == 'create_content_form_submit' || $k == 'create_alias') {
+				continue;
+			}
+			$this->assert_web_regexp('/' . preg_quote($value, '/') . '/', t('Check if content is available: @type', array('@type' => $k)));
+		}
+
+
+		$this->assert_true((preg_match("/\/admin\/content\/view\/([0-9]+)/", $this->content, $matches) !== false), t('Check for view link'));
+		$nid = (int)$matches[1];
+		$this->assert_true((preg_match('/"\/admin\/content\/edit\/' . $nid . '"/', $this->content, $matches) !== false), t('Check for edit link'));
+		$this->assert_true((preg_match('/"\/admin\/content\/translate_list\/' . $nid . '"/', $this->content, $matches) !== false), t('Check for translation list link'));
+		$this->assert_true((preg_match('/"\/admin\/content\/revision_list\/' . $nid . '"/', $this->content, $matches) !== false), t('Check for revision list link'));
+
+		$this->do_get('/admin/content/revision_list/' . $nid);
+
+		$this->assert_web_regexp('/revision overview: test create content/', t('Check for valid revision list page'));
+		$this->assert_web_regexp('/\/admin\/content\/view\/' . $nid . '\/1/', t('Check if created revision is listed'));
+
+
+		$this->do_get('/admin/content/edit/' . $nid);
+
+
+		$post_edit_values = array(
+			'title' => 'test 2create content',
+			'webtest_field_group_link[0][text]' => 'this is a link2',
+			'webtest_field_group_link[0][link]' => 'http://www.google2.de',
+			'webtest_field_group_list[0][list]' => 'list element2',
+			'webtest_field_group_textfield[0][text]' => 'textfield element2',
+			'create_alias' => '1',
+			'create_content_form_submit' => $this->csrf_token,
+			'webtest_field_group_text[0][text]' => 'testarea field2',
+			'webtest_field_group_wysiwyg[0][text]' => 'wysiwyg testarea field2',
+			'webtest_textfield[0][text]' => 'testarea2 field2',
+		);
+
+		$this->assert_form_field_tag_equals('create_content_form', 'title', 'value', 'test create content', t('Check if form field is prefilled with the correct values: title'));
+		$this->assert_form_field_tag_exist_not('create_content_form', 'publish', 'checked', t('Check if form field is prefilled with the correct values: publish'));
+		$this->assert_form_field_tag_exist('create_content_form', 'create_alias', 'checked', t('Check if form field is prefilled with the correct values: create alias'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_link_0_text', 'value', 'this is a link', t('Check if form field is prefilled with the correct values: link text'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_link_0_link', 'value', 'http://www.google.de', t('Check if form field is prefilled with the correct values: link url'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_list_0_list', 'value', 'list element', t('Check if form field is prefilled with the correct values: list'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_textfield_0_text', 'value', 'textfield element', t('Check if form field is prefilled with the correct values: textfield element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_text_0_text', 'value', 'testarea field', t('Check if form field is prefilled with the correct values: testarea element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_wysiwyg_0_text', 'value', 'wysiwyg testarea field', t('Check if form field is prefilled with the correct values: wysiwyg element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_textfield_0_text', 'value', 'testarea2 field', t('Check if form field is prefilled with the correct values: textfield2 element'));
+
+		$this->do_post('/admin/content/edit/' . $nid, $post_edit_values);
+
+		$this->assert_web_regexp('/<li>Page saved, new revision created<\/li>/', t('Check if page was saved'));
+
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
+
+		foreach ($post_edit_values AS $k => $value) {
+			if ($k == 'create_content_form_submit' || $k == 'create_alias') {
+				continue;
+			}
+			$this->assert_web_regexp('/' . preg_quote($value, '/') . '/', t('Check if edited content is available: @type', array('@type' => $k)));
+		}
+
+		$this->do_get('/user/logout');
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
+
+		$this->assert_web_regexp('/<li>No such page<\/li>/', t('Check if page was not published'));
+
+		$this->login('admin_create');
+
+		$this->do_get('/admin/content/edit/' . $nid . '/1');
+
+		$this->assert_form_field_tag_equals('create_content_form', 'title', 'value', 'test create content', t('Revision: Check if form field is prefilled with the correct values: title'));
+		$this->assert_form_field_tag_exist_not('create_content_form', 'publish', 'checked', t('Revision: Check if form field is prefilled with the correct values: publish'));
+		$this->assert_form_field_tag_exist('create_content_form', 'create_alias', 'checked', t('Revision: Check if form field is prefilled with the correct values: create alias'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_link_0_text', 'value', 'this is a link', t('Revision: Check if form field is prefilled with the correct values: link text'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_link_0_link', 'value', 'http://www.google.de', t('Revision: Check if form field is prefilled with the correct values: link url'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_list_0_list', 'value', 'list element', t('Revision: Check if form field is prefilled with the correct values: list'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_textfield_0_text', 'value', 'textfield element', t('Revision: Check if form field is prefilled with the correct values: textfield element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_text_0_text', 'value', 'testarea field', t('Revision: Check if form field is prefilled with the correct values: testarea element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_field_group_wysiwyg_0_text', 'value', 'wysiwyg testarea field', t('Revision: Check if form field is prefilled with the correct values: wysiwyg element'));
+		$this->assert_form_field_tag_equals('create_content_form', 'webtest_textfield_0_text', 'value', 'testarea2 field', t('Revision: Check if form field is prefilled with the correct values: textfield2 element'));
+
+		// Publish.
+		$post_edit_values['publish'] = '1';
+		$this->do_post('/admin/content/edit/' . $nid, $post_edit_values);
+		$this->do_get('/user/logout');
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
+
+		foreach ($post_edit_values AS $k => $value) {
+			if ($k == 'create_content_form_submit' || $k == 'create_alias' || $k == 'publish') {
+				continue;
+			}
+			$this->assert_web_regexp('/' . preg_quote($value, '/') . '/', t('Check if published content is available: @type', array('@type' => $k)));
+		}
+
+		$this->login('admin_create');
+
+		// Mark the content as deleted.
+		$post_edit_values['delete'] = 'delete';
+		$this->do_post('/admin/content/edit/' . $nid, $post_edit_values);
+		$this->assert_web_regexp('/<li>page deleted<\/li>/', t('Check page is deleted (mark as deleted)'));
+
+		$this->do_get('/user/logout');
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
+
+		$this->assert_web_not_regexp('/test 2create content/', t('Check if we can not reach the deleted content as anonymous user'));
+
+		$this->login('admin_create');
+		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
+		$this->assert_web_not_regexp('/test 2create content/', t('Check if alias is removed'));
+
+		$this->do_get('/admin/content/view/1');
+		$this->assert_web_regexp('/test 2create content/', t('Check if content is present with direct code and admin permissions'));
+
+		$this->do_get('/admin/content/revision_list/' . $nid);
+		$this->assert_web_regexp('/\/admin\/content\/edit\/1\/1/', t('Check if first revision is present'));
+		$this->assert_web_regexp('/\/admin\/content\/edit\/1\/2/', t('Check if second revision is present'));
+
+		$post_edit_values['really_delete'] = 'delete (really delete)!!!!';
+		$this->do_post('/admin/content/edit/' . $nid, $post_edit_values);
+		$this->assert_web_regexp('/<li>page deleted<\/li>/', t('Check page is deleted (really)'));
+
+		$this->do_get('/admin/content/view/1');
+		$this->assert_web_not_regexp('/test 2create content/', t('Check if content is really deleted'));
+
+		#$this->do_post('/admin/content/edit/' . $nid . '/1', $post_edit_values);
+		#$this->parse_forms();
+		#print_r($this->form_parser->get_form('create_content_form'));
 
 	}
 }
