@@ -150,7 +150,19 @@ class DatabaseWhereGroup extends Object
 				if (isset($limit_conditions[$v['condition_type']])) {
 					$v['value']->limit(1);
 				}
-				$val = '(' . $v['value']->get_select_sql() . ')';
+				$val = '(' . $v['value']->get_select_sql();
+				$limit = (int) $v['value']->limit();
+
+				if ($limit > 0) {
+					$val .= " LIMIT " . $limit;
+				}
+
+				$offset = (int) $v['value']->offset();
+				if ($offset > 0) {
+					$val .= " OFFSET " . $offset;
+				}
+
+				$val .= ')';
 			}
 			else if ($v['escape'] == true) {
 				//Escape the value
