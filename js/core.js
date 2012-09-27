@@ -262,6 +262,7 @@ $.extend(Soopfw, {
 		if(matches != null && matches.length > 0) {
 			url = '/admin' + url;
 		}
+		wait_dialog();
 		$.ajax({
 			url: url,
 			dataType: 'html',
@@ -277,7 +278,7 @@ $.extend(Soopfw, {
 						options['title'] = matches;
 					}
 				}
-
+				$.alerts._hide();
 				$('#'+id).remove();
 				$('body').append(create_element({input: 'div', attr: {id:id,html: result}}) );
 				$('#'+id).dialog(options);
