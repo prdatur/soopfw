@@ -30,7 +30,7 @@ function enable_clicks() {
 	$(".dmyDelete").click(function() {
 		var id = $(this).attr("id");
 		confirm(Soopfw.t("Do you really want to delete this menu, ALL submenus will be deleted too"), Soopfw.t("delete?"), function() {
-			ajax_success("/menu/delete_menu.ajax", {menu_id: id}, Soopfw.t("menu deleted"), Soopfw.t("Success"), function() {
+			ajax_success("/admin/menu/delete_menu.ajax", {menu_id: id}, Soopfw.t("menu deleted"), Soopfw.t("Success"), function() {
 				$('tr[did="'+id+'"]').remove();
 				if($("#menu_tbody > tr").length <= 1) {
 					$("tbody > tr:not(tr[did])").show();
@@ -57,7 +57,7 @@ function get_menu_row(result) {
 
 	var tr = $('<tr did="'+result.menu_id+'">');
 	tr.append(create_element({input: 'td', append:[
-		create_element({input: 'a', attr:{href:'/menu/entries/'+result.menu_id, html: result.title}})
+		create_element({input: 'a', attr:{href:'/admin/menu/entries/'+result.menu_id, html: result.title}})
 	]}));
 
 	var options = create_element({input: 'td', css: {"text-align": 'right'},append:[
