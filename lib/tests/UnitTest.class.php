@@ -42,6 +42,8 @@ class UnitTest extends Object {
 	 */
 	protected $original_table_prefix = '';
 
+	protected $special_char_string = "-._~!$'\"()*@[]?&+%#,;=:%26%2B%2F%3Féøïвβ中國";
+
 	public function __construct($original_table_prefix) {
 		parent::__construct();
 		$this->original_table_prefix = $original_table_prefix;
