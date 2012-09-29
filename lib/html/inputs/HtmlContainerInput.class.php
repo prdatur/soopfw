@@ -28,7 +28,7 @@ class HtmlContainerInput extends AbstractNoValueInput
 	 *   the input id (optional, default = "")
 	 */
 	public function __construct($value = "", $class = "") {
-		parent::__construct();
+		parent::__construct(md5(uniqid()));
 
 		// Add the $class to our css class array.
 		$this->config_array("css_class", $class);
