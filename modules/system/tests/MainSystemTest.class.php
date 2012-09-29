@@ -211,6 +211,8 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 			return false;
 		}
 
+		// Try to delete the table if it exists.
+		$this->db->query_master('DROP TABLE IF EXISTS `create_table_test`');
 		if (!$this->assert_true($this->db->query_master('CREATE TABLE `create_table_test` (`test` INT UNSIGNED NOT NULL) ENGINE = InnoDB  DEFAULT CHARSET=utf8;'), t('CREATE TABLE permission check'))) {
 			return false;
 		}
