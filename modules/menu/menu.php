@@ -104,7 +104,8 @@ class menu extends ActionModul
 
 		//Init objForm
 		$obj_form = new ObjForm($menu_obj, '', array(), $force_loaded);
-
+		$menu_id_input = $obj_form->get('menu_id');
+		$menu_id_input->add_validator(new RegexpValidator(t('A menu_id can only have alphanumeric chars [a-z] and underlines. Spaces and numbers are not allowed.'), '/^[a-z_]+$/'));
 		//Enable ajax
 		$obj_form->set_ajax(true);
 
