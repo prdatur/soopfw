@@ -57,11 +57,11 @@ interface CacheProviderInterface
 	 * @param string $key
 	 *   the cache key.
 	 * @param int $offset
-	 *   the int to be incremented.
+	 *   the int to be incremented. (optional, default = 1)
 	 *
 	 * @return boolean true on success, else false.
 	 */
-	public function increment($key, $offset);
+	public function increment($key, $offset = 1);
 
 	/**
 	 * Decrement the given value for the key with the given offset.
@@ -69,11 +69,11 @@ interface CacheProviderInterface
 	 * @param string $key
 	 *   the cache key.
 	 * @param int $offset
-	 *   the int to be decremented.
+	 *   the int to be decremented. (optional, default = 1)
 	 *
 	 * @return boolean true on success, else false.
 	 */
-	public function decrement($key, $offset);
+	public function decrement($key, $offset = 1);
 
 	/**
 	 * Retrieve an item.

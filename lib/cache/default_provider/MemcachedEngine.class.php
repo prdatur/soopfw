@@ -27,6 +27,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	public function __construct(Core &$core) {
 		parent::__construct($core);
 		$this->client = new Memcached();
+		$this->client->setOption(Memcached::OPT_TCP_NODELAY, true);
 	}
 
 	/**
@@ -83,11 +84,11 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @param string $key
 	 *   the cache key.
 	 * @param int $offset
-	 *   the int to be incremented.
+	 *   the int to be incremented. (optional, default = 1)
 	 *
 	 * @return boolean true on success, else false.
 	 */
-	public function increment($key, $offset) {
+	public function increment($key, $offset = 1) {
 		return @$this->client->increment($key, $offset);
 	}
 
@@ -97,11 +98,11 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @param string $key
 	 *   the cache key.
 	 * @param int $offset
-	 *   the int to be decremented.
+	 *   the int to be decremented. (optional, default = 1)
 	 *
 	 * @return boolean true on success, else false.
 	 */
-	public function decrement($key, $offset) {
+	public function decrement($key, $offset = 1) {
 		return @$this->client->decrement($key, $offset);
 	}
 
