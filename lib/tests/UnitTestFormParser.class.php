@@ -117,7 +117,7 @@ class UnitTestFormParser
 	 *   the plain html content
 	 */
 	public function parse_forms($content) {
-		if (preg_match_all('/<\s*form([^>]*)>(.*)<\s*\/\s*form\s*>/iUs', $content, $matches)) {
+		if (preg_match_all('/<\s*form([^>]*)>(.*)<\s*\/\s*form\s*>/iUs', $content, $matches) || preg_match_all('/<\s*div ajax_form="1"([^>]*)>(.*)<\s*\/\s*div\s*><!-- AJAX CLOSE -->/iUs', $content, $matches)) {
 			foreach ($matches[2] AS $k => $form) {
 
 				$form_info = $this->get_input_tags($matches[1][$k]);

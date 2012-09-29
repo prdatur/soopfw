@@ -451,6 +451,53 @@ $(document).ready(function() {
 			}
 		}
 	};
+
+	Soopfw.behaviors.SystemAjaxForm = function() {
+		$('div[ajax_form]').each(function(){
+			var _form = this;
+			$(".ajax_submit_handler", $(this)).off("click").on('click', function() {
+				var values = get_form_by_class("inputs_" + $(_form).attr('id'),"name", true);
+				$.ajax({
+					url: $(_form).attr('action'),
+					type: $(_form).attr('method'),
+					data: values,
+					dataType: $(_form).attr('ajax_return_type'),
+					success: function(result) {
+
+						var form_name =  $(_form).attr('id');
+						if($(_form).attr('ajax_return_type') == 'html') {
+							if (Soopfw.config['system_ajax_form_return_type_handler'] != undefined && Soopfw.config['system_ajax_form_return_type_handler'][form_name] != undefined) {
+								var function_name = Soopfw.config['system_ajax_form_return_type_handler'][form_name];
+								if(/^[a-zA-Z0-9_.]+$/g.test(function_name)) {
+									eval(function_name + "(result);");
+								}
+								return;
+							}
+						}
+
+						parse_ajax_result(result, function(result,code,desc) {
+							success_alert('Data successfully saved\n'+desc, function() {
+								if(Soopfw.config['js_function_callback_' + form_name] != undefined) {
+									for(var i in Soopfw.config['js_function_callback_' + form_name]) {
+										if(!Soopfw.config['js_function_callback_' + form_name].hasOwnProperty(i)) {
+											continue;
+										}
+										var function_name = Soopfw.config['js_function_callback_' + form_name][i];
+
+										if(/^[a-zA-Z0-9_.]+$/g.test(function_name)) {
+											eval(function_name+"(result, code, desc);");
+										}
+									}
+								}
+							});
+						});
+
+					}
+				});
+			});
+		});
+	};
+
 	Soopfw.reload_behaviors();
 });
 

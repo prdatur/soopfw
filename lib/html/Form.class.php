@@ -360,6 +360,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public function ajax_return_type_handler($ajax_return_type_handler = NS) {
 		if ($ajax_return_type_handler != NS) {
+			$this->core->js_config('system_ajax_form_return_type_handler', $ajax_return_type_handler, true, $this->formname);
 			$this->ajax_return_type_handler = $ajax_return_type_handler;
 			return;
 		}
@@ -723,7 +724,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *   the javascript function
 	 */
 	public function add_js_success_callback($function_name) {
-		$this->core->js_config("js_function_callback", $function_name, true);
+		$this->core->js_config("js_function_callback_" . $this->formname, $function_name, true);
 	}
 
 	/**
@@ -736,11 +737,12 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *
 	 * @return AbstractHtmlInput the element as an AbstractHtmlInput or false if element not found
 	 */
-	public function get($val, $scope = self::ELEMENT_SCOPE_VISIBLE) {
+	public function &get($val, $scope = self::ELEMENT_SCOPE_VISIBLE) {
 		if (array_key_exists($val, $this->elements[$scope]) && is_object($this->elements[$scope][$val])) {
 			return $this->elements[$scope][$val];
 		}
-		return false;
+		$false = false;
+		return $false;
 	}
 
 	/**
