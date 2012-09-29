@@ -300,6 +300,48 @@ class WebUnitTest extends UnitTest {
 	}
 
 	/**
+	 * Check if the given content is a valid ajax return and the code equals the given one.
+	 *
+	 * @param int $code
+	 *   the code to check. (Use one of AjaxModul::ERROR_* or AjaxModul::SUCCESS*)
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_ajax_code($code, $description, $message = "") {
+		if ($this->assert_true(is_array($this->content), $description, t('Current result is not an array'))) {
+			if ($this->assert_true(isset($this->content['code']), $description, t('Current result array has not a code entry'))) {
+				$this->assert_equals($code, $this->content['code'], $description, $message);
+			}
+		}
+	}
+
+	/**
+	 * Check if the given content is a valid ajax return and the description equals the given one.
+	 *
+	 * @param string $desc
+	 *   the description to check.
+	 * @param string $description
+	 *   the description which descripes this test.
+	 * @param string $message
+	 *   the message to be returned.
+	 *   if not provided it will use the default
+	 *   message defined within this test.
+	 *   (optional, default = "")
+	 */
+	public function assert_ajax_description($desc, $description, $message = "") {
+		if ($this->assert_true(is_array($this->content), $description, t('Current result is not an array, instead it is: @content'))) {
+			if ($this->assert_true(isset($this->content['code']), $description, t('Current result array has not a code entry'))) {
+				$this->assert_equals($desc, $this->content['desc'], $description, $message);
+			}
+		}
+	}
+
+	/**
 	 * Checks the returning result from a query for default errors like
 	 * php notice / error messages.
 	 *

@@ -183,12 +183,13 @@ class UnitTestRunner extends Object {
 			->add_column('TABLE_NAME')
 			->add_where('TABLE_SCHEMA', $database);
 
-
+		
 		foreach ($tables->select_all(0, true) AS $table_name) {
 			if (!preg_match("/^" . preg_quote($this->original_table_prefix, '/') . "/", $table_name)) {
 				continue;
 			}
 
+			$this->db->query_master('DROP TABLE `test_' . $table_name . '`');
 			$this->db->query_master('CREATE TABLE `test_' . $table_name . '`  LIKE `' . $table_name . '`');
 			$this->database_test_envoirements_tables[] = 'test_' . $table_name;
 		}
