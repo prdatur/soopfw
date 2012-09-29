@@ -44,6 +44,25 @@ class UnitTestFormParser
 	}
 
 	/**
+	 * Returns an array which holds the given form values as fieldname => value
+	 *
+	 * @param string $form_id
+	 *   the form id.
+	 *
+	 * @return array Returns an array with all form element values, if form does not exist it returns boolean false
+	 */
+	public function get_form_values($form_id) {
+		if (!isset($this->forms[$form_id])) {
+			return false;
+		}
+		$return = array();
+		foreach ($this->forms[$form_id] AS $field_name => $tags) {
+			$return[$field_name] = $tags['value'];
+		}
+		return $return;
+	}
+
+	/**
 	 * Checks whether the form field exist or not.
 	 *
 	 * @param string $form_id
@@ -124,6 +143,7 @@ class UnitTestFormParser
 				$name = (isset($form_info['id'])) ? $form_info['id'] : '';
 				$this->forms[$name] = array();
 
+				// Inputs.
 				if (preg_match_all('/<\s*input(.+)\/>/iUs', $form, $inputs)) {
 					foreach ($inputs[1] AS $input_tokens) {
 						$element = $this->get_input_tags($input_tokens);
@@ -137,6 +157,7 @@ class UnitTestFormParser
 					}
 				}
 
+				// Textareas.
 				if (preg_match_all('/<\s*textarea(.+)>(.*)<\s*\/\s*textarea\s*>/iUs', $form, $textareas)) {
 					foreach ($textareas[1] AS $k => $textarea) {
 						$element = $this->get_input_tags($textarea);
@@ -148,6 +169,21 @@ class UnitTestFormParser
 						}
 					}
 				}
+
+				// Buttons.
+				if (preg_match_all('/<\s*button(.+)>(.*)<\s*\/\s*button\s*>/iUs', $form, $buttons)) {
+					foreach ($buttons[1] AS $k => $button) {
+						$element = $this->get_input_tags($button);
+						if (!empty($element)) {
+							$id = preg_replace('/^form_id_(' . preg_quote($name, '/') . '_)?/', '', $element['id']);
+							$element['value'] = $buttons[2][$k];
+							$element['type'] = 'button';
+							$this->forms[$name][$id] = $element;
+						}
+					}
+				}
+
+				// Selects.
 				if (preg_match_all('/<\s*select(.+)>(.*)<\s*\/\s*select\s*>/iUs', $form, $selectfields)) {
 
 					foreach ($selectfields[1] AS $k => $selectfield) {
