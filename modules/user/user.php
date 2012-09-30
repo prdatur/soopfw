@@ -37,6 +37,7 @@ class user extends ActionModul
 	const LOST_PW_TYPE_NONE = 1;
 	const LOST_PW_TYPE_RANDOM = 2;
 	const LOST_PW_TYPE_ONE_TIME_ACCESS = 3;
+
 	/**
 	 * Implementation of get_admin_menu()
 	 * @return array the menu
@@ -1202,7 +1203,8 @@ Also it expires after {expires} hours";
 		}
 		//No location was found to redirt to /
 		else {
-			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+			#$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+			$this->core->location('/');
 		}
 	}
 

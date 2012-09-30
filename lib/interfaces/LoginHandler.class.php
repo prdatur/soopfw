@@ -47,6 +47,15 @@ interface LoginHandler
 	public function get_profile_url($user_obj = null);
 
 	/**
+	 * Returns all urls for this handler which are not allowed for redirecting after login.
+	 *
+	 * This is needed to prevent redirect loops.
+	 *
+	 * @return array all urls on which we can not redirect.
+	 */
+	public function get_handler_urls();
+
+	/**
 	 * Checks if the user is logged in, if not we will redirect him to the login page
 	 *
 	 * @param boolean $force_not_loggedin

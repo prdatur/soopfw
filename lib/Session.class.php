@@ -99,6 +99,7 @@ class Session extends Object
 	public function get_login_session_keys() {
 		return $this->session_keys;
 	}
+
 	/**
 	 * Log the current user out, if $time is higher than 0 than the request_redirection will be used,
 	 * else it will a direct header location event
@@ -112,6 +113,7 @@ class Session extends Object
 
 		SystemHelper::audit(t('User "@username" logged out.', array('@username' => $this->session->current_user()->username)), 'session', SystemLogObj::LEVEL_NOTICE);
 
+		$this->set('user_login_handler', null);
 		//Loop through all user session keys and unset it
 		foreach ($this->session_keys AS $i) {
 			$this->session->delete($i);
@@ -229,13 +231,14 @@ class Session extends Object
 
 	/**
 	 * Checks all available login handler for pre validated login.
-	 * 
+	 *
 	 * @return boolean returns true on success, else false
 	 */
 	public function pre_validate_login() {
 		foreach ($this->login_handlers AS &$handler) {
 			// We direct set the current login handler to the active one.
-			$this->login_handler = &$handler;
+			// If the login fails it will be overwritten by the next try, the active one will be the one where the login succeeds.
+			$this->login_handler = $handler;
 			if($handler->pre_validate_login() === true) {
 				//Set the loggedin fast check variable to true
 				$this->logged_in = true;
@@ -266,6 +269,8 @@ class Session extends Object
 		foreach ($this->login_handlers AS &$handler) {
 			$unallowed_urls_for_redirect[$handler->get_login_url()] = true;
 			$unallowed_urls_for_redirect[$handler->get_logout_url()] = true;
+			$unallowed_urls_for_redirect = array_merge($unallowed_urls_for_redirect, $handler->get_handler_urls());
+
 		}
 		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the reditAfterLogin session variable
 		//This variable will be used to redirect the user to this page after successfully login
@@ -274,20 +279,34 @@ class Session extends Object
 		}
 		$this->logged_in = false;
 
-		foreach ($this->login_handlers AS &$handler) {
-			// We direct set the current login handler to the active one.
-			$this->login_handler = &$handler;
-			if($handler->check_login() === true) {
+		$login_handler = $this->get('user_login_handler');
+		if (!empty($login_handler) && isset($this->login_handlers[$login_handler]) && $this->login_handlers[$login_handler] instanceof LoginHandler) {
+			if ($this->login_handlers[$login_handler]->check_login()) {
+				$this->login_handler = $this->login_handlers[$login_handler];
 				//Set the loggedin fast check variable to true
 				$this->logged_in = true;
-				break;
+			}
+		}
+
+		if ($this->logged_in !== true) {
+			foreach ($this->login_handlers AS &$handler) {
+				// We direct set the current login handler to the active one.
+				// If the login fails it will be overwritten by the next try, the active one will be the one where the login succeeds.
+				$this->login_handler = $handler;
+				if($handler->check_login() === true) {
+					//Set the loggedin fast check variable to true
+					$this->logged_in = true;
+					break;
+				}
 			}
 		}
 
 		if($this->logged_in === true) {
 			$this->smarty->assign("loggedin", "1");
 			$this->current_user()->grant_static_permission('user.loggedin');
-
+		}
+		else {
+			$this->login_handler = null;
 		}
 		return $this->logged_in;
 	}
@@ -324,14 +343,30 @@ class Session extends Object
 		}
 		else {
 			//We have a direct username password call, check the login handler and return result.
-			$this->logged_in = $this->login_handler->validate_login($username, $password);
+			$this->logged_in = false;
+			foreach ($this->login_handlers AS $handler) {
+				// We direct set the current login handler to the active one.
+				// If the login fails it will be overwritten by the next try, the active one will be the one where the login succeeds.
+				$this->login_handler = $handler;
+				if($handler->validate_login($username, $password) === true) {
+					//Set the loggedin fast check variable to true
+					$this->logged_in = true;
+					break;
+				}
+			}
 			if ($this->logged_in) {
 				SystemHelper::audit(t('User "@username" logged in.', array('@username' => $this->session->current_user()->username)), 'session', SystemLogObj::LEVEL_NOTICE);
 			}
+			else {
+				$this->login_handler = null;
+			}
 			return $this->logged_in;
 		}
-		$this->current_user = $return;
 
+		$this->current_user = $return;
+		if (!empty($this->login_handler) && $this->login_handler instanceof LoginHandler) {
+			$this->set('user_login_handler', get_class($this->login_handler));
+		}
 		//Assign the loggedin variable for smarty to logged in
 		$this->smarty->assign("loggedin", "1");
 

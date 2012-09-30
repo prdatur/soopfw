@@ -70,6 +70,17 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	}
 
 	/**
+	 * Returns all urls for this handler which are not allowed for redirecting after login.
+	 *
+	 * This is needed to prevent redirect loops.
+	 *
+	 * @return array all urls on which we can not redirect.
+	 */
+	public function get_handler_urls() {
+		return array();
+	}
+
+	/**
 	 * Checks if the user is logged in, if not we will redirect him to the login page
 	 *
 	 * @param boolean $force_not_loggedin force not logged in that the user will be redirected to the user login page
@@ -91,6 +102,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 		$check_user = "";
 
 		$session_id = $this->session->get_session_id();
+
 		//If we have NOT posted and session variables are NOT empty check the user with the current session
 		if (!empty($session_id)) {
 			//Load the session object for the current session
