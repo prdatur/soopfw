@@ -489,10 +489,11 @@ class system extends ActionModul
 		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
 
 
-		$form->add(new Selectfield(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->dbconfig("system", self::CONFIG_LOGIN_HANDLER), t("Login handler")));
+		$description = '<a href="javascript:void(0);" class="change_login_handler_priority">' . t('Change priority') . '</a>';
+		$form->add(new Checkboxes(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->get_dbconfig("system", self::CONFIG_LOGIN_HANDLER, array()), t("Login handler"), $description));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
-		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Default max size"), t('Determines the default maximun size of uploaded files')));
+		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Default upload max size"), t('Determines the default maximun size of uploaded files')));
 
 
 		//Execute the settings form

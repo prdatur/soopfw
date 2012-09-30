@@ -41,7 +41,7 @@ interface LoginHandler
 	 *
 	 * @param UserObj $user_obj
 	 *   the user object, if provided it will get the profile url for this account (optional, default = null)
-	 * 
+	 *
 	 * @return string the profile url
 	 */
 	public function get_profile_url($user_obj = null);
@@ -64,6 +64,15 @@ interface LoginHandler
 	 * @return boolean returns true on successfully login else false
 	 */
 	public function check_login();
+
+
+	/**
+	 * This is called within the login page without posting something and is used for Single Sign On's like openID, shibboleth or Facebook.
+	 * This is a direct check if the user is logged in without a need to provide credentials.
+	 *
+	 * @return boolean returns true on successfully login else false
+	 */
+	public function pre_validate_login();
 
 	/**
 	 * Check if the given credentials are valid and if so setup a new session object

@@ -985,27 +985,80 @@ class user extends ActionModul
 			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
 		}
 
+		if ($this->session->pre_validate_login() === true) {
+			$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
+			$this->redirect_after_login();
+		}
 		$this->title(t('Login'), t('Please enter your username and password'));
 		$login_form = new Form('login', '', 'soopfw_login');
+
+		/**
+		 * Provides hook: alter_user_login_form
+		 *
+		 * Please do only modifify $form if you really need it.
+		 * Normally it is enough to return the new elements
+		 * the "sections" are all optional so if you do not want
+		 * to add elements before the buttons you do not need to provide the section "middle"
+		 *
+		 * valid sections are:
+		 *   top = right after the form initializing
+		 *   middle = between the last default input and the buttons
+		 *   bottom = after the buttons
+		 *
+		 * @param Form &$form
+		 *   The login form
+		 *
+		 * @return array the new input fields.
+		 *   the array must have the following format:
+		 *   array(
+		 *     'top' => array(elements),
+		 *     'middle' => array(elements),
+		 *     'bottom' => array(elements),
+		 */
+		$hook_results = $this->core->hook('alter_user_login_form', array(&$login_form));
+		$new_elements = array(
+			'top' => array(),
+			'middle' => array(),
+			'bottom' => array(),
+		);
+
+		// Setup sections.
+		foreach ($hook_results AS $module_name => &$sections) {
+			if (isset($sections['top'])) {
+				// We can directly add the top elements here because we are already at the right position.
+				foreach ($sections['top'] AS &$element) {
+					$login_form->add($element);
+				}
+			}
+			if (isset($sections['middle'])) {
+				$new_elements['middle'] = array_merge($new_elements['middle'], $sections['middle']);
+			}
+			if (isset($sections['bottom'])) {
+				$new_elements['bottom'] = array_merge($new_elements['bottom'], $sections['bottom']);
+			}
+		}
+
 		$login_form->add(new Textfield("user", '', t("Username")));
 		$login_form->add(new Passwordfield("pass", '', t("Password")));
+
+		// Add the middle section.
+		foreach ($new_elements['middle'] AS &$element) {
+			$login_form->add($element);
+		}
+
 		$login_form->add(new Submitbutton("soopfw_login", t("Login"), t("Login")));
+
+		// Add the bottom section.
+		foreach ($new_elements['bottom'] AS &$element) {
+			$login_form->add($element);
+		}
+
 		$login_form->assign_smarty();
 		$this->smarty->assign('lost_password_type', $this->core->get_dbconfig('user', self::CONFIG_LOST_PW_TYPE, self::CONFIG_LOST_PW_ONE_TIME_EXPIRE));
 		if ($login_form->check_form()) {
 			if ($this->session->validate_login($login_form->get_value("user"), $login_form->get_value("pass"))) {
-				//If a location is found, redirect the user
-				if (!empty($_SESSION['redir_after_login'])) {
-					$redir = $_SESSION['redir_after_login'];
-					unset($_SESSION['redir_after_login']);
-					header("Location: " . $redir);
-					exit();
-				}
-				//No location was found to redirt to /
-				else {
-					header("Location: /");
-					exit();
-				}
+				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
+				$this->redirect_after_login();
 			}
 			else {
 				$this->core->message(t("You have entered a wrong username and/or password."), Core::MESSAGE_TYPE_ERROR);
@@ -1135,6 +1188,22 @@ Also it expires after {expires} hours";
 		}
 
 		return true;
+	}
+
+	/**
+	 * Redirects the user to the last browsed page.
+	 */
+	private function redirect_after_login() {
+		//If a location is found, redirect the user
+		if (!empty($_SESSION['redir_after_login'])) {
+			$redir = $_SESSION['redir_after_login'];
+			unset($_SESSION['redir_after_login']);
+			$this->core->location($redir);
+		}
+		//No location was found to redirt to /
+		else {
+			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+		}
 	}
 
 	/**

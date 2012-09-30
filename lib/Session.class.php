@@ -36,7 +36,14 @@ class Session extends Object
 	private $session_id = null;
 
 	/**
-	 * Provides the login handler
+	 * Holds all available login handlers.
+	 *
+	 * @var array
+	 */
+	private $login_handlers = array();
+
+	/**
+	 * Provides the current login handler which is active.
 	 *
 	 * @var LoginHandler
 	 */
@@ -66,12 +73,21 @@ class Session extends Object
 		if (!defined('is_shell')) {
 			$this->start_session();
 
-			$login_handler = $this->core->dbconfig("system", system::CONFIG_LOGIN_HANDLER);
+			// Get all wanted login handlers.
+			$login_handlers = $this->core->get_dbconfig("system", system::CONFIG_LOGIN_HANDLER, array("DefaultLoginHandler"));
 
-			if(empty($login_handler) || !class_exists($login_handler)) {
-				$login_handler = "DefaultLoginHandler";
+			// Setup all login handlers.
+			foreach ($login_handlers AS $login_handler) {
+				if(empty($login_handler) || !class_exists($login_handler)) {
+					continue;
+				}
+				$this->login_handlers[$login_handler] = new $login_handler($core);
 			}
-			$this->login_handler = new $login_handler($core);
+
+			// If no login handler is checked we auto activate the default login handler.
+			if (empty($this->login_handlers)) {
+				$this->login_handlers['DefaultLoginHandler'] = new DefaultLoginHandler($core);
+			}
 		}
 	}
 
@@ -109,8 +125,81 @@ class Session extends Object
 		//Unset the redirection after login session key couse we do not want to redirect to an secured url
 		$this->session->delete('redir_after_login');
 
-		$this->login_handler->logout($time, $justreturn);
+		if ($this->login_handler !== null) {
+			$this->login_handler->logout($time, $justreturn);
+		}
+	}
 
+	/**
+	 * Returns the login url for the current active login handler.
+	 * If the user is not logged in (which he always shoud be when calling this)
+	 * it will return the login url with the highest priority.
+	 *
+	 * @return string the login url.
+	 */
+	public function get_login_url() {
+		return $this->get_best_login_handler()->get_login_url();
+	}
+
+	/**
+	 * Returns the logout url for the current active login handler.
+	 * If the user is not logged in (which he always shoud NOT be when calling this)
+	 * it will return the logout url with the highest priority.
+	 *
+	 * @return string the logout url.
+	 */
+	public function get_logout_url() {
+		return $this->get_best_login_handler()->get_logout_url();
+	}
+
+	/**
+	 * Returns the profile url for the current active login handler.
+	 * If the user is not logged in (which he always shoud NOT be when calling this)
+	 * it will return the profile url with the highest priority.
+	 *
+	 * @param UserObj $user_obj
+	 *   the user object, if provided it will get the profile url for this account (optional, default = null)
+	 *
+	 * @return string the profile url
+	 */
+	public function get_profile_url($user_obj = null) {
+		return $this->get_best_login_handler()->get_profile_url($user_obj);
+	}
+
+	/**
+	 * Returns the best matching return handler.
+	 *
+	 * If user is logged in we already have the login handler.
+	 * if not we get the first in the array back.
+	 *
+	 * @return LoginHandler
+	 */
+	public function &get_best_login_handler() {
+		static $cache = null;
+
+		if ($cache === null) {
+			if (!$this->logged_in || empty($this->login_handler)) {
+				reset($this->login_handlers);
+				$cache = &$this->login_handlers[key($this->login_handlers)];
+			}
+			else {
+				$cache = &$this->login_handler;
+			}
+		}
+
+		return $cache;
+	}
+
+	/**
+	 * Returns whether the $login_handler is enabled or not.
+	 *
+	 * @param string $login_handler.
+	 *   the classname of the login handler.
+	 *
+	 * @return boolean true if enabled, else false
+	 */
+	public function is_login_handler_enabled($login_handler) {
+		return isset($this->login_handlers[$login_handler]);
 	}
 
 	/**
@@ -124,10 +213,10 @@ class Session extends Object
 	 */
 	public function require_login($force_not_loggedin = false, $need_direct_handler = false) {
 
-		if($this->login_handler->require_login($force_not_loggedin, $need_direct_handler)) {
-			//If we force the log in or the current_user object is empty redirect the user to the login page
+		if(empty($this->login_handler) || $this->login_handler->require_login($force_not_loggedin, $need_direct_handler)) {
+			//If we force to be not logged in or the current_user object is empty redirect the user to the login page
 			if ($force_not_loggedin == true || !$this->is_logged_in()) {
-				$login_url = $this->login_handler->get_login_url();
+				$login_url = $this->get_login_url();
 				if($this->core->init_type == Core::INIT_TYPE_AJAXHTML) {
 					$this->smarty->assign("logout_url", $login_url);
 					$this->smarty->display("js_logout.tpl");
@@ -138,6 +227,23 @@ class Session extends Object
 		}
 	}
 
+	/**
+	 * Checks all available login handler for pre validated login.
+	 * 
+	 * @return boolean returns true on success, else false
+	 */
+	public function pre_validate_login() {
+		foreach ($this->login_handlers AS &$handler) {
+			// We direct set the current login handler to the active one.
+			$this->login_handler = &$handler;
+			if($handler->pre_validate_login() === true) {
+				//Set the loggedin fast check variable to true
+				$this->logged_in = true;
+				return true;
+			}
+		}
+		return false;
+	}
 	/**
 	 * Check if the user is logged in and log the user in if a post was provided.
 	 *
@@ -154,16 +260,32 @@ class Session extends Object
 			'iminutes' => $timeout_value,
 		));
 
+		$unallowed_urls_for_redirect = array(
+			"/" => true,
+		);
+		foreach ($this->login_handlers AS &$handler) {
+			$unallowed_urls_for_redirect[$handler->get_login_url()] = true;
+			$unallowed_urls_for_redirect[$handler->get_logout_url()] = true;
+		}
 		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the reditAfterLogin session variable
 		//This variable will be used to redirect the user to this page after successfully login
-		if ($_SERVER['REQUEST_URI'] != "/" && $_SERVER['REQUEST_URI'] != $this->login_handler->get_login_url() && $_SERVER['REQUEST_URI'] != $this->login_handler->get_logout_url() && preg_match("/(\.html|.*\/[^\/]*)$/is", $_SERVER['REQUEST_URI'])) {
+		if (!isset($unallowed_urls_for_redirect[$_SERVER['REQUEST_URI']]) && preg_match("/(\.html|.*\/[^\/]*)$/is", $_SERVER['REQUEST_URI'])) {
 			$this->set("redir_after_login", $_SERVER['REQUEST_URI']);
 		}
 		$this->logged_in = false;
-		if($this->login_handler->check_login() !== false) {
+
+		foreach ($this->login_handlers AS &$handler) {
+			// We direct set the current login handler to the active one.
+			$this->login_handler = &$handler;
+			if($handler->check_login() === true) {
+				//Set the loggedin fast check variable to true
+				$this->logged_in = true;
+				break;
+			}
+		}
+
+		if($this->logged_in === true) {
 			$this->smarty->assign("loggedin", "1");
-			//Set the loggedin fast check variable to true
-			$this->logged_in = true;
 			$this->current_user()->grant_static_permission('user.loggedin');
 
 		}
