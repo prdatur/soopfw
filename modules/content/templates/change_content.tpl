@@ -11,12 +11,27 @@
 		<%/if%>
 		<div class="ui-widget-content">
 			<%$form_content|unescape%>
-			<div class="form_button_container">
-				<%$form->get_type("button")%>
-				<%foreach from=$form key=k item=element%>
+
+			<%$form->get_type("visible")%>
+			<%$button_mode = 0%>
+			<%foreach from=$form key=k item=element%>
+				<%if $element|is_a:'Submitbutton'%>
+					<%if $button_mode == 0%>
+						<div class="form_button_container">
+						<%$button_mode = 1%>
+					<%/if%>
 					<%$element->fetch()%>
-				<%/foreach%>
-			</div>
+				<%else%>
+					<%if $button_mode == 1%>
+						</div>
+					<%$button_mode = 0%>
+					<%/if%>
+				<%/if%>
+			<%/foreach%>
+			<%if $button_mode == 1%>
+				</div>
+				<%$button_mode = 0%>
+			<%/if%>
 		</div>
 	</div>
 	<%$form->get_type("hidden")%>

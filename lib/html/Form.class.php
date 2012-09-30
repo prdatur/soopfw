@@ -15,7 +15,6 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	const ELEMENT_SCOPE_VISIBLE = 'visible';
 	const ELEMENT_SCOPE_HIDDEN = 'hidden';
-	const ELEMENT_SCOPE_BUTTON = 'button';
 
 	/**
 	 * If the form is valid or not
@@ -120,6 +119,8 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public $formname;
 
+	protected $submit_buttons = array();
+
 	/**
 	 * Constructor
 	 *
@@ -145,7 +146,6 @@ class Form extends AbstractHtmlElement implements Iterator
 		$this->elements = array(
 			self::ELEMENT_SCOPE_VISIBLE => array(),
 			self::ELEMENT_SCOPE_HIDDEN => array(),
-			self::ELEMENT_SCOPE_BUTTON => array(),
 		);
 
 		//Replace all spaces to underscores within the form_name
@@ -258,19 +258,17 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public function assign_smarty($name = "form") {
 
-		if (empty($this->elements[self::ELEMENT_SCOPE_BUTTON])) {
+		if (empty($this->submit_buttons)) {
 			$this->add(new Submitbutton('submit', t('Submit')));
 		}
 
 		if ($this->is_ajax) {
-			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
-			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
+			//We need to find all filefields to set it also to ajax mode if the form is ajax.
+			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
+				//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 				if ($elem instanceof Submitbutton) {
 					$elem->config_array("css_class", "ajax_submit_handler");
 				}
-			}
-			//We need to find all filefields to set it also to ajax mode if the form is ajax.
-			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
 				if ($elem instanceof Filefield) {
 					$elem->set_ajax(true);
 				}
@@ -289,19 +287,17 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public function append_smarty($key, $name = "form") {
 
-		if (empty($this->elements[self::ELEMENT_SCOPE_BUTTON])) {
+		if (empty($this->submit_buttons)) {
 			$this->add(new Submitbutton('submit', t('Submit')));
 		}
 
 		if ($this->is_ajax) {
-			//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
-			foreach ($this->elements[self::ELEMENT_SCOPE_BUTTON] AS &$elem) {
+			//We need to find all filefields to set it also to ajax mode if the form is ajax.
+			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
+				//If we are on ajax mode we try to find a submit button to add it as the ajax submit handler
 				if ($elem instanceof Submitbutton) {
 					$elem->config_array("css_class", "ajax_submit_handler");
 				}
-			}
-			//We need to find all filefields to set it also to ajax mode if the form is ajax.
-			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elem) {
 				if ($elem instanceof Filefield) {
 					$elem->set_ajax(true);
 				}
@@ -465,7 +461,7 @@ class Form extends AbstractHtmlElement implements Iterator
 			return $this->is_submit;
 		}
 
-		$element = $this->get($submit_element_key, "button");
+		$element = $this->get($submit_element_key);
 		if ($element !== false && $element instanceof Submitbutton) {
 			return $element->is_submitted();
 		}
@@ -548,7 +544,7 @@ class Form extends AbstractHtmlElement implements Iterator
 		}
 		else if ($input instanceof Submitbutton || $input instanceof Button) {
 			$input->config_array("css_class", "form_button");
-			$type = "button";
+			$this->submit_buttons[] = &$input;
 		}
 
 		//Set the enctype to the needed multipart/form-data if we have add a Filefield

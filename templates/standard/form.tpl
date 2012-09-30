@@ -11,6 +11,7 @@
 		<%/if%>
 		<div class="ui-widget-content">
 			<%$inner_fieldset_count = 0%>
+			<%$button_mode = 0%>
 			<%foreach from=$form item=element%>
 				<%$label=$element->config('label')%>
 				<%if $element|is_a:'Fieldset'%>
@@ -29,24 +30,33 @@
 					<%$inner_fieldset_count = $inner_fieldset_count + 1%>
 					<%$element->fetch()%>
 					<%if !empty($label)%><div class="legend_wrapper"><legend><%$label%></legend></div><%/if%>
+				<%elseif $element|is_a:'Submitbutton'%>
+					<%if $button_mode == 0%>
+						<div class="form_button_container">
+						<%$button_mode = 1%>
+					<%/if%>
+					<%$element->fetch()%>
 				<%else%>
+					<%if $button_mode == 1%>
+						</div>
+						<%$button_mode = 0%>
+					<%/if%>
 				<div id="<%$element->config('id')%>_wrapper">
 					<%$element->fetch()%>
 				</div>
 				<%/if%>
 			<%/foreach%>
 
+			<%if $button_mode == 1%>
+				</div>
+				<%$button_mode = 0%>
+			<%/if%>
+
 			<%if $inner_fieldset_count > 0%>
 				<%for $i=1 to $inner_fieldset_count%>
 					</fieldset>
 				<%/for%>
 			<%/if%>
-			<div class="form_button_container">
-				<%$form->get_type("button")%>
-				<%foreach from=$form key=k item=element%>
-					<%$element->fetch()%>
-				<%/foreach%>
-			</div>
 		</div>
 	</div>
 	<%$form->get_type("hidden")%>
