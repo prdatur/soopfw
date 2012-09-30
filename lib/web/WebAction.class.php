@@ -167,10 +167,6 @@ class WebAction extends Object
 	 * Check for login.
 	 */
 	private function check_login() {
-		/**
-		 * @TODO check if the !empty db is enough
-		 */
-		#if((!empty($this->core->db) && ($this->action_params['module'] == 'system' && $this->core->dbconfig("system", "installed") == "1") || $this->action_params['module'] != 'system')) {
 		if (!empty($this->core->db)) {
 			$this->core->get_session()->check_login();
 		}
