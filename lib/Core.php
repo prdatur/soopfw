@@ -885,6 +885,13 @@ class Core
 		if ($value == null) {
 			return $default_value;
 		}
+
+		// If we provided an array as default value we always want an array back for the value.
+		if (is_array($default_value) && !is_array($value)) {
+			// Transform the value to an array if it is not one.
+			$value = array($value);
+		}
+		
 		return $value;
 	}
 
@@ -1274,9 +1281,9 @@ class Core
 
 
 		//get the configured profile, login and logout url for the current login handler
-		$login_url = $this->session->get_login_handler()->get_login_url();
-		$logout_url = $this->session->get_login_handler()->get_logout_url();
-		$profile_url = $this->session->get_login_handler()->get_profile_url();
+		$login_url = $this->session->get_login_url();
+		$logout_url = $this->session->get_logout_url();
+		$profile_url = $this->session->get_profile_url();
 
 
 		//If a user is currently logged in replace @userid and @username with the user information
