@@ -488,9 +488,8 @@ class system extends ActionModul
 		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'no'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
 		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
 
+		$form->add(new HtmlContainerInput('<a href="javascript:void(0);" class="change_login_handler_priority form_button">' . t('Configurate login handler') . '</a>'));
 
-		$description = '<a href="javascript:void(0);" class="change_login_handler_priority">' . t('Change priority') . '</a>';
-		$form->add(new Checkboxes(self::CONFIG_LOGIN_HANDLER, $login_handler, $this->core->get_dbconfig("system", self::CONFIG_LOGIN_HANDLER, array()), t("Login handler"), $description));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Default upload max size"), t('Determines the default maximun size of uploaded files')));
@@ -498,6 +497,41 @@ class system extends ActionModul
 
 		//Execute the settings form
 		$form->execute();
+	}
+
+	public function configurate_login_handler() {
+		//Check perms
+		if (!$this->right_manager->has_perm('admin.system.config')) {
+			throw new SoopfwNoPermissionException();
+		}
+
+		$classes = $this->core->get_classlist();
+		$login_handler = array();
+		foreach($classes['classes'] AS $classname =>  &$class) {
+			if(!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
+				$login_handler[$classname] = $classname;
+			}
+		}
+
+		$configured_handlers = $this->core->get_dbconfig("system", self::CONFIG_LOGIN_HANDLER, array());
+
+		$handlers = array();
+		foreach ($configured_handlers AS $key => $val) {
+			$handlers[$val] = array(
+				'val' => $val,
+				'enabled' => true,
+			);
+			unset($login_handler[$val]);
+		}
+
+		foreach ($login_handler AS $key => $val) {
+			$handlers[$key] = array(
+				'val' => $val,
+				'enabled' => false,
+			);
+		}
+
+		$this->smarty->assign_by_ref('login_handlers', $handlers);
 	}
 
 	/**
