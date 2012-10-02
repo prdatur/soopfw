@@ -1091,7 +1091,7 @@ class user extends ActionModul
 		 */
 		$user_group = new UserRightGroupObj();
 		$user_group->title = 'Registered users';
-		$user_group->permissions = 'admin.show_admin_menu';
+		$user_group->permissions = 'admin.user.show_admin_menu';
 		$user_group_id = $user_group->insert();
 
 		$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array($user_group_id => $user_group_id), false, false, true);

@@ -891,7 +891,7 @@ class Core
 			// Transform the value to an array if it is not one.
 			$value = array($value);
 		}
-		
+
 		return $value;
 	}
 
@@ -1112,7 +1112,7 @@ class Core
 	public function assign_menus() {
 
 		$menu = array();
-		if ($this->right_manager->has_perm("admin.system.view_admin_menu", false)) {
+		if ($this->right_manager->has_perm("admin.user.show_admin_menu", false)) {
 			$modules = $this->modules;
 			$modules[] = "system";
 
