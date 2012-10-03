@@ -416,14 +416,40 @@ class UnitTest extends Object {
 	 *   Wether the test passed or not (optional, default = false)
 	 */
 	public function add_log($type, $description, $message, $passed = false) {
+
+		$line = 0;
+		$function = 'unknown';
+		$file = 'unknown';
+		$class = 'unknown';
+
 		if ($passed === false) {
 			$this->failed_tests++;
 			$this->has_failed_tests = true;
+
+			$found_assert = false;
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			foreach ($backtrace AS $trace) {
+				if (preg_match('/^assert_/', $trace['function'])) {
+					$found_assert = true;
+					$file = $trace['file'];
+					$line = $trace['line'];
+					continue;
+				}
+
+				if ($found_assert == true) {
+					$function = $trace['function'];
+					$class = $trace['class'];
+					break;
+				}
+			}
+
 		}
 		else {
 			$this->passed_tests++;
 		}
-		array_push($this->test_log, new UnitTestLog($type, $description, $message, $passed));
+
+
+		array_push($this->test_log, new UnitTestLog($type, $description, $message, $file, $class, $function, $line, $passed));
 	}
 
 	/**

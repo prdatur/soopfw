@@ -80,13 +80,19 @@ class cli_run_tests extends CLICommand
 			CliHelper::console_log(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
 			if ($tester->failed_tests > 0) {
 				CliHelper::console_log(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
+				CliHelper::console_log('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
 			}
 
 			foreach ($logs AS $entry) {
 				/* @var $entry UnitTestLog */
 				if ($entry->passed !== true) {
+					CliHelper::console_log('At file: ' . $entry->file . ', line: ' . $entry->line, Core::MESSAGE_TYPE_ERROR);
+					CliHelper::console_log('Test: ' . $entry->class. '->' . $entry->function . '()', Core::MESSAGE_TYPE_ERROR);
+					echo "\n";
 					CliHelper::console_log($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
 					CliHelper::console_log($entry->message, Core::MESSAGE_TYPE_ERROR);
+					CliHelper::console_log('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
+					echo "\n";
 				}
 			}
 		}
