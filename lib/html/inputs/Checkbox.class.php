@@ -62,7 +62,7 @@ class Checkbox extends AbstractHtmlInput
 		//Set our own value and label values
 		$this->value = $value;
 
-		//If we have not realy posted we must clear the value which was set by parent constructor and add the pre_value
+		//If we have not really posted, we must clear the value which was set by parent constructor and add the pre_value
 		if ($this->config("key_is_set") != true) {
 			$this->config("value", '');
 			$this->config("pre_value", $checkvalue);
