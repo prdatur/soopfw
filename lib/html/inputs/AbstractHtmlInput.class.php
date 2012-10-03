@@ -410,6 +410,7 @@ abstract class AbstractHtmlInput extends Object
 				}
 				$this->reinit_validators();
 			}
+
 			/**
 			 * If we want to set the label of the element we need to add also the lable_error to this value
 			 * This is needed because if the element has a required validator the returning label-string will have
@@ -423,6 +424,14 @@ abstract class AbstractHtmlInput extends Object
 			//Set the value for the given key
 			$this->config[$k] = $v;
 
+
+			/**
+			 * If we change the value we need to reinit all validators to provide them the new value.
+			 */
+			if ($k == "value") {
+				$this->reinit_validators();
+			}
+			
 			/**
 			 * If we change the label we must also check if we maybe must change the required validator label error,
 			 * We need this after we set the label error, else it will not have the new value and this reset would make no sense.
