@@ -199,19 +199,36 @@ class Form extends AbstractHtmlElement implements Iterator
 		if ($result == true) {
 			//If form was submitted we remove all pre_value configs from all visible elements
 			//So the "default" value will not be set again within the elements
+			/* @var $elm AbstractHtmlInput */
 			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elm) {
 				$elm->config("pre_value", "");
+				#echo $elm->config("name")." = " . $elm->config("key_is_set") . " = " . $elm->config("value");
+				if ($elm->config("key_is_set") !== true) {
+					$elm->config("value", '');
+				}
+				#echo " = " . $elm->config("value") . "\n";
 			}
-
+			$messages = array();
 			//If form is also not valid, get all errors from all fields and add the error message
 			if (!$this->is_valid(false)) {
 				foreach ($this->get_errors() AS $field_errors) {
 					foreach ($field_errors AS $error) {
-						$this->core->message($error, Core::MESSAGE_TYPE_ERROR, $this->is_ajax());
+						$messages[] = $error;
 						$result = false;
 					}
 				}
 			}
+			if ($result === false) {
+				if ($this->is_ajax()) {
+					$this->core->message(implode("\n", $messages), Core::MESSAGE_TYPE_ERROR, true);
+				}
+				else {
+					foreach ($messages AS $error) {
+						$this->core->message($error, Core::MESSAGE_TYPE_ERROR, false);
+					}
+				}
+			}
+
 		}
 
 		//Return if form was submitted and valid or not
