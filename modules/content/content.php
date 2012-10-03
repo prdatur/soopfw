@@ -1224,12 +1224,9 @@ Current language: [b]@language[/b]', array(
 		$form_content .= $menu_title->fetch();
 		$form->add($menu_title);
 
-		$menu_chooser_hidden = new Hiddeninput("menu_chooser_hidden", $menu_value);
-		$form->add($menu_chooser_hidden);
+		$form->add(new Hiddeninput("menu_chooser_hidden", $menu_value));
 		$form->add(new Hiddeninput("force_create", $force_create));
-
-		$form->add(new Textfield("content_type", $content_type));
-
+		$form->add(new Hiddeninput("content_type", $content_type));
 
 		$field_groups = array();
 

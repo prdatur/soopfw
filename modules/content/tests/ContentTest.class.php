@@ -50,6 +50,8 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 		'webtest_field_group_text[0][text]' => 'testarea field',
 		'webtest_field_group_wysiwyg[0][text]' => 'wysiwyg testarea field',
 		'webtest_textfield[0][text]' => 'testarea2 field',
+		'create_alias' => '0',
+		'publish' => '0',
 	);
 
 	private $post_edit_values = array(
@@ -191,31 +193,11 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'form_content_types_field_groups_submit' => $this->csrf_token,
 			'add' => 'add',
 		));
-		$this->assert_equals('The field "id" is required.', $this->content['desc'], t('Check for valid missing param: id'));
+		$this->assert_equals('The field "id" is required.
+The field "field type" is required.
+The field "name" is required.
+The field "required" is required.', $this->content['desc'], t('Check for valid missing content create field params'));
 
-		$this->do_ajax_post('/admin/content/change_content_type_field/' . $this->content_type, array(
-			'form_content_types_field_groups_submit' => $this->csrf_token,
-			'add' => 'add',
-			'id' => 'webtest_textfield',
-		));
-		$this->assert_equals('The field "field type" is required.', $this->content['desc'], t('Check for valid missing param: field type'));
-
-		$this->do_ajax_post('/admin/content/change_content_type_field/' . $this->content_type, array(
-			'form_content_types_field_groups_submit' => $this->csrf_token,
-			'add' => 'add',
-			'id' => 'webtest_textfield',
-			'field_group' => 'FieldGroupText',
-		));
-		$this->assert_equals('The field "name" is required.', $this->content['desc'], t('Check for valid missing param: name'));
-
-		$this->do_ajax_post('/admin/content/change_content_type_field/' . $this->content_type, array(
-			'form_content_types_field_groups_submit' => $this->csrf_token,
-			'add' => 'add',
-			'id' => 'webtest_textfield',
-			'field_group' => 'FieldGroupText',
-			'name' => 'Webtest Textfield',
-		));
-		$this->assert_equals('The field "required" is required.', $this->content['desc'], t('Check for valid missing param: required'));
 	}
 
 	/**
@@ -228,6 +210,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'id' => 'webtest_textfield',
 			'field_group' => 'FieldGroupText',
 			'name' => 'Webtest Textfield',
+			'max_value' => 1,
 			'required' => 'no',
 		));
 		$this->assert_equals('field added', $this->content['desc'], t('Check if field was added'));
@@ -248,6 +231,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 				'id' => $name['id'],
 				'field_group' => $type,
 				'name' => $name['name'],
+				'max_value' => 1,
 				'required' => 'no',
 			));
 		}
@@ -501,7 +485,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 		$this->post_values['create_alias'] = '1';
 		$this->do_post('/admin/content/edit/1', $this->post_values);
 
-
+		
 		$this->do_get('/' . UrlAliasObj::get_alias_string('test create content') . '.html');
 
 		foreach ($this->post_values AS $k => $value) {
