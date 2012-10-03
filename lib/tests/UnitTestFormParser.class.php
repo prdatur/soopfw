@@ -57,7 +57,7 @@ class UnitTestFormParser
 		}
 		$return = array();
 		foreach ($this->forms[$form_id] AS $field_name => $tags) {
-			$return[$field_name] = $tags['value'];
+			$return[$field_name] = isset($tags['value']) ? $tags['value'] : null;
 		}
 		return $return;
 	}
@@ -200,8 +200,8 @@ class UnitTestFormParser
 									$element = $this->get_input_tags($option);
 									if (!empty($element)) {
 										$element['type'] = 'option';
-										$element['value'] = $options[2][$k];
-										$select_element['options'][] = $element;
+										$element['text'] = $options[2][$k];
+										$select_element['options'][$element['value']] = $element;
 									}
 									if (isset($element['selected'])) {
 										$select_element['value'] = $element['value'];
