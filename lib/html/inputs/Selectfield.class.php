@@ -112,8 +112,24 @@ class Selectfield extends AbstractHtmlInput
 	function get_tpl_vars() {
 		$conf = parent::get_tpl_vars();
 		$conf['options|clear'] = "";
+
+		$value_checked = null;
+		$check_value = $this->config('value');
+
 		foreach ($this->options AS $input) {
-			$input['selected'] = ($input['selected'] == true) ? ' selected="selected"' : '';
+			if ($this->config('value') == $input['value']) {
+				$value_checked = $input['value'];
+				break;
+			}
+		}
+
+		foreach ($this->options AS $input) {
+			if (is_null($value_checked)) {
+				$input['selected'] = (($input['selected'] == true)) ? ' selected="selected"' : '';
+			}
+			else {
+				$input['selected'] = (($this->config('value') == $input['value'])) ? ' selected="selected"' : '';
+			}
 			$conf['options|clear'] .= '<option value="'.$input['value'].'"'.$input['selected'].'>'.$input['content']."</option>\n";
 		}
 
