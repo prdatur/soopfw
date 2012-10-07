@@ -52,6 +52,8 @@ class UserObj extends AbstractDataManagment
 		$this->db_struct->add_field("confirm_key", t("confirm_key"), PDT_STRING);
 		$this->db_struct->add_field("deleted", t("Deleted"), PDT_ENUM, 'no', array('yes', 'no'));
 
+		$this->db_struct->add_index(MysqlTable::INDEX_TYPE_INDEX, array('username'));
+
 		$this->set_default_fields();
 		if (!empty($user_id)) {
 			if (!$this->load($user_id, $force_db)) {
