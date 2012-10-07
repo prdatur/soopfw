@@ -71,8 +71,9 @@ class Configuration {
 	 *   the configuration key
 	 * @param mixed $default_value
 	 *   the default value which will be returned if the key is not set.
+	 *   (optional, default = null)
 	 */
-	public function is_enabled($key, $default_value) {
+	public function is_enabled($key, $default_value = null) {
 		if (!isset($this->config[$key])) {
 			return $default_value;
 		}
@@ -86,8 +87,9 @@ class Configuration {
 	 *   the configuration key
 	 * @param mixed $default_value
 	 *   the default value which will be returned if the key is not set.
+	 *   (optional, default = null)
 	 */
-	public function is_disabled($key, $default_value) {
+	public function is_disabled($key, $default_value = null) {
 		if (!isset($this->config[$key])) {
 			return $default_value;
 		}
