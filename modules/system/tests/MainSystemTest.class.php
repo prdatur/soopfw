@@ -156,21 +156,21 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 				->add_where('x', '1');
 		$original_query = $filter->get_select_sql();
 		$this->db->final_transform_query($original_query);
-		$check_query = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename`  WHERE (`x` = '1')";
+		$check_query = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename`  WHERE (`" . $table_prefix . "tablename`.`x` = '1')";
 		if (!$this->assert_equals($original_query, $check_query, t("Check Databasefilter select with where"))) {
 			return false;
 		}
 
 		$sub_query = DatabaseFilter::create('subtable')
 				->add_where('subfield1', "34' OR 1=1;#")
-				->add_where('subfield1', 'aliasjoin.`field1`', '=', false)
+				->add_where_unescape('subfield1', 'aliasjoin.`field1`')
 				->add_column('count(*)');
 
 
 		$filter = DatabaseFilter::create('tablename')
 				->add_where('x', '1')
-				->add_where('tablename2.y', '1')
-				->add_where('tablename.x', $sub_query, '>=')
+				->add_where('y', '1', '=', 'tablename2')
+				->add_where('x', $sub_query, '>=', 'tablename')
 				->join('aliastablename', 'aliasjoin.`x` = `database1`.`tablename2`.`y`', 'aliasjoin')
 				->left_join('tablename3', '`tablename3`.x = `tablename2`.y')
 				->order_by('x')
@@ -181,11 +181,12 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		$original_query = $filter->get_select_sql();
 		$this->db->final_transform_query($original_query);
 
+
 		$check_query  = "SELECT `" . $table_prefix . "tablename`.* FROM `" . $table_prefix . "tablename` ";
 		$check_query .= "JOIN `" . $table_prefix . "aliastablename` AS aliasjoin ON (aliasjoin.`x` = `database1`.`" . $table_prefix . "tablename2`.`y`) ";
 		$check_query .= "LEFT JOIN `" . $table_prefix . "tablename3` ON (`" . $table_prefix . "tablename3`.x = `" . $table_prefix . "tablename2`.y) ";
-		$check_query .= "WHERE (`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= ";
-		$check_query .= "(SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`subfield1` = '34\' OR 1=1;#' AND `subfield1` = aliasjoin.`field1`)  LIMIT 1))  ";
+		$check_query .= "WHERE (`" . $table_prefix . "tablename`.`x` = '1' AND `" . $table_prefix . "tablename2`.`y` = '1' AND `" . $table_prefix . "tablename`.`x` >= ";
+		$check_query .= "(SELECT count(*) FROM `" . $table_prefix . "subtable`  WHERE (`" . $table_prefix . "subtable`.`subfield1` = '34\' OR 1=1;#' AND `" . $table_prefix . "subtable`.`subfield1` = aliasjoin.`field1`)  LIMIT 1))  ";
 		$check_query .= "GROUP BY `" . $table_prefix . "tablename`.`field1`, `" . $table_prefix . "tablename2`.`field2` ";
 		$check_query .= "ORDER BY `" . $table_prefix . "tablename`.`x` asc, `" . $table_prefix . "tablename2`.`y` asc";
 
