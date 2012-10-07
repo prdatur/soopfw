@@ -1704,7 +1704,7 @@ class Core
 		}
 
 		if ($is_full_path == true) {
-			$this->js_files[$type][] = $file;
+			$this->js_files[$type][$file] = $file;
 			return;
 		}
 
