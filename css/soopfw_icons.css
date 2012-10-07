@@ -39,6 +39,9 @@
 
 .ui-icon-soopfw-header { background-position: -112px 0px;  background-image: url(images/sprite_icons.png) !important;}
 
+.ui-icon-soopfw-disabled {
+	opacity: 0.3;
+}
 
 .ui-icon-soopfw-country { background: url(images/country-sprite.png) no-repeat top left; vertical-align: middle;}
 .ui-icon-soopfw-country-ad{ background-position: 0 0; width: 16px; height: 11px; }
