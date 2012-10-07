@@ -81,6 +81,13 @@ class DbStruct extends Object
 	private $disable_autoupdate = false;
 
 	/**
+	 * Holds all available indexes for the struct.
+	 *
+	 * @var array
+	 */
+	private $indexes = array();
+
+	/**
 	 * constructor
 	 * @param string $table_name
 	 *   The sql table
@@ -88,6 +95,35 @@ class DbStruct extends Object
  	public function __construct($table_name) {
 		parent::__construct();
 		$this->table_name = $table_name;
+	}
+
+	/**
+	 * Add an index.
+	 *
+	 * @param string $type
+	 *   The index type.
+	 *   For now use only MysqlTable::INDEX_TYPE_*
+	 * @param array|string $fields
+	 *   if a string is provided it will be transformed into an array.
+	 *   The database fields to index.
+	 */
+	public function add_index($type, $fields) {
+		if (!is_array($fields)) {
+			$fields = array();
+		}
+		$this->indexes[] = array(
+			'type' => $type,
+			'fields' => $fields,
+		);
+	}
+
+	/**
+	 * Returns all configured indexes.
+	 *
+	 * @return array an array which holds all indexes.
+	 */
+	public function get_indexes() {
+		return $this->indexes;
 	}
 
 	/**
