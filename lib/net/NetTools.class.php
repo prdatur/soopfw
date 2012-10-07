@@ -24,7 +24,21 @@ class NetTools
 		}
 		return $url;
 	}
-	
+
+	/**
+	 * Returns the full request uri.
+	 *
+	 * @return string the prepared request uri.
+	 */
+	public static function get_full_request_uri() {
+		$url = null;
+		if ($url === null) {
+			$_SERVER['REQUEST_URI'] = preg_replace('/^\/+/is', '/', $_SERVER['REQUEST_URI']);
+			$url = $_SERVER['REQUEST_URI'];
+		}
+		return $url;
+	}
+
 	/**
 	 * Check the given value against the email regexp, if checkdns is set to true (default) than the domain part will be checked if there is an mx record
 	 *
