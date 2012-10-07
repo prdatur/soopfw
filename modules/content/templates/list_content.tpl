@@ -4,7 +4,11 @@
 <table class="ui-widget ui-widget-content " style="margin-top: 10px;" cellspacing="0" cellpadding="0" border="0">
 	<thead class="ui-widget-header">
 		<tr>
-			<td style="text-align: left;"><%t key='title'%></td>
+			<td style="text-align: left;"><%t key='Title'%></td>
+			<td style="text-align: left;"><%t key='Type'%></td>
+			<td style="text-align: left;"><%t key='Languages'%></td>
+			<td style="text-align: center;width:125px;"><%t key='Last modified'%></td>
+			<td style="text-align: left;"><%t key='Last modified by'%></td>
 		</tr>
 	</thead>
 	<tbody>
@@ -13,11 +17,19 @@
 			<td style="text-align: left;">
 				<a href="/admin/content/edit/<%$page.page_id%>">
 					<span><%$page.title%>
-						<%if $page.deleted == 'yes'%><span style='font-style: italic'>(deleted)</span><%/if%>
-						<%if empty($page.last_revision)%><span style='font-style: italic'>(unpublished)</span><%/if%>
+						<%if $page.deleted == 'yes'%><span style='font-style: italic'>(<%t key='deleted'%>)</span><%/if%>
+						<%if empty($page.last_revision)%><span style='font-style: italic'>(<%t key='unpublished'%>)</span><%/if%>
 					</span>
 				</a>
 			</td>
+			<td><%$page.content_type_description%></td>
+			<td>
+				<%foreach $available_languages AS $key => $val%>
+				<img src='/1x1_spacer.gif' class="ui-icon-soopfw-country ui-icon-soopfw-country-<%$key|lower%><%if !isset($page.translated[$key])%> ui-icon-soopfw-disabled<%/if%>"/>
+				<%/foreach%>
+			</td>
+			<td style="text-align: center"><%$page.last_modified|format_date:'d.m.Y H:i:s'%></td>
+			<td><%$page.last_modified_by_username%></td>
 		</tr>
 	<%foreachelse%>
 	<tr>

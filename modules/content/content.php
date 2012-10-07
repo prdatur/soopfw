@@ -539,19 +539,21 @@ class content extends ActionModul {
 		$form->add(new Textfield("title", '', t("Title")));
 
 		$this->lng->load_language_list('', array(), true);
-		$form->add(new Selectfield('language', $this->lng->languages, $this->core->current_language, t("Language")));
 
 		$options = array(
 			'' => t('All')
 		);
 
+		$langs = array_merge($options, $this->lng->languages);
+		$form->add(new Selectfield('language', $langs, $this->core->current_language, t("Language")));
+
 		foreach($this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
 			$options[$content_type['content_type']] = $content_type['description'];
 		}
-
 		$form->add(new Selectfield('content_type', $options, '', t("Content type")));
 
-		$form->add(new Submitbutton("searchSoap", t("Search"), "form_button"));
+		$form->add(new Submitbutton("search_submit", t("Search"), "form_button"));
+
 		$form->assign_smarty("search_form");
 
 		//Check form and add errors if form is not valid
@@ -564,43 +566,83 @@ class content extends ActionModul {
 			//Form was not submited so try to load session values
 			$form->set_values($this->session->get("search_content_overview", array()));
 		}
-		$where = array();
+
+
+
+
+		$language_search = '';
+
+		$filter = DatabaseFilter::create(PageObj::TABLE, 'p');
 		//Build up where statement
 		foreach ($this->session->get("search_content_overview", array()) AS $field => $val) {
-			if (empty($val)) {
+			if (empty($val) || $field == 'search_submit') {
 				continue;
 			}
-			$where[] = "`".Db::sql_escape($field)."` LIKE '" . $this->db->get_sql_string_search($val, "%{v}%") . "'";
+			if ($field == 'language') {
+				$language_search = $val;
+				continue;
+			}
+
+			if ($field == 'title') {
+				$filter->join(PageRevisionObj::TABLE, "p.page_id = pr.page_id AND p.language = pr.language", 'pr');
+				$filter->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE', 'pr');
+				continue;
+			}
+
+			$filter->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');
+
 		}
 
-		if (empty($where)) {
-			$where[] = "`language` = '" . Db::safe($this->core->current_language) . "'";
+		if (empty($language_search)) {
+			$language_search = $this->core->current_language;
 		}
 
-		$where = " WHERE " . implode(" AND ", $where);
-
-		//Build query string for pager
-		$query_string = "SELECT 1 FROM `" . PageObj::TABLE . "`".$where;
+		$filter->add_where('language', $language_search);
 
 		//Init pager
-		$max = $this->db->query_slave_count($query_string);
+		$max = $filter->select_count();
 		$pager = new Pager(50, $max);
 		$pager->assign_smarty("pager");
 
-		//Build query string
-		$query_string = "SELECT `page_id`,`deleted`,`last_revision` FROM `".PageObj::TABLE . "`" . $where;
+		$filter->add_column(array(
+			'page_id',
+			'deleted',
+			'language',
+			'last_revision',
+			'last_modified',
+			'last_modified_by',
+		));
+
+		$filter->join(UserObj::TABLE, "p.last_modified_by = u.user_id", 'u');
+		$filter->add_column('`username` AS last_modified_by_username', 'u');
+
+		$filter->join(ContentTypeObj::TABLE, "p.content_type = ct.content_type", 'ct');
+		$filter->add_column('`description` AS content_type_description', 'u');
+		$filter->limit($pager->max_entries_per_page());
+		$filter->offset($pager->get_offset());
 
 		//Search in DB
-		$pages = $this->db->query_slave_all($query_string, array(), $pager->max_entries_per_page(), $pager->get_offset());
+		$pages = $filter->select_all();
 
-		foreach($pages AS &$page) {
-			$revision_object = new PageRevisionObj($page['page_id'], $this->core->current_language);
-			if($revision_object->load_success()) {
-				$page = array_merge($page, $revision_object->get_values());
-			}
+		$language_filter = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+		foreach ($this->lng->languages AS $key => $lang) {
+			$language_filter->add_where('language', $key);
 		}
 
-		//Assign found servers
+		foreach($pages AS &$page) {
+			$filter = DatabaseFilter::create(PageRevisionObj::TABLE)
+				->add_column('title')
+				->add_column('language')
+				->add_where('page_id', $page['page_id'])
+				->add_where($language_filter);
+
+			$page['translated'] = $filter->select_all('language');
+			$page['title'] = $page['translated'][$language_search]['title'];
+		}
+
+		$this->smarty->assign("available_languages", $this->lng->languages);
+
+		//Assign found content
 		$this->smarty->assign_by_ref("pages", $pages);
 	}
 	/**
