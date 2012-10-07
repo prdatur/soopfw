@@ -258,20 +258,20 @@ class Db
 	 * You can provide a default search with $default
 	 * for example if someone searches for "hello*" it will find * at the end and will use this.
 	 * if someone searches for "hell" no * provided so the default value will be used.
-	 * The provided value will replaced within {v}
-	 * Let say we have default = "%{v}%" and someone searches the above example "hell".
-	 * {v} will be replaced with escaped "hell" and there for the search will be %hell%
+	 * The provided value will replaced within . (dot)
+	 * Let say we have default = "%.%" and someone searches the above example "hell".
+	 * . (dot) will be replaced with escaped "hell" and there for the search will be %hell%
 	 *
 	 * @param string $val
-	 *   The String
+	 *   The string
 	 * @param string $default
-	 *   the default value if $val have no * (optional, default = '')
+	 *   the default search pattern if $val has no * (optional, default = '')
 	 * @param boolean $escape
 	 *   if set to false the value will not be escaped.
 	 *   BE CAREFULL WITH THIS. USE THIS ONLY IF YOU USE DatabaseFilter OR YOU HAVE SELF ESCAPED
 	 *   THE VALUE. (optional, default = true)
 	 *
-	 * @return string The escaped and replaced String
+	 * @return string The escaped and replaced string
 	 */
 	public function get_sql_string_search($val, $default = "", $escape = true) {
 		$return_arr = array();
@@ -291,7 +291,7 @@ class Db
 			else {
 				$val = str_replace("%", "\\%", $val);
 			}
-			return str_replace("{v}", $val, $default);
+			return str_replace(".", $val, str_replace('*', '%', $default));
 		}
 		return implode("%", $return_arr);
 	}
@@ -757,6 +757,53 @@ class Db
 	}
 
 	/**
+	 * Remove an table index.
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $index_type
+	 *   the index type
+	 * @param array $fields
+	 *   all fields for this index.
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
+	 */
+	public function add_index($table, $index_type, $fields, $queue = false) {
+		foreach ($fields AS &$field) {
+			$field = "`" . Db::safe($field) . "`";
+		}
+		$fields = implode(", ", $fields);
+
+		if ($queue === true) {
+			$query = $this->init_alter_table_queue($table);
+			$query .= " ADD ". $index_type . " (" . $fields . ")";
+			$this->altertable[$table][] = $query;
+			return;
+		}
+		$this->query("ALTER TABLE `" . $table . "` ADD ". $index_type . " (" . $fields . ")");
+	}
+
+	/**
+	 * Remove an table index.
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $index_name
+	 *   the index name
+	 * @param boolean $queue
+	 *   if the sql query will be queued or not (optional, default = false)
+	 */
+	public function remove_index($table, $index_name, $queue = false) {
+		if ($queue === true) {
+			$query = $this->init_alter_table_queue($table);
+			$query .= " DROP INDEX " . Db::safe($index_name);
+			$this->altertable[$table][] = $query;
+			return;
+		}
+		$this->query("ALTER TABLE `" . $table . "` DROP INDEX " . Db::safe($index_name));
+	}
+
+	/**
 	 * Change a field from a given table.
 	 *
 	 * To rename a field you need to provide $data the array key 'new_field' with the new field name
@@ -896,6 +943,41 @@ class Db
 			return $primarykeys;
 		}
 		return implode(",", $primarykeys);
+	}
+
+	/**
+	 * Get the indexe of a table.
+	 *
+	 * @param string $table
+	 *   the table
+	 * @param string $type
+	 *   the index type
+	 *   if provided only the specific type of index will be returned, else all available (without primary)
+	 *   (optional, default = NS)
+	 *
+	 * @return mixed the primary key as an array or a string comma seperated
+	 */
+	public function get_table_indexes($table, $type = NS) {
+		$sql = "SELECT `INDEX_NAME`, `COLUMN_NAME`, `NON_UNIQUE` FROM `information_schema`.`statistics` WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . Db::safe($table) . "' AND `INDEX_NAME` != 'PRIMARY'";
+		if ($type !== NS) {
+			$sql .= " AND `INDEX_NAME` = '" . Db::safe($type) . "'";
+		}
+		$sql .= '  ORDER BY `SEQ_IN_INDEX`';
+
+		$this->query_id = mysql_query($sql, $this->link_id);
+		$indexe = array();
+		if (mysql_num_rows($this->query_id) > 0) {
+			while ($row = mysql_fetch_assoc($this->query_id)) {
+
+				$type = ($row['NON_UNIQUE'] == '1') ? 'INDEX' : 'UNIQUE';
+				if (!isset($indexe[$type][$row['INDEX_NAME']])) {
+					$indexe[$type][$row['INDEX_NAME']] = array();
+				}
+				$indexe[$type][$row['INDEX_NAME']][] = $row['COLUMN_NAME'];
+			}
+		}
+
+		return $indexe;
 	}
 
 	/**

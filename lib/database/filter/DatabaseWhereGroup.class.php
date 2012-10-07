@@ -61,6 +61,9 @@ class DatabaseWhereGroup extends Object
 	 *   the condition value, it is only optional if key is a DatabaseWhereGroup object (optional, default = NS)
 	 * @param string $condition_type
 	 *   like =, !=, LIKE, <, >, <=, >= (optional, default = '=')
+	 * @param string $table
+	 *   the table where we find the field
+	 *   (optional, default = NS)
 	 * @param boolean $escape
 	 *   if set to false the value will not be escaped
 	 * 	 USE THIS WITH CAUTION, not escaping value can be a security issue and
@@ -69,7 +72,7 @@ class DatabaseWhereGroup extends Object
 	 * @return DatabaseWhereGroup
 	 *   The where group
 	 */
-	public function add_where($key, $value = NS, $condition_type = '=', $escape = true) {
+	public function add_where($key, $value = NS, $condition_type = '=', $table = NS, $escape = true) {
 		//If we just provided a database where group object, add this
 		if ($value === NS && $key instanceof DatabaseWhereGroup) {
 			$this->conditions[] = $key;
@@ -82,6 +85,7 @@ class DatabaseWhereGroup extends Object
 				'value' => $value,
 				'condition_type' => $condition_type,
 				'escape' => $escape,
+				'table' => $table,
 			);
 		}
 		return $this;
@@ -131,6 +135,9 @@ class DatabaseWhereGroup extends Object
 			 */
 			if ((int) $k !== $k) {
 				$k = "`" . Db::safe(str_replace(".", "`.`", $k)) . "`";
+				if (!empty($v['table']) && $v['table'] !== NS) {
+					$k = Db::safe($v['table']) . '.' . $k;
+				}
 			}
 			else {
 				$k = Db::safe($k);

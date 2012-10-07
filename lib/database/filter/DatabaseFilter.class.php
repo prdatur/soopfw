@@ -156,14 +156,14 @@ class DatabaseFilter extends Object
 	 * Add a column to our wanted columns. if table is specified the table name
 	 * will be placed in front of the field
 	 *
-	 * @param string $field
-	 *   the table field
+	 * @param string|array $fields
+	 *   the table field, multiple fields can be provided as an array
 	 * @param string $table
 	 *   the table name (optional, default = NS)
 	 *
 	 * @return DatabaseFilter Self returning
 	 */
-	public function &add_column($field, $table = NS) {
+	public function &add_column($fields, $table = NS) {
 
 		if ($table === NS) {
 			$table = $this->get_table_or_alias();
@@ -172,16 +172,22 @@ class DatabaseFilter extends Object
 			$table = "`" . Db::safe($table) . "`";
 		}
 
-		$field = Db::safe($field);
-		if (preg_match('/^[a-z_]+$/', $field)) {
-			$field = "`" . $field . "`";
-			if ($table !== NS) {
-				$field = $table . "." . $field;
-			}
+		if (!is_array($fields)) {
+			$fields = array($fields);
 		}
 
+		foreach ($fields AS $field) {
+			$field = Db::safe($field);
+			if (preg_match('/^[a-z_]+$/', $field)) {
+				$field = "`" . $field . "`";
+				if ($table !== NS) {
+					$field = $table . "." . $field;
+				}
+			}
 
-		$this->fields[] = $field;
+
+			$this->fields[] = $field;
+		}
 		return $this;
 	}
 
@@ -239,7 +245,7 @@ class DatabaseFilter extends Object
 	}
 
 	/**
-	 * add a where condition
+	 * Add a where condition
 	 *
 	 * @param mixed $field
 	 *   the field as a string or an DatabaseWhereGroup object
@@ -247,15 +253,92 @@ class DatabaseFilter extends Object
 	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
 	 * @param string $condition_type
 	 *   the condition type (=, !=, LIKE) (optional, default = "=")
-	 * @param boolean $escape
-	 *   if set to false the value will not be escaped
-	 * 	 USE THIS WITH CAUTION, not escaping value can be a security issue and
-	 *   can open SQL-Injections. (optional, default = true)
+	 * @param string $table
+	 *   the table where we find the field
+	 *   if not provided or is null it will get the current table or alias.
+	 *   (optional, default = NS)
 	 *
 	 * @return DatabaseFilter Self returning
 	 */
-	public function &add_where($field, $value = "", $condition_type = "=", $escape = true) {
-		$this->where->add_where($field, $value, $condition_type, $escape);
+	public function &add_where($field, $value = "", $condition_type = "=", $table = NS) {
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . Db::safe($table) . "`";
+		}
+		$this->where->add_where($field, $value, $condition_type, $table, true);
+		return $this;
+	}
+
+	/**
+	 * Add a where condition where the provided table is an alias.
+	 *
+	 * @param string $table
+	 *   the table alias where we find the field
+	 * @param mixed $field
+	 *   the field as a string or an DatabaseWhereGroup object
+	 * @param string $value
+	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
+	 * @param string $condition_type
+	 *   the condition type (=, !=, LIKE) (optional, default = "=")
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &add_where_alias($table, $field, $value = "", $condition_type = "=") {
+		$this->where->add_where($field, $value, $condition_type, Db::safe($table), true);
+		return $this;
+	}
+
+	/**
+	 * Add a where condition where the value will not be escaped.
+	 *
+	 * USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 * can open SQL-Injections.
+	 *
+	 * @param mixed $field
+	 *   the field as a string or an DatabaseWhereGroup object
+	 * @param string $value
+	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
+	 * @param string $condition_type
+	 *   the condition type (=, !=, LIKE) (optional, default = "=")
+	 * @param string $table
+	 *   the table where we find the field
+	 *   if not provided or is null it will get the current table or alias.
+	 *   (optional, default = NS)	 *
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &add_where_unescape($field, $value = "", $condition_type = "=", $table = NS) {
+		if ($table === NS) {
+			$table = $this->get_table_or_alias();
+		}
+		else {
+			$table = "`" . Db::safe($table) . "`";
+		}
+		$this->where->add_where($field, $value, $condition_type, $table, false);
+		return $this;
+	}
+
+	/**
+	 * Add a where condition where the value will not be escaped and the provided table is an alias.
+	 *
+	 * USE THIS WITH CAUTION, not escaping value can be a security issue and
+	 * can open SQL-Injections.
+	 *
+	 * @param string $table
+	 *   the table alias where we find the field
+	 * @param mixed $field
+	 *   the field as a string or an DatabaseWhereGroup object
+	 * @param string $value
+	 *   can be optional, but only if $field is an DatabaseWhereGroup (optional, default = "")
+	 * @param string $condition_type
+	 *   the condition type (=, !=, LIKE) (optional, default = "=")
+	 *
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &add_where_alias_unescape($table, $field, $value = "", $condition_type = "=") {
+		$this->where->add_where($field, $value, $condition_type, Db::safe($table), false);
 		return $this;
 	}
 

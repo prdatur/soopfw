@@ -9,7 +9,6 @@
  */
 class system extends ActionModul
 {
-
 	/**
 	 * Define constances
 	 */
@@ -80,7 +79,6 @@ class system extends ActionModul
 								'#title' => t("Generate classlist"), //The main title
 								'#link' => "/admin/system/generate_classlist", // The main link
 								'#perm' => "admin.system.config", // perms needed
-
 							),
 							array(
 								'#title' => t("Generate smartylist"), //The main title
@@ -109,7 +107,7 @@ class system extends ActionModul
 
 		$this->core->mcache_set_prefix('test_' . $this->db->table_prefix());
 		$data = $this->core->mcache('webtest_report::' . $report_id . '::' . $count_id);
-		$max_count_id = (int)$this->core->mcache('webtest_report::' . $report_id . '::max_counter');
+		$max_count_id = (int) $this->core->mcache('webtest_report::' . $report_id . '::max_counter');
 		$this->core->mcache_set_prefix($this->db->table_prefix());
 		if (empty($data)) {
 			throw new SoopfwWrongParameterException();
@@ -140,7 +138,7 @@ class system extends ActionModul
 			echo $matches[1] . $header . $matches[2];
 		}
 		else {
-		$header .= "############### RETURN DATA ################### <br />";
+			$header .= "############### RETURN DATA ################### <br />";
 			echo $header;
 			$json_content = json_decode($content, true);
 			if (!empty($json_content)) {
@@ -190,7 +188,7 @@ class system extends ActionModul
 
 		if ($this->core->module_enabled($module)) {
 			$this->title(t('Disable module: @module', array('@module' => $module)));
-			$this->static_tpl = $this->module_tpl_dir. '/precheck_module_state_disable.tpl';
+			$this->static_tpl = $this->module_tpl_dir . '/precheck_module_state_disable.tpl';
 
 			$dependencies = $system_helper->get_dependet_modules($module, true, SystemHelper::DEPENDENCY_FILTER_ENABLED);
 			$this->core->js_config('system_disable_dependencies', array_keys($dependencies));
@@ -198,13 +196,11 @@ class system extends ActionModul
 		}
 		else {
 			$this->title(t('Enable module: @module', array('@module' => $module)));
-			$this->static_tpl = $this->module_tpl_dir. '/precheck_module_state_enable.tpl';
+			$this->static_tpl = $this->module_tpl_dir . '/precheck_module_state_enable.tpl';
 			$dependencies = $system_helper->get_module_dependencies($module, true, true, SystemHelper::DEPENDENCY_FILTER_DISABLED);
 			$this->core->js_config('system_enable_dependencies', array_keys($dependencies));
 			$this->smarty->assign_by_ref('dependencies', $dependencies);
 		}
-
-
 	}
 
 	/**
@@ -255,13 +251,13 @@ class system extends ActionModul
 			if (empty($val)) {
 				continue;
 			}
-			$templates->add_where($field, $this->db->get_sql_string_search($val, "%{v}%", false), 'LIKE');
+			$templates->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');
 		}
 
 		$templates = $templates->add_column('id')
-			->group_by('id')
-			->order_by('id')
-			->select_all();
+				->group_by('id')
+				->order_by('id')
+				->select_all();
 
 		$this->smarty->assign('templates', $templates);
 	}
@@ -288,7 +284,7 @@ class system extends ActionModul
 		$description = "";
 		if (!empty($available_variables)) {
 			$vars = array();
-			foreach(explode(",", $available_variables) AS $var) {
+			foreach (explode(",", $available_variables) AS $var) {
 				$vars[] = '<a href="javascript:system_change_email_template_insert_variable(\'' . trim($var) . '\')">{' . trim($var) . '}</a>';
 			}
 			$description = t('The following variables can be used: <b>!variables</b>', array('!variables' => implode(", ", $vars)));
@@ -303,7 +299,7 @@ class system extends ActionModul
 		);
 		if (empty($id)) {
 			$title = t('Add a new template');
-			$validators[] = new NotExistValidator(t('This email template already exists'),  array(MailTemplateObj::TABLE => 'id'));
+			$validators[] = new NotExistValidator(t('This email template already exists'), array(MailTemplateObj::TABLE => 'id'));
 		}
 		else {
 			$title = t('Change email template');
@@ -313,8 +309,8 @@ class system extends ActionModul
 		$form->add(new Textfield('id', $id, t('Template id')), $validators);
 
 		$values = DatabaseFilter::create(MailTemplateObj::TABLE)
-			->add_where('id', $id)
-			->select_all('language');
+				->add_where('id', $id)
+				->select_all('language');
 
 		foreach ($this->lng->languages AS $language => $label) {
 			if (!isset($values[$language])) {
@@ -414,9 +410,8 @@ class system extends ActionModul
 			throw new SoopfwNoPermissionException();
 		}
 
-		if ($this->core->reindex_menu());
+		$this->core->reindex_menu();
 		$this->core->message(t('menu re-indexed'), Core::MESSAGE_TYPE_SUCCESS);
-
 		$this->clear_output();
 	}
 
@@ -440,19 +435,19 @@ class system extends ActionModul
 		$form->add(new Fieldset('performance', t('Performance')));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
-				if ($value == 'yes') {
-					return (shell_exec('which java') !== null);
-				}
-				return true;
-			})
+						if ($value == 'yes') {
+							return (shell_exec('which java') !== null);
+						}
+						return true;
+					})
 		));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_JS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_JS, 'no'), t("Enable javascript cache?")), array(
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
-				if ($value == 'yes') {
-					return (shell_exec('which java') !== null);
-				}
-				return true;
-			})
+						if ($value == 'yes') {
+							return (shell_exec('which java') !== null);
+						}
+						return true;
+					})
 		));
 
 		$form->add(new Fieldset('system', t('System')));
@@ -465,21 +460,21 @@ class system extends ActionModul
 		$dir->skip_dirs("images");
 		$dir->just_dirs();
 		$available_themes = array();
-		foreach($dir AS $entry) {
+		foreach ($dir AS $entry) {
 			$available_themes[$entry->filename] = $entry->filename;
 		}
 		$form->add(new Selectfield(self::CONFIG_DEFAULT_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_THEME, 'standard'), t("Default theme")));
 		$form->add(new Selectfield(self::CONFIG_ADMIN_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_ADMIN_THEME, 'standard'), t("Admin theme"), t('All urls which starts with /admin will get this theme.')));
 		$form->add(new Selectfield(self::CONFIG_RUN_MODE, array(
-			Core::RUN_MODE_DEVELOPEMENT => t('Development'),
-			Core::RUN_MODE_PRODUCTION => t('Production'),
-		), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
+					Core::RUN_MODE_DEVELOPEMENT => t('Development'),
+					Core::RUN_MODE_PRODUCTION => t('Production'),
+						), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
 		$classes = $this->core->get_classlist();
 		$login_handler = array();
-		foreach($classes['classes'] AS $classname =>  &$class) {
-			if(!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
+		foreach ($classes['classes'] AS $classname => &$class) {
+			if (!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
 				$login_handler[$classname] = $classname;
 			}
 		}
@@ -507,8 +502,8 @@ class system extends ActionModul
 
 		$classes = $this->core->get_classlist();
 		$login_handler = array();
-		foreach($classes['classes'] AS $classname =>  &$class) {
-			if(!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
+		foreach ($classes['classes'] AS $classname => &$class) {
+			if (!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
 				$login_handler[$classname] = $classname;
 			}
 		}
@@ -565,7 +560,7 @@ class system extends ActionModul
 				$db_version = "-";
 			}
 			else {
-				$db_version = $mobj->current_version-1;
+				$db_version = $mobj->current_version - 1;
 			}
 
 			$info = SystemHelper::get_module_info($module);
@@ -687,13 +682,12 @@ class system extends ActionModul
 
 			$smarty_sdi = new cli_generate_smartylist();
 			$smarty_sdi->create_smarty_sdi();
-
 		}
 
 		//Check if the provided module is a valid module (has a valid module info file)
-		$info_file = SITEPATH."/modules/".$module."/".$module.".info";
+		$info_file = SITEPATH . "/modules/" . $module . "/" . $module . ".info";
 		if (!file_exists($info_file)) {
-			$this->core->message("\"".$module.".info\" file is missing within module dir: \"modules/".$module."\"", Core::MESSAGE_TYPE_ERROR);
+			$this->core->message("\"" . $module . ".info\" file is missing within module dir: \"modules/" . $module . "\"", Core::MESSAGE_TYPE_ERROR);
 			if ($op == 'js') {
 				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
 			}
@@ -702,13 +696,13 @@ class system extends ActionModul
 
 		//Get the module information
 		$module_info = SystemHelper::get_module_info($module);
-		$module_info['version'] = (int)$module_info['version'];
+		$module_info['version'] = (int) $module_info['version'];
 
 		$helper = new SystemHelper();
 		$depends = $helper->get_module_dependencies($module);
 		foreach ($depends AS $dependency) {
 			if ($dependency['state'] != SystemHelper::DEPENDENCY_ENABLED) {
-				$this->core->message("\"".$module."\" can not be updated because one or more dependent modules are missing", Core::MESSAGE_TYPE_ERROR);
+				$this->core->message("\"" . $module . "\" can not be updated because one or more dependent modules are missing", Core::MESSAGE_TYPE_ERROR);
 				if ($op == 'js') {
 					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
 				}
@@ -739,7 +733,7 @@ class system extends ActionModul
 
 		//Loop through each results. and check if the creation was success, if not we need to update the current table
 		foreach ($results AS $obj => $result) {
-			$msg = "Created Database table for object: ".$obj;
+			$msg = "Created Database table for object: " . $obj;
 			$type = Core::MESSAGE_TYPE_SUCCESS;
 			if (empty($result)) {
 				//Get the object which we want to create
@@ -755,8 +749,8 @@ class system extends ActionModul
 					//Get the tablename
 					$table = $mobj->get_dbstruct()->get_table();
 
-					//Check if the table realy exist.
-					if ($this->db->query_slave("SELECT 1 FROM `".$table."`")) {
+					//Check if the table really exist.
+					if ($this->db->query_slave("SELECT 1 FROM `" . $table . "`")) {
 
 						//These fields must be changed again for auto_increment after wie added the field.
 						$add_fields = array();
@@ -770,16 +764,32 @@ class system extends ActionModul
 						//Get the database primary keys
 						$database_primary_keys = $this->db->get_primary_key($table, true);
 
+						//Get the database indexe
+						$database_indexe_keys = $this->db->get_table_indexes($table);
+
+						$index_fields = array();
+						foreach ($database_indexe_keys AS $type => $indexe) {
+							foreach ($indexe AS $index_name => $fields) {
+								foreach ($fields AS $field) {
+									$index_fields[$field] = true;
+								}
+							}
+						}
+
 						//Get the new primary keys
 						$object_primary_keys = $mobj->get_dbstruct()->get_reference_key();
+
+						// Get indexe
+						$object_indexes = $mobj->get_dbstruct()->get_indexes();
+
 
 						//Initialize the field where we store the last processed field, because if we add a new field we must add it right after this one
 						$after = "";
 
 						/**
-						* We need this object index (loop index increment for the obj_fields) because we must check it against the database ordered index
-						* This is needed to determine if we must just rename the field or change / add / delete it
-						*/
+						 * We need this object index (loop index increment for the obj_fields) because we must check it against the database ordered index
+						 * This is needed to determine if we must just rename the field or change / add / delete it
+						 */
 						$object_index = 1;
 						foreach ($obj_fields AS $field => $options) {
 
@@ -810,13 +820,13 @@ class system extends ActionModul
 								$original_index_table_field = null;
 
 								/**
-								* loop through all database fields and get the old field for the current position,
-								* if the found field is a primary key we can not add it as a new field, we must just rename it
-								*
-								*/
+								 * loop through all database fields and get the old field for the current position,
+								 * if the found field is a primary key or a field which is used within an index we can not add it as a new field, we must just rename it
+								 *
+								 */
 								foreach ($db_fields AS $db_options) {
 									if ($object_index == $db_options['ORDINAL_POSITION']) {
-										if ($db_options['COLUMN_KEY'] == 'PRI') {
+										if ($db_options['COLUMN_KEY'] == 'PRI' || isset($index_fields[$field])) {
 											$rename = $db_options['COLUMN_NAME'];
 										}
 
@@ -836,9 +846,9 @@ class system extends ActionModul
 									$this->db->change_table_field($table, $original_index_table_field['COLUMN_NAME'], $options, $ai);
 								}
 								/**
-								* Field is not a primary and the original key for the index is still available so we have a complete new field, add it, but without auto increment
-								* The auto increment will be set up after we changed the primary keys because the field must have an index to set the auto increment flag
-								*/
+								 * Field is not a primary and the original key for the index is still available so we have a complete new field, add it, but without auto increment
+								 * The auto increment will be set up after we changed the primary keys because the field must have an index to set the auto increment flag
+								 */
 								else {
 									$this->db->add_table_field($table, $field, $after, $options, false);
 									$add_fields[] = array(
@@ -866,6 +876,35 @@ class system extends ActionModul
 							//Set primary key
 							$this->db->set_primary_key($table, $object_primary_keys);
 						}
+
+						//Check if we must update an index, if the old index keys did not changed to the current one, we do not need to update the key
+						//Get all values which are both within the provided arrays, if we have the same count of the intersection and one of the intersect array the 2 arrays MUST be equal
+						$object_index_array = array();
+						foreach ($object_indexes AS $indexe) {
+							if (!isset($object_index_array[$indexe['type']])) {
+								$object_index_array[$indexe['type']] = array();
+							}
+							$object_index_array[$indexe['type']][md5(implode("|", $indexe['fields']))] = $indexe['fields'];
+						}
+
+						foreach ($database_indexe_keys AS $index_type => $indexe) {
+							foreach ($indexe AS $index_name => $index_fields) {
+
+								$field_check = md5(implode("|", $index_fields));
+								if (!isset($object_index_array[$index_type]) || !isset($object_index_array[$index_type][$field_check])) {
+									$this->db->remove_index($table, $index_name);
+								}
+								unset($object_index_array[$index_type][$field_check]);
+							}
+						}
+
+						foreach ($object_index_array AS $index_type => $indexe) {
+							foreach ($indexe AS $fields) {
+								$this->db->add_index($table, $index_type, $fields);
+							}
+						}
+
+
 						//Change all fresh added fields but now with the auto increment value
 						foreach ($add_fields AS $field_option) {
 							$this->db->change_table_field($table, $field_option['field'], $field_option['options'], $field_option['ai'], true);
@@ -873,11 +912,11 @@ class system extends ActionModul
 
 						//Run the queued sql statements
 						$this->db->alter_table_queue($table);
-						$msg = "DB Table already exists or now up to date: ".$obj;
+						$msg = "DB Table already exists or now up to date: " . $obj;
 						$type = Core::MESSAGE_TYPE_SUCCESS;
 					}
 					else {
-						$msg = "Could not create Database table for object: ".$obj;
+						$msg = "Could not create Database table for object: " . $obj;
 						$type = Core::MESSAGE_TYPE_ERROR;
 					}
 				}
@@ -889,7 +928,7 @@ class system extends ActionModul
 		//Generating rights
 		if (isset($module_info['rights'])) {
 			foreach ($module_info['rights'] AS $right => $description) {
-				if (((int)$right) . "" === $right."") {
+				if (((int) $right) . "" === $right . "") {
 					$right = $description;
 					$description = "";
 				}
@@ -898,10 +937,10 @@ class system extends ActionModul
 				$right_obj->right = $right;
 				$right_obj->description = $description;
 				if ($right_obj->save_or_insert()) {
-					$this->core->message("Right \"".$right."\" inserted/updated", Core::MESSAGE_TYPE_SUCCESS);
+					$this->core->message("Right \"" . $right . "\" inserted/updated", Core::MESSAGE_TYPE_SUCCESS);
 				}
 				else {
-					$this->core->message("Right \"".$right."\" could not be inserted/updated", Core::MESSAGE_TYPE_ERROR);
+					$this->core->message("Right \"" . $right . "\" could not be inserted/updated", Core::MESSAGE_TYPE_ERROR);
 				}
 			}
 		}

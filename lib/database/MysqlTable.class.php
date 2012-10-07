@@ -253,6 +253,10 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 			$rows[] = "PRIMARY KEY ( ".implode(", ", $ref)." )";
 		}
 
+		foreach ($struct->get_indexes() AS $index) {
+			$rows[] = $index['type'] . ' ( '.implode(', ', $index['fields']).' )';
+		}
+
 		if ($this->db->query_master("CREATE TABLE `".$struct->get_table()."` (".implode(" ,\n", $rows).") ENGINE = InnoDB  DEFAULT CHARSET=utf8;")) {
 			return true;
 		}
