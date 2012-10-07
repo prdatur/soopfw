@@ -652,7 +652,7 @@ class Form extends AbstractHtmlElement implements Iterator
 
 		foreach ($return_array as $arr) {
 			foreach ($arr as $key => &$obj) {
-				if ($obj instanceof AbstractNoValueInput) {
+				if ($obj instanceof AbstractNoValueInput || $obj instanceof Submitbutton) {
 					continue;
 				}
 
