@@ -9,7 +9,6 @@
  */
 class translation extends ActionModul
 {
-
 	/**
 	 * Default method
 	 *
@@ -113,9 +112,9 @@ class translation extends ActionModul
 		$form->add(new Fieldset('select_options', t("Select Options")));
 
 		$form->add(new Radiobuttons("override", array(
-				"1" => t("Override already translated strings"),
-				"0" => t("Import only new translations"),
-				), "0"));
+					"1" => t("Override already translated strings"),
+					"0" => t("Import only new translations"),
+						), "0"));
 
 		$form->add(new Submitbutton("import", "import", t("Import")));
 		$form->assign_smarty();
@@ -265,8 +264,8 @@ class translation extends ActionModul
 
 			//Build the wanted languages from source and put it into syntax for PO-Files
 			foreach ($this->lng->build_language($values['module'], $values['language'], true, ($values['include_translations'] == "1")) AS $key => $translation) {
-				$result[] = "msgid \"".strtolower(str_replace("\n", "\\n\"\n\"", $key))."\"";
-				$result[] = "msgstr \"".str_replace("\n", "\\n\"\n\"", $translation)."\"";
+				$result[] = "msgid \"" . strtolower(str_replace("\n", "\\n\"\n\"", $key)) . "\"";
+				$result[] = "msgstr \"" . str_replace("\n", "\\n\"\n\"", $translation) . "\"";
 				$result[] = "";
 			}
 			//Implode all new lines
@@ -274,12 +273,12 @@ class translation extends ActionModul
 
 			//Set headers for download and exit after.
 			header("Expires: Mon, 26 Jul 1997 05:00:00 GMT+1");
-			header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT+1");
-			header("Content-Length: ".strlen($content));
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT+1");
+			header("Content-Length: " . strlen($content));
 
 			header("Content-type: application/txt\n"); //or y
 			header("Content-Transfer-Encoding: binary");
-			header("Content-Disposition: attachment; filename=\"".$orig_module."-".$values['language'].".po\";\n\n");
+			header("Content-Disposition: attachment; filename=\"" . $orig_module . "-" . $values['language'] . ".po\";\n\n");
 			echo $content;
 			exit();
 		}
@@ -321,20 +320,20 @@ class translation extends ActionModul
 		$where = array();
 		$val = $form->get_value("key");
 		if (!empty($val)) {
-			$where[] = "tk.`key` LIKE '".$this->db->get_sql_string_search($val, "%{v}%")."' OR t.`translation` LIKE '".$this->db->get_sql_string_search($val, "%{v}%")."'";
+			$where[] = "tk.`key` LIKE '" . $this->db->get_sql_string_search($val, "*.*") . "' OR t.`translation` LIKE '" . $this->db->get_sql_string_search($val, "*.*") . "'";
 		}
 
 		//If where array is not empty add the where.
 		if (!empty($where)) {
-			$where = " WHERE (".implode(") AND (", $where).")";
+			$where = " WHERE (" . implode(") AND (", $where) . ")";
 		}
 		else {
 			$where = "";
 		}
 
 		//Build query string for pager
-		$query_string = "SELECT 1 FROM `".TranslationKeysObj::TABLE."` tk
-			LEFT JOIN `".TranslationObj::TABLE."` t ON (t.id = tk.id)".$where." GROUP BY tk.`id`";
+		$query_string = "SELECT 1 FROM `" . TranslationKeysObj::TABLE . "` tk
+			LEFT JOIN `" . TranslationObj::TABLE . "` t ON (t.id = tk.id)" . $where . " GROUP BY tk.`id`";
 
 		//Init pager
 		$num_founds = $this->db->query_slave_count($query_string);
@@ -343,14 +342,14 @@ class translation extends ActionModul
 		$pager->assign_smarty("pager");
 
 		//Build query string
-		$query_string = "SELECT tk.id, tk.key, t.translation FROM `".TranslationKeysObj::TABLE."` tk
-			LEFT JOIN `".TranslationObj::TABLE."` t ON (t.id = tk.id)".$where." GROUP BY tk.`id` ORDER BY tk.`key`,`translation`";
+		$query_string = "SELECT tk.id, tk.key, t.translation FROM `" . TranslationKeysObj::TABLE . "` tk
+			LEFT JOIN `" . TranslationObj::TABLE . "` t ON (t.id = tk.id)" . $where . " GROUP BY tk.`id` ORDER BY tk.`key`,`translation`";
 
 		//Search in DB
 		$translations = $this->db->query_slave_all($query_string, array(), $pager->max_entries_per_page(), $pager->get_offset());
 		foreach ($translations AS &$translation) {
 			//Add only if translation is not empty and matches our search string
-			if (!empty($translation['translation']) && preg_match("/".preg_quote($val)."/iUs", $translation['translation'])) {
+			if (!empty($translation['translation']) && preg_match("/" . preg_quote($val) . "/iUs", $translation['translation'])) {
 				$translation['key'] = $translation['translation'];
 			}
 		}
