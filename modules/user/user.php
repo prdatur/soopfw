@@ -554,7 +554,7 @@ class user extends ActionModul
 			if (empty($val)) {
 				continue;
 			}
-			$filter->add_where($field, $this->db->get_sql_string_search($val, "{v}%", false), 'LIKE');
+			$filter->add_where($field, $this->db->get_sql_string_search($val, ".*", false), 'LIKE');
 		}
 
 		//Init pager
