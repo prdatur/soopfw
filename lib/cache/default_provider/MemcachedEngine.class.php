@@ -135,7 +135,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 *
 	 * @return array Returns the array of found items or false on error
 	 */
-	public function get_multi($keys) {
+	public function get_multi(array $keys) {
 		return @$this->client->getMulti($keys);
 	}
 
@@ -149,7 +149,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 *
 	 * @return boolean true on success, else false
 	 */
-	public function set_multi($values, $expiration = 0) {
+	public function set_multi(array $values, $expiration = 0) {
 		parent::set_multi($values, $expiration);
 		return @$this->client->setMulti($items, $expiration);
 	}

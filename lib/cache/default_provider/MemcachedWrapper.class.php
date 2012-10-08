@@ -140,7 +140,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 *
 	 * @return mixed Returns the value of the item or false on error
 	 */
-	public function get($key) {
+	public function get($key, $cache_db = null, &$cas_token = '') {
 		return @$this->client->get($this->prefix_key . $key);
 	}
 
