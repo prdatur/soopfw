@@ -57,8 +57,8 @@ class Array2Tree {
 		$this->items[$parent_id] = $this->sort_menu($this->items[$parent_id]);
 		foreach($this->items[$parent_id] AS &$entry) {
 			if($just_active == true) {
-
-				if($this->menu_selected === false && preg_match("/(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "/i", $this->request_uri)) {
+				$regexp = "/(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "(\/?\?.*)?$/i";
+				if($this->menu_selected === false && preg_match($regexp, $this->request_uri)) {
 					$entry['#active'] = true;
 					if ($this->menu_selected !== false) {
 						$entry['#active_direct'] = true;
