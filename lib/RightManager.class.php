@@ -118,8 +118,9 @@ class RightManager extends Object
 	 * Checks the given user if he has given permission(s)
 	 * if $user is not provided the current one is used
 	 *
-	 * @param string $right
-	 *   the right
+	 * @param string|array $right
+	 *   the right.
+	 *   If an array is provided the user needs all permissions (AND condition)
 	 * @param boolean $login_check
 	 *   Wether we want to redirect the user to the login page if not logged in or not (optional, default = false)
 	 * @param UserObj $user
@@ -155,7 +156,15 @@ class RightManager extends Object
 		}
 
 		//Return if the user has the right
-		return $this->has_rights($right, RightManager::$rights_loaded[$user->user_id]);
+		if (!is_array($right)) {
+			$right = array($right);
+		}
+		foreach ($right AS $right_string) {
+			if (!$this->has_rights($right_string, RightManager::$rights_loaded[$user->user_id])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
