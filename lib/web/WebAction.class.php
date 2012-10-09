@@ -374,6 +374,9 @@ class WebAction extends Object
 			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
 		}
 		catch (SoopfwNoPermissionException $e) {
+			if ($this->session->get('redirect_from_login') === true) {
+				$this->core->location($this->session->get_login_url());
+			}
 			$this->aborting_loading(self::ABORT_NO_PERMISSION, $e->getMessage());
 		}
 		catch (SoopfwModuleNotFoundException $e) {
@@ -382,10 +385,13 @@ class WebAction extends Object
 		catch (Exception $e) {
 			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
 		}
+
+		$this->session->set('redirect_from_login', false);
 	}
 
 	/**
 	 * Abort loading.
+	 * 
 	 * @param int $type
 	 *   Why are we aborting? use one of WebAction::ABORT_*
 	 *   (optional, default = WebAction::ABORT_CLEAR_OUTPUT)

@@ -1225,6 +1225,7 @@ class Core
 
 		//Assign current template path
 		$this->smarty->assign("SITEPATH", SITEPATH);
+		$this->smarty->assign("request_uri", NetTools::get_request_uri());
 		$this->smarty->assign("domain", $this->core_config('core', 'domain'));
 		$this->js_config("domain", $this->core_config('core', 'domain'));
 		$this->smarty->assign("TEMPLATE_PATH", $this->smarty->get_tpl());
