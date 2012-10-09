@@ -149,7 +149,7 @@ class menu extends ActionModul
 
 		$menu_entry_obj = new MenuObj($menu_id);
 		if(!$menu_entry_obj->load_success()) {
-			return $this->wrong_params("No such menu");
+			throw new SoopfwWrongParameterException(t('No such menu'));
 		}
 
 		$this->title(	t("\"@menu\" menu entries", array("@menu" => $menu_entry_obj->title)),

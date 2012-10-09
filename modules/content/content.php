@@ -337,21 +337,21 @@ class content extends ActionModul {
 		$page_id = $page_data_array[0];
 		$page = new PageObj($page_data_array[0], $page_data_array[1]);
 		if(!$page->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
 
 		if($page->deleted == 'yes'  && !$this->right_manager->has_perm("admin.content.delete", false)) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
 		if((empty($page->last_revision) || !empty($revision)) && !$this->right_manager->has_perm("admin.content.create", false)) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
 		$page_revision = new PageRevisionObj($page_data_array[0], $page_data_array[1], $revision);
 		if(!$page_revision->load_success()) {
-			return $this->wrong_params(t("No such page"));
+			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 		$page->view_count++;
 		$page->last_access = date(DB_DATETIME, TIME_NOW);
@@ -698,7 +698,7 @@ class content extends ActionModul {
 		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("this displays all available revisions for this page"));
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
+		if (!$this->right_manager->has_perm(array("admin.content.create", "admin.translate"))) {
 			throw new SoopfwNoPermissionException();
 		}
 
@@ -840,7 +840,7 @@ Current language: [b]@language[/b]', array(
 		$this->title(t("translate overview"), t("choose what to translate"));
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.create") && !$this->right_manager->has_perm("admin.translate")) {
+		if (!$this->right_manager->has_perm(array("admin.content.create", "admin.translate"))) {
 			throw new SoopfwNoPermissionException();
 		}
 

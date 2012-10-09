@@ -170,16 +170,16 @@ class system extends ActionModul
 	public function precheck_module_state($module) {
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.system.modules", true)) {
-			AjaxModul::return_code(AjaxModul::ERROR_NOT_LOGGEDIN);
+			throw new SoopfwNoPermissionException();
 		}
 
 		if (empty($module) || !file_exists(SITEPATH . '/modules/' . $module . '/' . $module . '.info')) {
-			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
+			throw new SoopfwWrongParameterException();
 		}
 
 		// Get the info for the current module
 		if (($info = SystemHelper::get_module_info($module)) === false) {
-			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER);
+			throw new SoopfwWrongParameterException();
 		}
 
 		$system_helper = new SystemHelper();
@@ -665,9 +665,6 @@ class system extends ActionModul
 			$this->session->require_login();
 			//Check perms
 			if (!$this->right_manager->has_perm("admin.system.modules")) {
-				if ($op == 'js') {
-					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
-				}
 				throw new SoopfwNoPermissionException();
 			}
 		}
@@ -687,11 +684,13 @@ class system extends ActionModul
 		//Check if the provided module is a valid module (has a valid module info file)
 		$info_file = SITEPATH . "/modules/" . $module . "/" . $module . ".info";
 		if (!file_exists($info_file)) {
-			$this->core->message("\"" . $module . ".info\" file is missing within module dir: \"modules/" . $module . "\"", Core::MESSAGE_TYPE_ERROR);
+			$msg = t("\"@module.info\" file is missing within module dir: \"modules/@module\"", array(
+				'@module' => $module,
+			));
 			if ($op == 'js') {
-				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+				AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND, $msg);
 			}
-			return;
+			throw new SoopfwModuleNotFoundException($msg);
 		}
 
 		//Get the module information
@@ -702,11 +701,13 @@ class system extends ActionModul
 		$depends = $helper->get_module_dependencies($module);
 		foreach ($depends AS $dependency) {
 			if ($dependency['state'] != SystemHelper::DEPENDENCY_ENABLED) {
-				$this->core->message("\"" . $module . "\" can not be updated because one or more dependent modules are missing", Core::MESSAGE_TYPE_ERROR);
+				$msg = t("\"@module\" can not be updated because one or more dependent modules are missing", array(
+					'@module' => $module,
+				));
 				if ($op == 'js') {
-					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+					AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND, $msg);
 				}
-				return;
+				throw new SoopfwModuleNotFoundException($msg);
 			}
 		}
 

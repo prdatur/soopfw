@@ -288,7 +288,7 @@ class user extends ActionModul
 
 
 				if (empty($acc)) {
-					return $this->core->message(t('No such account'), Core::MESSAGE_TYPE_ERROR);
+					throw new SoopfwWrongParameterExceptiont(t('No such account'));
 				}
 
 				$this->db->transaction_begin();
@@ -1059,6 +1059,7 @@ class user extends ActionModul
 		if ($login_form->check_form()) {
 			if ($this->session->validate_login($login_form->get_value("user"), $login_form->get_value("pass"))) {
 				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
+				$this->session->set('redirect_from_login', true);
 				$this->redirect_after_login();
 			}
 			else {
