@@ -12,6 +12,13 @@ class Fieldset extends AbstractHtmlInput
 {
 
 	/**
+	 * The description.
+	 *
+	 * @var string
+	 */
+	private $description = '';
+
+	/**
 	 * Construct
 	 *
 	 * Special notes in "inner" parameter
@@ -35,7 +42,7 @@ class Fieldset extends AbstractHtmlInput
 		parent::__construct($id);
 		$this->config("id", $id);
 		$this->config("label", $label);
-		$this->config("description", $description);
+		$this->description = $description;
 		$this->config("inner", ($inner === true) ? 'yes' : $inner);
 	}
 
@@ -47,6 +54,19 @@ class Fieldset extends AbstractHtmlInput
 	 */
 	public function init() {
 		$this->config("template", '<fieldset {id}{class}>');
+	}
+
+	/**
+	 * Returns the field description
+	 *
+	 * @return string the description html code
+	 */
+	public function get_fieldset_description() {
+		$description = $this->description;
+		if(!empty($description)) {
+			return '<div class="form-element-description">'.$description.'</div>';
+		}
+		return '';
 	}
 
 }
