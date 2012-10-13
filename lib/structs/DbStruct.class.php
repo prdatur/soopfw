@@ -109,7 +109,7 @@ class DbStruct extends Object
 	 */
 	public function add_index($type, $fields) {
 		if (!is_array($fields)) {
-			$fields = array();
+			$fields = array($fields);
 		}
 		$this->indexes[] = array(
 			'type' => $type,
