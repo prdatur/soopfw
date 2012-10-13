@@ -920,10 +920,10 @@ abstract class AbstractDataManagment extends Object
 				if ($value == "0000-00-00") {
 					return $value;
 				}
-				if ((int)$value !== $value) {
+				if ((int)$value."" !== $value."") {
 					$value = strtotime($value);
 				}
-				return date(DB_DATE, $value);
+				return date(DB_DATE, (int)$value);
 			case PDT_DATETIME :
 				if (empty($value)) {
 					return "0000-00-00 00:00:00";
@@ -931,10 +931,10 @@ abstract class AbstractDataManagment extends Object
 				if ($value == "0000-00-00 00:00:00") {
 					return $value;
 				}
-				if ((int)$value !== $value) {
+				if ((int)$value."" !== $value."") {
 					$value = strtotime($value);
 				}
-				return date(DB_DATETIME, $value);
+				return date(DB_DATETIME, (int)$value);
 			case PDT_TIME :
 				if (empty($value)) {
 					return "00:00:00";
