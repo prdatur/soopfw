@@ -229,16 +229,16 @@ class WebAction extends Object
 
 		}
 		catch (SoopfwWrongParameterException $e) {
-			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER);
+			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true, $e->getMessage());
 		}
 		catch (SoopfwNoPermissionException $e) {
-			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
+			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS, null, true, $e->getMessage());
 		}
 		catch (SoopfwModuleNotFoundException $e) {
-			AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND);
+			AjaxModul::return_code(AjaxModul::ERROR_MODULE_NOT_FOUND, null, true, $e->getMessage());
 		}
 		catch (Exception $e) {
-			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
+			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, null, true, $e->getMessage());
 		}
 	}
 
@@ -383,7 +383,7 @@ class WebAction extends Object
 			$this->aborting_loading(self::ABORT_MODULE_NOT_FOUND, $e->getMessage());
 		}
 		catch (Exception $e) {
-			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
+			$this->aborting_loading(self::ABORT_CLEAR_OUTPUT, $e->getMessage());
 		}
 
 		$this->session->set('redirect_from_login', false);
@@ -391,7 +391,7 @@ class WebAction extends Object
 
 	/**
 	 * Abort loading.
-	 * 
+	 *
 	 * @param int $type
 	 *   Why are we aborting? use one of WebAction::ABORT_*
 	 *   (optional, default = WebAction::ABORT_CLEAR_OUTPUT)
@@ -500,7 +500,6 @@ class WebAction extends Object
 		$this->core->add_js("/js/jquery_plugins/jquery.validator-0.3.3.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.ajaxQueue.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.qtip.js", Core::JS_SCOPE_SYSTEM);
-		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.metadata.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.tablesorter.min.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.ui.tabs.js", Core::JS_SCOPE_SYSTEM);

@@ -978,6 +978,9 @@ Current language: [b]@language[/b]', array(
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
 			throw new SoopfwNoPermissionException();
 		}
+
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
+
 		$this->core->js_config("content_type", $content_type);
 
 		//Get content type field groups
@@ -1188,8 +1191,9 @@ Current language: [b]@language[/b]', array(
 	}
 
 	/**
-	 * create or change a content page
-	 * if $values is an array it will think it is within edit mode and therfore a hole page content value array must be present
+	 * Create or change a content page.
+	 *
+	 * If $values is an array it will think it is within edit mode and therfore a hole page content value array must be present
 	 * else within create mode just provide the content type as a string
 	 *
 	 * @param mixed $values the content type in create mode or the prefilled values within edit mode
@@ -1203,6 +1207,9 @@ Current language: [b]@language[/b]', array(
 		}
 
 		$this->static_tpl = $this->module_tpl_dir.'/change_content.tpl';
+
+
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
 
 		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
 		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');

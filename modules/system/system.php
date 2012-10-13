@@ -500,6 +500,8 @@ class system extends ActionModul
 			throw new SoopfwNoPermissionException();
 		}
 
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
+
 		$classes = $this->core->get_classlist();
 		$login_handler = array();
 		foreach ($classes['classes'] AS $classname => &$class) {
@@ -655,7 +657,7 @@ class system extends ActionModul
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
 	public function install_module($module = "system", $op = '') {
-
+		
 		$this->clear_output();
 
 		$classlist_already_generated = false;
@@ -713,6 +715,7 @@ class system extends ActionModul
 
 		$results = array();
 
+		$update_succeeds = true;
 
 		//Creating Database tables from objects if the table does not exist or needs to be updated.
 		foreach (SystemHelper::get_updateable_objects($module) AS $module_info_obj) {
@@ -725,11 +728,14 @@ class system extends ActionModul
 				$loader->generate_classlist();
 				$classlist_already_generated = true;
 			}
+
 			$results[$obj] = $this->db->mysql_table->create_database_from_object(new $obj());
 
-			$module_info_obj->classname = $obj;
-			$module_info_obj->last_modified = filemtime(SITEPATH . '/modules/' . $module . '/objects/' . $obj . '.class.php');
-			$module_info_obj->save_or_insert();
+			if ($results[$obj]) {
+				$module_info_obj->classname = $obj;
+				$module_info_obj->last_modified = filemtime(SITEPATH . '/modules/' . $module . '/objects/' . $obj . '.class.php');
+				$module_info_obj->save_or_insert();
+			}
 		}
 
 		//Loop through each results. and check if the creation was success, if not we need to update the current table
@@ -917,6 +923,7 @@ class system extends ActionModul
 						$type = Core::MESSAGE_TYPE_SUCCESS;
 					}
 					else {
+						$update_succeeds = false;
 						$msg = "Could not create Database table for object: " . $obj;
 						$type = Core::MESSAGE_TYPE_ERROR;
 					}
@@ -949,56 +956,63 @@ class system extends ActionModul
 		//Check if we are on a fresh module install or do just an update
 		$module_object = new $module();
 		$modul_config = new ModulConfigObj($module);
+		if ($update_succeeds) {
+			$call_enable = false;
+			if ($modul_config->load_success()) {
+				$call_enable = ($modul_config->enabled === 0);
+			}
 
-		$call_enable = false;
-		if ($modul_config->load_success()) {
-			$call_enable = ($modul_config->enabled === 0);
-		}
 
+			$modul_config->enabled = 1;
+			//Module exist within the database so we do only an update
+			if ($modul_config->load_success() && $modul_config->current_version != 1) {
+				$this->current_version = $modul_config->current_version;
+				$error = false;
+				//Loop through all version which we do not have run yet.
+				for ($i = $modul_config->current_version; $i <= $module_info['version']; $i++) {
 
-		$modul_config->enabled = 1;
-		//Module exist within the database so we do only an update
-		if ($modul_config->load_success() && $modul_config->current_version != 1) {
-			$this->current_version = $modul_config->current_version;
-			$error = false;
-			//Loop through all version which we do not have run yet.
-			for ($i = $modul_config->current_version; $i <= $module_info['version']; $i++) {
-
-				//If update fails, display message
-				if (!$module_object->update($i)) {
-					$error = true;
-					$this->core->message(t("Could not update module @modul for version @version", array("@modul" => $module, "@version" => $i)), Core::MESSAGE_TYPE_ERROR);
-					break;
+					//If update fails, display message
+					if (!$module_object->update($i)) {
+						$error = true;
+						$this->core->message(t("Could not update module @modul for version @version", array("@modul" => $module, "@version" => $i)), Core::MESSAGE_TYPE_ERROR);
+						break;
+					}
+				}
+				//Increment the current version if we succeed this update
+				if (!$error) {
+					$modul_config->current_version = $module_info['version'] + 1;
+					$modul_config->save();
+					$this->core->message(t("updated module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
 				}
 			}
-			//Increment the current version if we succeed this update
-			if (!$error) {
-				$modul_config->current_version = $module_info['version'] + 1;
-				$modul_config->save();
-				$this->core->message(t("updated module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
+			else {
+				//Install the module fresh
+				if ($module_object->install()) {
+					$modul_config->modul = $module;
+					$modul_config->current_version = $module_info['version'] + 1;
+					$modul_config->save_or_insert();
+					$this->core->message(t("installed module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
+				}
+				else {
+					$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
+				}
+			}
+
+			// If previous the module was not enabled but present (so it was disabled) and a enable method exists for this module, call it.
+			if ($call_enable) {
+				if (method_exists($module_object, 'enable')) {
+					$module_object->enable();
+				}
+			}
+			if ($op == "js") {
+				AjaxModul::return_code(core::GLOBEL_RETURN_CODE_SUCCESS, null, true);
 			}
 		}
 		else {
-			//Install the module fresh
-			if ($module_object->install()) {
-				$modul_config->modul = $module;
-				$modul_config->current_version = $module_info['version'] + 1;
-				$modul_config->save_or_insert();
-				$this->core->message(t("installed module: @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_SUCCESS);
+			if ($op == "js") {
+				AjaxModul::return_code(core::MESSAGE_TYPE_ERROR, null, true);
 			}
-			else {
-				$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
-			}
-		}
-
-		// If previous the module was not enabled but present (so it was disabled) and a enable method exists for this module, call it.
-		if ($call_enable) {
-			if (method_exists($module_object, 'enable')) {
-				$module_object->enable();
-			}
-		}
-		if ($op == "js") {
-			AjaxModul::return_code(core::GLOBEL_RETURN_CODE_SUCCESS, null, true);
+			$this->core->message(t("Could not update module @modul", array("@modul" => $module)), Core::MESSAGE_TYPE_ERROR);
 		}
 	}
 

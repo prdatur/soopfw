@@ -313,6 +313,9 @@ abstract class AbstractFieldGroup extends Object
 			return $this->get_template();
 		}
 		else {
+
+			$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
+
 			$html = "<div class='form-element-label'>".$this->get_label()."</div>";
 			$html .= "<table class='tablednd ui-widget-content' id='add_more_container_".$this->id."'>";
 			$html .= "	<tbody>";

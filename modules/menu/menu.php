@@ -37,11 +37,9 @@ class menu extends ActionModul
 
 	public function __init() {
 		parent::__init();
-		//Need to be logged in
-		$this->session->require_login();
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.menu.manage")) {
+		if (!$this->right_manager->has_perm("admin.menu.manage", true)) {
 			throw new SoopfwNoPermissionException();
 		}
 	}
@@ -154,6 +152,8 @@ class menu extends ActionModul
 
 		$this->title(	t("\"@menu\" menu entries", array("@menu" => $menu_entry_obj->title)),
 						t("Change the order of one or more menu entries and add manually menu entries"));
+
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
 
 		$array_2_tree = new Array2Tree();
 		foreach($this->db->query_slave_all("SELECT `entry_id`, `parent_id`, `order` FROM `".MenuEntryObj::TABLE."` WHERE menu_id = @menu_id", array('@menu_id' => $menu_id)) AS $menu_entry) {
