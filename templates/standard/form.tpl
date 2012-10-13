@@ -30,6 +30,7 @@
 					<%$inner_fieldset_count = $inner_fieldset_count + 1%>
 					<%$element->fetch()%>
 					<%if !empty($label)%><div class="legend_wrapper"><legend><%$label%></legend></div><%/if%>
+					<%$element->get_fieldset_description()%>
 				<%elseif $element|is_a:'Submitbutton'%>
 					<%if $button_mode == 0%>
 						<div class="form_button_container">
