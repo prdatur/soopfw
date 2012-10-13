@@ -30,7 +30,7 @@ abstract class AbstractHtmlInput extends Object
 	 *
 	 * @var array
 	 */
-	private $config = "";
+	private $config = '';
 
 	/**
 	 * constructor
@@ -48,7 +48,7 @@ abstract class AbstractHtmlInput extends Object
 	 * @param string $id
 	 *   the input id (optional, default = '')
 	 */
-	public function __construct($name, $value = '', $label = '', $description = '', $class = "", $id = '') {
+	public function __construct($name, $value = '', $label = '', $description = '', $class = '', $id = '') {
 
 		parent::__construct();
 
@@ -125,7 +125,7 @@ abstract class AbstractHtmlInput extends Object
 
 	/**
 	 * Initialize the object, this is used if an input do not want to call this
-	 * __construct (AbstractHtmlInput::__constrcut()) but want the object functionality
+	 * __construct (AbstractHtmlInput::__construct()) but want the object functionality
 	 *
 	 */
 	public function load_core() {
@@ -139,7 +139,6 @@ abstract class AbstractHtmlInput extends Object
 	 *   wether this element is disabled or not
 	 */
 	public function disabled($boolean = true) {
-
 		$this->config("disabled", $boolean);
 	}
 
@@ -176,7 +175,7 @@ abstract class AbstractHtmlInput extends Object
 	 * @param string $validator
 	 *   validator name
 	 *
-	 * @return true if yes, else false
+	 * @return boolean true if yes, else false
 	 */
 	public function has_validator($validator) {
 
@@ -431,7 +430,7 @@ abstract class AbstractHtmlInput extends Object
 			if ($k == "value") {
 				$this->reinit_validators();
 			}
-			
+
 			/**
 			 * If we change the label we must also check if we maybe must change the required validator label error,
 			 * We need this after we set the label error, else it will not have the new value and this reset would make no sense.
@@ -525,8 +524,7 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Returns the label field if label configuration is not empty
 	 *
-	 * @return string
-	 *   the label html code
+	 * @return string the label html code
 	 */
 	public function get_label() {
 		if($this instanceof Fieldset) {
@@ -542,8 +540,7 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Returns the field description
 	 *
-	 * @return string
-	 *   the description html code
+	 * @return string the description html code
 	 */
 	public function get_description() {
 		$description = $this->config("description");
