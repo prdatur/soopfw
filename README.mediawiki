@@ -2,17 +2,17 @@
 
 === What is SoopFw? ===
 
-SoopFw is a PHP-Framework which has the goal to reduce development time while 
+SoopFw is a PHP-Framework which has the goal to reduce development time while
 not losing performance.
 It is designed to work as fast as possible.
 
-The main idea was created in 2009 to build up a lightwight, powerfull framework 
+The main idea was created in 2009 to build up a lightweight, powerful framework
 which does not hold the developer to much in the framework structure.
 
 The original code was refactored in Jan, 2012.
 It grows in some kind, also we reduced code which was not needed anymore and
 now it is not only a framework.
-Personaly if i must descripe SoopFw i would tell it is a thing in the middle of
+Personally if i must describe SoopFw i would tell it is a thing in the middle of
 a framework and a content management system.
 It has the power to work as a content management system (some modules are
 development to have a modular content on the page) but it can also be used as
