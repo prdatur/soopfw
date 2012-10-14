@@ -581,7 +581,7 @@ class system extends ActionModul
 				}
 			}
 
-			if (empty($info['updated_needed'])) {
+			if ($mobj->enabled && empty($info['updated_needed'])) {
 				$object_updates = SystemHelper::get_updateable_objects($module);
 				$info['updated_needed'] = !empty($object_updates);
 			}
@@ -657,7 +657,7 @@ class system extends ActionModul
 	 *   the operation, if an ajax request calls this, usually this needs "js" (optional, default = '')
 	 */
 	public function install_module($module = "system", $op = '') {
-		
+
 		$this->clear_output();
 
 		$classlist_already_generated = false;
@@ -921,6 +921,10 @@ class system extends ActionModul
 						$this->db->alter_table_queue($table);
 						$msg = "DB Table already exists or now up to date: " . $obj;
 						$type = Core::MESSAGE_TYPE_SUCCESS;
+
+						$module_info_obj->classname = $obj;
+						$module_info_obj->last_modified = filemtime(SITEPATH . '/modules/' . $module . '/objects/' . $obj . '.class.php');
+						$module_info_obj->save_or_insert();
 					}
 					else {
 						$update_succeeds = false;
