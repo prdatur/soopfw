@@ -45,7 +45,7 @@ class content extends ActionModul {
 		return array(
 			1 => array(//Order id, same order ids will be unsorted placed behind each
 				'#id' => 'soopfw_content_type', //A unique id which will be needed to generate the submenu
-				'#title' => t("content"), //The main title
+				'#title' => t("Content"), //The main title
 				'#link' => "/admin/content", // The main link
 				'#perm' => 'admin.content', //Perm needed
 				'#childs' => array(
@@ -55,24 +55,24 @@ class content extends ActionModul {
 						'#perm' => 'admin.content.manage', //Perm needed
 					),
 					array(
-						'#title' => t("content types"), //The main title
+						'#title' => t("Content types"), //The main title
 						'#link' => "/admin/content/list_content_types", // The main link
 						'#perm' => 'admin.content.manage', //Perm needed
 						'#childs' => $content_types
 					),
 					array(
-						'#title' => t("create content"), //The main title
+						'#title' => t("Create content"), //The main title
 						'#link' => "/admin/content/create", // The main link
 						'#perm' => 'admin.content.manage', //Perm needed
 						'#childs' => $create_types
 					),
 					array(
-						'#title' => t("list content"), //The main title
+						'#title' => t("List content"), //The main title
 						'#link' => "/admin/content/list_content", // The main link
 						'#perm' => 'admin.content.create', //Perm needed
 						'#childs' => array(
 							array(
-								'#title' => t("unreachable content"), //The main title
+								'#title' => t("Unreachable content"), //The main title
 								'#link' => "/admin/content/list_unreachable_content_types", // The main link
 								'#perm' => 'admin.content.create', //Perm needed
 							)
