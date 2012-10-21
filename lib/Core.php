@@ -1246,6 +1246,14 @@ class Core
 
 		$this->js_config("current_language", $this->current_language);
 
+		//get the configured profile, login and logout url for the current login handler
+		$login_url = $this->session->get_login_url();
+		$logout_url = $this->session->get_logout_url();
+		$profile_url = $this->session->get_profile_url();
+
+		$this->js_config("login_url", $login_url);
+		$this->js_config("logout_url", $logout_url);
+
 		//Assign meta object
 		if (!empty($this->meta)) {
 			$this->smarty->assign_by_ref("meta", $this->meta);
@@ -1278,14 +1286,6 @@ class Core
 
 		//Add configured javascript configuration keys
 		$this->smarty->assign_json("js_variable_config", $this->js_config);
-
-
-
-		//get the configured profile, login and logout url for the current login handler
-		$login_url = $this->session->get_login_url();
-		$logout_url = $this->session->get_logout_url();
-		$profile_url = $this->session->get_profile_url();
-
 
 		//If a user is currently logged in replace @userid and @username with the user information
 		if ($this->get_session()->is_logged_in()) {
