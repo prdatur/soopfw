@@ -126,6 +126,17 @@ class Pager extends Object
 	}
 
 	/**
+	 * Set the complete entries count.
+	 *
+	 * @param int $entries
+	 *   the complete number of entries,
+	 *   if not set yet we must set it before we call the assign_smarty method
+	 */
+	public function set_entry_count($entries) {
+		$this->entries = $entries;
+	}
+
+	/**
 	 * Build up our pager and return the html (just the div container), The pager self will be build up with javascript
 	 *
 	 * @return string The Pager HTML
@@ -169,9 +180,9 @@ class Pager extends Object
 	 * Build up the pager HTML and assign it to Smarty variable $variable
 	 *
 	 * @param string $variable
-	 *   The smarty variable
+	 *   The smarty variable (optional, default = 'pager')
 	 */
-	public function assign_smarty($variable) {
+	public function assign_smarty($variable = 'pager') {
 		$this->smarty->assign_by_ref($variable, $this->build_pager());
 	}
 
