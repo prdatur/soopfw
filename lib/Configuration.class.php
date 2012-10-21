@@ -22,9 +22,12 @@ class Configuration {
 	 *
 	 * @param mixed $key
 	 *   the configuration key
+	 *
+	 * @return Configuration self returning.
 	 */
-	public function enable($key) {
+	public function &enable($key) {
 		$this->config[$key] = true;
+		return $this;
 	}
 
 	/**
@@ -32,9 +35,12 @@ class Configuration {
 	 *
 	 * @param mixed $key
 	 *   the configuration key
+	 *
+	 * @return Configuration self returning.
 	 */
-	public function disable($key) {
+	public function &disable($key) {
 		$this->config[$key] = false;
+		return $this;
 	}
 
 	/**
@@ -44,9 +50,12 @@ class Configuration {
 	 *   the configuration key
 	 * @param mixed $vaĺue
 	 *   the value
+	 *
+	 * @return Configuration self returning.
 	 */
-	public function set($key, $value) {
+	public function &set($key, $value) {
 		$this->config[$key] = $value;
+		return $this;
 	}
 
 	/**
