@@ -212,7 +212,7 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 				if (!is_array($data['additional'])) {
 					$data['additional'] = array($data['additional']);
 				}
-				foreach ($data['additional'] AS $val) {
+				foreach ($data['additional'] AS $val => $title) {
 					$vals[] = "'".$val."'";
 				}
 				$line .= "ENUM( ".implode(", ", $vals)." ) NOT NULL";
@@ -252,7 +252,7 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 		if (!empty($ref)) {
 			$rows[] = "PRIMARY KEY ( ".implode(", ", $ref)." )";
 		}
-		
+
 		foreach ($struct->get_indexes() AS $index) {
 			if (!empty($index) && isset($index['fields']) && !empty($index['fields'])) {
 				$rows[] = $index['type'] . ' ( '.implode(', ', $index['fields']).' )';

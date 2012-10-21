@@ -20,10 +20,10 @@ class ContentTypeFieldGroupObj extends AbstractDataManagment
 	/**
 	 * Construct
 	 * The field group id is unique and links a content type and a field group
-	 * 
-	 * @param string $id 
+	 *
+	 * @param string $id
 	 *   the field group id, this must be unique (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
@@ -38,7 +38,7 @@ class ContentTypeFieldGroupObj extends AbstractDataManagment
 		$this->db_struct->add_required_field("name", t("name"), PDT_STRING, '', 70);
 		$this->db_struct->add_hidden_field("order", t("order"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("max_value", t("max values"), PDT_INT, 1, 'UNSIGNED');
-		$this->db_struct->add_required_field("required", t("required"), PDT_ENUM, 'no', array(self::ACTIVE_YES, self::ACTIVE_NO));
+		$this->db_struct->add_required_field("required", t("required"), PDT_ENUM, 'no', array(self::ACTIVE_YES => t('Yes'), self::ACTIVE_NO => t('No')));
 
 		if (!empty($id)) {
 			if (!$this->load(array($id), $force_db)) {

@@ -48,9 +48,9 @@ class UserObj extends AbstractDataManagment
 		$this->db_struct->add_field("language", t("Language"), PDT_STRING, 'en');
 		$this->db_struct->add_field("registered", t("Registered"), PDT_DATETIME, '0000-00-00 00:00:00');
 		$this->db_struct->add_field("last_login", t("Last login"), PDT_DATETIME, '0000-00-00 00:00:00');
-		$this->db_struct->add_field("active", t("active"), PDT_ENUM, 'yes', array('yes', 'no'));
+		$this->db_struct->add_field("active", t("active"), PDT_ENUM, 'yes', array('yes' => t('Yes'), 'no' => t('No')));
 		$this->db_struct->add_field("confirm_key", t("confirm_key"), PDT_STRING);
-		$this->db_struct->add_field("deleted", t("Deleted"), PDT_ENUM, 'no', array('yes', 'no'));
+		$this->db_struct->add_field("deleted", t("Deleted"), PDT_ENUM, 'no', array('yes' => t('Yes'), 'no' => t('No')));
 
 		$this->db_struct->add_index(MysqlTable::INDEX_TYPE_INDEX, array('username'));
 

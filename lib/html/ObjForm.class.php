@@ -132,8 +132,8 @@ class ObjForm extends Form
 				case PDT_ENUM:
 					$options = array();
 					//The enum options are stored within the additional field config
-					foreach ($field_options['additional'] AS $val) {
-						$options[$val] = t($val);
+					foreach ($field_options['additional'] AS $val => $title) {
+						$options[$val] = $title;
 					}
 					$select = new Selectfield($field, $options, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
 					$obj = $select;

@@ -48,7 +48,7 @@ class PageObj extends AbstractDataManagment
 		$this->db_struct->add_hidden_field("current_menu_entry_id", t("current menu"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("view_count", t("view count"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("edit_count", t("edit count"), PDT_INT, 0, 'UNSIGNED');
-		$this->db_struct->add_field("deleted", t("deleted"), PDT_ENUM, self::DELETED_NO, array(self::DELETED_YES, self::DELETED_NO));
+		$this->db_struct->add_field("deleted", t("deleted"), PDT_ENUM, self::DELETED_NO, array(self::DELETED_YES => t('Yes'), self::DELETED_NO => t('No')));
 
 		if (!empty($page_id) && !empty($language)) {
 			$this->load(array($page_id, $language), $force_db);
