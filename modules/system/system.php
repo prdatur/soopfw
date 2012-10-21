@@ -435,19 +435,19 @@ class system extends ActionModul
 		$form->add(new Fieldset('performance', t('Performance')));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
-						if ($value == 'yes') {
-							return (shell_exec('which java') !== null);
-						}
-						return true;
-					})
+				if ($value == 'yes') {
+					return (shell_exec('which java') !== null);
+				}
+				return true;
+			})
 		));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_JS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_JS, 'no'), t("Enable javascript cache?")), array(
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
-						if ($value == 'yes') {
-							return (shell_exec('which java') !== null);
-						}
-						return true;
-					})
+				if ($value == 'yes') {
+					return (shell_exec('which java') !== null);
+				}
+				return true;
+			})
 		));
 
 		$form->add(new Fieldset('system', t('System')));
@@ -466,9 +466,10 @@ class system extends ActionModul
 		$form->add(new Selectfield(self::CONFIG_DEFAULT_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_THEME, 'standard'), t("Default theme")));
 		$form->add(new Selectfield(self::CONFIG_ADMIN_THEME, $available_themes, $this->core->get_dbconfig("system", self::CONFIG_ADMIN_THEME, 'standard'), t("Admin theme"), t('All urls which starts with /admin will get this theme.')));
 		$form->add(new Selectfield(self::CONFIG_RUN_MODE, array(
-					Core::RUN_MODE_DEVELOPEMENT => t('Development'),
-					Core::RUN_MODE_PRODUCTION => t('Production'),
-						), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
+			Core::RUN_MODE_DEVELOPEMENT => t('Development'),
+			Core::RUN_MODE_PRODUCTION => t('Production'),
+		), $this->core->get_dbconfig("system", self::CONFIG_RUN_MODE, Core::RUN_MODE_DEVELOPEMENT), t("Run-mode"), t('In developing it is highly recommended to use development mode, there you will see all errors which occures, If you switch to production it is also highly recommended to switch here also in production mode else if an error occured other user could see sensible data.')));
+
 		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
 		$classes = $this->core->get_classlist();
@@ -726,6 +727,9 @@ class system extends ActionModul
 				}
 				$loader = new cli_generate_classlist();
 				$loader->generate_classlist();
+
+				$smarty_sdi = new cli_generate_smartylist();
+				$smarty_sdi->create_smarty_sdi();
 				$classlist_already_generated = true;
 			}
 
