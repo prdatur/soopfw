@@ -119,7 +119,19 @@ class Form extends AbstractHtmlElement implements Iterator
 	 */
 	public $formname;
 
+	/**
+	 * Holds all submit buttons.
+	 *
+	 * @var array
+	 */
 	protected $submit_buttons = array();
+
+	/**
+	 * Holds the text for the submit button which will be auto added if we do not add a submit button self.
+	 *
+	 * @var string
+	 */
+	protected $submit_button_title = '';
 
 	/**
 	 * Constructor
@@ -185,6 +197,17 @@ class Form extends AbstractHtmlElement implements Iterator
 	}
 
 	/**
+	 * Set the submit button text.
+	 * This text will be used for the auto generated submit button if we did not setup a submit button on our own.
+	 *
+	 * @param string $text
+	 *   the button text.
+	 */
+	public function set_submit_button_title($text) {
+		$this->submit_button_title = $text;
+	}
+
+	/**
 	 * Checks the form and assign the errors to smarty.
 	 *
 	 * @return boolean true if form is submitted and valid or not
@@ -202,11 +225,10 @@ class Form extends AbstractHtmlElement implements Iterator
 			/* @var $elm AbstractHtmlInput */
 			foreach ($this->elements[self::ELEMENT_SCOPE_VISIBLE] AS &$elm) {
 				$elm->config("pre_value", "");
-				#echo $elm->config("name")." = " . $elm->config("key_is_set") . " = " . $elm->config("value");
-				if ($elm->config("key_is_set") !== true) {
+				if ($elm->config("key_is_set") !== true && !($elm instanceof Submitbutton)) {
 					$elm->config("value", '');
 				}
-				#echo " = " . $elm->config("value") . "\n";
+				
 			}
 			$messages = array();
 			//If form is also not valid, get all errors from all fields and add the error message
@@ -276,7 +298,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function assign_smarty($name = "form") {
 
 		if (empty($this->submit_buttons)) {
-			$this->add(new Submitbutton('submit', t('Submit')));
+			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit') : $this->submit_button_title));
 		}
 
 		if ($this->is_ajax) {
@@ -305,7 +327,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function append_smarty($key, $name = "form") {
 
 		if (empty($this->submit_buttons)) {
-			$this->add(new Submitbutton('submit', t('Submit')));
+			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit') : $this->submit_button_title));
 		}
 
 		if ($this->is_ajax) {
