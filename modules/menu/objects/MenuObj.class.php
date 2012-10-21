@@ -18,9 +18,9 @@ class MenuObj extends AbstractDataManagment
 	/**
 	 * Constructor
 	 *
-	 * @param string $menu_id 
+	 * @param string $menu_id
 	 *   the menu id (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($menu_id = "", $force_db = false) {
@@ -42,9 +42,9 @@ class MenuObj extends AbstractDataManagment
 	 * Will also clean the menu cache for this menu id and if we changed
 	 * this menu we will also update the menu entries.
 	 *
-	 * @param boolean $save_if_unchanged 
+	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function save($save_if_unchanged = false) {
@@ -124,12 +124,12 @@ class MenuObj extends AbstractDataManagment
 
 	/**
 	 * Get the menu tree
-	 * 
-	 * @param boolean $just_active 
+	 *
+	 * @param boolean $just_active
 	 *   if set to true the active childs will be marked as active and only the #childs will be filled with the active ones (optional, default = false)
 	 * @param array $alter_menu
 	 *   if provided it will be merged to the original array, old existing will be overriden (optional, default = array())
-	 * 
+	 *
 	 * @return array the menu array
 	 */
 	public function get_menu_tree($just_active = false, array $alter_menu = array()) {
@@ -148,7 +148,7 @@ class MenuObj extends AbstractDataManagment
 		}
 
 		$menu_entries = array_merge_recursive($menu_entries, $alter_menu);
-		
+
 		foreach($menu_entries AS $menu_entry) {
 
 			if(isset($skip_entries[$menu_entry['parent_id']])) {
@@ -160,7 +160,7 @@ class MenuObj extends AbstractDataManagment
 				$menu_translation = new MenuEntryTranslationObj($menu_entry['entry_id'], $this->core->current_language);
 				$translations = $menu_translation->get_values();
 
-				if(empty($translations) || ($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO && !$this->right_manager->has_perm("admin.menu.view_inactive_entries", false)) || (!empty($translations['perm']) && !$this->right_manager->has_perm($translations['perm'], false))) {
+				if(!$menu_translation->load_success() || ($translations['active'] == MenuEntryTranslationObj::ACTIVE_NO && !$this->right_manager->has_perm("admin.menu.view_inactive_entries", false)) || (!empty($translations['perm']) && !$this->right_manager->has_perm($translations['perm'], false))) {
 					$skip_entries[$menu_entry['entry_id']] = true;
 					continue;
 				}
