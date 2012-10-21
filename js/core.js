@@ -6,6 +6,7 @@ var soopfw_ajax_queue = {};
 $.extend(Soopfw, {
 	behaviors: [],
 	prio_behaviors: [],
+	late_behaviors: [],
 	already_loaded_files: {},
 	internal: {
 		progressbars: {}
@@ -56,6 +57,13 @@ $.extend(Soopfw, {
 			if(Soopfw.behaviors.hasOwnProperty(behavior_i)) {
 				if(jQuery.isFunction(Soopfw.behaviors[behavior_i])) {
 					Soopfw.behaviors[behavior_i]();
+				}
+			}
+		}
+		for(var behavior_y in Soopfw.late_behaviors) {
+			if(Soopfw.late_behaviors.hasOwnProperty(behavior_y)) {
+				if(jQuery.isFunction(Soopfw.late_behaviors[behavior_y])) {
+					Soopfw.late_behaviors[behavior_y]();
 				}
 			}
 		}
