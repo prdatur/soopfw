@@ -116,7 +116,7 @@
 			$this->usedTags["h4"] = "parse_h4";
 			$this->usedTags["h5"] = "parse_h5";
 			$this->usedTags["h6"] = "parse_h6";
-			$this->usedTags["br"] = "parse_br";
+			#$this->usedTags["br"] = "parse_br";
 			$this->usedTags["i"] = "parse_i";
 			$this->usedTags["u"] = "parse_u";
 			$this->usedTags["s"] = "parse_s";
@@ -151,6 +151,7 @@
 			$text = str_replace('[*]', '[li]', $text);
 			$text = str_replace('[/*]', '[/li]', $text);
 			$text = str_replace('[/*]', '[/li]', $text);
+			$text = str_replace('[br]', "<br />", $text);
 			#$text = str_replace("\n", '<br />', $text);
 			$basetree = new stackItem();
 			$basetree->build(''.trim($text), TRUE);
@@ -179,7 +180,7 @@
 		}
 		function parse_tr ($tree) {
 			return $this->simple_parse($tree, '<tr>', '</tr>');
-			
+
 		}
 		function parse_th ($tree) {
 			return $this->simple_parse($tree, '<th>', '</th>');
