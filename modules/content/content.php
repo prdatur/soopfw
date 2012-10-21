@@ -11,6 +11,9 @@ class content extends ActionModul {
 	 //Default method
 	protected $default_methode = "list_content_types";
 
+	/**
+	 * Define config variables.
+	 */
 	const CONTENT_SOLR_SERVER = 'solr_server';
 	const CONTENT_SOLR_INDEXED_TYPES = 'solr_index_types';
 	const CONTENT_SITEMAP_INDEXED_TYPES = 'sitemap_index_types';
@@ -92,12 +95,24 @@ class content extends ActionModul {
 	}
 
 	/**
-	 * Provides hook: sitemap_section
+	 * Implements hook: sitemap_section
 	 *
-	 * Allow other modules to provide sections for sitemap generation.
+	 * All modules which implements hook_sitemap_section() must implement this method.
+	 * Each hook call will provide the array of all sections which we want back, so each
+	 * module needs to switch on the provided section if the choosen configuration want the section.
+	 *
+	 * @param array $sections
+	 *   the sections which we want back.
 	 *
 	 * @return array
-	 *   An array with holds unique sections keys and a label as the value.
+	 *   An array with all site pathes excluding the protocoll and domain, just the path.
+	 *   If you want to provide the last modified time or the update frequenz
+	 *   please provide an array as the value for the array.
+	 *   this "entry" array can have the following keys:
+	 *     'loc' => the path what you normaly return as the single array value.
+	 *     'changefreq' => the frequenz based up on changefreq http://www.sitemaps.org/protocol.html
+	 *     'lastmod' => the last modifiction date as YYYY-MM-DD
+	 *     'priority' => the priority (default priority is 0.5)
 	 */
 	public function hook_sitemap_section() {
 		$filter = DatabaseFilter::create(ContentTypeObj::TABLE)
@@ -242,6 +257,7 @@ class content extends ActionModul {
 
 					// We have choose to disable solr service so just commit the delete and return.
 					if ($new_solr_server === 'none') {
+						$solr->commit();
 						return;
 					}
 				}
