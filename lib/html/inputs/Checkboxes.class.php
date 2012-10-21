@@ -69,10 +69,45 @@ class Checkboxes extends AbstractHtmlInput
 
 		//Build up the id for our elements
 		$id = (empty($id)) ? "form_id_".$name : $id;
+		$this->config('original_id', $id);
+		$this->config('original_class', $class);
 
 		//Init loop counter
 		$i = 0;
 		//Loop through all provided elements
+		foreach ($values as $value => $label) {
+			$i++;
+
+			//Check if we want a default value for that element,
+			$default_element_value = "";
+			if (in_array($value, $default_value)) {
+				$default_element_value = $value;
+			}
+
+			$field = new Checkbox($name."[".$value."]", $value, $default_element_value, $label, '', $class);
+			$field->config("id", $id.'_'.$i);
+			$this->fields[] = $field;
+		}
+	}
+
+	/**
+	 * Reinit our options.
+	 *
+	 * @param array $values
+	 *   The values as an array in format ('value' => 'label') for every checkbox
+	 * @param array $default_value
+	 *   The default values to preselect checkboxes if needed, keys are not used,
+	 *   provide just values with the key names from $values to be preselected
+	 *   like array('yes') to preselect yes element (optional, default = array())
+	 */
+	public function reinit_options(Array $values, Array $default_value = array()) {
+
+		$name = $this->config('name');
+		$id = $this->config('original_id');
+		$class = $this->config('original_class');
+		$this->fields = array();
+		//Loop through all provided elements
+		$i = 0;
 		foreach ($values as $value => $label) {
 			$i++;
 
@@ -160,6 +195,31 @@ class Checkboxes extends AbstractHtmlInput
 				}
 			}
 			return $return_array;
+		}
+		// If we want to set the values we need to set the new values to our elements.
+		if ($key == "value" && $val !== NS) {
+			//If we have not inputs setup we can do nothing.
+			if (empty($this->fields) || !is_array($val)) {
+				return;
+			}
+
+			$values = array();
+			foreach ($val AS $key => $value) {
+				if (empty($value)) {
+					continue;
+				}
+				$values[$key] = $value;
+			}
+			
+			foreach ($this->fields AS &$field) {
+				if (!isset($values[$field->value])) {
+					$field->config('value', '');
+				}
+				else {
+					$field->config('value', $values[$field->value]);
+				}
+			}
+
 		}
 		//All other actions will be normal
 		return parent::config($key, $val);
