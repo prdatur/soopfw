@@ -380,6 +380,7 @@ abstract class AbstractDataManagment extends Object
 			$ref_key = $this->db_struct->get_reference_key();
 			foreach ($ref_key as $index => $key) {
 				if(!isset($val[$index])) {
+					$this->fill_values_from_ref_keys($val);
 					return false;
 				}
 				$this->db_filter->add_where($key, $val[$index]);
@@ -415,6 +416,7 @@ abstract class AbstractDataManagment extends Object
 		}
 
 		//Could not load from cache or from database, return false
+		$this->fill_values_from_ref_keys($val);
 		return false;
 	}
 
@@ -866,7 +868,7 @@ abstract class AbstractDataManagment extends Object
 		}
 
 		if (count($ref_key) != count($refkey_array)) {
-			trigger_error($table.' has '.count($ref_key).' refkeys - but you supplied '.count($refkey_array), E_USER_ERROR);
+			trigger_error($table . ' has ' . count($ref_key) . ' refkeys - but you supplied ' . count($refkey_array), E_USER_ERROR);
 		}
 		//Prepend the table name to the array
 		array_unshift($refkey_array, $table);
@@ -950,4 +952,23 @@ abstract class AbstractDataManagment extends Object
 		}
 	}
 
+	/**
+	 * Fill up our reference key values and values_changed with the provided values.
+	 *
+	 * @param mixed $value_array
+	 *   The values for the reference keys, if a single value is provided it will be transformed into an array.
+	 */
+	private function fill_values_from_ref_keys($value_array) {
+		//Transform a single value into an array
+		if (!is_array($value_array)) {
+			$value_array = array($value_array);
+		}
+
+		$ref_keys = $this->db_struct->get_reference_key();
+		if (count($ref_keys) === count($value_array)) {
+			foreach ($ref_keys AS $index => $key) {
+				$this->values[$key] = $this->values_changed[$key] = $value_array[$index];
+			}
+		}
+	}
 }
