@@ -4,7 +4,7 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib
+ * @package lib.widget
  * @category Widget
  */
 interface Widget {
@@ -24,7 +24,7 @@ interface Widget {
 	 * @param Configuration $widget_config
 	 *   the widget configuration object (optional, default = null)
 	 *
-	 * @return string the cleaned uuid
+	 * @return mixed the cleaned uuid or null if the widget name is not supported.
 	 */
 	public function get_widget($name, $unique_id, Configuration $widget_config = null);
 }
