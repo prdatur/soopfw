@@ -77,6 +77,23 @@ class NetTools
 	}
 
 	/**
+	 * Returns the user identification which will try to get the best match to re-identify the current user.
+	 * If the user is logged in it will return "user_id:" followed by the current user id
+	 * else it will return "ip:" followed by the current ip address.
+	 *
+	 * @return string the user identification.
+	 */
+	public static function get_user_identification() {
+		$core = Core::get_instance();
+		if ($core->session->is_logged_in()) {
+			return 'user_id:' . $core->session->current_user()->user_id;
+		}
+		else {
+			return 'ip:' . NetTools::get_real_ip();
+		}
+	}
+
+	/**
 	 * Get the IP-Address from the client
 	 *
 	 * @param boolean $ip2long
