@@ -31,7 +31,7 @@ a:hover,
 	background: none;
 }
 
-.ui-widget-content tbody tr:hover td,
+table.ui-widget-content tbody tr:hover td,
 .ui-tabs-panel .ui-widget-content tbody tr:hover td {
 	background-color: #d9d9d9;
 }
