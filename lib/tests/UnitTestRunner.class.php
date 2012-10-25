@@ -117,6 +117,10 @@ class UnitTestRunner extends Object {
 			/* @var $test_class UnitTestInterface */
 			$test_class = new $test_classname($this->original_table_prefix);
 
+			if (!($test_class instanceof UnitTestInterface)) {
+				continue;
+			}
+			
 			// Get all available tests.
 			$available_testes = $test_class->get_tests();
 
@@ -183,7 +187,7 @@ class UnitTestRunner extends Object {
 			->add_column('TABLE_NAME')
 			->add_where('TABLE_SCHEMA', $database);
 
-		
+
 		foreach ($tables->select_all(0, true) AS $table_name) {
 			if (!preg_match("/^" . preg_quote($this->original_table_prefix, '/') . "/", $table_name)) {
 				continue;
