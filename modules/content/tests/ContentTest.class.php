@@ -108,28 +108,28 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'add' => 'add',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => $this->content_type_description,
+			'display_name' => $this->content_type_description,
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
-		$this->assert_equals('The field "content type" is required.', $this->content['desc'], t('Check for valid missing param: content type'));
+		$this->assert_equals('The field "Content type" is required.', $this->content['desc'], t('Check for valid missing param: content type'));
 		$this->do_ajax_post('/admin/content/manage_content_type.ajax_html', array(
 			'content_type' => $this->content_type,
 			'add' => 'add',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => '',
+			'display_name' => '',
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
-		$this->assert_equals('The field "description" is required.', $this->content['desc'], t('Check for valid missing param: description'));
+		$this->assert_equals('The field "Displayed name" is required.', $this->content['desc'], t('Check for valid missing param: display_name'));
 
 		$this->do_ajax_post('/admin/content/manage_content_type.ajax_html', array(
 			'content_type' => 'webtest_content_type',
 			'add' => 'add',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => 'Content type description',
+			'display_name' => 'Content type description',
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
@@ -144,7 +144,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'save' => 'save',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => 'Content type description changed',
+			'display_name' => 'Content type description changed',
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
@@ -160,7 +160,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'add' => 'add',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => 'Content type description',
+			'display_name' => 'Content type description',
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
@@ -334,7 +334,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 			'add' => 'add',
 			'permission' => '',
 			'create_alias' => 'yes',
-			'description' => 'Content type description for delete',
+			'display_name' => 'Content type description for delete',
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
@@ -473,7 +473,6 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 			'create_content_form_submit' => $this->csrf_token,
 		));
 		$this->assert_web_regexp('/The field "title" is required./', t('Check if title is required'));
-
 		$this->do_post('/admin/content/create/webtest_content_type', $this->post_values);
 		$this->assert_web_regexp('/<li>Page created<\/li>/', t('Check if page was created'));
 
@@ -485,7 +484,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 		$this->post_values['create_alias'] = '1';
 		$this->do_post('/admin/content/edit/1', $this->post_values);
 
-		
+
 		$this->do_get('/' . UrlAliasObj::get_alias_string('test create content') . '.html');
 
 		foreach ($this->post_values AS $k => $value) {
@@ -497,7 +496,9 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 
 
 		$this->assert_true((preg_match("/\/admin\/content\/view\/([0-9]+)/", $this->content, $matches) !== false), t('Check for view link'));
-		$this->nid = (int)$matches[1];
+		if ($this->assert_true(isset($matches[1]), t('Check if view link really exist'))) {
+			$this->nid = (int)$matches[1];
+		}
 		$this->assert_true((preg_match('/"\/admin\/content\/edit\/' . $this->nid . '"/', $this->content, $matches) !== false), t('Check for edit link'));
 		$this->assert_true((preg_match('/"\/admin\/content\/translate_list\/' . $this->nid . '"/', $this->content, $matches) !== false), t('Check for translation list link'));
 		$this->assert_true((preg_match('/"\/admin\/content\/revision_list\/' . $this->nid . '"/', $this->content, $matches) !== false), t('Check for revision list link'));

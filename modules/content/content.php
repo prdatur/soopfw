@@ -1,14 +1,14 @@
 <?php
+
 /**
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.content
  */
-
-class content extends ActionModul {
-
-	 //Default method
+class content extends ActionModul
+{
+	//Default method
 	protected $default_methode = "list_content_types";
 
 	/**
@@ -26,20 +26,52 @@ class content extends ActionModul {
 
 
 		$content_types = $create_types = array();
-		foreach($this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
+		foreach ($this->db->query_slave_all("SELECT * FROM `" . ContentTypeObj::TABLE . "`") AS $content_type) {
+
+			$content_type_views = DatabaseFilter::create(ContentTypeViewObj::TABLE)
+				->add_where(ContentTypeViewObj::FIELD_CONTENT_TYPE, $content_type['content_type']);
+
+			$views = array();
+			foreach ($content_type_views->select_all() AS $view) {
+				$views[] = array(
+					'#title' => $view[ContentTypeViewObj::FIELD_ID], //The main title
+					'#link' => "/admin/content/change_view/" . $content_type['content_type'] . '/' . $view[ContentTypeViewObj::FIELD_ID], // The main link
+					'#perm' => 'admin.content.manage', //Perm needed
+					'#childs' => array(
+						array(
+							'#title' => t("Show the view"), //The main title
+							'#link' => "/content/views/" . $view[ContentTypeViewObj::FIELD_ID], // The main link
+							'#perm' => 'admin.content.manage', //Perm needed
+						),
+					),
+				);
+			}
+
 			$content_types[] = array(
-				'#title' => $content_type['description'], //The main title
-				'#link' => "/admin/content/manage_content_type/".$content_type['content_type'], // The main link
+				'#title' => $content_type['display_name'], //The main title
+				'#link' => "/admin/content/manage_content_type/" . $content_type['content_type'], // The main link
 				'#childs' => array(
 					array(
-						'#title' => t("manage fields"), //The main title
-						'#link' => "/admin/content/manage_content_type_fields/".$content_type['content_type'], // The main link
-					)
-				)
+						'#title' => t("Manage fields"), //The main title
+						'#link' => "/admin/content/manage_content_type_fields/" . $content_type['content_type'], // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+					),
+					array(
+						'#title' => t("Views"), //The main title
+						'#link' => "javascript:void(0)", // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+						'#childs' => $views,
+					),
+					array(
+						'#title' => t("Create view"), //The main title
+						'#link' => "/admin/content/change_view/" . $content_type['content_type'], // The main link
+						'#perm' => 'admin.content.manage', //Perm needed
+					),
+				),
 			);
 			$create_types[] = array(
-				'#title' => $content_type['description'], //The main title
-				'#link' => "/admin/content/create/".$content_type['content_type'] // The main link
+				'#title' => $content_type['display_name'], //The main title
+				'#link' => "/admin/content/create/" . $content_type['content_type'] // The main link
 			);
 		}
 		return array(
@@ -75,23 +107,21 @@ class content extends ActionModul {
 								'#title' => t("Unreachable content"), //The main title
 								'#link' => "/admin/content/list_unreachable_content_types", // The main link
 								'#perm' => 'admin.content.create', //Perm needed
-							)
-						)
+							),
+						),
 					),
-
-				)
-			)
+				),
+			),
 		);
 	}
 
 	public function __init() {
 		parent::__init();
 
-		if($this->action != 'view') {
+		if ($this->action != 'view') {
 			//Need to be logged in
 			$this->session->require_login();
 		}
-
 	}
 
 	/**
@@ -116,10 +146,10 @@ class content extends ActionModul {
 	 */
 	public function hook_sitemap_section() {
 		$filter = DatabaseFilter::create(ContentTypeObj::TABLE)
-			->add_column('content_type');
+				->add_column('content_type');
 
 		$content_types = array();
-		foreach($filter->select_all(0, true) AS $content_type) {
+		foreach ($filter->select_all(0, true) AS $content_type) {
 			$content_types['content::' . $content_type] = t("Content: @content_type", array('@content_type' => $content_type));
 		}
 
@@ -164,11 +194,11 @@ class content extends ActionModul {
 		$results = array();
 
 		$filter = DatabaseFilter::create(PageObj::TABLE)
-			->add_column('page_id')
-			->add_column('language')
-			->add_column('last_modified')
-			->add_where('deleted', 'no')
-			->add_where($where);
+				->add_column('page_id')
+				->add_column('language')
+				->add_column('last_modified')
+				->add_where('deleted', 'no')
+				->add_where($where);
 
 		foreach ($filter->select_all() AS $row) {
 			$alias = $this->get_alias_for_page_id($row['page_id'], $row['language']);
@@ -219,15 +249,15 @@ class content extends ActionModul {
 			$content_types = array();
 
 			$filter = DatabaseFilter::create(ContentTypeObj::TABLE)
-				->add_column('content_type');
+					->add_column('content_type');
 
-			foreach($filter->select_all(0, true) AS $content_type) {
+			foreach ($filter->select_all(0, true) AS $content_type) {
 				$content_types[$content_type] = t("Content: @content_type", array('@content_type' => $content_type));
 				$delete_check[$content_type] = $content_type;
 			}
 
 			$old_values = $this->core->get_dbconfig("content", self::CONTENT_SOLR_INDEXED_TYPES, array());
-			foreach ($old_values AS $k=>$v) {
+			foreach ($old_values AS $k => $v) {
 				$delete_check[$k] = $k;
 			}
 
@@ -294,11 +324,11 @@ class content extends ActionModul {
 
 				if ($add_types === true) {
 					$filter = DatabaseFilter::create(PageObj::TABLE)
-						->add_column('page_id')
-						->add_column('language')
-						->add_column('content_type')
-						->add_where('last_revision', '', '!=')
-						->add_where($add_filter);
+							->add_column('page_id')
+							->add_column('language')
+							->add_column('content_type')
+							->add_where('last_revision', '', '!=')
+							->add_where($add_filter);
 
 					foreach ($filter->select_all() AS $row) {
 						$revision = new PageRevisionObj($row['page_id'], $row['language']);
@@ -307,7 +337,6 @@ class content extends ActionModul {
 						}
 						$revision->update_solr($row['content_type'], false);
 					}
-
 				}
 
 				if ($skip_delete === false) {
@@ -321,6 +350,294 @@ class content extends ActionModul {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Action: change_view
+	 *
+	 * Creates or save a view for a given content type.
+	 *
+	 * @param string $content_type
+	 *   The content type.
+	 * @param string $view_name
+	 *   the view name, if provided we will edit the view name. (optional, default = '')
+	 */
+	public function change_view($content_type, $view_name = '') {
+		if (!$this->right_manager->has_perm('admin.content.manage', true)) {
+			throw new SoopfwNoPermissionException();
+		}
+
+		$ct = new ContentTypeObj($content_type);
+		if (!$ct->load_success()) {
+			throw new SoopfwWrongParameterException(t('No such content type'));
+		}
+		$view_obj = new ContentTypeViewObj($view_name);
+		// If we provided a view name we want to edit it, so we need to verify that the view exist.
+		if ($view_name !== '' && $view_obj->load_success() === false) {
+			throw new SoopfwWrongParameterException(t('No such view'));
+		}
+
+		if ($view_obj->load_success()) {
+			$title = t('Change view "@view"', array('@view' => $view_obj->name));
+		}
+		else {
+			$title = t('Create view for content type "@content_type"', array('@content_type' => $ct->display_name));
+		}
+		$this->static_tpl = 'form.tpl';
+
+		$form = new Form('create_view');
+
+		$view_id_obj = $view_obj->get_dbstruct()->get_textfield(ContentTypeViewObj::FIELD_ID, NS, $view_obj->id, t('Please provide a system readable string.<br>Tthis is a string which contains only alphanumeric letteres (a-z, 0-9) and the _ (underline), the first character <b>MUST</b> be an alphabetic character (a-z).<br>If you provide upper case characters they will be transformed to lower case'));
+
+		$form->add($view_id_obj, array(
+			new RegexpValidator(t('Only alphanumeric and underline letteres are allowed and it must start with an alphabetic lettere'), '/^[a-z][a-z0-9_]+$/'),
+		));
+
+		// This will be set to the view id which we should delete after we change the id, this is needed because the view id is the primary key.
+		$delete_old_one = false;
+		if ($view_obj->load_success() === false || $view_obj->id !== $view_id_obj->get_value()) {
+			$delete_old_one = $view_obj->id;
+			$view_id_obj->add_validator(new NotExistValidator(t('This view id is already in use, please choose a different.'), array('content_type_views' => ContentTypeViewObj::FIELD_ID)));
+		}
+
+
+		$form->add($view_obj->get_dbstruct()->get_textfield(ContentTypeViewObj::FIELD_NAME, NS, $view_obj->name), array(
+			new RequiredValidator(),
+		));
+
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
+
+		$filter = DatabaseFilter::create(ContentTypeFieldGroupObj::TABLE)
+				->add_where(ContentTypeViewObj::FIELD_CONTENT_TYPE, $content_type);
+
+		$view_fields = $sort_fields = array(
+			'title' => t('Title'),
+			'created' => t('Date of creation'),
+			'created_by' => t('Author'),
+			'last_modified' => t('Date of last change'),
+			'last_modified_by' => t('User of last modification'),
+			'last_access' => t('Date of last view'),
+		);
+		foreach ($filter->select_all() AS $row) {
+			$view_fields[$row['id']] = $row['name'];
+			if ($row['max_value'] == "1") {
+				$sort_fields[$row['id']] = $row['name'];
+			}
+		}
+
+		$displayed_field_values = json_decode($view_obj->displayed_fields, true);
+		if (empty($displayed_field_values)) {
+			$displayed_field_values = array();
+		}
+
+		$form->add(new ColumnCheckboxes('displayed_fields', $view_fields, $displayed_field_values, 1, t('Displayed fields')));
+
+		$form->add($view_obj->get_dbstruct()->get_textfield(ContentTypeViewObj::FIELD_TRUNCATE_CHARS, NS, $view_obj->truncate_chars));
+		$form->add($view_obj->get_dbstruct()->get_selectfield(ContentTypeViewObj::FIELD_TRUNCATE_POLICY, NS, $view_obj->truncate_policy));
+
+		$db_sort_values = array();
+		if (!empty($_POST) && isset($_POST['sort'])) {
+			$tmp_fields = $sort_fields;
+			$sort_fields = array();
+			foreach ($_POST['sort'] AS $values) {
+				$id = key($values);
+				if (isset($tmp_fields[$id])) {
+					$sort_fields[$id] = $tmp_fields[$id];
+				}
+			}
+		}
+		else {
+
+			$db_sort_values = json_decode($view_obj->sort_fields, true);
+			if (!empty($db_sort_values)) {
+
+				$tmp_fields = $sort_fields;
+				$sort_fields = array();
+				foreach ($db_sort_values AS $id => $enabled) {
+					if (isset($tmp_fields[$id])) {
+						$sort_fields[$id] = $tmp_fields[$id];
+						unset($tmp_fields[$id]);
+					}
+				}
+				$sort_fields = $sort_fields + $tmp_fields;
+			}
+		}
+
+		$sort_values = '
+			<table class="tablednd ui-widget-content" id="sort">
+				<thead>
+					<tr>
+						<td></td>
+						<td>' . t('Enabled') . '</td>
+						<td>' . t('Field') . '</td>
+						<td>' . t('Direction') . '</td>
+					</tr>
+				</head>
+				<tbody>';
+
+		$sort_inputs = array();
+		$i = 0;
+		foreach ($sort_fields AS $id => $name) {
+
+			$enable_sort_chk = new Checkbox('sort[' . $i . '][' . $id . '][enable]', 1, isset($db_sort_values[$id]));
+			$sort_field = new Selectfield('sort[' . $i . '][' . $id . '][direction]', array(
+						'asc' => t('Asc'),
+						'desc' => t('Desc'),
+							), (isset($db_sort_values[$id]) ? $db_sort_values[$id] : 'asc'));
+			$sort_values .= '<tr>';
+			$sort_values .= '<td class="handle_cell" style="width:20px;vertical-align:top;padding-top:5px;padding-left:5px;"><a class="tabledrag-handle" href="javascript:void(0);" title="' . t("drag and drop to move") . '"><div class="handle">&nbsp;</div></a></td>';
+			$sort_values .= '<td style="text-align: center">' . $enable_sort_chk->fetch() . '</td>';
+			$sort_values .= '<td style="text-align: left">' . $name . '</td>';
+			$sort_values .= '<td style="text-align: right">' . $sort_field->fetch() . '</td>';
+			$sort_values .= '</tr>';
+			$sort_inputs[] = $enable_sort_chk;
+			$sort_inputs[] = $sort_field;
+			$i++;
+		}
+
+		$sort_values .= '</tbody></table>';
+
+		$sort_field_html = new HtmlContainerInput($sort_values);
+		$sort_field_html->config('label', t('Sort on'));
+		$sort_field_html->config('description', t('Please select the fields where you want to sort (<b>only on selected fields will be sorted</b>).<br>
+With "<b>drag and drop</b>" you can choose the field order, the field which is on top will be first sorted, then the next one and so on...<br>
+Notice: You can only select fields which are no multi fields (max value needs to be set to 1)'));
+		$form->add($sort_field_html);
+
+		$pager_values = array();
+
+		if ($view_obj->use_pager == ContentTypeViewObj::PAGER_ENABLED) {
+			$pager_values[ContentTypeViewObj::PAGER_ENABLED] = ContentTypeViewObj::PAGER_ENABLED;
+		}
+		$form->add(new Checkboxes(ContentTypeViewObj::FIELD_USE_PAGER, array(ContentTypeViewObj::PAGER_ENABLED => t('Enable paging')), $pager_values, t('Paging')));
+		$form->add($view_obj->get_dbstruct()->get_textfield(ContentTypeViewObj::FIELD_MEPP, NS, $view_obj->mepp));
+
+		if ($form->check_form()) {
+
+			$values = $form->get_values();
+			$values[ContentTypeViewObj::FIELD_ID] = strtolower($values[ContentTypeViewObj::FIELD_ID]);
+			$values[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS] = json_encode($values[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS]);
+			$values[ContentTypeViewObj::FIELD_USE_PAGER] = isset($values[ContentTypeViewObj::FIELD_USE_PAGER][ContentTypeViewObj::PAGER_ENABLED]);
+			$values[ContentTypeViewObj::FIELD_CONTENT_TYPE] = $content_type;
+
+			$sort_values = array();
+			foreach ($_POST['sort'] AS $s_values) {
+				$id = key($s_values);
+				if (empty($s_values[$id]['enable'])) {
+					continue;
+				}
+				$sort_values[$id] = $s_values[$id]['direction'];
+			}
+			$values[ContentTypeViewObj::FIELD_SORT_FIELDS] = json_encode($sort_values);
+
+			$view_obj->set_fields($values);
+			if ($view_obj->save_or_insert()) {
+				if ($delete_old_one !== false) {
+					$delete_view = new ContentTypeViewObj($delete_old_one);
+					$delete_view->delete();
+				}
+				$this->core->message(t('View successfully created/updated'), Core::MESSAGE_TYPE_SUCCESS);
+				if (empty($view_name)) {
+					$this->core->location('/admin/content/change_view/' . $content_type . '/' . $values[ContentTypeViewObj::FIELD_ID]);
+				}
+			}
+			else {
+				$this->core->message(t('Could not save view'), Core::MESSAGE_TYPE_ERROR);
+			}
+		}
+	}
+
+	public function views($view_name) {
+		$view = new ContentTypeViewObj($view_name);
+		if (!$view->load_success()) {
+			throw new SoopfwWrongParameterException(t('No such view'));
+		}
+
+		$template_file = $this->smarty->get_tpl(true) . '/content/views/' . $view_name . '.tpl';
+		if (!file_exists($template_file)) {
+			throw new SoopfwErrorException(t('Can not display view, view template was not found.<br>Please create a template file "<b>/content/views/@view_name.tpl</b>" within your current template.', array(
+				'@view_name' => $view_name,
+			)));
+		}
+		$this->static_tpl = $template_file;
+
+		$view_data = $view->get_values();
+		$view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS] = json_decode($view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS], true);
+		$view_data[ContentTypeViewObj::FIELD_SORT_FIELDS] = json_decode($view_data[ContentTypeViewObj::FIELD_SORT_FIELDS], true);
+
+		$filter = DatabaseFilter::create(PageObj::TABLE, 'p')
+				->add_where('content_type', $view_data[ContentTypeViewObj::FIELD_CONTENT_TYPE]);
+
+		if (!empty($view_data['sort_fields'])) {
+			$joins = array();
+			foreach ($view_data['sort_fields'] AS $field => $direction) {
+
+				switch ($field) {
+					case 'title':
+						$joins[PageRevisionObj::TABLE] = true;
+						$table = PageRevisionObj::TABLE;
+						break;
+					case 'created_by':
+					case 'created':
+					case 'last_modified':
+					case 'last_modified_by':
+					case 'last_access':
+						$table = NS;
+						break;
+					default:
+						if (!isset($joins[ContentTypeFieldGroupFieldValueObj::TABLE])) {
+							$joins[ContentTypeFieldGroupFieldValueObj::TABLE] = array();
+						}
+						$joins[ContentTypeFieldGroupFieldValueObj::TABLE][] = $field;
+						$table = ContentTypeFieldGroupFieldValueObj::TABLE;
+						$field = 'value';
+						break;
+				}
+
+				$filter->order_by($field, $direction, $table);
+			}
+
+			foreach ($joins AS $table => $value) {
+				$ctfgv = '';
+				if ($table == ContentTypeFieldGroupFieldValueObj::TABLE) {
+					$database_or = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+					foreach ($value AS $field) {
+						$database_or->add_where('content_type_field_group_id', $field, '=', $table);
+					}
+					$ctfgv = ' AND ' . $database_or->get_sql(false);
+				}
+
+				$filter->join($table, $table . '.page_id = p.page_id AND ' . $table . '.language = p.language AND ' . $table . '.revision = p.last_revision' . $ctfgv);
+			}
+		}
+		$filter->add_where('deleted', PageObj::DELETED_NO);
+		$filter->add_column('page_id');
+		$filter->add_column('language');
+		$filter->add_column('`last_revision` as revision');
+
+		// If pager is enabled setup the pager.
+		$limit = (int) $view_data[ContentTypeViewObj::FIELD_MEPP];
+		if ($view_data[ContentTypeViewObj::FIELD_USE_PAGER] === '1') {
+			$pager = new Pager($limit);
+			$pager->set_entry_count($filter->select_count());
+
+			$filter->offset($pager->get_offset());
+		}
+
+		// Setup the limit.
+		if ($limit > 0) {
+			$filter->limit($limit);
+		}
+
+		$data = array();
+		$page_revision_obj = new PageRevisionObj();
+		foreach ($page_revision_obj->load_multiple($filter->select_all()) AS $page_revision_obj) {
+			/* @var $page_revision_obj PageRevisionObj */
+			$values = $page_revision_obj->get_values();
+			$data[] = array_intersect_key(array_merge($values, json_decode($values['serialized_data'], true)), $view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS]);
+		}
+
+		$this->smarty->assign_by_ref('view_data', $data);
 	}
 
 	/**
@@ -339,34 +656,35 @@ class content extends ActionModul {
 	public function view($page_id, $revision = '', $return_html = false) {
 
 		$page_data_array = explode("|", $page_id, 2);
-		if(!isset($page_data_array[1])) {
+		if (!isset($page_data_array[1])) {
 			$page_data_array[1] = '';
 		}
 
-		//Check if we have called this page with default content/view/{page_id} and if so check if we have an alias which is the better choice
-		if(preg_match("/content\/view\/[0-9]+/i", $_SERVER['REQUEST_URI'])) {
+		// Check if we have called this page with default content/view/{page_id} and if so check if we have an alias which is the better choice.
+		// But only if do show the content, not within return mode.
+		if ($return_html === false && preg_match("/content\/view\/[0-9]+/i", $_SERVER['REQUEST_URI'])) {
 			$alias = $this->get_alias_for_page_id($page_data_array[0], $page_data_array[1]);
-			if(!empty($alias)) {
-				$this->core->location('/'.$alias.'.html');
+			if (!empty($alias)) {
+				$this->core->location('/' . $alias . '.html');
 			}
 		}
 		$page_id = $page_data_array[0];
 		$page = new PageObj($page_data_array[0], $page_data_array[1]);
-		if(!$page->load_success()) {
+		if (!$page->load_success()) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
 
-		if($page->deleted == 'yes'  && !$this->right_manager->has_perm("admin.content.delete", false)) {
+		if ($page->deleted == 'yes' && !$this->right_manager->has_perm("admin.content.delete", false)) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
-		if((empty($page->last_revision) || !empty($revision)) && !$this->right_manager->has_perm("admin.content.create", false)) {
+		if ((empty($page->last_revision) || !empty($revision)) && !$this->right_manager->has_perm("admin.content.create", false)) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
 		$page_revision = new PageRevisionObj($page_data_array[0], $page_data_array[1], $revision);
-		if(!$page_revision->load_success()) {
+		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 		$page->view_count++;
@@ -402,26 +720,26 @@ class content extends ActionModul {
 		 * @return array An array with the additional content type fields
 		 */
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
-		if(!empty($additional_field_groups)) {
-			foreach($additional_field_groups AS $return_values) {
-				if(!empty($return_values) && is_array($return_values)) {
-					foreach($return_values AS $id => $tmp_values) {
+		if (!empty($additional_field_groups)) {
+			foreach ($additional_field_groups AS $return_values) {
+				if (!empty($return_values) && is_array($return_values)) {
+					foreach ($return_values AS $id => $tmp_values) {
 						$implemented_field_groups[$id] = $tmp_values;
 					}
 				}
 			}
 		}
 		// Provide template overrides.
-		$template_override_field_groups_path = $this->smarty->get_tpl(true). 'content/field_groups';
-		$field_groups_path = $this->module_tpl_dir.'field_groups';
+		$template_override_field_groups_path = $this->smarty->get_tpl(true) . 'content/field_groups';
+		$field_groups_path = $this->module_tpl_dir . 'field_groups';
 
 
-		$content_type_tpl = $template_override_field_groups_path. '/' . $values['content_type'].".tpl";
-		if(file_exists($content_type_tpl)) {
-			$tpl_path = $template_override_field_groups_path. '/';
+		$content_type_tpl = $template_override_field_groups_path . '/' . $values['content_type'] . ".tpl";
+		if (file_exists($content_type_tpl)) {
+			$tpl_path = $template_override_field_groups_path . '/';
 		}
 		else {
-			$content_type_tpl = $field_groups_path . '/' . $values['content_type'].".tpl";
+			$content_type_tpl = $field_groups_path . '/' . $values['content_type'] . ".tpl";
 			$tpl_path = $field_groups_path . '/';
 		}
 
@@ -443,24 +761,24 @@ class content extends ActionModul {
 		$this->core->hook('content_view_alter_data', array($values['content_type'], &$data_array));
 
 		$content = "";
-		if(file_exists($content_type_tpl)) {
+		if (file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
 			$content = $content_smarty->fetch($content_type_tpl);
 		}
 		else {
-			foreach($data_array AS $field_group_id => $field_group_values) {
-				if(file_exists($template_override_field_groups_path. '/' . $field_group_id . ".tpl")) {
-					$field_group_tpl = $template_override_field_groups_path. '/' . $field_group_id . ".tpl";
+			foreach ($data_array AS $field_group_id => $field_group_values) {
+				if (file_exists($template_override_field_groups_path . '/' . $field_group_id . ".tpl")) {
+					$field_group_tpl = $template_override_field_groups_path . '/' . $field_group_id . ".tpl";
 				}
 				else {
 					$field_group_tpl = $field_groups_path . '/' . $field_group_id . ".tpl";
 				}
 				$group_obj = new ContentTypeFieldGroupObj($field_group_id);
-				if(!file_exists($field_group_tpl)) {
-					if(isset($implemented_field_groups[$group_obj->field_group]) && file_exists(SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'])) {
+				if (!file_exists($field_group_tpl)) {
+					if (isset($implemented_field_groups[$group_obj->field_group]) && file_exists(SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'])) {
 						$field_group_tpl = SITEPATH . '/' . $implemented_field_groups[$group_obj->field_group]['template'];
 					}
-					elseif (file_exists($template_override_field_groups_path. '/' . $group_obj->field_group . ".tpl")) {
+					elseif (file_exists($template_override_field_groups_path . '/' . $group_obj->field_group . ".tpl")) {
 						$field_group_tpl = $template_override_field_groups_path . '/' . $group_obj->field_group . ".tpl";
 					}
 					else {
@@ -468,7 +786,7 @@ class content extends ActionModul {
 					}
 				}
 
-				if(!file_exists($field_group_tpl)) {
+				if (!file_exists($field_group_tpl)) {
 					continue;
 				}
 
@@ -487,25 +805,25 @@ class content extends ActionModul {
 		$view_links = array();
 
 		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
-		if($this->right_manager->has_perm("admin.content.create", false)) {
+		if ($this->right_manager->has_perm("admin.content.create", false)) {
 			$view_links[] = array(
-				'href' => '/admin/content/view/'.$page_id,
+				'href' => '/admin/content/view/' . $page_id,
 				'title' => t("view")
 			);
 			$view_links[] = array(
-				'href' => '/admin/content/edit/'.$page_id,
+				'href' => '/admin/content/edit/' . $page_id,
 				'title' => t("edit")
 			);
 			$view_links[] = array(
-				'href' => '/admin/content/revision_list/'.$page_id,
+				'href' => '/admin/content/revision_list/' . $page_id,
 				'title' => t("revisions")
 			);
 		}
 
 		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
-		if($this->right_manager->has_perm("admin.translate", false)) {
+		if ($this->right_manager->has_perm("admin.translate", false)) {
 			$view_links[] = array(
-				'href' => '/admin/content/translate_list/'.$page_id,
+				'href' => '/admin/content/translate_list/' . $page_id,
 				'title' => t("translate")
 			);
 		}
@@ -523,7 +841,7 @@ class content extends ActionModul {
 		}
 
 		$entries = array();
-		foreach($this->db->query_slave_all("SELECT * FROM `".MenuObj::TABLE."`") AS $menu) {
+		foreach ($this->db->query_slave_all("SELECT * FROM `" . MenuObj::TABLE . "`") AS $menu) {
 			$menu_obj = new MenuObj($menu['menu_id']);
 			$entries[] = array(
 				'#title' => $menu_obj->title,
@@ -535,7 +853,6 @@ class content extends ActionModul {
 		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');
 		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
 		$this->smarty->assign_by_ref("data", $entries);
-
 	}
 
 	/**
@@ -563,8 +880,8 @@ class content extends ActionModul {
 		$langs = array_merge($options, $this->lng->languages);
 		$form->add(new Selectfield('language', $langs, $this->core->current_language, t("Language")));
 
-		foreach($this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`") AS $content_type) {
-			$options[$content_type['content_type']] = $content_type['description'];
+		foreach ($this->db->query_slave_all("SELECT `content_type`, `display_name` FROM `" . ContentTypeObj::TABLE . "`") AS $content_type) {
+			$options[$content_type['content_type']] = $content_type['display_name'];
 		}
 		$form->add(new Selectfield('content_type', $options, '', t("Content type")));
 
@@ -606,7 +923,6 @@ class content extends ActionModul {
 			}
 
 			$filter->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');
-
 		}
 
 		if (empty($language_search)) {
@@ -633,7 +949,7 @@ class content extends ActionModul {
 		$filter->add_column('`username` AS last_modified_by_username', 'u');
 
 		$filter->join(ContentTypeObj::TABLE, "p.content_type = ct.content_type", 'ct');
-		$filter->add_column('`description` AS content_type_description', 'u');
+		$filter->add_column('display_name', 'ct');
 		$filter->limit($pager->max_entries_per_page());
 		$filter->offset($pager->get_offset());
 
@@ -645,12 +961,12 @@ class content extends ActionModul {
 			$language_filter->add_where('language', $key);
 		}
 
-		foreach($pages AS &$page) {
+		foreach ($pages AS &$page) {
 			$filter = DatabaseFilter::create(PageRevisionObj::TABLE)
-				->add_column('title')
-				->add_column('language')
-				->add_where('page_id', $page['page_id'])
-				->add_where($language_filter);
+					->add_column('title')
+					->add_column('language')
+					->add_where('page_id', $page['page_id'])
+					->add_where($language_filter);
 
 			$page['translated'] = $filter->select_all('language');
 			$page['title'] = $page['translated'][$language_search]['title'];
@@ -661,6 +977,7 @@ class content extends ActionModul {
 		//Assign found content
 		$this->smarty->assign_by_ref("pages", $pages);
 	}
+
 	/**
 	 * Action: list_unreachable_content_types
 	 * Lists all content pages, provide filter functionality to search for content
@@ -675,17 +992,17 @@ class content extends ActionModul {
 
 		$menu_entry_obj = new MenuEntryObj();
 		$unreachable_menus = $menu_entry_obj->get_all_deactivated_menu_entries();
-		foreach($unreachable_menus AS &$val) {
+		foreach ($unreachable_menus AS &$val) {
 			$val = Db::safe($val);
 		}
 		$unreachable_pages = $this->db->query_slave_all("
 			SELECT *
-			FROM `".PageObj::TABLE."` p
-			WHERE p.`deleted` != '".PageObj::DELETED_YES."' AND p.`current_menu_entry_id` IN (".implode(",", $unreachable_menus).")");
+			FROM `" . PageObj::TABLE . "` p
+			WHERE p.`deleted` != '" . PageObj::DELETED_YES . "' AND p.`current_menu_entry_id` IN (" . implode(",", $unreachable_menus) . ")");
 
-		foreach($unreachable_pages AS &$page) {
+		foreach ($unreachable_pages AS &$page) {
 			$revision_object = new PageRevisionObj($page['page_id'], $this->core->current_language);
-			if($revision_object->load_success()) {
+			if ($revision_object->load_success()) {
 				$page = array_merge($page, $revision_object->get_values());
 			}
 		}
@@ -703,12 +1020,12 @@ class content extends ActionModul {
 		$this->session->require_login();
 
 		$page = new PageObj($page_id);
-		if(!$page->load_success()) {
+		if (!$page->load_success()) {
 			throw new SoopfwWrongParameterException(t('no such page'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id);
-		if(!$page_revision->load_success()) {
+		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t('no such page'));
 		}
 		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("this displays all available revisions for this page"));
@@ -718,14 +1035,14 @@ class content extends ActionModul {
 			throw new SoopfwNoPermissionException();
 		}
 
-		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
+		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `" . PageRevisionObj::TABLE . "` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
 			'ipage_id' => $page_id,
 			'@language' => $this->core->current_language
-		));
+				));
 
-		foreach($revisions AS &$revision) {
+		foreach ($revisions AS &$revision) {
 			$user_obj = new UserObj($revision['created_by']);
-			if($user_obj->load_success()) {
+			if ($user_obj->load_success()) {
 				$revision['created_by'] = $user_obj->get_values();
 			}
 			else {
@@ -735,7 +1052,6 @@ class content extends ActionModul {
 		//Assign found revisions
 		$this->smarty->assign_by_ref("revisions", $revisions);
 	}
-
 
 	/**
 	 * Action: edit
@@ -750,23 +1066,23 @@ class content extends ActionModul {
 
 		$this->title(t("change content"), t('Please fill out all required fields to create this content page.
 Current language: [b]@language[/b]', array(
-			'@language' => $this->core->current_language
-		)));
+					'@language' => $this->core->current_language
+				)));
 
 		$page = new PageObj($page_id);
-		if(!$page->load_success()) {
+		if (!$page->load_success()) {
 			throw new SoopfwWrongParameterException(t('No such page or wrong language'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id, $this->core->current_language, $revision);
-		if(!$page_revision->load_success()) {
+		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t('No such page or wrong language'));
 		}
 
 		$this->title(t("change content: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page.
 Current language: [b]@language[/b]', array(
-			'@language' => $this->core->current_language
-		)));
+					'@language' => $this->core->current_language
+				)));
 
 
 		$values = array_merge($page->get_values(true), $page_revision->get_values(true));
@@ -785,10 +1101,10 @@ Current language: [b]@language[/b]', array(
 	public function create($content_type = "") {
 		$this->title(t("create content: @content_type", array("@content_type" => $content_type)), t('Please fill out all required fields to create this content page.
 Current language: [b]@language[/b]', array(
-			'@language' => $this->core->current_language
-		)));
+					'@language' => $this->core->current_language
+				)));
 
-		if(!empty($content_type)) {
+		if (!empty($content_type)) {
 			$this->change_content($content_type);
 		}
 		else {
@@ -797,7 +1113,7 @@ Current language: [b]@language[/b]', array(
 				throw new SoopfwNoPermissionException();
 			}
 
-			$this->smarty->assign_by_ref("list", $this->db->query_slave_all("SELECT `content_type`,`description` FROM `".ContentTypeObj::TABLE."`"));
+			$this->smarty->assign_by_ref("list", $this->db->query_slave_all("SELECT `content_type`, `display_name` FROM `" . ContentTypeObj::TABLE . "`"));
 		}
 	}
 
@@ -817,12 +1133,12 @@ Current language: [b]@language[/b]', array(
 		}
 
 		$page = new PageObj($page_id, $language);
-		if(!$page->load_success()) {
+		if (!$page->load_success()) {
 			throw new SoopfwWrongParameterException(t('No such page'));
 		}
 
 		$page_revision = new PageRevisionObj($page_id, $language);
-		if(!$page_revision->load_success()) {
+		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t('No such page'));
 		}
 		$this->title(t("translate: @title", array("@title" => $page_revision->title)), t('Please fill out all required fields to create this content page'));
@@ -833,7 +1149,6 @@ Current language: [b]@language[/b]', array(
 		$this->change_content($values, true);
 	}
 
-
 	public function list_content_types() {
 		$this->title(t("content types"), t('add or change content types'));
 		//Check perms
@@ -841,9 +1156,8 @@ Current language: [b]@language[/b]', array(
 			throw new SoopfwNoPermissionException();
 		}
 		//Get content types and assign it
-		$this->smarty->assign_by_ref("values", $this->db->query_slave_all("SELECT * FROM `".ContentTypeObj::TABLE."`"));
+		$this->smarty->assign_by_ref("values", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeObj::TABLE . "`"));
 	}
-
 
 	/**
 	 * Action: translate_list
@@ -862,17 +1176,17 @@ Current language: [b]@language[/b]', array(
 
 		$already_translated = $this->db->query_slave_all("
 			SELECT cp.`page_id`,cpt.`title`, cpt.`language`
-			FROM `".PageObj::TABLE."` cp
-			JOIN `".PageRevisionObj::TABLE."` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
+			FROM `" . PageObj::TABLE . "` cp
+			JOIN `" . PageRevisionObj::TABLE . "` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
 			WHERE cp.`page_id` = ipage_id", array(
 			'ipage_id' => $page_id
-		),0,0, 'language');
+				), 0, 0, 'language');
 		$this->lng->load_language_list('', array(), true);
 
 		$translations = $this->lng->languages;
 		$fallback = $translations;
 		unset($fallback[$this->core->current_language]);
-		foreach($translations AS $key => &$language) {
+		foreach ($translations AS $key => &$language) {
 			$from_lang = $this->core->current_language;
 			if ($key == $from_lang) {
 				$from_lang = key($fallback);
@@ -882,9 +1196,9 @@ Current language: [b]@language[/b]', array(
 				'title' => t('create translation'),
 				'link' => '/' . $key . '/admin/content/translate/' . $page_id . '/' . $from_lang
 			);
-			if(isset($already_translated[$key])) {
+			if (isset($already_translated[$key])) {
 				$language['title'] = $already_translated[$key]['title'];
-				$language['link'] = '/'.$key.'/admin/content/edit/'.$page_id;
+				$language['link'] = '/' . $key . '/admin/content/edit/' . $page_id;
 			}
 		}
 
@@ -968,9 +1282,9 @@ Current language: [b]@language[/b]', array(
 		if ($obj_form->check_form()) {
 
 			//If we are within insert mode, check if the entry already exists, if yes display the error
-			if(empty($content_type)) {
+			if (empty($content_type)) {
 				$obj_test = new ContentTypeObj($obj_form->get_value("content_type"));
-				if($obj_test->load_success()) {
+				if ($obj_test->load_success()) {
 					return $this->core->message(t("Could not insert content type, content type already exists"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
 				}
 			}
@@ -985,7 +1299,6 @@ Current language: [b]@language[/b]', array(
 				$this->core->message(t("Could not save content type"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
 			}
 		}
-
 	}
 
 	public function manage_content_type_fields($content_type) {
@@ -1000,7 +1313,7 @@ Current language: [b]@language[/b]', array(
 		$this->core->js_config("content_type", $content_type);
 
 		//Get content type field groups
-		$this->smarty->assign_by_ref("field_groups", $this->db->query_slave_all("SELECT * FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)));
+		$this->smarty->assign_by_ref("field_groups", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeFieldGroupObj::TABLE . "` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)));
 	}
 
 	/**
@@ -1032,7 +1345,6 @@ Current language: [b]@language[/b]', array(
 
 			//Set form title
 			$message = t("field changed");
-
 		}
 		else {
 			$this->title(t("add field"));
@@ -1054,6 +1366,8 @@ Current language: [b]@language[/b]', array(
 
 		$this->static_tpl = 'form.tpl';
 
+		$obj->get_dbstruct()->add_description('max_value', t('Provide the number 0 to get unlimited fields'));
+
 		//Init objForm
 		$obj_form = new ObjForm($obj, '', array(), $force_loaded);
 
@@ -1063,26 +1377,26 @@ Current language: [b]@language[/b]', array(
 
 		$dir = new Dir('modules/content/field_groups');
 		$dir->just_files();
-		foreach($dir AS $entry) {
+		foreach ($dir AS $entry) {
 			$filename = $entry->filename;
-			if(!preg_match("/^(FieldGroup(.+))\.class\.php$/", $filename, $matches)) {
+			if (!preg_match("/^(FieldGroup(.+))\.class\.php$/", $filename, $matches)) {
 				continue;
 			}
 			$options[$matches[1]] = $matches[2];
 		}
 
 		$additional_field_groups = $this->core->hook('content_add_field_groups');
-		if(!empty($additional_field_groups)) {
-			foreach($additional_field_groups AS $return_values) {
-				if(!empty($return_values) && is_array($return_values)) {
-					foreach($return_values AS $id => $values) {
+		if (!empty($additional_field_groups)) {
+			foreach ($additional_field_groups AS $return_values) {
+				if (!empty($return_values) && is_array($return_values)) {
+					foreach ($return_values AS $id => $values) {
 						$options[$id] = $values['label'];
 					}
 				}
 			}
 		}
 
-		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_".$obj->get_dbstruct()->get_table()."_field_group");
+		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_" . $obj->get_dbstruct()->get_table() . "_field_group");
 		$input->add_validator(new RequiredValidator());
 		$input->config('label', t('field type'));
 		$obj_form->add($input);
@@ -1104,9 +1418,9 @@ Current language: [b]@language[/b]', array(
 		if ($obj_form->check_form()) {
 
 			//If we are within insert mode, check if the entry already exists, if yes display the error
-			if(empty($field_group_id)) {
+			if (empty($field_group_id)) {
 				$obj_test = new ContentTypeFieldGroupObj($obj_form->get_value("id"));
-				if($obj_test->load_success()) {
+				if ($obj_test->load_success()) {
 					return $this->core->message(t("Could not insert field, field already exists"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
 				}
 			}
@@ -1130,12 +1444,12 @@ Current language: [b]@language[/b]', array(
 	 * @return string the alias, or if alias not exist returns false
 	 */
 	public function get_alias_for_page_id($page_id, $language = '') {
-		if(empty($language)) {
+		if (empty($language)) {
 			$language = $this->core->current_language;
 		}
 
-		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $page_id, 'current_language' => $language));
-		if(!empty($alias_entry)) {
+		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array("ipage_id" => $page_id, 'current_language' => $language));
+		if (!empty($alias_entry)) {
 			return $alias_entry['alias'];
 		}
 
@@ -1155,7 +1469,7 @@ Current language: [b]@language[/b]', array(
 		list($url) = explode('?', $_SERVER['REQUEST_URI'], 2);
 
 		// Remove all starting slashes.
-		$url = preg_replace('/^\/+/is','', $url);
+		$url = preg_replace('/^\/+/is', '', $url);
 
 		// Replace a possible language indicator.
 		$url = preg_replace('/^[a-z]{2}\//is', '', $url);
@@ -1164,16 +1478,16 @@ Current language: [b]@language[/b]', array(
 		$url = preg_replace('/\.html?$/is', '', $url);
 
 		// Check if cache has already this entry.
-		if(!isset($cache[$url . "|" . $language_key])) {
+		if (!isset($cache[$url . "|" . $language_key])) {
 
 			// Try to get the url alias for this url if cache was not setup.
-			if(!isset($cache[$url])) {
+			if (!isset($cache[$url])) {
 				$alias_url = new UrlAliasObj();
 				$alias_url->db_filter->add_where("alias", $url);
 				$alias_url->load();
 
 				// Check if the url alias exist, if not we must fallback to parent method.
-				if(!$alias_url->load_success()) {
+				if (!$alias_url->load_success()) {
 					$cache[$url] = false;
 					$cache[$url . "|" . $language_key] = false;
 					return parent::get_translation_link($language_key);
@@ -1181,7 +1495,7 @@ Current language: [b]@language[/b]', array(
 				$cache[$url] = $alias_url->params;
 			}
 			// The url was cached but an alias could not be found, fallback to parent method.
-			else if($cache[$url] == false) {
+			else if ($cache[$url] == false) {
 				return parent::get_translation_link($language_key);
 			}
 			$data_array = explode("|", $cache[$url], 2);
@@ -1190,7 +1504,7 @@ Current language: [b]@language[/b]', array(
 			$alias = $this->get_alias_for_page_id($data_array[0], $language_key);
 
 			// If nothing could be found use the page id fallback.
-			if(empty($alias)) {
+			if (empty($alias)) {
 				$alias = 'content/view/' . $data_array[0];
 			}
 
@@ -1198,7 +1512,7 @@ Current language: [b]@language[/b]', array(
 			$cache[$url . "|" . $language_key] = '/' . $language_key . '/' . $alias . '.html';
 		}
 		// The url and language was cached but an alias could not be found, fallback to parent method.
-		else if($cache[$url . "|" . $language_key] == false) {
+		else if ($cache[$url . "|" . $language_key] == false) {
 			return parent::get_translation_link($language_key);
 		}
 
@@ -1222,7 +1536,7 @@ Current language: [b]@language[/b]', array(
 			throw new SoopfwNoPermissionException();
 		}
 
-		$this->static_tpl = $this->module_tpl_dir.'/change_content.tpl';
+		$this->static_tpl = $this->module_tpl_dir . '/change_content.tpl';
 
 
 		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
@@ -1239,23 +1553,23 @@ Current language: [b]@language[/b]', array(
 		$provided_load_values = $values;
 		$create_mode = !is_array($values);
 
-		if(!$create_mode) {
+		if (!$create_mode) {
 			$content_type = $values['content_type'];
 			$fill_values = $values['serialized_data'];
 			$title_value = $values['title'];
 
-			if(!empty($values['current_menu_entry_id'])) {
+			if (!empty($values['current_menu_entry_id'])) {
 				$menu_entry_obj = new MenuEntryObj($values['current_menu_entry_id']);
 				$menu_entry_translation_obj = new MenuEntryTranslationObj($values['current_menu_entry_id']);
 
-				if($menu_entry_obj->parent_id == 0) {
+				if ($menu_entry_obj->parent_id == 0) {
 					$menu_parent_obj = new MenuObj($menu_entry_obj->menu_id);
 				}
 				else {
 					$menu_parent_obj = new MenuEntryTranslationObj($menu_entry_obj->parent_id, $this->core->current_language);
 				}
 
-				$menu_value = $menu_entry_obj->menu_id.":".$menu_entry_obj->parent_id.": ".$menu_parent_obj->title;
+				$menu_value = $menu_entry_obj->menu_id . ":" . $menu_entry_obj->parent_id . ": " . $menu_parent_obj->title;
 				$old_menu_entry_id = $menu_entry_obj->entry_id;
 				$old_menu_title = $menu_entry_translation_obj->title;
 			}
@@ -1266,7 +1580,7 @@ Current language: [b]@language[/b]', array(
 		}
 
 		$content_type_obj = new ContentTypeObj($content_type);
-		if(!$content_type_obj->load_success()) {
+		if (!$content_type_obj->load_success()) {
 			return $this->wrong_params(t("No such content type"));
 		}
 		$form_content = "";
@@ -1296,10 +1610,10 @@ Current language: [b]@language[/b]', array(
 		$field_groups = array();
 
 		$filter = DatabaseFilter::create(ContentTypeFieldGroupObj::TABLE)
-			->add_where('content_type', $content_type)
-			->order_by('order');
+				->add_where('content_type', $content_type)
+				->order_by('order');
 
-		foreach($filter->select_all() AS $field_group) {
+		foreach ($filter->select_all() AS $field_group) {
 			/* @var $field_object AbstractFieldGroup */
 			$field_object = new $field_group['field_group']($fill_values);
 
@@ -1312,7 +1626,7 @@ Current language: [b]@language[/b]', array(
 			$form_content .= $field_object->get_html();
 		}
 
-		if($create_mode) {
+		if ($create_mode) {
 			$submit_button = new Submitbutton("submit", t("create content"));
 		}
 		else {
@@ -1320,39 +1634,38 @@ Current language: [b]@language[/b]', array(
 		}
 		$form->add($submit_button);
 
-		$publish = new Checkbox("publish", 1,($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
+		$publish = new Checkbox("publish", 1, ($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
 		$form_content .= '<br />' . $publish->fetch();
 
-		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0 , t("create auto alias?"));
+		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0, t("create auto alias?"));
 		$form_content .= '<br />' . $create_alias->fetch();
 
 
 		$form->add($publish);
 		$form->add($create_alias);
-		if(!$create_mode) {
+		if (!$create_mode) {
 
 			$form->add(new Submitbutton("cancel", t("cancel"), 'form_button'));
 			$form->add(new Submitbutton("delete", t("delete"), 'form_button'));
-			if($this->right_manager->has_perm("admin.content.delete")) {
+			if ($this->right_manager->has_perm("admin.content.delete")) {
 				$form->add(new Submitbutton("really_delete", t("delete (really delete)!!!!")));
 			}
-
 		}
 
 		$this->smarty->assign_by_ref("form_content", $form_content);
 		$form->assign_smarty();
 
-		if($form->is_submitted("cancel")) {
+		if ($form->is_submitted("cancel")) {
 			$alias = $this->get_alias_for_page_id($values['page_id']);
-			if(empty($alias)) {
+			if (empty($alias)) {
 				$this->core->location("/content/list_content");
 			}
-			$this->core->location("/".$alias.".html");
+			$this->core->location("/" . $alias . ".html");
 		}
-		else if($form->is_submitted("delete") || $form->is_submitted("really_delete")) {
+		else if ($form->is_submitted("delete") || $form->is_submitted("really_delete")) {
 			$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
 
-			if($page_obj->delete($form->is_submitted("really_delete"))) {
+			if ($page_obj->delete($form->is_submitted("really_delete"))) {
 				$this->core->message(t("page deleted"), Core::MESSAGE_TYPE_SUCCESS);
 				$this->core->location("/content/list_content");
 			}
@@ -1362,13 +1675,13 @@ Current language: [b]@language[/b]', array(
 		}
 
 		$groups_valid = true;
-		foreach($field_groups AS &$field_grp) {
-			if(!$field_grp->is_valid()) {
+		foreach ($field_groups AS &$field_grp) {
+			if (!$field_grp->is_valid()) {
 				$groups_valid = false;
 			}
 		}
 
-		if($groups_valid && $form->check_form()) {
+		if ($groups_valid && $form->check_form()) {
 
 			// Reset variable.
 			$alias = "";
@@ -1380,11 +1693,11 @@ Current language: [b]@language[/b]', array(
 			$new_menu = $values['menu_chooser_hidden'];
 			$content_type = $values['content_type'];
 			$force_create = $values['force_create'];
-			if(isset($values['publish'])) {
+			if (isset($values['publish'])) {
 				$publish = $values['publish'];
 			}
 			$create_alias = 1;
-			if(isset($values['create_alias'])) {
+			if (isset($values['create_alias'])) {
 				$create_alias = $values['create_alias'];
 			}
 			unset($values['create_content_form_submit']);
@@ -1406,7 +1719,7 @@ Current language: [b]@language[/b]', array(
 			$this->db->transaction_begin();
 			#$this->db->set_debug(true);
 			$force_insert_page_translation = false;
-			if($create_mode) {
+			if ($create_mode) {
 				$page_obj = new PageObj();
 				$page_obj->page_id = $page_obj->get_free_id();
 				$page_obj->language = $this->core->current_language;
@@ -1434,7 +1747,7 @@ Current language: [b]@language[/b]', array(
 				$page_revision_obj->language = $this->core->current_language;
 
 
-				if($form->is_submitted("cancel")) {
+				if ($form->is_submitted("cancel")) {
 					if ($create_alias === false || $alias_string === false) {
 						$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
 					}
@@ -1445,14 +1758,13 @@ Current language: [b]@language[/b]', array(
 					$this->core->location($alias);
 					return;
 				}
-
 			}
 			$page_obj->last_modified_by = $this->session->current_user()->user_id;
 			$page_obj->last_modified = date(DB_DATETIME, TIME_NOW);
 			$page_obj->edit_count++;
 
 			$page_revision_obj->title = $title;
-			$page_revision_obj->serialized_data = str_replace("\t","    ", json_encode($values));
+			$page_revision_obj->serialized_data = str_replace("\t", "    ", json_encode($values));
 
 			$publish_ct = $content_type;
 			if (empty($publish)) {
@@ -1465,11 +1777,11 @@ Current language: [b]@language[/b]', array(
 			$revision_values_changed = !empty($page_revision_obj->values_changed);
 			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias, $publish_ct);
 
-			if($revision_inserted) {
+			if ($revision_inserted) {
 				$page_obj->last_revision = $page_revision_obj->revision;
 			}
 
-			if(empty($publish)) {
+			if (empty($publish)) {
 				$page_obj->last_revision = "";
 			}
 
@@ -1480,15 +1792,15 @@ Current language: [b]@language[/b]', array(
 			}
 
 			$inserted = false;
-			if($revision_inserted) {
-				if($force_create) {
+			if ($revision_inserted) {
+				if ($force_create) {
 					$inserted = $page_obj->insert();
 				}
 				else {
 					$inserted = $page_obj->save_or_insert();
 				}
 			}
-			if($inserted) {
+			if ($inserted) {
 
 				if (empty($alias)) {
 					$alias_string = $this->get_alias_for_page_id($page_obj->page_id);
@@ -1501,15 +1813,15 @@ Current language: [b]@language[/b]', array(
 				}
 
 				//Just insert the content type fields and setup menu entry/alias if we have changed some values
-				if($force_create || $create_mode || $page_revision_obj->has_values_changed()) {
+				if ($force_create || $create_mode || $page_revision_obj->has_values_changed()) {
 					//Insert all content type field values
-					foreach($values AS $content_type_field_group_id => $value_array) {
-						if(!is_array($value_array)) {
+					foreach ($values AS $content_type_field_group_id => $value_array) {
+						if (!is_array($value_array)) {
 							$value_array = array($value_array);
 						}
-						foreach($value_array AS $index => $elements) {
-							foreach($elements AS $field_type => $value) {
-								if(empty($value)) {
+						foreach ($value_array AS $index => $elements) {
+							foreach ($elements AS $field_type => $value) {
+								if (empty($value)) {
 									continue;
 								}
 								$value_obj = new ContentTypeFieldGroupFieldValueObj();
@@ -1519,8 +1831,8 @@ Current language: [b]@language[/b]', array(
 								$value_obj->content_type_field_group_id = $content_type_field_group_id;
 								$value_obj->field_type = $field_type;
 								$value_obj->index = $index;
-								$value_obj->value = str_replace("\t","    ", $value);
-								if(!$value_obj->insert()) {
+								$value_obj->value = str_replace("\t", "    ", $value);
+								if (!$value_obj->insert()) {
 									$this->core->message(t("Could not store value entries"), Core::MESSAGE_TYPE_ERROR);
 									$this->db->transaction_rollback();
 									return;
@@ -1531,31 +1843,31 @@ Current language: [b]@language[/b]', array(
 				}
 
 				//Add menu
-				if($menu_value != $new_menu || $old_menu_title != $new_menu_title) {
+				if ($menu_value != $new_menu || $old_menu_title != $new_menu_title) {
 
 					/**
 					 * If we want to change the menu but let the menu title empty or cleared it we must
 					 * use the page title to have a title to do not get an empty menu entry
 					 */
-					if(empty($new_menu_title) && !empty($new_menu)) {
+					if (empty($new_menu_title) && !empty($new_menu)) {
 						$new_menu_title = $page_revision_obj->title;
 					}
 
 					$old_menu_values = array();
-					if(!empty($menu_value)) {
+					if (!empty($menu_value)) {
 						$old_menu_values = explode(":", $menu_value, 3);
 					}
 
 					$new_menu_values = array();
-					if(!empty($new_menu)) {
+					if (!empty($new_menu)) {
 						$new_menu_values = explode(":", $new_menu, 3);
 					}
 
 					$entry_id = "";
 					//Delete old menu entry
-					if(!empty($old_menu_values) && empty($new_menu_values)) {
+					if (!empty($old_menu_values) && empty($new_menu_values)) {
 						$menu_obj = new MenuEntryTranslationObj($old_menu_entry_id, $this->core->current_language);
-						if($menu_obj->has_childs()) {
+						if ($menu_obj->has_childs()) {
 							$message_type = Core::MESSAGE_TYPE_NOTICE;
 							$message = t("The menu entry \"@menu_entry\" was just disabled, because it has child elements, please look at the menu configuration to choose what to do with the menu entry", array('@menu_entry' => $menu_obj->title));
 						}
@@ -1563,7 +1875,7 @@ Current language: [b]@language[/b]', array(
 							$message_type = Core::MESSAGE_TYPE_SUCCESS;
 							$message = t("The menu entry \"@menu_entry\" is removed", array('@menu_entry' => $menu_obj->title));
 						}
-						if(!$menu_obj->save_delete()) {
+						if (!$menu_obj->save_delete()) {
 							$this->core->message(t("Could not delete old menu entry"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
@@ -1572,12 +1884,12 @@ Current language: [b]@language[/b]', array(
 						$this->core->message($message, $message_type);
 					}
 					//Insert new entry
-					else if(empty($old_menu_values) && !empty($new_menu_values)) {
+					else if (empty($old_menu_values) && !empty($new_menu_values)) {
 						$menu_obj = new MenuEntryObj();
 						$menu_obj->menu_id = $new_menu_values[0];
 						$menu_obj->parent_id = $new_menu_values[1];
 
-						if(!$menu_obj->insert()) {
+						if (!$menu_obj->insert()) {
 							$this->core->message(t("Could not create menu entry"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
@@ -1588,19 +1900,18 @@ Current language: [b]@language[/b]', array(
 						$menu_translation_obj->language = $this->core->current_language;
 						$menu_translation_obj->title = $new_menu_title;
 						$menu_translation_obj->destination = $alias;
-						if(empty($publish) || $publish == 'no') {
+						if (empty($publish) || $publish == 'no') {
 							$menu_translation_obj->active = 'no';
 						}
 
-						if(!$menu_translation_obj->insert()) {
+						if (!$menu_translation_obj->insert()) {
 							$this->core->message(t("Could not create menu entry"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
 						}
-
 					}
 					//Update current one
-					else if(!empty($old_menu_values) && !empty($new_menu_values)) {
+					else if (!empty($old_menu_values) && !empty($new_menu_values)) {
 						$menu_obj = new MenuEntryObj($old_menu_entry_id);
 						$menu_obj->menu_id = $new_menu_values[0];
 						$menu_obj->parent_id = $new_menu_values[1];
@@ -1612,7 +1923,7 @@ Current language: [b]@language[/b]', array(
 							$menu_result = $menu_obj->insert();
 						}
 
-						if(!$menu_result) {
+						if (!$menu_result) {
 							$this->core->message(t("Could not save menu entry"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
@@ -1623,7 +1934,7 @@ Current language: [b]@language[/b]', array(
 						$menu_translation_obj->language = $this->core->current_language;
 						$menu_translation_obj->destination = $alias;
 						$menu_translation_obj->title = $new_menu_title;
-						if(empty($publish) || $publish == 'no') {
+						if (empty($publish) || $publish == 'no') {
 							$menu_translation_obj->active = 'no';
 						}
 
@@ -1634,7 +1945,7 @@ Current language: [b]@language[/b]', array(
 							$menu_trans_result = $menu_translation_obj->insert();
 						}
 
-						if(!$menu_trans_result) {
+						if (!$menu_trans_result) {
 							$this->core->message(t("Could not save menu entry translation"), Core::MESSAGE_TYPE_ERROR);
 							$this->db->transaction_rollback();
 							return;
@@ -1644,11 +1955,10 @@ Current language: [b]@language[/b]', array(
 					//Save the current menu entry if we changed it.
 					$page_obj->current_menu_entry_id = $entry_id;
 					$page_obj->save();
-
 				}
 
 
-				if($force_create || $create_mode) {
+				if ($force_create || $create_mode) {
 					$this->core->message(t("Page created"), Core::MESSAGE_TYPE_SUCCESS);
 				}
 				else {
@@ -1657,21 +1967,18 @@ Current language: [b]@language[/b]', array(
 				$this->db->transaction_commit();
 
 				//Go to the created / edited page
-				if($create_alias == true) {
+				if ($create_alias == true) {
 					$this->core->location($alias);
 				}
 				else {
 					$this->core->location("/content/view/" . $page_obj->page_id);
 				}
-
 			}
 			else {
 				$this->core->message(t("Could not store page"), Core::MESSAGE_TYPE_ERROR);
 				$this->db->transaction_rollback();
 			}
-
 		}
-
 	}
 
 }

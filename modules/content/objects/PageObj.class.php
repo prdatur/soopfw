@@ -41,10 +41,12 @@ class PageObj extends AbstractDataManagment
 		$this->db_struct->add_field("page_id", t("page id"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("language", t("language"), PDT_STRING, '', 4);
 		$this->db_struct->add_field("content_type", t("content type"), PDT_STRING, '', 70);
+		$this->db_struct->add_field("created", t("Created"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
+		$this->db_struct->add_field("created_by", t("Created by"), PDT_INT, $this->session->current_user()->user_id, 'UNSIGNED');
 		$this->db_struct->add_field("last_revision", t("last revision"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("last_access", t("last access"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
 		$this->db_struct->add_field("last_modified", t("last modified"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
-		$this->db_struct->add_field("last_modified_by", t("last modified by"), PDT_INT, 0, 'UNSIGNED');
+		$this->db_struct->add_field("last_modified_by", t("last modified by"), PDT_INT, $this->session->current_user()->user_id, 'UNSIGNED');
 		$this->db_struct->add_hidden_field("current_menu_entry_id", t("current menu"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("view_count", t("view count"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("edit_count", t("edit count"), PDT_INT, 0, 'UNSIGNED');

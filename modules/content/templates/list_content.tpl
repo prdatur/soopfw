@@ -22,7 +22,7 @@
 					</span>
 				</a>
 			</td>
-			<td><%$page.content_type_description%></td>
+			<td><%$page.display_name%></td>
 			<td>
 				<%foreach $available_languages AS $key => $val%>
 				<img src='/1x1_spacer.gif' class="ui-icon-soopfw-country ui-icon-soopfw-country-<%$key|lower%><%if !isset($page.translated[$key])%> ui-icon-soopfw-disabled<%/if%>"/>
