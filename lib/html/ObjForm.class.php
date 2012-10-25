@@ -162,6 +162,11 @@ class ObjForm extends Form
 					$obj->config("label", $field_options['title']);
 				}
 
+				//If description is present, set it as the input description
+				if (isset($field_options['description'])) {
+					$obj->config("description", $field_options['description']);
+				}
+
 				//Add the input
 				$this->add($obj);
 			}
