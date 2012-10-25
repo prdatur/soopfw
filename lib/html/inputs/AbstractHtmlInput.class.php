@@ -99,6 +99,15 @@ abstract class AbstractHtmlInput extends Object
 	}
 
 	/**
+	 * Returns the current value of the input.
+	 *
+	 * @return mixed The value.
+	 */
+	public function get_value() {
+		return $this->config('value');
+	}
+	
+	/**
 	 * re-init the check if the element was posted.
 	 */
 	public function reinit() {
