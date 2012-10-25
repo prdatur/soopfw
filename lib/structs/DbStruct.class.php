@@ -254,6 +254,80 @@ class DbStruct extends Object
 	}
 
 	/**
+	 * Returns a selectfield for the given struct field, the field needs the 'type' PDT_ENUM.
+	 *
+	 * @param string $field
+	 *   the field.
+	 * @param string $label
+	 *   the input label
+	 *   if not provided it will use the title from the struct field
+	 *   (optional, default=NS)
+	 * @param type $default_value
+	 *   the default value
+	 *   if not provided it will use the default value from the struct field
+	 *   (optional, default=NS)
+	 * @param string $description
+	 *   the input description (optional, default = NS)
+	 * @param string $class
+	 *   the input css class (optional, default = NS)
+	 * @param string $id
+	 *   the input id (optional, default = NS)
+	 * @return Selectfield|null The Selectfield object, if the field is not found or the field type is not PDT_ENUM it returns null
+	 */
+	public function get_selectfield($field, $label = NS, $default_value = NS, $description = NS, $class = NS, $id = NS) {
+		if (isset($this->struct[$field]) && $this->struct[$field]['typ'] === PDT_ENUM) {
+			$field_info = $this->struct[$field];
+			$default_value = ($default_value === NS) ? $field_info['required'] : $default_value;
+			$label = ($label === NS) ? $field_info['title'] : $label;
+			$elm = new Selectfield($field, $field_info['additional'], $default_value, $label, $description, $class, $id);
+			if ($field_info['required'] === true) {
+				$elm->add_validator(new RequiredValidator());
+			}
+			return $elm;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a textfield for the given struct field
+	 *
+	 * @param string $field
+	 *   the field.
+	 * @param string $label
+	 *   the input label
+	 *   if not provided it will use the title from the struct field
+	 *   (optional, default=NS)
+	 * @param type $default_value
+	 *   the default value
+	 *   if not provided it will use the default value from the struct field
+	 *   (optional, default=NS)
+	 * @param string $description
+	 *   the input description
+	 *   if not provided and a description was configurated within the object it will use this as the default value, else no description will be added.
+	 *   (optional, default = NS)
+	 * @param string $class
+	 *   the input css class (optional, default = NS)
+	 * @param string $id
+	 *   the input id (optional, default = NS)
+	 * @return Selectfield|null The Selectfield object, if the field is not found it returns null
+	 */
+	public function get_textfield($field, $label = NS, $default_value = NS, $description = NS, $class = NS, $id = NS) {
+		if (isset($this->struct[$field])) {
+			$field_info = $this->struct[$field];
+			$default_value = ($default_value === NS) ? $field_info['required'] : $default_value;
+			$label = ($label === NS) ? $field_info['title'] : $label;
+			$description = ($description === NS) ? $field_info['description'] : $description;
+			$elm = new Textfield($field, $default_value, $label, $description, $class, $id);
+			if ($field_info['required'] === true) {
+				$elm->add_validator(new RequiredValidator());
+			}
+			return $elm;
+		}
+		return null;
+	}
+
+
+	/**
 	 * Returns if the field is a hidden field, normaly a hidden field
 	 * should not be returnd with get_values or something similar
 	 *
@@ -386,6 +460,7 @@ class DbStruct extends Object
 	public function add_field($name, $title, $typ, $default_value = "", $additional = '') {
 		$this->struct[$name]['typ'] = $typ;
 		$this->struct[$name]['title'] = $title;
+		$this->struct[$name]['description'] = '';
 		if (isset($default_value) && $default_value != null) {
 			$this->struct[$name]['default'] = $default_value;
 		}
