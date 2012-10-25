@@ -85,6 +85,13 @@ class DatabaseFilter extends Object
 	private $change_fields = array();
 
 	/**
+	 * If set to true a "DISTINCT" will be put after SELECT.
+	 *
+	 * @var boolean
+	 */
+	private $use_distinct = false;
+
+	/**
 	 * construct
 	 *
 	 * @param string $table
@@ -106,6 +113,13 @@ class DatabaseFilter extends Object
 			$this->db = $db;
 		}
 		$this->where = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_AND, $this->db);
+	}
+
+	/**
+	 * Set the distinct to true.
+	 */
+	public function set_distinct() {
+		$this->use_distinct = true;
 	}
 
 	/**
@@ -680,7 +694,7 @@ class DatabaseFilter extends Object
 			$order_by .= ' ORDER BY ' . implode(', ', $this->order_by);
 		}
 
-		return "SELECT " . $this->get_columns() . " FROM " . $table . implode(' ', $this->joins) . $this->get_where() . $group_by . $order_by;
+		return "SELECT " . (($this->use_distinct === true) ? 'DISTINCT ' : '') . $this->get_columns() . " FROM " . $table . implode(' ', $this->joins) . $this->get_where() . $group_by . $order_by;
 	}
 
 	/**
