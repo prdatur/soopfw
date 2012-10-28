@@ -113,6 +113,9 @@ class ObjForm extends Form
 					//We have only numbers or strings, add a textfield
 					$obj = new Textfield($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
 					break;
+				case PDT_BOOL:
+					$obj = new Checkbox($field, 1, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					break;
 				case PDT_PASSWORD:
 					$obj = new Passwordfield($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
 					break;
@@ -159,7 +162,12 @@ class ObjForm extends Form
 
 				//If title is present, set it as the input label
 				if (isset($field_options['title'])) {
-					$obj->config("label", $field_options['title']);
+					if ($obj instanceof Checkbox) {
+						$obj->set_label($field_options['title']);
+					}
+					else {
+						$obj->config("label", $field_options['title']);
+					}
 				}
 
 				//If description is present, set it as the input description

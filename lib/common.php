@@ -23,11 +23,11 @@ function t($key, $args = array()) {
 		uksort($args, function($a, $b) {
 					$str_len_a = strlen($a) - 1;
 					if (!isset($b{$str_len_a})) {
-						return 1;
+						return -1;
 					}
 
 					if (!isset($b{$str_len_a + 1})) {
-						return -1;
+						return 1;
 					}
 
 					return 0;
