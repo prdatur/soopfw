@@ -17,10 +17,6 @@ class ContentTypeViewObj extends AbstractDataManagment
 	const PAGER_ENABLED = 1;
 	const PAGER_DISABLED = 0;
 
-	const TRUNCATE_POLICY_CHAR_SAVE = 'char_save';
-	const TRUNCATE_POLICY_WORD_SAVE = 'word_save';
-	const TRUNCATE_POLICY_PARAGRAPH_SAVE = 'paragraph_save';
-
 	/**
 	 * Define base table.
 	 */
@@ -106,7 +102,7 @@ class ContentTypeViewObj extends AbstractDataManagment
 		parent::__construct();
 
 		$this->db_struct = new DbStruct(self::TABLE);
-		$this->db_struct->set_cache(true); 
+		$this->db_struct->set_cache(true);
 		$this->db_struct->add_reference_key(array(self::FIELD_ID));
 		$this->db_struct->add_required_field(self::FIELD_ID, t("View id"), PDT_STRING, '', 70);
 		$this->db_struct->add_required_field(self::FIELD_NAME, t("View name"), PDT_STRING, '', 70);
@@ -124,10 +120,11 @@ class ContentTypeViewObj extends AbstractDataManagment
 		$this->db_struct->add_field(self::FIELD_TRUNCATE_CHARS, t("Truncate chars"), PDT_INT, 300, 'UNSIGNED');
 		$this->db_struct->add_description(self::FIELD_TRUNCATE_CHARS, t('Any field which is longer than configurated chars will be truncated'));
 
-		$this->db_struct->add_field(self::FIELD_TRUNCATE_POLICY, t("Truncate policy"), PDT_ENUM, self::TRUNCATE_POLICY_WORD_SAVE, array(
-			self::TRUNCATE_POLICY_CHAR_SAVE => t('Char save'),
-			self::TRUNCATE_POLICY_WORD_SAVE => t('Word save'),
-			self::TRUNCATE_POLICY_PARAGRAPH_SAVE => t('Paragraph save'),
+		$this->db_struct->add_field(self::FIELD_TRUNCATE_POLICY, t("Truncate policy"), PDT_ENUM, StringTools::TRUNCATE_POLICY_WORD_SAVE, array(
+			StringTools::TRUNCATE_POLICY_CHAR_SAVE => t('Char save'),
+			StringTools::TRUNCATE_POLICY_WORD_SAVE => t('Word save'),
+			StringTools::TRUNCATE_POLICY_SENTENCE_SAVE => t('Sentence save'),
+			StringTools::TRUNCATE_POLICY_PARAGRAPH_SAVE => t('Paragraph save'),
 		));
 
 		$this->db_struct->add_index(MysqlTable::INDEX_TYPE_INDEX, array(

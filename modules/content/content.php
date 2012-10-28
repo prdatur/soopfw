@@ -6,7 +6,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @package modules.content
  */
-class content extends ActionModul
+class content extends ActionModul implements Widget
 {
 	//Default method
 	protected $default_methode = "list_content_types";
@@ -17,6 +17,11 @@ class content extends ActionModul
 	const CONTENT_SOLR_SERVER = 'solr_server';
 	const CONTENT_SOLR_INDEXED_TYPES = 'solr_index_types';
 	const CONTENT_SITEMAP_INDEXED_TYPES = 'sitemap_index_types';
+
+	/**
+	 * Define possible widgets.
+	 */
+	const WIDGET_VIEWS = 'views';
 
 	/**
 	 * Implementation of get_admin_menu()
@@ -547,97 +552,22 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		}
 	}
 
+	/**
+	 * Action: views
+	 *
+	 * Display a view.
+	 * @param string $view_name
+	 *   The view name.
+	 */
 	public function views($view_name) {
+		$ct_helper = new ContentHelper();
+		$clean_uuid = 'no_widget';
+		$this->smarty->append(array('views' => array($clean_uuid => $ct_helper->get_view($view_name, $static_tpl))), '', true);
+		$this->smarty->assign_by_ref('widget_id', $clean_uuid);
+
 		$view = new ContentTypeViewObj($view_name);
-		if (!$view->load_success()) {
-			throw new SoopfwWrongParameterException(t('No such view'));
-		}
-
-		$template_file = $this->smarty->get_tpl(true) . '/content/views/' . $view_name . '.tpl';
-		if (!file_exists($template_file)) {
-			throw new SoopfwErrorException(t('Can not display view, view template was not found.<br>Please create a template file "<b>/content/views/@view_name.tpl</b>" within your current template.', array(
-				'@view_name' => $view_name,
-			)));
-		}
-		$this->static_tpl = $template_file;
-
-		$view_data = $view->get_values();
-		$view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS] = json_decode($view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS], true);
-		$view_data[ContentTypeViewObj::FIELD_SORT_FIELDS] = json_decode($view_data[ContentTypeViewObj::FIELD_SORT_FIELDS], true);
-
-		$filter = DatabaseFilter::create(PageObj::TABLE, 'p')
-				->add_where('content_type', $view_data[ContentTypeViewObj::FIELD_CONTENT_TYPE]);
-
-		if (!empty($view_data['sort_fields'])) {
-			$joins = array();
-			foreach ($view_data['sort_fields'] AS $field => $direction) {
-
-				switch ($field) {
-					case 'title':
-						$joins[PageRevisionObj::TABLE] = true;
-						$table = PageRevisionObj::TABLE;
-						break;
-					case 'created_by':
-					case 'created':
-					case 'last_modified':
-					case 'last_modified_by':
-					case 'last_access':
-						$table = NS;
-						break;
-					default:
-						if (!isset($joins[ContentTypeFieldGroupFieldValueObj::TABLE])) {
-							$joins[ContentTypeFieldGroupFieldValueObj::TABLE] = array();
-						}
-						$joins[ContentTypeFieldGroupFieldValueObj::TABLE][] = $field;
-						$table = ContentTypeFieldGroupFieldValueObj::TABLE;
-						$field = 'value';
-						break;
-				}
-
-				$filter->order_by($field, $direction, $table);
-			}
-
-			foreach ($joins AS $table => $value) {
-				$ctfgv = '';
-				if ($table == ContentTypeFieldGroupFieldValueObj::TABLE) {
-					$database_or = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
-					foreach ($value AS $field) {
-						$database_or->add_where('content_type_field_group_id', $field, '=', $table);
-					}
-					$ctfgv = ' AND ' . $database_or->get_sql(false);
-				}
-
-				$filter->join($table, $table . '.page_id = p.page_id AND ' . $table . '.language = p.language AND ' . $table . '.revision = p.last_revision' . $ctfgv);
-			}
-		}
-		$filter->add_where('deleted', PageObj::DELETED_NO);
-		$filter->add_column('page_id');
-		$filter->add_column('language');
-		$filter->add_column('`last_revision` as revision');
-
-		// If pager is enabled setup the pager.
-		$limit = (int) $view_data[ContentTypeViewObj::FIELD_MEPP];
-		if ($view_data[ContentTypeViewObj::FIELD_USE_PAGER] === '1') {
-			$pager = new Pager($limit);
-			$pager->set_entry_count($filter->select_count());
-
-			$filter->offset($pager->get_offset());
-		}
-
-		// Setup the limit.
-		if ($limit > 0) {
-			$filter->limit($limit);
-		}
-
-		$data = array();
-		$page_revision_obj = new PageRevisionObj();
-		foreach ($page_revision_obj->load_multiple($filter->select_all()) AS $page_revision_obj) {
-			/* @var $page_revision_obj PageRevisionObj */
-			$values = $page_revision_obj->get_values();
-			$data[] = array_intersect_key(array_merge($values, json_decode($values['serialized_data'], true)), $view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS]);
-		}
-
-		$this->smarty->assign_by_ref('view_data', $data);
+		$this->title($view->name);
+		$this->static_tpl = $static_tpl;
 	}
 
 	/**
@@ -1440,7 +1370,12 @@ Current language: [b]@language[/b]', array(
 	/**
 	 * Returns the alias for a page_id
 	 *
-	 * @param int $page_id the page id
+	 * @param int $page_id
+	 *   the page id.
+	 * @param string $language
+	 *   The language.
+	 *   (optional, default = '')
+	 *
 	 * @return string the alias, or if alias not exist returns false
 	 */
 	public function get_alias_for_page_id($page_id, $language = '') {
@@ -1979,6 +1914,56 @@ Current language: [b]@language[/b]', array(
 				$this->db->transaction_rollback();
 			}
 		}
+	}
+
+	/**
+	 *
+	 * Initialize the widget, will also perform form handlings for the widget if needed.
+	 * This method must perform all actions what the widget should can do.
+	 *
+	 * Use only the returned uuid to access the widget because non "word" character will be replaced
+	 * to _ (underline)
+	 *
+	 * @param string $name
+	 *   the widget name
+	 * @param string $unique_id
+	 *   the unique id for this widget
+	 * @param Configuration $widget_config
+	 *   the widget configuration object (optional, default = null)
+	 *
+	 * @return mixed the cleaned uuid or null if the widget name is not supported.
+	 */
+	public function get_widget($name, $unique_id, Configuration $widget_config = null) {
+		$clean_uuid = WidgetHelper::clean_widget_id($unique_id);
+
+		switch ($name) {
+			case self::WIDGET_VIEWS:
+
+				// Initialize default CommentWidgetConfiguration if nothin is provided or not a Configuration object.
+				if (($widget_config instanceof Configuration) === false || $widget_config === null) {
+					$widget_config = new ContentViewConfiguration();
+				}
+
+				// Check if we have configurated the mandatory configuration key VIEW_NAME.
+				if (!$widget_config->is_set(ContentViewConfiguration::VIEW_NAME)) {
+					$this->core->message(t('You have tried to display a "view" widget without configurate the VIEW_NAME within the Configuration, but the VIEW_NAME is mandatory'));
+					return $clean_uuid;
+				}
+
+				// Get the view data.
+				$ct_helper = new ContentHelper();
+				$view_data = $ct_helper->get_view($widget_config->get(ContentViewConfiguration::VIEW_NAME, $template_file));
+
+				// Register the widget and the template file.
+				$this->core->register_widget('views', $template_file);
+
+				// Append the view result.
+				$this->smarty->append(array('views' => array($clean_uuid => &$view_data, $widget_config)), '', true);
+
+				return $clean_uuid;
+		}
+
+		return null;
 	}
 
 }
