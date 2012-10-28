@@ -16,15 +16,21 @@
  *             optionally splitting in the middle of a word, and
  *             appending the $etc string or inserting $etc into the middle.
  *
- * @param string $string input string
- * @param integer $length lenght of truncated text
- * @param string $etc end string
- * @param boolean $break_words truncate at word boundary
- * @param boolean $middle truncate in the middle of text
+ * @param string $string
+ *   input string
+ * @param int $length
+ *   lenght of truncated text
+ * @param string $truncate_policy
+ *   truncate with the specific policy
+ *   Use one of StringTools::TRUNCATE_POLICY_*
+ *    (optional, default = StringTools::TRUNCATE_POLICY_WORD_SAVE)
+ * @param string $etc
+ *   end string
+ *
  * @return string truncated string
  */
-function smarty_modifier_truncate_soopfw($string, $length = 80, $etc = '...', $break_words = false, $middle = false) {
-	return StringTools::truncate_soopfw($string, $length, $etc, $break_words, $middle);
+function smarty_modifier_truncate_soopfw($string, $length = 80, $truncate_policy = StringTools::TRUNCATE_POLICY_WORD_SAVE, $etc = '...') {
+	return StringTools::truncate($string, $length, $truncate_policy, $etc);
 }
 
 ?>

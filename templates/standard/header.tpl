@@ -2,6 +2,7 @@
 <html>
 <head>
 	<TITLE><%$meta->title%></TITLE>
+	<link rel="shortcut icon" type="image/png" href="http://<%$domain%>/templates/standart/images/favicon32x32.png" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!-- Add CSS files -->
 	<%foreach from=$additional_css_files item=cssfile%>

@@ -1015,6 +1015,7 @@ class user extends ActionModul
 		 *     'top' => array(elements),
 		 *     'middle' => array(elements),
 		 *     'bottom' => array(elements),
+		 *   )
 		 */
 		$hook_results = $this->core->hook('alter_user_login_form', array(&$login_form));
 		$new_elements = array(
