@@ -10,6 +10,37 @@
  */
 class StringTools
 {
+
+
+	/**
+	 * Char save truncate policy, will break right after specified chars.
+	 *
+	 * @var string
+	 */
+	const TRUNCATE_POLICY_CHAR_SAVE = 'char_save';
+
+	/**
+	 * Word save truncate policy, will not break words.
+	 *
+	 * @var string
+	 */
+	const TRUNCATE_POLICY_WORD_SAVE = 'word_save';
+
+	/**
+	 * Paragraph save truncate policy, will not break paragraphs (Checks HTML <p> tags or stops on new line).
+	 *
+	 * @var string
+	 */
+	const TRUNCATE_POLICY_PARAGRAPH_SAVE = 'paragraph_save';
+
+	/**
+	 * Sentence save truncate policy, will not break sentences. (Checks . (dots))
+	 *
+	 * @var string
+	 */
+	const TRUNCATE_POLICY_SENTENCE_SAVE = 'sentence_save';
+
+
 	/**
 	 * Truncate a string to a certain length if necessary,
 	 * optionally splitting in the middle of a word, and
@@ -19,52 +50,106 @@ class StringTools
 	 *   input string
 	 * @param int $length
 	 *   lenght of truncated text
+	 * @param string $truncate_policy
+	 *   truncate at word boundary
 	 * @param string $etc
 	 *   end string
-	 * @param boolean $break_words
-	 *   truncate at word boundary
-	 * @param boolean $middle
-	 *   truncate in the middle of text
 	 *
 	 *  @return string truncated string
 	 */
-	public static function truncate_soopfw($string, $length = 80, $etc = '...', $break_words = false, $middle = false) {
-		if ($length == 0)
-			return '';
+	public static function truncate($string, $length = 80, $truncate_policy = StringTools::TRUNCATE_POLICY_WORD_SAVE, $etc = '...') {
 
+		// Return empty string if we provide a length of 0 couse we do not calculate anything...
+		if ($length == 0) {
+			return '';
+		}
+
+		// Check for multibyte function.
 		if (is_callable('mb_strlen')) {
+
+			// Check if our string is longer than truncate length, if true truncate, else return the string.
 			if (mb_strlen($string) > $length) {
+
+				// Get the real length
 				$length -= min($length, mb_strlen($etc));
-				if (!$break_words && !$middle) {
-					$string = preg_replace('/\s+?(\S+)?$/u', '', mb_substr($string, 0, $length + 1));
+
+				// Check again if length is 0
+				if ($length == 0) {
+					return '';
 				}
-				if (!$middle) {
+
+				// Remove windows \r
+				$string = preg_replace('/\r/is', '', $string);
+
+				if ($truncate_policy === StringTools::TRUNCATE_POLICY_WORD_SAVE) {
+					return preg_replace('/\s+?(\S+)?$/u', '', mb_substr($string, 0, $length + 1)) . $etc;
+				}
+				else if ($truncate_policy === StringTools::TRUNCATE_POLICY_SENTENCE_SAVE) {
+					return preg_replace('/\.?([^\.]+)?$/u', '', mb_substr($string, 0, $length + 1)) . $etc;
+				}
+				else if ($truncate_policy === StringTools::TRUNCATE_POLICY_PARAGRAPH_SAVE) {
+					$substr = mb_substr($string, 0, $length);
+					$rev_string = strrev($substr);
+					$strpos_nl = mb_stripos($rev_string, "\n");
+					$strpos_p = mb_stripos($rev_string, ">p/<");
+
+					if ($strpos_p === false || ($strpos_nl !== false && $strpos_nl <= $strpos_p)) {
+						return preg_replace('/\n+[^\n]+$/is', '', $substr) . $etc;
+					}
+					else {
+						return strrev(mb_substr($rev_string, $strpos_p)) . $etc;
+					}
+				}
+				else {
 					return mb_substr($string, 0, $length) . $etc;
 				}
-				else {
-					return mb_substr($string, 0, $length / 2) . $etc . mb_substr($string, - $length / 2);
-				}
 			}
 			else {
 				return $string;
 			}
+
 		}
 		else {
+
+			// Check if our string is longer than truncate length, if true truncate, else return the string.
 			if (strlen($string) > $length) {
+
 				$length -= min($length, strlen($etc));
-				if (!$break_words && !$middle) {
-					$string = preg_replace('/\s+?(\S+)?$/', '', substr($string, 0, $length + 1));
+
+				// Check again if length is 0
+				if ($length == 0) {
+					return '';
 				}
-				if (!$middle) {
-					return substr($string, 0, $length) . $etc;
+
+				// Remove windows \r
+				$string = preg_replace('/\r/is', '', $string);
+
+				if ($truncate_policy === StringTools::TRUNCATE_POLICY_WORD_SAVE) {
+					return preg_replace('/\s+?(\S+)?$/', '', substr($string, 0, $length + 1)) . $etc;
+				}
+				else if ($truncate_policy === StringTools::TRUNCATE_POLICY_SENTENCE_SAVE) {
+					return preg_replace('/\.?([^\.]+)?$/u', '', substr($string, 0, $length + 1)) . $etc;
+				}
+				else if ($truncate_policy === StringTools::TRUNCATE_POLICY_PARAGRAPH_SAVE) {
+					$substr = substr($string, 0, $length);
+					$rev_string = strrev($substr);
+					$strpos_nl = stripos($rev_string, "\n");
+					$strpos_p = stripos($rev_string, ">p/<");
+					if ($strpos_p === false || ($strpos_nl !== false && $strpos_nl <= $strpos_p)) {
+						return preg_replace('/\n+[^\n]+$/is', '', $substr) . $etc;
+					}
+					else {
+						return strrev(substr($rev_string, $strpos_p)) . $etc;
+					}
 				}
 				else {
-					return substr($string, 0, $length / 2) . $etc . substr($string, - $length / 2);
+					return substr($string, 0, $length) . $etc;
 				}
 			}
 			else {
 				return $string;
 			}
+
 		}
 	}
 
