@@ -253,5 +253,22 @@ class PageObj extends AbstractDataManagment
 
 		$solr->deleteById('content::' . $id . ':' . $language);
 	}
+
+	/**
+	 * Returns the alias for this page.
+	 * 
+	 * @return string the alias, or if alias not exist returns false
+	 */
+	public function get_alias() {
+		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array(
+			"ipage_id" => $this->page_id,
+			'current_language' => $this->language
+		));
+		if (!empty($alias_entry)) {
+			return $alias_entry['alias'];
+		}
+
+		return false;
+	}
 }
 
