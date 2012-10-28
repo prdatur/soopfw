@@ -70,6 +70,18 @@ class Checkbox extends AbstractHtmlInput
 	}
 
 	/**
+	 * Set the label text (inner checkbox, not the hole input top label).
+	 * To change the input top label use ...->config('label', '...')
+	 *
+	 * @param string $label
+	 *   The new label text.
+	 */
+	public function set_label($label) {
+		$this->label = $label;
+		$this->init();
+	}
+
+	/**
 	 * Returns the own element value
 	 *
 	 * @return string the value
