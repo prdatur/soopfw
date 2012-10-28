@@ -225,14 +225,27 @@ $.extend(Soopfw, {
 	 * @param String module The module
 	 * @param String the action to be called
 	 * @param Array args The arguments for the action
+	 * @param Array get_params An array with get params.
+	 *
 	 */
-	default_action_dialog: function(title, module, action, args, options) {
+	default_action_dialog: function(title, module, action, args, options, get_params) {
 		if(args != undefined && args != null) {
 			args = '/'+implode('/', args);
 		}
 		else {
 			args = "";
 		}
+
+		var get_param_string = '';
+		if (!empty(get_params)) {
+			var params = [];
+			foreach (get_params, function(k,v) {
+				params.push(k + '=' + v);
+			});
+			get_param_string = '?' + implode('&', params);
+		}
+
+
 		var id = module;
 		if(action != undefined && action !== true) {
 			id += action;
@@ -257,6 +270,8 @@ $.extend(Soopfw, {
 			url += '.ajax_html';
 		}
 
+		url += get_param_string;
+		
 		options = $.extend({
 			title: title,
 			modal: true,
