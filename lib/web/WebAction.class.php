@@ -252,7 +252,7 @@ class WebAction extends Object
 			$used_default_module = false;
 			$original_module = $this->action_params['module'];
 			if (!file_exists(SITEPATH . "/modules/" . $this->action_params['module'] . "/" . $this->action_params['module'] . ".php")) {
-				$this->action_params['module'] = $this->core->core_config("core", "default_module");
+				$this->action_params['module'] = 'DefaultWebAction';
 				$used_default_module = true;
 			}
 
@@ -265,7 +265,7 @@ class WebAction extends Object
 
 			$modulname = $this->action_params['module'];
 			$module_conf_obj = new ModulConfigObj($modulname);
-			if ((!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $modulname != "system") {
+			if ($used_default_module === false && (!$module_conf_obj->load_success() || $module_conf_obj->enabled != 1) && $modulname != "system") {
 				throw new SoopfwModuleNotFoundException(t("Module not found or disabled"));
 			}
 
@@ -279,13 +279,18 @@ class WebAction extends Object
 			}
 			$action = $this->action_params['action'];
 
-			if (file_exists($actions_path . '/' . $action . '.php')) {
-				$load_class = $modulname . "_" . $action;
+			if ($used_default_module === false) {
+				if (file_exists($actions_path . '/' . $action . '.php')) {
+					$load_class = $modulname . "_" . $action;
+				}
+				else {
+					$load_class = $modulname;
+				}
 			}
 			else {
-				$load_class = $modulname;
+				$load_class = $this->action_params['module'];
 			}
-
+			
 			/* @var $module ActionModul */
 			$module = new $load_class();
 			$this->current_action_module = &$module;

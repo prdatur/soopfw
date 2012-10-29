@@ -11,7 +11,6 @@ $this->config['db']['debug'] = false;
 
 //Core configuration
 $this->config['core']['debug_email'] = 'debug@mail.com';
-$this->config['core']['default_module'] = 'user';
 $this->config['core']['default_language'] = 'de';
 $this->config['core']['domain'] = 'domain';
 $this->config['core']['xhprof_domain'] = ''; // Can be left empty
