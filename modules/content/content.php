@@ -604,7 +604,6 @@ Notice: You can only select fields which are no multi fields (max value needs to
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
-
 		if ($page->deleted == 'yes' && !$this->right_manager->has_perm("admin.content.delete", false)) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
@@ -661,7 +660,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		}
 		// Provide template overrides.
 		$template_override_field_groups_path = $this->smarty->get_tpl(true) . 'content/field_groups';
-		$field_groups_path = $this->module_tpl_dir . 'field_groups';
+		$field_groups_path = SITEPATH . '/modules/content/templates/field_groups';
 
 
 		$content_type_tpl = $template_override_field_groups_path . '/' . $values['content_type'] . ".tpl";
@@ -1544,6 +1543,10 @@ Current language: [b]@language[/b]', array(
 
 		$field_groups = array();
 
+		if (empty($fill_values)) {
+			$fill_values = array();
+		}
+
 		$filter = DatabaseFilter::create(ContentTypeFieldGroupObj::TABLE)
 				->add_where('content_type', $content_type)
 				->order_by('order');
@@ -1946,13 +1949,13 @@ Current language: [b]@language[/b]', array(
 
 				// Check if we have configurated the mandatory configuration key VIEW_NAME.
 				if (!$widget_config->is_set(ContentViewConfiguration::VIEW_NAME)) {
-					$this->core->message(t('You have tried to display a "view" widget without configurate the VIEW_NAME within the Configuration, but the VIEW_NAME is mandatory'));
+					$this->core->message(t('You have tried to display a "view" widget without configurate the VIEW_NAME within the Configuration, but the VIEW_NAME is mandatory'), Core::MESSAGE_TYPE_NOTICE);
 					return $clean_uuid;
 				}
-
+				$template_file = "";
 				// Get the view data.
 				$ct_helper = new ContentHelper();
-				$view_data = $ct_helper->get_view($widget_config->get(ContentViewConfiguration::VIEW_NAME, $template_file));
+				$view_data = $ct_helper->get_view($widget_config->get(ContentViewConfiguration::VIEW_NAME), $template_file);
 
 				// Register the widget and the template file.
 				$this->core->register_widget('views', $template_file);
