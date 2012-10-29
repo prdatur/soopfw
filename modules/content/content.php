@@ -1955,7 +1955,7 @@ Current language: [b]@language[/b]', array(
 				$template_file = "";
 				// Get the view data.
 				$ct_helper = new ContentHelper();
-				$view_data = $ct_helper->get_view($widget_config->get(ContentViewConfiguration::VIEW_NAME), $template_file);
+				$view_data = $ct_helper->get_view($widget_config->get(ContentViewConfiguration::VIEW_NAME), $template_file, $widget_config);
 
 				// Register the widget and the template file.
 				$this->core->register_widget('views', $template_file);
