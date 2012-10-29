@@ -30,7 +30,12 @@ function smarty_function_view_content($params, $smarty, $template)
 
 	if (!empty($id)) {
 		$page = new content();
-		return $page->view($id, '', true);
+		try {
+			return $page->view($id, '', true);
+		}
+		catch(Exception $e) {
+			return $e->getMessage();
+		}
 	}
 	return "";
 }
