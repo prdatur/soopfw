@@ -193,16 +193,17 @@ class ContentHelper extends Object
 		}
 
 		$data = array();
-		
+
 		// Get all page revision objects
 		foreach ($filter->select_all() AS $row) {
 
 			$page_revision_obj = new PageRevisionObj($row['page_id'], $row['language'], $row['revision']);
+			$page_obj = new PageObj($row['page_id'], $row['language']);
 
 			$values = $page_revision_obj->get_values();
 
 			// Get only the fields back which we want.
-			$values = array_intersect_key(array_merge($values, json_decode($values['serialized_data'], true)), $view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS]);
+			$values = array_intersect_key(array_merge($page_obj->get_values(), $values, json_decode($values['serialized_data'], true)), $view_data[ContentTypeViewObj::FIELD_DISPLAYED_FIELDS]);
 
 			// Truncate all data values to the configurated max chars and policy.
 			array_walk_recursive($values, function(&$value) use ($truncate_chars, $truncate_policy){
@@ -218,7 +219,6 @@ class ContentHelper extends Object
 				$user_obj = new UserObj($values['last_modified_by']);
 				$values['last_modified_by_user'] = $user_obj->get_values();
 			}
-
 			$values['link'] = $page_revision_obj->get_alias();
 			if ($values['link'] === false) {
 				$values['link'] = '/' . $values['language'] . '/content/view/' . $values['page_id'];
