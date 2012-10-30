@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package modules.link.objects
  * @category ModelObjects
  */
 class PageRevisionObj extends AbstractDataManagment {

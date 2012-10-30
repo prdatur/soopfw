@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package cli
  */
 class cli_generate_mimetype_list extends CLICommand
 {

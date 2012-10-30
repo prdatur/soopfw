@@ -2,7 +2,6 @@
 /**
  * Implements threading in PHP
  *
- * @package <none>
  * @version 1.0.0 - stable
  * @author Tudor Barbu <miau@motane.lu>
  * @copyright MIT

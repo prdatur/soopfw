@@ -7,7 +7,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.database.filter
  * @category Database
  */
 class DatabaseWhereGroup extends Object

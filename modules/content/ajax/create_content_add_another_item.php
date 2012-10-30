@@ -4,7 +4,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package modules.content.ajax
  * @category Module.Content
  */
 class AjaxContentCreateContentAddAnotherItem extends AjaxModul {

@@ -7,7 +7,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib
  * @category Cache
  */
 class StaticMemcached extends CacheProvider implements CacheProviderInterface

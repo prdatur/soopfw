@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.inputs
  * @category Form
  */
 class Form extends AbstractHtmlElement implements Iterator

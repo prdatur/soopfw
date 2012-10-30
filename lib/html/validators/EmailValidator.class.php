@@ -7,7 +7,6 @@
  * 		options => no options used
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.html.validators
  * @category Form.Validators
  */
 class EmailValidator extends AbstractHtmlValidator

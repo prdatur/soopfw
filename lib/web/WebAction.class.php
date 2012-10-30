@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.web
  * @category Web
  */
 class WebAction extends Object
@@ -290,7 +289,7 @@ class WebAction extends Object
 			else {
 				$load_class = $this->action_params['module'];
 			}
-			
+
 			/* @var $module ActionModul */
 			$module = new $load_class();
 			$this->current_action_module = &$module;

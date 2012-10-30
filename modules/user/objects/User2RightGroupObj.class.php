@@ -6,7 +6,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package modules.user.objects
  * @category ModelObjects
  */
 class User2RightGroupObj extends AbstractDataManagment

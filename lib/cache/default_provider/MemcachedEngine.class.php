@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @package lib.cache
  * @category Cache
  */
 class MemcachedEngine extends CacheProvider implements CacheProviderInterface
