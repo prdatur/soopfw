@@ -156,7 +156,7 @@ class Core
 
 	/**
 	 * Holds the memcached obj if enabled, else it will be null
-	 * @var Memcached
+	 * @var MemcachedEngine
 	 */
 	public $memcache_obj = null;
 
