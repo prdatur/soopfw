@@ -23,6 +23,11 @@ class user extends ActionModul
 	const CONFIG_LOGIN_ALLOW_EMAIL = 'login_allow_email';
 	const CONFIG_LOST_PW_TYPE = 'lost_pw_type';
 	const CONFIG_LOST_PW_ONE_TIME_EXPIRE = 'lost_pw_one_time_expire';
+	const CONFIG_LOGIN_GLOBAL_FAIL_LOGINS = 'login_global_fail_logins';
+	const CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME = 'login_global_fail_login_locktime';
+	const CONFIG_LOGIN_USERNAME_FAIL_LOGINS = 'login_username_fail_logins';
+	const CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME = 'login_username_fail_login_locktime';
+
 	const CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD = 'admin_change_customer_passsword';
 	const CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP = 'customer_confirm_signup';
 	const CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD = 'customer_signup_send_password';
@@ -153,6 +158,14 @@ class user extends ActionModul
 		)), t('Time is given in hours, only integers are valid')));
 
 		$form->add(new Textfield(self::CONFIG_SIGNUP_ALIAS, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_ALIAS, 'signup'), t("Alias for signup")));
+
+		$form->add(new Fieldset('security', t('Security settings')));
+		$form->add(new Textfield(self::CONFIG_LOGIN_GLOBAL_FAIL_LOGINS, (int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_GLOBAL_FAIL_LOGINS, '20'), t('Max global login attempts'), t('This will block a user after the configurated failed login attempts, no matter which username he tries')));
+		$form->add(new Textfield(self::CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME, (int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_45), t('Global login block time'), t('How long the user will get blocked. (in seconds)')));
+
+		$form->add(new Textfield(self::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, (int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'), t('Max same username login attempts'), t('This will block a user after the configurated failed login attempts for the same username')));
+		$form->add(new Textfield(self::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, (int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15), t('Same username login block time'), t('How long the user will get blocked. (in seconds)')));
+
 
 		$description = "";
 		if ($this->right_manager->has_perm('admin.system.config')) {
@@ -1024,7 +1037,7 @@ class user extends ActionModul
 		);
 
 		// Setup sections.
-		foreach ($hook_results AS $module_name => &$sections) {
+		foreach ($hook_results AS &$sections) {
 			if (isset($sections['top'])) {
 				// We can directly add the top elements here because we are already at the right position.
 				foreach ($sections['top'] AS &$element) {
@@ -1039,7 +1052,19 @@ class user extends ActionModul
 			}
 		}
 
-		$login_form->add(new Textfield("user", '', t("Username")));
+		// Setup security lock class.
+		$security = new SecurityLock('user_login');
+
+		$login_form->add(new Textfield("user", '', t("Username")), array(
+			new FunctionValidator(t('This account has been locked due to too many login attempts, please try again later.'), function($value) use ($security) {
+				$core = Core::get_instance();
+				return $security->check_lock(
+						(int) $core->get_dbconfig("user", user::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'),
+						(int) $core->get_dbconfig("user", user::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15),
+						'user_login_' . $value
+				);
+			})
+		));
 		$login_form->add(new Passwordfield("pass", '', t("Password")));
 
 		// Add the middle section.
@@ -1057,7 +1082,15 @@ class user extends ActionModul
 		$login_form->assign_smarty();
 		$this->smarty->assign('lost_password_type', $this->core->get_dbconfig('user', self::CONFIG_LOST_PW_TYPE, self::CONFIG_LOST_PW_ONE_TIME_EXPIRE));
 		if ($login_form->check_form()) {
+
+			// Check lock status for global login.
+			if (!$security->check_lock((int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_GLOBAL_FAIL_LOGINS, '20'), (int) $this->core->get_dbconfig("user", self::CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_45))) {
+				throw new SoopfwSecurityException(t('Currently you are not allowed to login because you are blocked due to too many login attempts, try again later.'));
+			}
+
 			if ($this->session->validate_login($login_form->get_value("user"), $login_form->get_value("pass"))) {
+				$security->unlock('user_login');
+				$security->unlock('user_login_' . $login_form->get_value("user"));
 				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
 				$this->session->set('redirect_from_login', true);
 				$this->redirect_after_login();
