@@ -116,7 +116,7 @@ class SecurityLock extends Object
 	 *   The user identifier.
 	 *   (optional, default = NS)
 	 *
-	 * @return boolean if user is not locked return true, else lock the user and return false.
+	 * @return boolean returns true if the user is locked, else false
 	 */
 	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
 		// Get the current lock count if available.
@@ -213,7 +213,7 @@ class SecurityLock extends Object
 	 *   The user identifier.
 	 *   (optional, default = NS)
 	 *
-	 * @return boolean if user is not locked return true, else lock the user and return false.
+	 * @return boolean returns true if the user is locked, else false
 	 */
 	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
 		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifer, $update_expire_data, $user_identifer);
