@@ -98,6 +98,11 @@ class SecurityLock extends Object
 	 *   (optional, default = DateTools::TIME_DAY)
 	 * @param int $block_time
 	 *   The seconds how long the user will get blocked.
+	 * @param string $lock_identifer
+	 *   This is the lock identifer for the action which is monitored.
+	 *   If not provided the global one which was setup within the constructor is used.
+	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
+	 *   (optional, default = NS)
 	 * @param boolean $update_expire_data
 	 *   If set to true the expire date will always be updated on call so the user need to wait the FULL expire time else he will locked again for the
 	 *   specified $block_time.
@@ -107,18 +112,13 @@ class SecurityLock extends Object
 	 *      User waits 5 seconds and tries again with wrong credentials => lock updated (user is still locked)
 	 *      User waits 8 seconds and tries again with wrong credentials => lock is released, a new $max_action counter has started (user is unlocked)
 	 *   If set to false the user is only locked for the given $block_time no matter how often he tries the same bad action again within the lock time.
-	 * @param string $lock_identifer
-	 *   This is the lock identifer for the action which is monitored.
-	 *   If not provided the global one which was setup within the constructor is used.
-	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
-	 *   (optional, default = NS)
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
 	 *
 	 * @return boolean if user is not locked return true, else lock the user and return false.
 	 */
-	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $update_expire_data = true, $lock_identifer = NS, $user_identifer = NS) {
+	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
 		// Get the current lock count if available.
 		$current_count = $this->core->memcache_obj->get($this->generate_memcache_key($lock_identifer, $user_identifer));
 
@@ -195,6 +195,11 @@ class SecurityLock extends Object
 	 *   (optional, default = 3)
 	 * @param int $block_time
 	 *   The seconds how long the user will get blocked.
+	 * @param string $lock_identifer
+	 *   This is the lock identifer for the action which is monitored.
+	 *   If not provided the global one which was setup within the constructor is used.
+	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
+	 *   (optional, default = NS)
 	 * @param boolean $update_expire_data
 	 *   If set to true the expire date will always be updated on call so the user need to wait the FULL expire time else he will locked again for the
 	 *   specified $block_time.
@@ -204,19 +209,14 @@ class SecurityLock extends Object
 	 *      User waits 5 seconds and tries again with wrong credentials => lock updated (user is still locked)
 	 *      User waits 8 seconds and tries again with wrong credentials => lock is released, a new $max_action counter has started (user is unlocked)
 	 *   If set to false the user is only locked for the given $block_time no matter how often he tries the same bad action again within the lock time.
-	 * @param string $lock_identifer
-	 *   This is the lock identifer for the action which is monitored.
-	 *   If not provided the global one which was setup within the constructor is used.
-	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
-	 *   (optional, default = NS)
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
 	 *
 	 * @return boolean if user is not locked return true, else lock the user and return false.
 	 */
-	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $update_expire_data = true, $lock_identifer = NS, $user_identifer = NS) {
-		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $update_expire_data, $lock_identifer, $user_identifer);
+	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
+		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifer, $update_expire_data, $user_identifer);
 	}
 
 	/**
