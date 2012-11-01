@@ -216,7 +216,11 @@ class WebAction extends Object
 				foreach ($arr AS &$val) {
 					$val = ucfirst($val);
 				}
-				$class = 'Ajax' . ucfirst($this->action_params['module']) . implode("", $arr);
+				$arr_module = explode("_", $this->action_params['module']);
+				foreach ($arr_module AS &$val) {
+					$val = ucfirst($val);
+				}
+				$class = 'Ajax' . implode("", $arr_module) . implode("", $arr);
 
 				if (!class_exists($class)) {
 					include($ajax_file);
