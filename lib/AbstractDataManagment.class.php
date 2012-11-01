@@ -304,14 +304,18 @@ abstract class AbstractDataManagment extends Object
 	}
 
 	/**
-	 * Set values (bulk)
-	 * use only for fast setting (loading) all values / does not check for correct keys
+	 * Set values (bulk).
+	 *
+	 * Use this only for fast setting (loading) all values.
+	 * This method will not parse the provided values, but will only allow field names which are set within the struct.
+	 *
+	 * This will also force the load_success to true.
 	 *
 	 * @param array $field_array
-	 *   The Data
+	 *   The data array.
 	 */
 	public function set_fields_bulk(Array $field_array) {
-		$this->values = $field_array;
+		$this->values = array_intersect_key($field_array, $this->db_struct->struct);
 		$this->values_changed = array();
 		$this->load_success = true;
 	}
