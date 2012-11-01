@@ -60,7 +60,7 @@ class Array2Tree {
 				$regexp = "/(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "(\/?\?.*)?$/i";
 				if($this->menu_selected === false && preg_match($regexp, $this->request_uri)) {
 					$entry['#active'] = true;
-					if ($this->menu_selected !== false) {
+					if ($this->menu_selected === false) {
 						$entry['#active_direct'] = true;
 						$this->menu_selected = true;
 					}
