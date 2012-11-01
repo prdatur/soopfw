@@ -30,7 +30,7 @@ class SecurityLock extends Object
 	 * This lock will NOT expire.
 	 * Use SecurityLock->unlock() to unlock it.
 	 *
-	 * @param string $lock_identifer
+	 * @param string $lock_identifier
 	 *   This is the lock identifer for the action which is monitored.
 	 *   If not provided the global one which was setup within the constructor is used.
 	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
@@ -41,7 +41,7 @@ class SecurityLock extends Object
 	 *
 	 * @return boolean true on success, else false
 	 */
-	public function lock($lock_identifer = NS, $user_identifer = NS) {
+	public function lock($lock_identifier = NS, $user_identifer = NS) {
 
 		// Get the user identification.
 		if (($user_identifer = $this->get_user_identification($user_identifer)) == false) {
@@ -49,7 +49,7 @@ class SecurityLock extends Object
 		}
 
 		// Set the direct lock entry.
-		$this->core->memcache_obj->set($this->generate_memcache_key($lock_identifer, $user_identifer), array('count' => 'DIRECTLOCK'));
+		$this->core->memcache_obj->set($this->generate_memcache_key($lock_identifier, $user_identifer), array('count' => 'DIRECTLOCK'));
 
 		// Return if the set action was successfully.
 		return ($this->core->memcache_obj->get_result_code() == CacheProvider::RES_SUCCESS);
@@ -58,7 +58,7 @@ class SecurityLock extends Object
 	/**
 	 * Unlock a user.
 	 *
-	 * @param string $lock_identifer
+	 * @param string $lock_identifier
 	 *   This is the lock identifer for the action which is monitored.
 	 *   If not provided the global one which was setup within the constructor is used.
 	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
@@ -69,7 +69,7 @@ class SecurityLock extends Object
 	 *
 	 * @return boolean on success true , else false
 	 */
-	public function unlock($lock_identifer = NS, $user_identifer = NS) {
+	public function unlock($lock_identifier = NS, $user_identifer = NS) {
 
 		// Get the user identification.
 		if (($user_identifer = $this->get_user_identification($user_identifer)) === false) {
@@ -77,7 +77,7 @@ class SecurityLock extends Object
 		}
 
 		// Delete the memcache entry.
-		$this->core->memcache_obj->delete($this->generate_memcache_key($lock_identifer, $user_identifer));
+		$this->core->memcache_obj->delete($this->generate_memcache_key($lock_identifier, $user_identifer));
 
 		// Return if the delete action was successfully.
 		return ($this->core->memcache_obj->get_result_code() == CacheProvider::RES_SUCCESS);
@@ -87,7 +87,7 @@ class SecurityLock extends Object
 	 * Check if the given user is locked for the given lock action.
 	 *
 	 * This will check if the action was executed more than configurated $max_actions WITHIN the configurated $block_range.
-	 * After $block_range seconds a new "round" will start, old counters for this $lock_identifer are resetted.
+	 * After $block_range seconds a new "round" will start, old counters for this $lock_identifier are resetted.
 	 *
 	 * @param int $max_actions
 	 *   How much actions are allowed within $max_check_time.
@@ -98,7 +98,7 @@ class SecurityLock extends Object
 	 *   (optional, default = DateTools::TIME_DAY)
 	 * @param int $block_time
 	 *   The seconds how long the user will get blocked.
-	 * @param string $lock_identifer
+	 * @param string $lock_identifier
 	 *   This is the lock identifer for the action which is monitored.
 	 *   If not provided the global one which was setup within the constructor is used.
 	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
@@ -118,9 +118,9 @@ class SecurityLock extends Object
 	 *
 	 * @return boolean returns true if the user is locked, else false
 	 */
-	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
+	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS) {
 		// Get the current lock count if available.
-		$current_count = $this->core->memcache_obj->get($this->generate_memcache_key($lock_identifer, $user_identifer));
+		$current_count = $this->core->memcache_obj->get($this->generate_memcache_key($lock_identifier, $user_identifer));
 
 		// Initialize the lock data if needed.
 		if (empty($current_count) || !is_array($current_count)) {
@@ -159,6 +159,15 @@ class SecurityLock extends Object
 			// If we do not update the expire data, we have the timestamp after the first block stored into $expires, we then need to add
 			// the block time, so the memcached key will expire on the time where the user was blocked + the block time we want.
 			$expires += $block_time;
+
+			// If we locked the user right now log this lock.
+			if ($current_count['count'] == $max_actions + 1) {
+				SystemHelper::audit(
+					'A user (' . $this->get_user_identification($user_identifer)  . ') was locked (lock action: ' . $this->get_lock_identifier($lock_identifier) . ')' ,
+					'security',
+					SystemLogObj::LEVEL_ALERT
+				);
+			}
 		}
 		else {
 			// We are currently not locked.
@@ -178,7 +187,7 @@ class SecurityLock extends Object
 		}
 
 		// Set the check values.
-		$this->core->memcache_obj->set($this->generate_memcache_key($lock_identifer, $user_identifer), $current_count, $expires);
+		$this->core->memcache_obj->set($this->generate_memcache_key($lock_identifier, $user_identifer), $current_count, $expires);
 
 		// Return if the user is locked or not.
 		return !$locked;
@@ -195,7 +204,7 @@ class SecurityLock extends Object
 	 *   (optional, default = 3)
 	 * @param int $block_time
 	 *   The seconds how long the user will get blocked.
-	 * @param string $lock_identifer
+	 * @param string $lock_identifier
 	 *   This is the lock identifer for the action which is monitored.
 	 *   If not provided the global one which was setup within the constructor is used.
 	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
@@ -215,14 +224,14 @@ class SecurityLock extends Object
 	 *
 	 * @return boolean returns true if the user is locked, else false
 	 */
-	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifer = NS, $update_expire_data = true, $user_identifer = NS) {
-		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifer, $update_expire_data, $user_identifer);
+	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS) {
+		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifier, $update_expire_data, $user_identifer);
 	}
 
 	/**
 	 * Returns the memcached key for given $lock_identifcation.
 	 *
-	 * @param string $lock_identifer
+	 * @param string $lock_identifier
 	 *   This is the lock identifer for the action which is monitored.
 	 *   If not provided the global one which was setup within the constructor is used.
 	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
@@ -233,12 +242,7 @@ class SecurityLock extends Object
 	 *
 	 * @return string|boolean The memcache key on succees, on error return false.
 	 */
-	private function generate_memcache_key($lock_identifer = NS, $user_identifer = NS) {
-
-		// If we did not provide a lock identifer use the global one.
-		if (empty($lock_identifer) || $lock_identifer === NS) {
-			$lock_identifer = $this->lock_identifier;
-		}
+	private function generate_memcache_key($lock_identifier = NS, $user_identifer = NS) {
 
 		// Get the user identification, if we can not determine a user this is in most cases a bad person (user wihout an ip address are not good) so directly return
 		// that this user is locked.
@@ -247,7 +251,26 @@ class SecurityLock extends Object
 		}
 
 		// Return the memcached key.
-		return 'securitylockcheck:' . $lock_identifer . ':' . $user_identifer;
+		return 'securitylockcheck:' . $this->get_lock_identifier($lock_identifier) . ':' . $user_identifer;
+	}
+
+	/**
+	 * Returns the lock identification.
+	 *
+	 * @param string $lock_identifier
+	 *   If provide this identification will be used.
+	 *   If not provided it will use the global configurated one.
+	 *   (optional, default = NS)
+	 * @return string The lock identification.
+	 */
+	private function get_lock_identifier($lock_identifier = NS) {
+		// If we did not provide a lock identifer use the global one.
+		if (empty($lock_identifier) || $lock_identifier === NS) {
+			$lock_identifier = $this->lock_identifier;
+		}
+
+		// Return the lock identifier.
+		return $lock_identifier;
 	}
 
 	/**
