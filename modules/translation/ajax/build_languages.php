@@ -6,7 +6,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category Module.System
  */
-class AjaxLanguageBuildLanguages extends AjaxModul {
+class AjaxTranslationBuildLanguages extends AjaxModul {
 
 	/**
 	 * This function will be executed after ajax file initializing
