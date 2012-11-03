@@ -1055,13 +1055,21 @@ class User extends ActionModul
 		// Setup security lock class.
 		$security = new SecurityLock('user_login');
 
+		// Get the user identification and provide it directly to the security check, this is needed because if we do not
+		// Set the user identifier the system will determine it self and within the "check" the user is not logged in
+		// but at the point we release the lock due to a successfull login the user is already logged in and this releases
+		// the wrong user identifier.
+		$user_identifier = NetTools::get_user_identification();
+
 		$login_form->add(new Textfield("user", '', t("Username")), array(
 			new FunctionValidator(t('This account has been locked due to too many login attempts, please try again later.'), function($value) use ($security) {
 				$core = Core::get_instance();
 				return $security->check_lock(
 						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'),
 						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15),
-						'user_login_' . $value
+						'user_login_' . $value,
+						true,
+						'usernamecheck'
 				);
 			})
 		));
@@ -1089,8 +1097,10 @@ class User extends ActionModul
 			}
 
 			if ($this->session->validate_login($login_form->get_value("user"), $login_form->get_value("pass"))) {
-				$security->unlock('user_login');
-				$security->unlock('user_login_' . $login_form->get_value("user"));
+				$security->unlock('user_login', $user_identifier);
+
+				// We set a static user identifier so the lock is for all people to get more security.
+				$security->unlock('user_login_' . $login_form->get_value("user"), 'usernamecheck');
 				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
 				$this->session->set('redirect_from_login', true);
 				$this->redirect_after_login();
