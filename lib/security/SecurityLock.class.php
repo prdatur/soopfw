@@ -112,6 +112,7 @@ class SecurityLock extends Object
 	 *      User waits 5 seconds and tries again with wrong credentials => lock updated (user is still locked)
 	 *      User waits 8 seconds and tries again with wrong credentials => lock is released, a new $max_action counter has started (user is unlocked)
 	 *   If set to false the user is only locked for the given $block_time no matter how often he tries the same bad action again within the lock time.
+	 *   (optional, default = true)
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
@@ -218,6 +219,7 @@ class SecurityLock extends Object
 	 *      User waits 5 seconds and tries again with wrong credentials => lock updated (user is still locked)
 	 *      User waits 8 seconds and tries again with wrong credentials => lock is released, a new $max_action counter has started (user is unlocked)
 	 *   If set to false the user is only locked for the given $block_time no matter how often he tries the same bad action again within the lock time.
+	 *   (optional, default = true)
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
