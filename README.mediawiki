@@ -23,6 +23,4 @@ Please look to the INSTALL.txt
 
 === Need help? ===
 Checkout out http://soopfw.org/documentation
-
-Information: The homepage will be created in the next month, do not hesitate
-			 to use SoopFw for your work.
+For bugs or feature requests you can look at: http://bugs.soopfw.org
