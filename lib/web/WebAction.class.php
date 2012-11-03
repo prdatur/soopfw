@@ -70,10 +70,10 @@ class WebAction extends Object
 		}
 
 		if ($this->core->cache('core', 'admin_theme')) {
-			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", system::CONFIG_ADMIN_THEME, 'standard') . "/");
+			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", System::CONFIG_ADMIN_THEME, 'standard') . "/");
 		}
 		else {
-			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", system::CONFIG_DEFAULT_THEME, 'standard') . "/");
+			$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", System::CONFIG_DEFAULT_THEME, 'standard') . "/");
 		}
 
 		// Get params from a maybe existing alias for current uri.
@@ -121,7 +121,7 @@ class WebAction extends Object
 		 * if not we just parse the url string
 		 */
 		if (empty($params->module)) {
-			$start_page = $this->core->dbconfig("system", system::CONFIG_DEFAULT_PAGE);
+			$start_page = $this->core->dbconfig("system", System::CONFIG_DEFAULT_PAGE);
 			if (!empty($start_page)) {
 				$start_page_params = UrlAliasObj::get_params_from_alias($start_page);
 				if ($start_page_params === false) {
@@ -212,15 +212,7 @@ class WebAction extends Object
 			}
 			$ajax_file = SITEPATH . "/" . $mod . "/ajax/" . $this->action_params['action'] . ".php";
 			if (file_exists($ajax_file)) {
-				$arr = explode("_", $this->action_params['action']);
-				foreach ($arr AS &$val) {
-					$val = ucfirst($val);
-				}
-				$arr_module = explode("_", $this->action_params['module']);
-				foreach ($arr_module AS &$val) {
-					$val = ucfirst($val);
-				}
-				$class = 'Ajax' . implode("", $arr_module) . implode("", $arr);
+				$class = $this->generate_classname('ajax_' . $this->action_params['module'] . '_' . $this->action_params['action']);
 
 				if (!class_exists($class)) {
 					include($ajax_file);
@@ -293,6 +285,9 @@ class WebAction extends Object
 			else {
 				$load_class = $this->action_params['module'];
 			}
+
+			// Prevent class format and get the camel case classname.
+			$load_class = $this->generate_classname($load_class);
 
 			/* @var $module ActionModul */
 			$module = new $load_class();
@@ -395,6 +390,24 @@ class WebAction extends Object
 		}
 
 		$this->session->set('redirect_from_login', false);
+	}
+
+	/**
+	 * Get the loadable class name for a module or a direct modul action.
+	 *
+	 * This will transform underline form into camel case.
+	 *
+	 * @param string $name
+	 *   The original name.
+	 *
+	 * @return string The transformed class name.
+	 */
+	public static function generate_classname($name) {
+		$arr = explode("_", $name);
+		foreach ($arr AS &$val) {
+			$val = ucfirst($val);
+		}
+		return ucfirst(implode("", $arr));
 	}
 
 	/**

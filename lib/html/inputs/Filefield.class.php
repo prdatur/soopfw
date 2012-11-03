@@ -116,7 +116,7 @@ class Filefield extends AbstractHtmlInput
 		$this->config("handle_upload", $handle_upload);
 		$this->config("default_file_id", $value);
 
-		$this->size_limit($this->core->get_dbconfig('system', system::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit));
+		$this->size_limit($this->core->get_dbconfig('system', System::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit));
 		$this->init();
 	}
 

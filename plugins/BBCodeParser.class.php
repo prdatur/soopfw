@@ -322,7 +322,7 @@
 			/* [url]href[/url] as well as [url=href]text[/url] is supported */
 			$href = isset($params['url']) ? $params['url'] : $tree->toText();
 			if (preg_match("/^\/?content\/view\/([0-9]+)$/", $href, $matches)) {
-				$content = new content();
+				$content = new Content();
 				$href = '/' . $content->get_alias_for_page_id($matches[1]) . '.html';
 			}
 			else {
@@ -335,7 +335,7 @@
 			/* [url]href[/url] as well as [url=href]text[/url] is supported */
 			$href = isset($params['url']) ? $params['url'] : $tree->toText();
 			if (preg_match("/^\/?content\/view\/([0-9]+)$/", $href, $matches)) {
-				$content = new content();
+				$content = new Content();
 				$href = '/' . $content->get_alias_for_page_id($matches[1]) . '.html';
 			}
 			else {

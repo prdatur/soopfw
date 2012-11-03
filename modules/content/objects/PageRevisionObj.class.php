@@ -233,7 +233,7 @@ class PageRevisionObj extends AbstractDataManagment {
 			return;
 		}
 
-		$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+		$solr = SolrFactory::create_instance('content', Content::CONTENT_SOLR_SERVER);
 		if ($solr === false) {
 			return;
 		}
@@ -252,7 +252,7 @@ class PageRevisionObj extends AbstractDataManagment {
 			$content_type = $page_obj->content_type;
 		}
 
-		$index_types = $this->core->get_dbconfig("content", content::CONTENT_SOLR_INDEXED_TYPES, array());
+		$index_types = $this->core->get_dbconfig("content", Content::CONTENT_SOLR_INDEXED_TYPES, array());
 		if (!isset($index_types[$content_type])) {
 			return;
 		}
@@ -278,7 +278,7 @@ class PageRevisionObj extends AbstractDataManagment {
 		$bbcode = new BBCodeParser();
 		$content = $bbcode->parse($content);
 
-		$content_obj = new content();
+		$content_obj = new Content();
 		$alias = $content_obj->get_alias_for_page_id($this->page_id, $this->language);
 		$url = '/' . $this->language . '/content/view/' . $this->page_id;
 		if ($alias !== false) {

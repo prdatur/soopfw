@@ -6,7 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  */
-class menu extends ActionModul
+class Menu extends ActionModul
 {
 
 	//Default method

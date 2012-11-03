@@ -171,7 +171,7 @@ class soopfw_install {
 
 		$core = Core::get_instance(true, Core::RUN_MODE_DEVELOPEMENT, true);
 		$core->boot();
-		$system = new system($core);
+		$system = new System($core);
 		$system->install_module();
 		$system->install_module('user');
 

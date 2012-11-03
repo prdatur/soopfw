@@ -74,7 +74,7 @@ class Session extends Object
 			$this->start_session();
 
 			// Get all wanted login handlers.
-			$login_handlers = $this->core->get_dbconfig("system", system::CONFIG_LOGIN_HANDLER, array("DefaultLoginHandler"));
+			$login_handlers = $this->core->get_dbconfig("system", System::CONFIG_LOGIN_HANDLER, array("DefaultLoginHandler"));
 
 			// Setup all login handlers.
 			foreach ($login_handlers AS $login_handler) {
@@ -256,7 +256,7 @@ class Session extends Object
 		//Pre assign the loggedin to 0 (not logged in)
 		$this->smarty->assign("loggedin", "0");
 
-		$timeout_value = $this->core->get_dbconfig("user", user::CONFIG_INACTIVE_LOGOUT_TIME, 60);
+		$timeout_value = $this->core->get_dbconfig("user", User::CONFIG_INACTIVE_LOGOUT_TIME, 60);
 		//Remove all old session entries which are not available anymore
 		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE DATE_ADD(`date`, INTERVAL iminutes MINUTE) <= @data", array(
 			"@data" => date(DB_DATETIME, TIME_NOW),

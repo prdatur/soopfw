@@ -6,7 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  */
-class translation extends ActionModul
+class Translation extends ActionModul
 {
 	/**
 	 * Default method

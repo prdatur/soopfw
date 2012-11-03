@@ -305,7 +305,7 @@ class Core
 		spl_autoload_register(array('Core', 'class_loader'));
 
 		if ($this->config['db']['use'] === true) {
-			$this->run_mode = $this->get_dbconfig("system", system::CONFIG_RUN_MODE, $run_mode);
+			$this->run_mode = $this->get_dbconfig("system", System::CONFIG_RUN_MODE, $run_mode);
 
 		}
 		else {
@@ -486,7 +486,7 @@ class Core
 
 		// Try to get a maybe overwritten default language from database.
 		if ($this->config['db']['use'] === true) {
-			$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
+			$this->default_language = $this->get_dbconfig("system", System::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 		}
 
 		// Initialize our session.
@@ -500,7 +500,7 @@ class Core
 				$this->db->table_prefix('test_' . $this->db->table_prefix());
 
 				// Reinit default language.
-				$this->default_language = $this->get_dbconfig("system", system::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
+				$this->default_language = $this->get_dbconfig("system", System::CONFIG_DEFAULT_LANGUAGE, $this->config['core']['default_language']);
 
 				$this->mcache_set_prefix('test_' . $this->db->table_prefix());
 				// We need to reinit the session object.
@@ -658,7 +658,7 @@ class Core
 	 */
 	public function need_ssl() {
 
-		if (!$this->is_ssl() && $this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
+		if (!$this->is_ssl() && $this->get_dbconfig("system", System::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 			exit();
 		}
@@ -685,8 +685,8 @@ class Core
 	 * @return string the secure base url
 	 */
 	public function get_secure_url($strict = false) {
-		if ($this->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
-			return 'https://' . $this->get_dbconfig("system", system::CONFIG_SECURE_DOMAIN, $this->core_config('core', 'domain'));
+		if ($this->get_dbconfig("system", System::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
+			return 'https://' . $this->get_dbconfig("system", System::CONFIG_SECURE_DOMAIN, $this->core_config('core', 'domain'));
 		}
 
 		if ($strict === true) {
@@ -1123,6 +1123,8 @@ class Core
 					continue;
 				}
 
+				$module = WebAction::generate_classname($module);
+
 				//Load the module and check if it has the get_admin_menu method
 				$module_obj = new $module();
 				if (!method_exists($module_obj, "get_admin_menu")) {
@@ -1309,12 +1311,18 @@ class Core
 			}
 
 			$languages = $this->lng->languages;
+
+			$mod_obj = null;
+			if (!empty($current_module)) {
+				$current_module = WebAction::generate_classname($current_module);
+				$mod_obj = new $current_module();
+			}
+
 			foreach ($languages AS $key => &$language) {
-				if (empty($current_module)) {
+				if (empty($mod_obj)) {
 					$link = '/' . strtolower($key) . $base_link;
 				}
 				else {
-					$mod_obj = new $current_module();
 					$link = $mod_obj->get_translation_link($key);
 				}
 				$language = array(
@@ -1786,6 +1794,7 @@ class Core
 		$hook_method = "hook_" . $name;
 		$return_results = array();
 		foreach ($cache[$name] AS $module) {
+			$module = WebAction::generate_classname($module);
 			$return_results[$module] = call_user_func_array(array(new $module(), $hook_method), $args);
 		}
 
@@ -1848,8 +1857,8 @@ class Core
 	private function cache_js_css() {
 
 		//If caching disabled by system configuration, do not cache, default caching is disabled
-		$should_cache_js = $this->dbconfig("system", system::CONFIG_CACHE_JS);
-		$should_cache_css = $this->dbconfig("system", system::CONFIG_CACHE_CSS);
+		$should_cache_js = $this->dbconfig("system", System::CONFIG_CACHE_JS);
+		$should_cache_css = $this->dbconfig("system", System::CONFIG_CACHE_CSS);
 
 		if (!empty($should_cache_css) && $should_cache_css == 'yes' && !empty($this->css_files)) {
 			//This variable holds the last modified file within the current scope

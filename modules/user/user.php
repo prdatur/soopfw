@@ -6,7 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  */
-class user extends ActionModul
+class User extends ActionModul
 {
 
 	//Default method
@@ -141,8 +141,8 @@ class user extends ActionModul
 		$form->add(new YesNoSelectfield(self::CONFIG_LOGIN_ALLOW_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no'), t("Allow login with email?"), t('In order to allow the email login, unique email must be set to yes')));
 
 		$signup_types = array(
-			user::SIGNUP_TYPE_CONFIRM => t('User needs to confirm his account'),
-			user::SIGNUP_TYPE_RANDOM => t('User get a random password send to his email'),
+			User::SIGNUP_TYPE_CONFIRM => t('User needs to confirm his account'),
+			User::SIGNUP_TYPE_RANDOM => t('User get a random password send to his email'),
 		);
 		$form->add(new Radiobuttons(self::CONFIG_SIGNUP_TYPE, $signup_types, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, self::SIGNUP_TYPE_CONFIRM), t('Signup type'), t('How the user should be verified after signup.')));
 
@@ -378,7 +378,7 @@ class user extends ActionModul
 		$this->title(t('signup'));
 		$this->static_tpl = 'form.tpl';
 
-		$signup_type = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, user::SIGNUP_TYPE_CONFIRM);
+		$signup_type = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, User::SIGNUP_TYPE_CONFIRM);
 
 		$form = new Form('user_signup');
 
@@ -387,7 +387,7 @@ class user extends ActionModul
 			new NotExistValidator(t('This username is already taken, please choose a different'), array(UserObj::TABLE => 'username')),
 		));
 
-		if ($signup_type == user::SIGNUP_TYPE_CONFIRM) {
+		if ($signup_type == User::SIGNUP_TYPE_CONFIRM) {
 			$password_field = new Passwordfield('password', '', t('Password'), t('Please choose a good password'));
 			$form->add($password_field, array(
 				new RequiredValidator(),
@@ -413,7 +413,7 @@ class user extends ActionModul
 
 		if ($form->check_form()) {
 			$password = "";
-			if ($signup_type == user::SIGNUP_TYPE_RANDOM) {
+			if ($signup_type == User::SIGNUP_TYPE_RANDOM) {
 				$password = UserTools::generate_pw(12);
 			}
 
@@ -425,20 +425,20 @@ class user extends ActionModul
 				);
 
 				switch($signup_type) {
-					case user::SIGNUP_TYPE_CONFIRM:
+					case User::SIGNUP_TYPE_CONFIRM:
 						$user_obj->active = 'no';
 						$user_obj->confirm_key = md5(uniqid());
 						$user_obj->save();
-						$mail_tpl_key = user::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP;
+						$mail_tpl_key = User::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP;
 
 						$tpl_vals['link'] = 'http';
-						if ($this->core->get_dbconfig("system", system::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
+						if ($this->core->get_dbconfig("system", System::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
 							$tpl_vals['link'] .= 's';
 						}
 						$tpl_vals['link'] .= '://' . $this->core->core_config('core', 'domain') . '/user/confirm/' . $user_obj->confirm_key;
 						break;
-					case user::SIGNUP_TYPE_RANDOM:
-						$mail_tpl_key = user::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD;
+					case User::SIGNUP_TYPE_RANDOM:
+						$mail_tpl_key = User::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD;
 						$tpl_vals['password'] = $password;
 						break;
 				}
@@ -452,10 +452,10 @@ class user extends ActionModul
 						$this->core->message(t("Your account was successfully created."), Core::MESSAGE_TYPE_SUCCESS);
 
 						switch($signup_type) {
-							case user::SIGNUP_TYPE_CONFIRM:
+							case User::SIGNUP_TYPE_CONFIRM:
 								$this->core->message(t("We have send you an email with a confirmation link included, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
 								break;
-							case user::SIGNUP_TYPE_RANDOM:
+							case User::SIGNUP_TYPE_RANDOM:
 								$this->core->message(t("We have send you an email which includes your password, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
 								break;
 						}
@@ -1059,8 +1059,8 @@ class user extends ActionModul
 			new FunctionValidator(t('This account has been locked due to too many login attempts, please try again later.'), function($value) use ($security) {
 				$core = Core::get_instance();
 				return $security->check_lock(
-						(int) $core->get_dbconfig("user", user::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'),
-						(int) $core->get_dbconfig("user", user::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15),
+						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'),
+						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15),
 						'user_login_' . $value
 				);
 			})

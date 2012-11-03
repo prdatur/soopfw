@@ -53,7 +53,7 @@ class cli_enable_module extends CLICommand
 			}
 		}
 
-		$system = new system();
+		$system = new System();
 		if (!empty($dependencies)) {
 			foreach ($dependencies AS $mod => $val) {
 				$system->install_module($mod);

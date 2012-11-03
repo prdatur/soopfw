@@ -25,7 +25,7 @@ class AjaxSystemSaveLoginHandlerPriority extends AjaxModul {
 		foreach ($values['enabled'] AS $handler_name) {
 			$new_values[] = $handler_name;
 		}
-		if ($this->core->dbconfig("system", system::CONFIG_LOGIN_HANDLER, $new_values)) {
+		if ($this->core->dbconfig("system", System::CONFIG_LOGIN_HANDLER, $new_values)) {
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 

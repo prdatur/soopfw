@@ -44,7 +44,8 @@ class AjaxSystemDisableModule extends AjaxModul {
 				$obj = new cli_generate_classlist();
 				$obj->generate_classlist();
 
-				$module_obj = new $params->module();
+				$classname_module = WebAction::generate_classname($params->module);
+				$module_obj = new $classname_module();
 				if (method_exists($module_obj, 'disable')) {
 					$module_obj->disable();
 				}

@@ -111,7 +111,7 @@ class UserObj extends AbstractDataManagment
 		}
 
 		if (parent::insert($ignore)) {
-			foreach($this->core->get_dbconfig("system", user::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
+			foreach($this->core->get_dbconfig("system", User::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
 				$user2group = new User2RightGroupObj();
 				$user2group->user_id = $this->user_id;
 				$user2group->group_id = $group_id;

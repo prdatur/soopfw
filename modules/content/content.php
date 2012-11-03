@@ -5,7 +5,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  */
-class content extends ActionModul implements Widget
+class Content extends ActionModul implements Widget
 {
 	//Default method
 	protected $default_methode = "list_content_types";
@@ -344,7 +344,7 @@ class content extends ActionModul implements Widget
 				}
 
 				if ($skip_delete === false) {
-					$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+					$solr = SolrFactory::create_instance('content', Content::CONTENT_SOLR_SERVER);
 					if ($solr !== false) {
 						// Those which are within this array are the old indexed content types which we removed now so delete them.
 						foreach ($delete_check AS $key => $val) {

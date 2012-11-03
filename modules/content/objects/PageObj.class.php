@@ -239,7 +239,7 @@ class PageObj extends AbstractDataManagment
 			return false;
 		}
 
-		$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+		$solr = SolrFactory::create_instance('content', Content::CONTENT_SOLR_SERVER);
 		if ($solr === false) {
 			return;
 		}

@@ -154,7 +154,7 @@ class DefaultLoginHandler extends Object implements LoginHandler
 		$user_obj = new UserObj();
 		//Add the database filter to load the user based up on the username check variable
 
-		if ($this->core->get_dbconfig("user", user::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
+		if ($this->core->get_dbconfig("user", User::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
 			$where_or = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
 			$user_obj->db_filter->join(UserAddressObj::TABLE, 'usr.user_id = ' . UserObj::TABLE . '.user_id', 'usr');
 			$where_or->add_where("email", $username);

@@ -55,7 +55,7 @@ class qqFileUploader extends Object
 		parent::__construct();
 		$allowed_extensions = array_map("strtolower", $allowed_extensions);
 		$this->allowed_extensions = $allowed_extensions;
-		$this->size_limit = $this->core->get_dbconfig('system', system::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit);
+		$this->size_limit = $this->core->get_dbconfig('system', System::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->size_limit);
 		if (!empty($size_limit)) {
 			$this->size_limit = (int)$size_limit;
 		}

@@ -85,11 +85,11 @@ class ContentTypeObj extends AbstractDataManagment
 			// If solr exists and the content type was indexed, remove it.
 			if ($this->core->module_enabled('solr')) {
 
-				$indexed_content_types = $this->core->get_dbconfig("content", content::CONTENT_SOLR_INDEXED_TYPES, array());
+				$indexed_content_types = $this->core->get_dbconfig("content", Content::CONTENT_SOLR_INDEXED_TYPES, array());
 				unset($indexed_content_types[$content_type]);
-				$this->core->dbconfig("content", content::CONTENT_SOLR_INDEXED_TYPES, $indexed_content_types);
+				$this->core->dbconfig("content", Content::CONTENT_SOLR_INDEXED_TYPES, $indexed_content_types);
 
-				$solr = SolrFactory::create_instance('content', content::CONTENT_SOLR_SERVER);
+				$solr = SolrFactory::create_instance('content', Content::CONTENT_SOLR_SERVER);
 				if ($solr !== false) {
 					$solr->deleteByQuery('contenttype_s:' . $content_type);
 				}

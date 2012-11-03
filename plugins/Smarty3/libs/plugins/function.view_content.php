@@ -29,7 +29,7 @@ function smarty_function_view_content($params, $smarty, $template)
 	}
 
 	if (!empty($id)) {
-		$page = new content();
+		$page = new Content();
 		try {
 			return $page->view($id, '', true);
 		}

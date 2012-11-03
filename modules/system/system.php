@@ -6,7 +6,7 @@
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
  */
-class system extends ActionModul
+class System extends ActionModul
 {
 	/**
 	 * Define constances
@@ -959,9 +959,10 @@ class system extends ActionModul
 				}
 			}
 		}
-
+		$classname_module = WebAction::generate_classname($module);
+		
 		//Check if we are on a fresh module install or do just an update
-		$module_object = new $module();
+		$module_object = new $classname_module();
 		$modul_config = new ModulConfigObj($module);
 		if ($update_succeeds) {
 			$call_enable = false;
