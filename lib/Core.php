@@ -1770,6 +1770,7 @@ class Core
 		if ($cache == null) {
 			$cache = array();
 			foreach ($this->modules AS $module) {
+				$module = WebAction::generate_classname($module);
 				if (class_exists($module)) {
 					$class = new ReflectionClass($module);
 					$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
