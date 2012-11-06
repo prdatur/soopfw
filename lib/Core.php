@@ -435,14 +435,15 @@ class Core
 	public static function class_loader($classname) {
 		global $memcached_obj;
 		$classes = self::load_classlist();
-		if (array_key_exists($classname, $classes["classes"])) {
-			require SITEPATH . $classes["classes"][$classname]['path'];
+		if (isset($classes["classes"][$classname])) {
+			$classname = SITEPATH . $classes["classes"][$classname]['path'];
 		}
-		elseif (array_key_exists($classname, $classes["interfaces"])) {
-			require SITEPATH . $classes["interfaces"][$classname]['path'];
+		elseif (isset($classes["interfaces"][$classname])) {
+			$classname = SITEPATH . $classes["interfaces"][$classname]['path'];
 		}
-		elseif (file_exists($classname . ".php")) {
-			require $classname . ".php";
+
+		if (file_exists($classname)) {
+			require $classname;
 		}
 		else {
 			// If we tried to load an invalid class maybe memcached is corrupted, reload next time with a fresh one from classes.php.
