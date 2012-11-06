@@ -22,8 +22,8 @@ according to the terms of the GNU General Public License or a compatible
 license, including:
 
  - jQuery - Copyright (c) 2008 - 2009 John Resig
- - PHPMailer - PHP email class - Copyright (c) 2004-2009, Andy Prevost. All Rights Reserved. - Copyright (c) 2001-2003, Brent R. Matzelle 
- - quickerUbb (c)2004 Roönaän
+ - PHPMailer - PHP email class - Copyright (c) 2004-2009, Andy Prevost. All Rights Reserved. - Copyright (c) 2001-2003, Brent R. Matzelle
+ - quickerUbb (c)2004 Roönaän (Only present within old commits, prior to 2012/11/06)
  - classlist auto generator - Copyright (c) 2009, Roman Drapeko
  - recaptcha - Copyright (c) 2007 reCAPTCHA
  - yuicompressor-2.4.7

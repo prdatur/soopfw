@@ -12,7 +12,7 @@
  * @return string the translated string, or if the translations is not found return the given key
  */
 function t($key, $args = array()) {
-	static $key_cache = array();
+	static $key_cache = array(), $bbcode = null;
 	global $translation_cache;
 
 	$core = Core::get_instance();
@@ -38,8 +38,14 @@ function t($key, $args = array()) {
 		return $key_cache[$cache_key];
 	}
 
-	//$core = &$GLOBALS['core'];
-	$bbcode = new BBCodeParser();
+	if ($bbcode === null) {
+		if (class_exists('BBCodeParser')) {
+			$bbcode = new BBCodeParser();
+		}
+		else {
+			$bbcode = false;
+		}
+	}
 
 
 	//Check if language is available
@@ -58,8 +64,10 @@ function t($key, $args = array()) {
 		$cached_parsed = $core->mcache("core_translation_parsed:" . md5($key));
 		if (empty($cached_parsed)) {
 			$m_key = md5($key);
-			//Parse bbcode
-			$key = $bbcode->parse($key);
+			//Parse bbcode if available
+			if ($bbcode !== false) {
+				$key = $bbcode->parse($key);
+			}
 			$core->mcache("core_translation_parsed:" . $m_key, $key);
 		}
 		else {
