@@ -660,8 +660,7 @@ class Core
 	public function need_ssl() {
 
 		if (!$this->is_ssl() && $this->get_dbconfig("system", System::CONFIG_SSL_AVAILABLE, 'no') === 'yes') {
-			header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-			exit();
+			$this->location("https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 		}
 	}
 
@@ -670,9 +669,11 @@ class Core
 	 */
 	public function need_no_ssl() {
 
-		if ($this->is_ssl()) {
-			header("Location: http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-			exit();
+		// Redirect only if we are currently within ssl mode AND we have not an admin page.
+		// If we would redirect within an admin page we get an infity loop because admin pages are always
+		// redirected to ssl (if available).
+		if ($this->is_ssl() && !preg_match("/^\/admin\//", $_SERVER['REQUEST_URI'])) {
+			$this->location("http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 		}
 	}
 
