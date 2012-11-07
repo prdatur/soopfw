@@ -3,7 +3,19 @@
 $classes = array (
   'classes' => 
   array (
-    'menu' => 
+    'MenuTest' => 
+    array (
+      'path' => '/modules/menu/tests/MenuTest.class.php',
+      'extends' => 
+      array (
+        0 => 'WebUnitTest',
+      ),
+      'implements' => 
+      array (
+        0 => 'UnitTestInterface',
+      ),
+    ),
+    'Menu' => 
     array (
       'path' => '/modules/menu/menu.php',
       'extends' => 
@@ -124,7 +136,7 @@ $classes = array (
         0 => 'UnitTestInterface',
       ),
     ),
-    'system' => 
+    'System' => 
     array (
       'path' => '/modules/system/system.php',
       'extends' => 
@@ -289,6 +301,17 @@ $classes = array (
       array (
       ),
     ),
+    'AjaxSystemSaveLoginHandlerPriority' => 
+    array (
+      'path' => '/modules/system/ajax/save_login_handler_priority.php',
+      'extends' => 
+      array (
+        0 => 'AjaxModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'AjaxSystemAjaxDefaultUpload' => 
     array (
       'path' => '/modules/system/ajax/AjaxDefaultUpload.php',
@@ -422,6 +445,17 @@ $classes = array (
         0 => 'UnitTestInterface',
       ),
     ),
+    'ContentTypeViewObj' => 
+    array (
+      'path' => '/modules/content/objects/ContentTypeViewObj.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractDataManagment',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'ContentTypeFieldGroupObj' => 
     array (
       'path' => '/modules/content/objects/ContentTypeFieldGroupObj.class.php',
@@ -477,7 +511,7 @@ $classes = array (
       array (
       ),
     ),
-    'content' => 
+    'Content' => 
     array (
       'path' => '/modules/content/content.php',
       'extends' => 
@@ -486,6 +520,7 @@ $classes = array (
       ),
       'implements' => 
       array (
+        0 => 'Widget',
       ),
     ),
     'FieldGroupList' => 
@@ -554,9 +589,31 @@ $classes = array (
       array (
       ),
     ),
+    'ContentViewConfiguration' => 
+    array (
+      'path' => '/modules/content/includes/ContentViewConfiguration.class.php',
+      'extends' => 
+      array (
+        0 => 'Configuration',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'AbstractFieldGroup' => 
     array (
       'path' => '/modules/content/includes/AbstractFieldGroup.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'ContentHelper' => 
+    array (
+      'path' => '/modules/content/includes/ContentHelper.class.php',
       'extends' => 
       array (
         0 => 'Object',
@@ -642,7 +699,7 @@ $classes = array (
       array (
       ),
     ),
-    'translation' => 
+    'Translation' => 
     array (
       'path' => '/modules/translation/translation.php',
       'extends' => 
@@ -664,7 +721,7 @@ $classes = array (
       array (
       ),
     ),
-    'AjaxLanguageBuildLanguages' => 
+    'AjaxTranslationBuildLanguages' => 
     array (
       'path' => '/modules/translation/ajax/build_languages.php',
       'extends' => 
@@ -763,7 +820,7 @@ $classes = array (
       array (
       ),
     ),
-    'user' => 
+    'User' => 
     array (
       'path' => '/modules/user/user.php',
       'extends' => 
@@ -1033,6 +1090,17 @@ $classes = array (
         0 => 'Iterator',
       ),
     ),
+    'SoopfwMissingParameterException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwMissingParameterException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'SoopfwWrongParameterException' => 
     array (
       'path' => '/lib/exceptions/SoopfwWrongParameterException.class.php',
@@ -1044,9 +1112,31 @@ $classes = array (
       array (
       ),
     ),
+    'SoopfwSecurityException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwSecurityException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'SoopfwNoPermissionException' => 
     array (
       'path' => '/lib/exceptions/SoopfwNoPermissionException.class.php',
+      'extends' => 
+      array (
+        0 => 'Exception',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SoopfwErrorException' => 
+    array (
+      'path' => '/lib/exceptions/SoopfwErrorException.class.php',
       'extends' => 
       array (
         0 => 'Exception',
@@ -1156,6 +1246,37 @@ $classes = array (
       array (
       ),
     ),
+    'XMLSecurity' => 
+    array (
+      'path' => '/lib/security/XMLSecurity.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SSL' => 
+    array (
+      'path' => '/lib/security/SSL.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SecurityLock' => 
+    array (
+      'path' => '/lib/security/SecurityLock.class.php',
+      'extends' => 
+      array (
+        0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'DesCrypt' => 
     array (
       'path' => '/lib/DesCrypt.class.php',
@@ -1176,22 +1297,23 @@ $classes = array (
       array (
       ),
     ),
-    'SSL' => 
-    array (
-      'path' => '/lib/SSL.class.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
     'AbstractHtmlElement' => 
     array (
       'path' => '/lib/html/AbstractHtmlElement.class.php',
       'extends' => 
       array (
         0 => 'Object',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'SessionForm' => 
+    array (
+      'path' => '/lib/html/SessionForm.class.php',
+      'extends' => 
+      array (
+        0 => 'Form',
       ),
       'implements' => 
       array (
@@ -1214,6 +1336,17 @@ $classes = array (
       'extends' => 
       array (
         0 => 'AbstractHtmlInput',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'ColumnCheckboxes' => 
+    array (
+      'path' => '/lib/html/inputs/ColumnCheckboxes.class.php',
+      'extends' => 
+      array (
+        0 => 'Checkboxes',
       ),
       'implements' => 
       array (
@@ -1616,22 +1749,23 @@ $classes = array (
       array (
       ),
     ),
+    'RegexpValidator' => 
+    array (
+      'path' => '/lib/html/validators/RegexpValidator.class.php',
+      'extends' => 
+      array (
+        0 => 'AbstractHtmlValidator',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'AbstractHtmlValidator' => 
     array (
       'path' => '/lib/html/validators/AbstractHtmlValidator.class.php',
       'extends' => 
       array (
         0 => 'Object',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'StringTools' => 
-    array (
-      'path' => '/lib/StringTools.class.php',
-      'extends' => 
-      array (
       ),
       'implements' => 
       array (
@@ -1742,9 +1876,9 @@ $classes = array (
       array (
       ),
     ),
-    'FloatTools' => 
+    'WidgetHelper' => 
     array (
-      'path' => '/lib/FloatTools.class.php',
+      'path' => '/lib/Widget/WidgetHelper.class.php',
       'extends' => 
       array (
       ),
@@ -1912,16 +2046,6 @@ $classes = array (
       array (
       ),
     ),
-    'ArrayTools' => 
-    array (
-      'path' => '/lib/ArrayTools.class.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
     'XhprofProfiler' => 
     array (
       'path' => '/lib/XhprofProfiler.class.php',
@@ -1955,6 +2079,17 @@ $classes = array (
       array (
       ),
     ),
+    'DefaultWebAction' => 
+    array (
+      'path' => '/lib/web/DefaultWebAction.class.php',
+      'extends' => 
+      array (
+        0 => 'ActionModul',
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
     'WebAction' => 
     array (
       'path' => '/lib/web/WebAction.class.php',
@@ -1980,6 +2115,76 @@ $classes = array (
     'Cron' => 
     array (
       'path' => '/lib/Cron.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'Git' => 
+    array (
+      'path' => '/lib/tools/Git.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'DateTools' => 
+    array (
+      'path' => '/lib/tools/DateTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FileTools' => 
+    array (
+      'path' => '/lib/tools/FileTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'StringTools' => 
+    array (
+      'path' => '/lib/tools/StringTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'FloatTools' => 
+    array (
+      'path' => '/lib/tools/FloatTools.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'BBCodeParser' => 
+    array (
+      'path' => '/lib/tools/BBCodeParser.class.php',
+      'extends' => 
+      array (
+      ),
+      'implements' => 
+      array (
+      ),
+    ),
+    'ArrayTools' => 
+    array (
+      'path' => '/lib/tools/ArrayTools.class.php',
       'extends' => 
       array (
       ),
@@ -2031,37 +2236,6 @@ $classes = array (
     '_' => 
     array (
       'path' => '/plugins/geshi/geshi/falcon.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'BBCodeParser' => 
-    array (
-      'path' => '/plugins/BBCodeParser.class.php',
-      'extends' => 
-      array (
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'ubbAdminParser' => 
-    array (
-      'path' => '/plugins/BBCodeParser.class.php',
-      'extends' => 
-      array (
-        0 => 'BBCodeParser',
-      ),
-      'implements' => 
-      array (
-      ),
-    ),
-    'stackItem' => 
-    array (
-      'path' => '/plugins/BBCodeParser.class.php',
       'extends' => 
       array (
       ),
@@ -3920,7 +4094,7 @@ $classes = array (
     ),
     'Widget' => 
     array (
-      'path' => '/lib/interfaces/Widget.class.php',
+      'path' => '/lib/Widget/Widget.class.php',
       'extends' => 
       array (
       ),
