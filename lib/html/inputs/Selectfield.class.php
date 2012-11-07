@@ -38,7 +38,7 @@ class Selectfield extends AbstractHtmlInput
  	public function __construct($name, $options, $selected = "", $label = "", $description = "", $class = "", $id = "") {
 
 		//Call normal construct but provide an empty value
-		parent::__construct($name, '', $label, $description, $class, $id);
+		parent::__construct($name, null, $label, $description, $class, $id);
 		//Add our select options
 		$this->add_options($options, $selected);
 	}
@@ -114,14 +114,14 @@ class Selectfield extends AbstractHtmlInput
 
 		$value_checked = null;
 		$check_value = $this->config('value');
-
-		foreach ($this->options AS $input) {
-			if ($this->config('value') == $input['value']) {
-				$value_checked = $input['value'];
-				break;
+		if ($check_value !== false) {
+			foreach ($this->options AS $input) {
+				if ($check_value == $input['value']) {
+					$value_checked = $input['value'];
+					break;
+				}
 			}
 		}
-
 		foreach ($this->options AS $input) {
 			if (is_null($value_checked)) {
 				$input['selected'] = (($input['selected'] == true)) ? ' selected="selected"' : '';
