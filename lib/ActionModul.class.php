@@ -179,7 +179,7 @@ class ActionModul extends Object
 		$caller = array_shift($trace); //Get second stack trace
 
 		//If system/install calls this method return that everything worked well
-		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install_module") {
+		if (!empty($caller['class']) && $caller['class'] == "System" && $caller['function'] == "install_module") {
 			return true;
 		}
 
@@ -198,7 +198,7 @@ class ActionModul extends Object
 		unset($trace); //free memory
 
 		//If system/install calls this method return that everything worked well
-		if (!empty($caller['class']) && $caller['class'] == "system" && $caller['function'] == "install_module") {
+		if (!empty($caller['class']) && $caller['class'] == "System" && $caller['function'] == "install_module") {
 			return true;
 		}
 
@@ -296,7 +296,7 @@ class ActionModul extends Object
 		if (empty($message) || $message === NS) {
 			$message = t('Wrong params');
 		}
-		
+
 		$this->core->message($message, Core::MESSAGE_TYPE_ERROR);
 		if ($clear_output) {
 			$this->clear_output();
