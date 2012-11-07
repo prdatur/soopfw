@@ -305,7 +305,7 @@ class WebAction extends Object
 
 			$this->core->cache("core", "current_module", $this->current_action_module->modulname);
 
-			$parent = get_parent_class($modulname);
+			$parent = get_parent_class($load_class);
 			if ($parent != "ActionModul" && get_parent_class($parent) != "ActionModul") {
 				throw new SoopfwWrongParameterException();
 			}
