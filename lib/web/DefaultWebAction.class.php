@@ -17,18 +17,21 @@ class DefaultWebAction extends ActionModul
 	 * Display the default page.
 	 */
 	public function display() {
-		$template = 'frontpage.tpl';
-		if (!file_exists($this->smarty->get_tpl(true) . $template)) {
-			throw new SoopfwErrorException(t('Frontpage can not be determined'));
-		}
+		$template = $this->smarty->get_tpl(true) . 'frontpage.tpl';
 
 		/**
 		 * Provides hook: frontpage
 		 *
-		 * Allow other modules to do things before the frontpage is shown.
+		 * Allow other modules to do things before the frontpage is shown. also a module can change the static template file
+		 * to display the specific frontpage template.
+		 *
+		 * @param string &$template
+		 *   The template path which will be used.
 		 */
-		$this->core->hook('frontpage');
-
+		$this->core->hook('frontpage', array(&$template));
+		if (!file_exists($template)) {
+			throw new SoopfwErrorException(t('Frontpage can not be determined'));
+		}
 		$this->static_tpl = $template;
 	}
 }
