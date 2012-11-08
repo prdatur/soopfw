@@ -2,9 +2,6 @@
 <?php
 	/**
 	 * Executes a "clifs" command (Command line).
-	 * The name "clifs" was inspired by Drupal.
-	 * Beware you can not run commands with the Drupal command line tool "clifs".
-	 * You need to execute it with ./clifs
 	 */
 	if(preg_match("/^\//", $_SERVER['SCRIPT_FILENAME'])) {
        $path = $_SERVER['SCRIPT_FILENAME'];
@@ -12,15 +9,23 @@
     else {
         $path = $_SERVER['PWD']."/".$_SERVER['SCRIPT_FILENAME'];
     }
-    $path = str_replace("/./", "/", $path);
-    $path = str_replace("./", "/", $path);
-    preg_match("/(.*)\/[^\/]+/is", $path, $matches);
+	
+    $matches = array();
+    preg_match("/(.*)\/[^\/]+/is", str_replace("./", "/", str_replace("/./", "/", $path)), $matches);
 
     define("SITEPATH",$matches[1]);
 
     define("is_shell",true);
     define("CURRENT_TIME",time());
     define("BUILD_START",microtime(true));
+
+	/**
+	 * Special behavior if we want to generate the classlist, we need to copy our default classlist file
+	 * to always have really all required classes
+	 */
+	if (in_array('--generate_classlist', $argv)) {
+		@copy(SITEPATH . '/config/classes.php.default', SITEPATH . '/config/classes.php');
+	}
 
     require("lib/Core.php");
 	$core = Core::get_instance(true);
