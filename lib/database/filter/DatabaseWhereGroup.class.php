@@ -25,8 +25,9 @@ class DatabaseWhereGroup extends Object
 	private $type = "AND";
 
 	/**
-	 * The grouped conditions
-	 * @var Array
+	 * The grouped conditions.
+	 * 
+	 * @var array
 	 */
 	private $conditions = array();
 
