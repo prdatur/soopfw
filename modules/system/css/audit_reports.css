@@ -1,0 +1,73 @@
+table.ui-widget tbody .log_level_1 td {
+	background-color: #ececec;
+}
+
+table.ui-widget tbody .log_level_2 td,
+table.ui-widget tbody .log_level_2:nth-child(2n+1) td {
+	background-color: #ABE19F;
+}
+
+table.ui-widget tbody .log_level_2:hover td,
+table.ui-widget tbody .log_level_2:nth-child(2n+1):hover td {
+	background-color: #8DCC80;
+}
+
+table.ui-widget tbody .log_level_3 td,
+table.ui-widget tbody .log_level_3:nth-child(2n+1) td {
+	background-color: #faf6cf;
+}
+
+table.ui-widget tbody .log_level_3:hover td,
+table.ui-widget tbody .log_level_3:nth-child(2n+1):hover td {
+	background-color: #E1DB9F;
+}
+
+table.ui-widget tbody .log_level_4 td,
+table.ui-widget tbody .log_level_4:nth-child(2n+1) td {
+	background-color: #f4d8a7;
+}
+
+table.ui-widget tbody .log_level_4:hover td,
+table.ui-widget tbody .log_level_4:nth-child(2n+1):hover td {
+	background-color: #E8C280;
+}
+
+table.ui-widget tbody .log_level_5 td,
+table.ui-widget tbody .log_level_5:nth-child(2n+1) td {
+	background-color: #eb996d;
+}
+
+table.ui-widget tbody .log_level_5:hover td,
+table.ui-widget tbody .log_level_5:nth-child(2n+1):hover td {
+	background-color: #DD804E;
+}
+
+table.ui-widget tbody .log_level_6 td a:link,
+table.ui-widget tbody .log_level_6 td a:visited,
+table.ui-widget tbody .log_level_6 td a:active,
+table.ui-widget tbody .log_level_6 td .ui-widget-content td a,
+table.ui-widget tbody .log_level_6 td .linktext,
+table.ui-widget tbody .log_level_6 td a:hover,
+table.ui-widget tbody .log_level_6 td .linktext:hover,
+table.ui-widget tbody .log_level_6 td .hover {
+	color: #BBCDD4;
+}
+
+table.ui-widget tbody .log_level_6 td,
+table.ui-widget tbody .log_level_6:nth-child(2n+1) td {
+	background-color: #ab0d0f;
+	color: #FFFFFF;
+}
+
+table.ui-widget tbody .log_level_6:hover td,
+table.ui-widget tbody .log_level_6:nth-child(2n+1):hover td {
+	background-color: #d8292b;
+	color: #FFFFFF;
+}
+
+table.ui-widget tbody .log_level td,
+table.ui-widget tbody .log_level:hover td,
+table.ui-widget tbody .log_level:nth-child(2n+1) td,
+table.ui-widget tbody .log_level:nth-child(2n+1):hover td{
+	background-image: none;
+}

@@ -60,6 +60,11 @@ class System extends ActionModul
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
+						'#title' => t("Audit reports"), //The main title
+						'#link' => "/admin/system/audit_reports", // The main link
+						'#perm' => "admin.system.view_audit_reports", // perms needed
+					),
+					array(
 						'#title' => t("Modules"), //The main title
 						'#link' => "/admin/system/modules", // The main link
 						'#perm' => 'admin.system.modules', //Perm needed
@@ -181,6 +186,90 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$this->clear_output();
 	}
+
+	/**
+	 * Action: audit_reports
+	 *
+	 * Displays audit reports.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
+	public function audit_reports() {
+		if (!$this->right_manager->has_perm('admin.system.view_audit_reports')) {
+			throw new SoopfwNoPermissionException();
+		}
+
+		$this->title(t('Audit reports'), t('Within this page you can show the last reports.
+		If you encounter any emergency entries your should REALLY react immediately.'));
+		// Create the filter to select our log entries.
+		$filter = DatabaseFilter::create(SystemLogObj::TABLE);
+
+		//Setup search form
+		$form = new SessionForm("search_audit_reports", t("Filter:"));
+		$form->add(new Selectfield("log_level", array(
+			'' => t('All'),
+			SystemLogObj::LEVEL_DEBUG => t('Debug'),
+			SystemLogObj::LEVEL_NOTICE => t('Normal'),
+			SystemLogObj::LEVEL_WARNING => t('Warning'),
+			SystemLogObj::LEVEL_ALERT => t('Alert'),
+			SystemLogObj::LEVEL_CRITICAL => t('Critical'),
+			SystemLogObj::LEVEL_EMERGENCY => t('Emergency'),
+		), '', t('Severity')));
+
+		$form->add(new Textfield("username", '', t('User'), t('You can provide the username or the user id.')));
+		$form->add(new Textfield("message", '', t('Message')));
+
+		// Set the button text.
+		$form->set_submit_button_title(t('Search'));
+
+		//Check form and add errors if form is not valid
+		$form->check_form();
+
+		// Fill the database filter.
+		foreach ($form->get_values() AS $field => $val) {
+			if (empty($val)) {
+				continue;
+			}
+
+			if ($field == 'username') {
+				if (is_numeric($val)) {
+					$filter->add_where('uid', $val);
+				}
+				else {
+					$filter->join(UserObj::TABLE, 'u.user_id = `' . SystemLogObj::TABLE . '`.uid', 'u');
+					$filter->add_where('username', $this->db->get_sql_string_search($val, "*.*", false), 'LIKE', 'u');
+				}
+			}
+			else {
+				$filter->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');
+			}
+		}
+
+		// Setup pager.
+		$pager = new Pager(50);
+		$pager->link_with_database_filter($filter);
+		$pager->assign_smarty();
+
+		$filter->order_by('date', DatabaseFilter::DESC);
+		$filter->order_by('log_level', DatabaseFilter::DESC);
+
+		$entries = array();
+		foreach ($filter->select_all() AS $entry) {
+			// Try read the username.
+			$entry['username'] = 'anonymous';
+			$user = new UserObj($entry['uid']);
+			if ($user->load_success()) {
+				$entry['username'] = '<a href="/admin/user/edit/' . $user->user_id . '" target="_blank">' . $user->username . '</a>';
+			}
+
+			$entries[] = $entry;
+		}
+
+
+		// Assign the found entries.
+		$this->smarty->assign_by_ref('entries', $entries);
+	}
+
 	/**
 	 * Displays information about a web unit test request.
 	 *
