@@ -17,7 +17,7 @@ class SystemLogObj extends AbstractDataManagement
 	/**
 	 * Define log levels
 	 */
-	const LEVEL_DEBUG = 0;
+	const LEVEL_DEBUG = -1;
 	const LEVEL_NOTICE = 1;
 	const LEVEL_NORMAL = 2;
 	const LEVEL_WARNING = 3;
@@ -41,7 +41,7 @@ class SystemLogObj extends AbstractDataManagement
 		$this->db_struct->add_reference_key("id");
 		$this->db_struct->add_field("id", t("ID"), PDT_STRING, md5(uniqid()), '32');
 		$this->db_struct->add_field("type", t("The type"), PDT_STRING, 'core');
-		$this->db_struct->add_field("log_level", t("The log level"), PDT_INT, self::LEVEL_NORMAL, 'UNSIGNED');
+		$this->db_struct->add_field("log_level", t("The log level"), PDT_TINYINT, self::LEVEL_NORMAL);
 		$this->db_struct->add_field("uid", t("The user id"), PDT_INT, $this->session->current_user()->user_id, 'UNSIGNED');
 		$this->db_struct->add_field("date", t("The log date"), PDT_DATETIME, date(DB_DATETIME));
 		$this->db_struct->add_field("ip", t("The users ip"), PDT_STRING, NetTools::get_real_ip());
