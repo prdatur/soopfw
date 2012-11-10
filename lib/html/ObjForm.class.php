@@ -14,7 +14,7 @@ class ObjForm extends Form
 
 	/**
 	 * The object to parse
-	 * @var AbstractDataManagment
+	 * @var AbstractDataManagement
 	 */
 	private $object = null;
 
@@ -37,7 +37,7 @@ class ObjForm extends Form
 	 * @param boolean $force_load_success
 	 *   Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
 	 */
- 	public function __construct(AbstractDataManagment &$obj, $title = "", $element_config = array(), $force_load_success = false) {
+ 	public function __construct(AbstractDataManagement &$obj, $title = "", $element_config = array(), $force_load_success = false) {
 
 		//Init parent construct and provde the form_{table} as the form name
 		parent::__construct("form_".$obj->get_dbstruct()->get_table(), $title);
@@ -63,7 +63,7 @@ class ObjForm extends Form
 	/**
 	 * returns the object
 	 *
-	 * @return AbstractDataManagment the object
+	 * @return AbstractDataManagement the object
 	 */
 	public function &get_object() {
 		return $this->object;
@@ -72,10 +72,10 @@ class ObjForm extends Form
 	/**
 	 * Sets the Object
 	 *
-	 * @param AbstractDataManagment $obj
+	 * @param AbstractDataManagement $obj
 	 *   the object
 	 */
-	public function set_object(AbstractDataManagment &$obj) {
+	public function set_object(AbstractDataManagement &$obj) {
 		$this->object = $obj;
 	}
 

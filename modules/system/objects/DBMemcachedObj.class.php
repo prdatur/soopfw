@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class DBMemcachedObj extends AbstractDataManagment
+class DBMemcachedObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

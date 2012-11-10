@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class ContentTypeViewObj extends AbstractDataManagment
+class ContentTypeViewObj extends AbstractDataManagement
 {
 
 	/**

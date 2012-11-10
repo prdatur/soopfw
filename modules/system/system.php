@@ -748,7 +748,7 @@ class System extends ActionModul
 			if (empty($result)) {
 				//Get the object which we want to create
 
-				/* @var $mobj AbstractDataManagment */
+				/* @var $mobj AbstractDataManagement */
 				$mobj = new $obj();
 
 				if ($mobj->get_dbstruct()->autoupdate_disabled()) {

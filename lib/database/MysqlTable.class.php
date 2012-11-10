@@ -225,7 +225,7 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 		return $line;
 	}
 
-	public function create_database_from_object(AbstractDataManagment $obj) {
+	public function create_database_from_object(AbstractDataManagement $obj) {
 		$struct = $obj->get_dbstruct();
 
 		$ref = $rows = array();

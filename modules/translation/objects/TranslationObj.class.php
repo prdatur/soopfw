@@ -6,7 +6,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class TranslationObj extends AbstractDataManagment
+class TranslationObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

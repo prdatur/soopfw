@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class SystemLogObj extends AbstractDataManagment
+class SystemLogObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

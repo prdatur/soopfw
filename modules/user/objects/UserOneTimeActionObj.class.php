@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class UserOneTimeActionObj extends AbstractDataManagment
+class UserOneTimeActionObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

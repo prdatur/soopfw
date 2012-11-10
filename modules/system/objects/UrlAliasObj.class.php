@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class UrlAliasObj extends AbstractDataManagment
+class UrlAliasObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

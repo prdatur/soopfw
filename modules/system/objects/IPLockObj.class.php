@@ -9,7 +9,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class IPLockObj extends AbstractDataManagment
+class IPLockObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

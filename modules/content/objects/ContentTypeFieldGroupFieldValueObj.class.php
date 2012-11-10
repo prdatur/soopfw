@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagment
+class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

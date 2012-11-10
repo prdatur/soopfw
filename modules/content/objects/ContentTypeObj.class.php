@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class ContentTypeObj extends AbstractDataManagment
+class ContentTypeObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

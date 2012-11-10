@@ -6,7 +6,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class MailTemplateObj extends AbstractDataManagment
+class MailTemplateObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

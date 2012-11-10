@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class MenuEntryObj extends AbstractDataManagment
+class MenuEntryObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

@@ -9,7 +9,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class CoreModulConfigObj extends AbstractDataManagment
+class CoreModulConfigObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

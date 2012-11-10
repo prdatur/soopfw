@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class MimeTypeObj extends AbstractDataManagment
+class MimeTypeObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

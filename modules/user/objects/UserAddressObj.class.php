@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class UserAddressObj extends AbstractDataManagment
+class UserAddressObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

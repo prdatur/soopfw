@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class PageObj extends AbstractDataManagment
+class PageObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

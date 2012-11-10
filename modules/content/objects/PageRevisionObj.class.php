@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class PageRevisionObj extends AbstractDataManagment {
+class PageRevisionObj extends AbstractDataManagement {
 	/**
 	 * Define constances
 	 */

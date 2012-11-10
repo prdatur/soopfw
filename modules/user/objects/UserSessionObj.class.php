@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class UserSessionObj extends AbstractDataManagment
+class UserSessionObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

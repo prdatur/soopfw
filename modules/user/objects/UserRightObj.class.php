@@ -7,7 +7,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class UserRightObj extends AbstractDataManagment
+class UserRightObj extends AbstractDataManagement
 {
 	/**
 	 * Define constances

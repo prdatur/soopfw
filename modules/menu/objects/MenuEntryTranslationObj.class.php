@@ -8,7 +8,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category ModelObjects
  */
-class MenuEntryTranslationObj extends AbstractDataManagment
+class MenuEntryTranslationObj extends AbstractDataManagement
 {
 
 	/**
