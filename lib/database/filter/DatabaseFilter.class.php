@@ -206,7 +206,7 @@ class DatabaseFilter extends Object
 
 	/**
 	 * Clears previous added fields.
-	 * 
+	 *
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &clear_columns() {
@@ -483,7 +483,7 @@ class DatabaseFilter extends Object
 		if (preg_match('/^[a-z_]+$/', $field)) {
 			$field = "`" . $field . "`";
 		}
-		$this->order_by[] = $table . $field . ' ' . $direction;
+		$this->order_by[$table.$field] = $table . $field . ' ' . $direction;
 		return $this;
 	}
 
