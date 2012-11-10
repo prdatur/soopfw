@@ -106,7 +106,6 @@ class System extends ActionModul
 	public function hook_cron(Cron &$cron) {
 		// Get the intervall when the solr index actions will be committed
 		$runtime = (int)$this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60);
-		echo $runtime;die();
 		if (!empty($runtime)) {
 			// Get the day of the year.
 			$day_of_year = (int) date('z', TIME_NOW);
