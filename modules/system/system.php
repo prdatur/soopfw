@@ -924,8 +924,7 @@ class System extends ActionModul
 						$this->db->alter_table_queue($table);
 						$msg = "DB Table already exists or now up to date: " . $obj;
 						$type = Core::MESSAGE_TYPE_SUCCESS;
-
-						$module_info_obj->classname = $obj;
+						$module_info_obj = new CoreModelObjectObj($obj);
 						$module_info_obj->last_modified = filemtime(SITEPATH . '/modules/' . $module . '/objects/' . $obj . '.class.php');
 						$module_info_obj->save_or_insert();
 					}
@@ -960,7 +959,7 @@ class System extends ActionModul
 			}
 		}
 		$classname_module = WebAction::generate_classname($module);
-		
+
 		//Check if we are on a fresh module install or do just an update
 		$module_object = new $classname_module();
 		$modul_config = new ModulConfigObj($module);
