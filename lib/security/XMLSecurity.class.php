@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Encrypt and decrypt data, design and verify xml data,
+ * Sign and verify xml data,
  * requried the installing libxmlsec from http://www.aleksey.com/xmlsec
  *
  * Notice: This class needs the php extension "SimpleXML"
