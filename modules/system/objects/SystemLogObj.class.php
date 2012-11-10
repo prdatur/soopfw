@@ -29,7 +29,7 @@ class SystemLogObj extends AbstractDataManagement
 	 * Constructor
 	 *
 	 * @param int $id
-	 *   the alias id (optional, default = '')
+	 *   the id (optional, default = '')
 	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
