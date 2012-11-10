@@ -60,11 +60,6 @@ class System extends ActionModul
 						'#perm' => "admin.system.config", // perms needed
 					),
 					array(
-						'#title' => t("Email templates check"), //The main title
-						'#link' => "/admin/system/email_templates22", // The main link
-						'#perm' => "adminf.system.config", // perms needed
-					),
-					array(
 						'#title' => t("Modules"), //The main title
 						'#link' => "/admin/system/modules", // The main link
 						'#perm' => 'admin.system.modules', //Perm needed
