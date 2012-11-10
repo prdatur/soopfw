@@ -75,22 +75,22 @@ class cli_run_tests extends CLICommand
 			$tester = new UnitTestRunner();
 			$logs = $tester->run_tests($test);
 
-			CliHelper::console_log(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
-			CliHelper::console_log(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			$this->core->message(t('Complete tests executed: @num', array('@num' => $tester->failed_tests+$tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
+			$this->core->message(t('Tests passed: @num', array('@num' => $tester->passed_tests)), Core::MESSAGE_TYPE_SUCCESS);
 			if ($tester->failed_tests > 0) {
-				CliHelper::console_log(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
-				CliHelper::console_log('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
+				$this->core->message(t('Tests failed: @num', array('@num' => $tester->failed_tests)), Core::MESSAGE_TYPE_ERROR);
+				$this->core->message('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
 			}
 
 			foreach ($logs AS $entry) {
 				/* @var $entry UnitTestLog */
 				if ($entry->passed !== true) {
-					CliHelper::console_log('At file: ' . $entry->file . ', line: ' . $entry->line, Core::MESSAGE_TYPE_ERROR);
-					CliHelper::console_log('Test: ' . $entry->class. '->' . $entry->function . '()', Core::MESSAGE_TYPE_ERROR);
+					$this->core->message('At file: ' . $entry->file . ', line: ' . $entry->line, Core::MESSAGE_TYPE_ERROR);
+					$this->core->message('Test: ' . $entry->class. '->' . $entry->function . '()', Core::MESSAGE_TYPE_ERROR);
 					echo "\n";
-					CliHelper::console_log($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
-					CliHelper::console_log($entry->message, Core::MESSAGE_TYPE_ERROR);
-					CliHelper::console_log('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
+					$this->core->message($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
+					$this->core->message($entry->message, Core::MESSAGE_TYPE_ERROR);
+					$this->core->message('---------------------------------------------------------------------------------', Core::MESSAGE_TYPE_ERROR);
 					echo "\n";
 				}
 			}
@@ -104,7 +104,7 @@ class cli_run_tests extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		CliHelper::console_log('Test complete', 'ok');
+		$this->core->message('Test complete', Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }

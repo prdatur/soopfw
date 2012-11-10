@@ -85,6 +85,11 @@ class System extends ActionModul
 								'#link' => "/admin/system/generate_smartylist", // The main link
 								'#perm' => "admin.system.config", // perms needed
 							),
+							array(
+								'#title' => t("Run cron"), //The main title
+								'#link' => "/admin/system/run_cron", // The main link
+								'#perm' => "admin.system.config", // perms needed
+							),
 						),
 					),
 				)
@@ -118,6 +123,59 @@ class System extends ActionModul
 		}
 	}
 
+	/**
+	 * Implements hook: core_assign_default_vars
+	 *
+	 * Allow other modules to do things before all default vars will be assigned
+	 * Usefull for adding javascript files for assign smarty values
+	 */
+	public function hook_core_assign_default_vars() {
+		if ($this->core->get_dbconfig('system', 'core_run', 0) == 0 && $this->right_manager->has_perm('admin.system.config')) {
+			$this->core->message(t('The SoopFw cronjob was never run. In order to enable the cronjob please referer to the INSTALL.txt.
+This message will disappear after the first cronjob runs. If you really do not want to create the cronjob you can click on this !link to deactivate this message', array(
+	'!link' => '<a href="/system/deactivate_cron_message">' . t('link') . '</a>',
+)), Core::MESSAGE_TYPE_NOTICE);
+		}
+	}
+
+	/**
+	 * Action: deactivate_cron_message
+	 *
+	 * Will deactivate the missing cronjob notification.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
+	public function deactivate_cron_message() {
+		if (!$this->right_manager->has_perm('admin.system.config')) {
+			throw new SoopfwNoPermissionException();
+		}
+		if ($this->core->get_dbconfig('system', 'core_run', 0) == 1) {
+			$this->core->message(t('The cronjob notice is already hidden.'), Core::MESSAGE_TYPE_NOTICE);
+		}
+		else {
+			$this->core->message(t('Cronjob notice is now hidden.'), Core::MESSAGE_TYPE_SUCCESS);
+		}
+		$this->core->dbconfig('system', 'core_run', 1);
+		$this->clear_output();
+	}
+
+	/**
+	 * Action: run_cron
+	 *
+	 * Will manually run the cron scrpt.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
+	public function run_cron() {
+		if (!$this->right_manager->has_perm('admin.system.config')) {
+			throw new SoopfwNoPermissionException();
+		}
+
+		$cron = new cli_cron();
+		$cron->start();
+
+		$this->clear_output();
+	}
 	/**
 	 * Displays information about a web unit test request.
 	 *

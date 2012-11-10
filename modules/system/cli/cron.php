@@ -22,6 +22,11 @@ class cli_cron extends CLICommand
 	 */
 	public function execute() {
 
+		// Set the flag that cronjob was executed, this will disable the warning that the page did not setup a cronjob.
+		if ($this->core->get_dbconfig('system', 'core_run', 0) == 0) {
+			$this->core->dbconfig('system', 'core_run', 1);
+		}
+
 		$cron = new Cron();
 
 		/**

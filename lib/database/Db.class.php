@@ -508,7 +508,7 @@ class Db
 				echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
 			}
 			else {
-				CliHelper::console_log($query_string);
+				$this->core->message($query_string);
 			}
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
 				$sql = @mysql_query("EXPLAIN " . $query_string, $this->link_id);
@@ -526,7 +526,7 @@ class Db
 					echo "</div>";
 				}
 				else {
-					CliHelper::console_log($res);
+					$this->core->message($res);
 				}
 			}
 		}

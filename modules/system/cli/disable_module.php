@@ -35,12 +35,12 @@ class cli_disable_module extends CLICommand
 			}
 		}
 		if (empty($module)) {
-			CliHelper::console_log('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user', Core::MESSAGE_TYPE_ERROR);
+			$this->core->message('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user', Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 		$module_conf = new ModulConfigObj($module);
 		if (!$module_conf->load_success()) {
-			CliHelper::console_log('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
+			$this->core->message('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 
@@ -53,7 +53,7 @@ class cli_disable_module extends CLICommand
 			}
 			echo $msg . "\n";
 			if (!CliHelper::get_boolean_input(t("Proceed with module disabling?"))) {
-				CliHelper::console_log(t('Module disabling aborted'), 'ok');
+				$this->core->message(t('Module disabling aborted'), Core::MESSAGE_TYPE_SUCCESS);
 				return false;
 			}
 		}
@@ -68,9 +68,9 @@ class cli_disable_module extends CLICommand
 				$dep_module_conf->save();
 				$permissions = SystemHelper::get_module_permissions($mod, true);
 				if (!empty($permissions)) {
-					CliHelper::console_log(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+					$this->core->message(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), Core::MESSAGE_TYPE_SUCCESS);
 				}
-				CliHelper::console_log(t('Module "@module" disabled', array("@module" => $val['name'])), 'ok');
+				$this->core->message(t('Module "@module" disabled', array("@module" => $val['name'])), Core::MESSAGE_TYPE_SUCCESS);
 			}
 		}
 
@@ -79,7 +79,7 @@ class cli_disable_module extends CLICommand
 
 		$permissions = SystemHelper::get_module_permissions($module, true);
 		if (!empty($permissions)) {
-			CliHelper::console_log(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), 'ok');
+			$this->core->message(t("The following rights were removed:\n!rights", array("!rights" => implode("\n", $permissions))), Core::MESSAGE_TYPE_SUCCESS);
 		}
 		return true;
 	}
@@ -89,7 +89,7 @@ class cli_disable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		CliHelper::console_log('Module disabled.', 'ok');
+		$this->core->message('Module disabled.', Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }
