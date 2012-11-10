@@ -126,6 +126,18 @@ class Pager extends Object
 	}
 
 	/**
+	 * Direct manipulate the provided filter to setup the limit and offset.
+	 *
+	 * @param DatabaseFilter $filter
+	 *   The database filter which will be manipulated to use this filter.
+	 */
+	public function link_with_database_filter(DatabaseFilter &$filter) {
+		$this->set_entry_count($filter->select_count());
+		$filter->limit($this->max_entries_per_page());
+		$filter->offset($this->get_offset());
+	}
+
+	/**
 	 * Set the complete entries count.
 	 *
 	 * @param int $entries
