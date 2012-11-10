@@ -43,12 +43,18 @@ class User extends ActionModul
 	const LOST_PW_TYPE_ONE_TIME_ACCESS = 3;
 
 	/**
-	 * Implementation of get_admin_menu()
+	 * Implements hook: admin_menu
+	 *
+	 * Returns an array which includes all links and childs for the admin menu.
+	 * There are some special categories in which the module can be injected.
+	 * The following categories are current supported:
+	 *   style, security, content, structure, authentication, system, other
+	 *
 	 * @return array the menu
 	 */
-	public function get_admin_menu() {
+	public function hook_admin_menu() {
 		return array(
-			999 => array(//Order id, same order ids will be unsorted placed behind each
+			AdminMenu::CATEGORY_AUTHENTICATION => array(
 				'#id' => 'soopfw_user', //A unique id which will be needed to generate the submenu
 				'#title' => t("User"), //The main title
 				'#link' => "/admin/user", // The main link

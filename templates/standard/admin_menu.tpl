@@ -21,12 +21,10 @@
 <div id="admin_menu" class="jqueryslidemenu clearfix">
 <ul>
 <%$firstentry=true%>
-<%foreach $admin_menu as $tmpentry%>
-<%foreach $tmpentry as $entry%>
+<%foreach $admin_menu as $entry%>
 	<li><a href="<%$entry['#link']%>" class="menulink<%if $firstentry == true%> first_menu_entry<%$firstentry=false%><%/if%>"><%$entry['#title']%></a>
 <%admin_sub_menu data=$entry['#childs'] id=$entry['#id']%>
 	</li>
-<%/foreach%>
 <%/foreach%>
 	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$logout_url%>" style="border:0px;padding: 6px 10px;"><%t key='Logout'%><img src="/1x1_spacer.gif" style="margin-left: 4px;" class="ui-icon-soopfw ui-icon-soopfw-cancel" /></a></li>
 	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$profile_url%>" style="border:0px;"><%t key='My account'%></a></li>

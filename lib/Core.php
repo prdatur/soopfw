@@ -233,6 +233,13 @@ class Core
 	public $modules = array();
 
 	/**
+	 * Holds all enabled modules.
+	 *
+	 * @var array
+	 */
+	public $enabled_modules = array();
+
+	/**
 	 * The run mode.
 	 *
 	 * @var string
@@ -552,6 +559,9 @@ class Core
 			foreach ($dir AS $directory) {
 				if (file_exists(SITEPATH . "/modules/" . $directory->filename . "/" . $directory->filename . ".php")) {
 					$this->modules[$directory->filename] = $directory->filename;
+					if ($this->module_enabled($directory->filename)) {
+						$this->enabled_modules[$directory->filename] = $directory->filename;
+					}
 				}
 			}
 
@@ -1113,61 +1123,9 @@ class Core
 	 */
 	public function assign_menus() {
 
-		$menu = array();
-		if ($this->right_manager->has_perm("admin.user.show_admin_menu", false)) {
-			$modules = $this->modules;
-			$modules[] = "system";
-
-			//loop through all modules
-			foreach ($this->modules AS $module) {
-
-				//If module is not enabled continue (system module is always be enabled)
-				if ($module != "system" && !$this->module_enabled($module)) {
-					continue;
-				}
-
-				$module = WebAction::generate_classname($module);
-
-				//Load the module and check if it has the get_admin_menu method
-				$module_obj = new $module();
-				if (!method_exists($module_obj, "get_admin_menu")) {
-					continue;
-				}
-
-				//Get the menu (key = order of this menu, value = menu_entries)
-				$tmpmenu = $module_obj->get_admin_menu();
-				if (empty($tmpmenu)) {
-					continue;
-				}
-				$index = key($tmpmenu);
-				//Get the menu entries for the menu
-				$currentmenu = current($tmpmenu);
-
-
-				//Check permissions if #perm key exists
-				if (isset($currentmenu['#perm'])) {
-					if (!$this->get_session()->is_logged_in() || !$this->get_right_manager()->has_perm($currentmenu['#perm'])) {
-						continue;
-					}
-				}
-
-				//Check permissions on subentries
-				if (isset($currentmenu['#childs'])) {
-					$this->unset_menu_entries_with_no_permission($currentmenu);
-				}
-
-				//Init the menu with the current order index
-				if (!isset($menu[$index])) {
-					$menu[$index] = array();
-				}
-				//Add the menu
-				$menu[$index][] = $currentmenu;
-			}
-
-			ksort($menu);
-			$this->smarty->assign_by_ref("admin_menu", $menu);
-		}
-
+		// Get the admin menu.
+		$admin_menu = new AdminMenu();
+		$admin_menu->get();
 
 		$current_module = $this->cache("core", "current_module");
 
@@ -1175,10 +1133,12 @@ class Core
 			$menu_obj = new MenuObj($current_module);
 			if (!$menu_obj->load_success()) {
 				$menu_obj = new MenuObj("main_menu");
+				$current_module = 'main_menu';
 			}
 		}
 		else {
 			$menu_obj = new MenuObj("main_menu");
+			$current_module = 'main_menu';
 		}
 
 		$alter_menus = array();
@@ -1198,7 +1158,7 @@ class Core
 		 *   An array with a flat list of additional menu entries.
 		 *   the tree will be parsed from parent_id which are based up on entry_id
 		 */
-		foreach ($this->hook('alter_menu', array('main_menu')) AS $alter_menu) {
+		foreach ($this->hook('alter_menu', array($current_module)) AS $alter_menu) {
 			$alter_menus = array_merge_recursive($alter_menus, $alter_menu);
 		}
 
@@ -1772,7 +1732,7 @@ class Core
 
 		if ($cache == null) {
 			$cache = array();
-			foreach ($this->modules AS $module) {
+			foreach ($this->enabled_modules AS $module) {
 				$module = WebAction::generate_classname($module);
 				if (class_exists($module)) {
 					$class = new ReflectionClass($module);

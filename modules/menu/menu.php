@@ -13,12 +13,18 @@ class Menu extends ActionModul
 	protected $default_methode = "overview";
 
 	/**
-	 * Implementation of get_admin_menu()
+	 * Implements hook: admin_menu
+	 *
+	 * Returns an array which includes all links and childs for the admin menu.
+	 * There are some special categories in which the module can be injected.
+	 * The following categories are current supported:
+	 *   style, security, content, structure, authentication, system, other
+	 *
 	 * @return array the menu
 	 */
-	public function get_admin_menu() {
+	public function hook_admin_menu() {
 		return array(
-			888 => array(//Order id, same order ids will be unsorted placed behind each
+			AdminMenu::CATEGORY_STRUCTURE => array(
 				'#id' => 'soopfw_menu', //A unique id which will be needed to generate the submenu
 				'#title' => t("Menu"), //The main title
 				'#link' => "/admin/menu", // The main link
