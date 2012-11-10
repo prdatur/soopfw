@@ -24,6 +24,7 @@ class System extends ActionModul
 	const CONFIG_RECAPTCHA_PUPLIC_KEY = "recaptcha_public_key";
 	const CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE = "default_upload_max_file_size";
 	const CONFIG_RUN_MODE = "system_run_mode";
+	const CONFIG_AUDIT_LOG_ROTATE = "audit_log_rotate";
 
 	/**
 	 * The default method
@@ -89,6 +90,33 @@ class System extends ActionModul
 				)
 			)
 		);
+	}
+
+	/**
+	 * Implements hook: cron
+	 *
+	 * Allow other modules to run cron's
+	 *
+	 * @param Cron $cron
+	 *   A cron object.
+	 *   So we don't need to initialize this object within every hook
+	 *   to use it.
+	 *   Its just a helper for performance
+	 */
+	public function hook_cron(Cron &$cron) {
+		// Get the intervall when the solr index actions will be committed
+		$runtime = (int)$this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60);
+		echo $runtime;die();
+		if (!empty($runtime)) {
+			// Get the day of the year.
+			$day_of_year = (int) date('z', TIME_NOW);
+
+			// First modula to check if we are within the correct day, than check the hour and minute to prevent double
+			// rotation within the same "correct" day.
+			if (($day_of_year % $runtime) === 0 && (date('H:i', TIME_NOW) == '03:01')) {
+				AuditLogRotator::rotate();
+			}
+		}
 	}
 
 	/**
@@ -448,6 +476,7 @@ class System extends ActionModul
 				return true;
 			})
 		));
+		$form->add(new Textfield(self::CONFIG_AUDIT_LOG_ROTATE, (int)$this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60), t("Audit log rotate (every X days)"), t('At which period should the audit log be rotated? Value are days')));
 
 		$form->add(new Fieldset('system', t('System')));
 		if (!empty($this->lng)) {
@@ -488,7 +517,6 @@ class System extends ActionModul
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Default upload max size"), t('Determines the default maximun size of uploaded files')));
-
 
 		//Execute the settings form
 		$form->execute();
