@@ -39,6 +39,7 @@ abstract class AbstractModelExporter extends Object
 	 * @throws SoopfwWrongParameterException
 	 */
 	public function __construct($model_class) {
+		parent::__construct();
 		if (!class_exists($model_class)) {
 			throw new SoopfwWrongParameterException(t('Unknown model class'));
 		}

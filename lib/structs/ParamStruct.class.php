@@ -17,6 +17,9 @@ class ParamStruct extends Object
 	const CHECK_TYPE_REQUIRED = 0;
 	const CHECK_TYPE_ISSET = 0;
 
+	/**
+	 * Define fill types.
+	 */
 	const FILL_FROM_POST = 2;
 	const FILL_FROM_GET = 1;
 	const FILL_FROM_GP = 0;
@@ -73,7 +76,7 @@ class ParamStruct extends Object
 	 * @param string $submit_name
 	 *   The submit name (optional, default = NS)
 	 */
- 	public function __construct($submit_name = NS) {
+	public function __construct($submit_name = NS) {
 		parent::__construct();
 		$this->submit_name = $submit_name;
 	}
@@ -334,9 +337,9 @@ class ParamStruct extends Object
 	 *   Map the parameter to another name (optional, default = '')
 	 */
 	public function add_isset_param($name, $typ, $map_as = "") {
-		switch ((int)$typ) {
+		switch ((int) $typ) {
 			case T_FILE:
-				trigger_error("ParamStruct::addIssetParam() : ".$typ." is unsuppoerted for this function, use Required or just addParam instead", E_USER_ERROR);
+				trigger_error("ParamStruct::addIssetParam() : " . $typ . " is unsuppoerted for this function, use Required or just addParam instead", E_USER_ERROR);
 				exit();
 		}
 		$this->add_param($name, $typ, '', $map_as);
@@ -452,8 +455,8 @@ class ParamStruct extends Object
 			}
 			$this->__set($k, $v);
 
-			if(isset($this->validators[$k])) {
-				foreach($this->validators[$k] AS &$validator) {
+			if (isset($this->validators[$k])) {
+				foreach ($this->validators[$k] AS &$validator) {
 					$validator->set_value($v);
 				}
 			}
@@ -480,29 +483,30 @@ class ParamStruct extends Object
 	 * @return mixed returns the value parsed to the given type
 	 */
 	private function parse_value($value, $type) {
-		switch ((int)$type) {
-			case PDT_ENUM :
-			case PDT_TEXT :
-			case PDT_PASSWORD :
-			case PDT_LANGUAGE :
-			case PDT_LANGUAGE_ENABLED :
-			case PDT_STRING : return ''.trim($value);
-			case PDT_SQLSTRING : return ''.Db::safe(trim($value));
-			case PDT_JSON : return json_encode($value);
-			case PDT_TINYINT :
-			case PDT_SMALLINT :
-			case PDT_MEDIUMINT :
-			case PDT_BIGINT :
-			case PDT_INT : return (int)$value;
-			case PDT_BOOL : return ($value."" == "1" || $value."" == "true") ? true : false;
-			case PDT_DECIMAL :
-			case PDT_FLOAT : return (float)str_replace(",", ".", $value);
-			case PDT_FILE : return $value;
-			case PDT_ARR : return (is_array($value)) ? $value : array();
-			case PDT_DATE : return ($this->is_empty($value, $type)) ? '' : date(DB_DATE, strtotime($value));
-			case PDT_DATETIME : return ($this->is_empty($value, $type)) ? '' : date(DB_DATETIME, strtotime($value));
-			case PDT_TIME : return ($this->is_empty($value, $type)) ? '' : date(DB_TIME, strtotime($value));
-			default : return trim($value);
+		switch ((int) $type) {
+			case PDT_BLOB: return $value;
+			case PDT_ENUM:
+			case PDT_TEXT:
+			case PDT_PASSWORD:
+			case PDT_LANGUAGE:
+			case PDT_LANGUAGE_ENABLED:
+			case PDT_STRING: return '' . trim($value);
+			case PDT_SQLSTRING: return '' . Db::safe(trim($value));
+			case PDT_JSON: return json_encode($value);
+			case PDT_TINYINT:
+			case PDT_SMALLINT:
+			case PDT_MEDIUMINT:
+			case PDT_BIGINT:
+			case PDT_INT: return (int) $value;
+			case PDT_BOOL: return ($value . "" == "1" || $value . "" == "true") ? true : false;
+			case PDT_DECIMAL:
+			case PDT_FLOAT: return (float) str_replace(",", ".", $value);
+			case PDT_FILE: return $value;
+			case PDT_ARR: return (is_array($value)) ? $value : array();
+			case PDT_DATE: return ($this->is_empty($value, $type)) ? '' : date(DB_DATE, strtotime($value));
+			case PDT_DATETIME: return ($this->is_empty($value, $type)) ? '' : date(DB_DATETIME, strtotime($value));
+			case PDT_TIME: return ($this->is_empty($value, $type)) ? '' : date(DB_TIME, strtotime($value));
+			default: return trim($value);
 		}
 	}
 
@@ -520,43 +524,43 @@ class ParamStruct extends Object
 	 */
 	public function is_empty(&$value, $type) {
 
-		switch ((int)$type) {
+		switch ((int) $type) {
 			case T_FILE :
-					if (empty($value['size']) || empty($value['tmp_name'])) {
-						return true;
-					}
-					break;
+				if (empty($value['size']) || empty($value['tmp_name'])) {
+					return true;
+				}
+				break;
 			case PDT_INT:
 			case PDT_FLOAT:
-					if (empty($value) && $value."" != "0") {
-						return true;
-					}
-					break;
+				if (empty($value) && $value . "" != "0") {
+					return true;
+				}
+				break;
 			case PDT_DATETIME:
-					if (empty($value) || $value == "1970-01-01 01:00:00" || $value == "1970-01-01 00:00:00") {
-						return true;
-					}
-					break;
+				if (empty($value) || $value == "1970-01-01 01:00:00" || $value == "1970-01-01 00:00:00") {
+					return true;
+				}
+				break;
 			case PDT_DATE:
-					if (empty($value) || $value == "1970-01-01" || $value == "1970-01-01") {
-						return true;
-					}
-					break;
+				if (empty($value) || $value == "1970-01-01" || $value == "1970-01-01") {
+					return true;
+				}
+				break;
 			case PDT_TIME:
-					if (empty($value)) {
-						return true;
-					}
-					break;
+				if (empty($value)) {
+					return true;
+				}
+				break;
 			case PDT_BOOL:
-					if ($value."" == 'false' || $value."" == "0" || empty($value)) {
-						return true;
-					}
-					break;
+				if ($value . "" == 'false' || $value . "" == "0" || empty($value)) {
+					return true;
+				}
+				break;
 			default :
-					if (empty($value) && $value != "0") {
-						return true;
-					}
-					break;
+				if (empty($value) && $value != "0") {
+					return true;
+				}
+				break;
 		}
 		return false;
 	}

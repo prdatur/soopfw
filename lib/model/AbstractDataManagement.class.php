@@ -892,6 +892,7 @@ abstract class AbstractDataManagement extends Object
 	 */
 	protected function parse_value($value, $type) {
 		switch ((int)$type) {
+			case PDT_BLOB: return $value;
 			case PDT_SERIALIZED:
 				if(is_array($value) || is_object($value)) {
 					return @json_encode($value);

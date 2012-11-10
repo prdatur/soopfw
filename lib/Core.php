@@ -49,6 +49,7 @@ define("PDT_FILE", $i++, true);
 define("PDT_LANGUAGE", $i++, true);
 define("PDT_LANGUAGE_ENABLED", $i++, true);
 define("PDT_SERIALIZED", $i++, true);
+define("PDT_BLOB", $i++, true);
 
 //Include important standalone functions
 require (SITEPATH . '/lib/common.php');

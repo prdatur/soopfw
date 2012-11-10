@@ -127,6 +127,9 @@ public function __construct($table_name = "", $engine = self::TABLE_ENGINE_INNOD
 		}
 		$prefix = "";
 		switch ($data['typ']) {
+			case PDT_BLOB:
+				$line .= "BLOB";
+				break;
 			case PDT_TINYINT:
 				$prefix = "TINY";
 
