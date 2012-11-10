@@ -205,6 +205,16 @@ class DatabaseFilter extends Object
 	}
 
 	/**
+	 * Clears previous added fields.
+	 * 
+	 * @return DatabaseFilter Self returning
+	 */
+	public function &clear_columns() {
+		$this->fields = array();
+		return $this;
+	}
+
+	/**
 	 * Add a column to our wanted columns. if table is specified the table name
 	 * will be placed in front of the field
 	 *
