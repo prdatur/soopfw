@@ -201,11 +201,14 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$this->title(t('Audit reports'), t('Within this page you can show the last reports.
 		If you encounter any emergency entries your should REALLY react immediately.'));
+
 		// Create the filter to select our log entries.
 		$filter = DatabaseFilter::create(SystemLogObj::TABLE);
 
-		//Setup search form
+		// Setup search form.
 		$form = new SessionForm("search_audit_reports", t("Filter:"));
+
+		// Get the log leven filter.
 		$form->add(new Selectfield("log_level", array(
 			'' => t('All'),
 			SystemLogObj::LEVEL_DEBUG => t('Debug'),
@@ -215,6 +218,18 @@ This message will disappear after the first cronjob runs. If you really do not w
 			SystemLogObj::LEVEL_CRITICAL => t('Critical'),
 			SystemLogObj::LEVEL_EMERGENCY => t('Emergency'),
 		), '', t('Severity')));
+
+		// Get all unique types from database.
+		$type_filter = DatabaseFilter::create(SystemLogObj::TABLE)
+			->add_column('type')
+			->group_by('type')
+			->select_all('type', true);
+
+		// Prepend the "all" value.
+		array_unshift($type_filter, t('All'));
+
+		// Add the type filter.
+		$form->add(new Selectfield("type", $type_filter, '', t('Category')));
 
 		$form->add(new Textfield("username", '', t('User'), t('You can provide the username or the user id.')));
 		$form->add(new Textfield("message", '', t('Message')));
@@ -239,6 +254,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 					$filter->join(UserObj::TABLE, 'u.user_id = `' . SystemLogObj::TABLE . '`.uid', 'u');
 					$filter->add_where('username', $this->db->get_sql_string_search($val, "*.*", false), 'LIKE', 'u');
 				}
+			}
+			elseif ($field == 'type') {
+				$filter->add_where('type', $val);
 			}
 			else {
 				$filter->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');

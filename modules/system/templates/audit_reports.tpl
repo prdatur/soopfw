@@ -33,7 +33,7 @@
 			</td>
 			<td style="text-align: left;"><%$entry.type%></td>
 			<td style="text-align: left;"><%$entry.username|unescape%></td>
-			<td style="text-align: left;"><%$entry.message|truncate_soopfw:100%></td>
+			<td style="text-align: left;" class="audit_tooltip" title="<%$entry.message|nl2br%>"><%$entry.message|truncate_soopfw:100%></td>
 		</tr>
 	<%foreachelse%>
 	<tr>

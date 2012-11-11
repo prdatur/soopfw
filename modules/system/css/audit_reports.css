@@ -71,3 +71,14 @@ table.ui-widget tbody .log_level:nth-child(2n+1) td,
 table.ui-widget tbody .log_level:nth-child(2n+1):hover td{
 	background-image: none;
 }
+
+
+.audit_report_tooltip del {
+	color: #de5a5a;
+	display: block;
+}
+.audit_report_tooltip ins {
+	color: #8DCC80;
+	text-decoration: none;
+	display: block;
+}
