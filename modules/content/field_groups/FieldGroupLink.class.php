@@ -53,7 +53,6 @@ class FieldGroupLink extends AbstractFieldGroup
 		$text .= '	<div style="float:left; width:50%;">' . $link_input->fetch() . '</div>';
 		$text .='	<div style="clear:left;"></div>';
 		$text .= '</div>';
-		$text .= '</fieldset>';
 		return $text;
 	}
 
