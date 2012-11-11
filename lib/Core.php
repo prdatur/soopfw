@@ -1197,6 +1197,7 @@ class Core
 		//Assign the user id if an user is logged in
 		$current_user = $this->session->current_user();
 		if (!empty($current_user)) {
+			$this->js_config("current_user_id", $current_user->user_id);
 			$this->smarty->assign("user_id", $current_user->user_id);
 			$this->smarty->assign_by_ref("current_user", $this->session->current_user());
 		}
