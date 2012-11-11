@@ -33,14 +33,17 @@ class AjaxUserUserPermissionGroupChange extends AjaxModul {
 		$user2rightGroupObj = new User2RightGroupObj();
 
 		$return = false;
+		$log_string = '';
 		//Check if we want to remove the user or add it
 		if ($params->value == "remove") {
+			$log_string = t('removed from');
 			$user2rightGroupObj->db_filter->add_where("group_id", $params->group_id);
 			$user2rightGroupObj->db_filter->add_where("user_id", $params->user_id);
 			$user2rightGroupObj->load();
 			$return = $user2rightGroupObj->delete();
 		}
 		else if ($params->value == "add") {
+			$log_string = t('added to');
 			$user2rightGroupObj->set_fields($params->get_values());
 			$return = $user2rightGroupObj->insert();
 		}
@@ -61,6 +64,14 @@ class AjaxUserUserPermissionGroupChange extends AjaxModul {
 			 *
 			 */
 			$this->core->hook('user_permission_group_change', $params->get_values());
+
+			$user_obj = new UserObj($params->user_id);
+			$group_obj = new UserRightGroupObj($params->group_id);
+			SystemHelper::audit(t('User "@username" was @type group "@group"', array(
+				'@username' => $user_obj->username,
+				'@type' => $log_string,
+				'@group' => $group_obj->title,
+			)), 'user');
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);

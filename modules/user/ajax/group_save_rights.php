@@ -33,6 +33,8 @@ class AjaxUserGroupSaveRights extends AjaxModul {
 
 		//Load the group, set the value and save it
 		$right_obj = new UserRightGroupObj($params->group_id);
+		$old_rights = $right_obj->permissions;
+
 		$right_obj->permissions = $new_rights;
 		if ($right_obj->save()) {
 
@@ -47,6 +49,15 @@ class AjaxUserGroupSaveRights extends AjaxModul {
 			 *   the current permissions for the group (includes the changes)
 			 */
 			$this->core->hook('group_save_rights', array($params->group_id, $params->rights));
+
+			$diff = new FineDiff($old_rights, $new_rights, FineDiff::$paragraphGranularity);
+			$diff = $diff->renderDiffToHTML();
+			$diff = preg_replace("/\s*<(\/?)(del|ins)>\s*/s", "<\${1}\${2}>", $diff);
+			$diff = preg_replace("/^[^<]+<(ins|del)>/s", "<\${1}>", $diff);
+			$diff = preg_replace("/<\/(ins|del)>[^>]+$/s", "</\${1}>", $diff);
+			$diff = preg_replace("/\s*<\/(ins|del)>[^>]+<(ins|del)>\s*/s", "</\${1}><\${2}>", $diff);
+
+			SystemHelper::audit(t("Permissions was changed for group\n\"@title\"\n\nchanged values:\n!diff", array('@title' => $right_obj->title, '!diff' => $diff)), 'user group');
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);

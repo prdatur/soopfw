@@ -34,6 +34,11 @@ class AjaxUserUserChange extends AjaxModul {
 		$user_obj = new UserObj($params->user_id);
 		$user_obj->$field = $params->value;
 		if ($user_obj->save()) {
+
+			if ($field == 'active') {
+				$log_string = ($params->value == 'yes') ? t('enabled') : t('disabled');
+				SystemHelper::audit(t('User "@username" was @type', array('@username' => $user_obj->username, '@type' => $log_string)), 'user');
+			}
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);

@@ -36,6 +36,8 @@ class AjaxUserDeleteAddress extends AjaxModul {
 		}
 
 		if ($address_obj->delete()) {
+			$user_obj = new UserObj($address_obj->user_id);
+			SystemHelper::audit(t('Address for user "@username" was deleted', array('@username' => $user_obj->username)), 'user');
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);

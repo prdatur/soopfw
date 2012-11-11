@@ -33,6 +33,7 @@ class AjaxUserGroupAdd extends AjaxModul {
 		$group_obj->set_fields($params->get_values());
 		if ($group_obj->insert()) {
 			$return_array['group_id'] = $group_obj->get_last_inserted_id();
+			SystemHelper::audit(t('Permission group "@title" was created', array('@title' => $params->title)), 'user group');
 			AjaxModul::return_code(AjaxModul::SUCCESS, $return_array, true);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);

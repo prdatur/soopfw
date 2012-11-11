@@ -127,6 +127,8 @@ class UserObj extends AbstractDataManagement
 			 *   The user id
 			 */
 			$this->core->hook('add_user', array($this->user_id));
+
+			SystemHelper::audit(t('The user "@username" was created', array('@username' => $this->username)), 'user');
 			return true;
 		}
 		return false;
@@ -140,6 +142,7 @@ class UserObj extends AbstractDataManagement
 	public function delete() {
 		$this->transaction_auto_begin();
 		$user_id = $this->user_id;
+		$username = $this->username;
 		$this->db->query_master("DELETE FROM `".UserAddressObj::TABLE."` WHERE `user_id` = @user_id", array(
 			'@user_id' => $this->user_id
 		));
@@ -165,6 +168,7 @@ class UserObj extends AbstractDataManagement
 			$this->core->hook('user_delete', array($user_id));
 
 			$this->transaction_auto_commit();
+			SystemHelper::audit(t('The user "@username" was deleted', array('@username' => $username)), 'user');
 			return true;
 		}
 		$this->transaction_auto_rollback();

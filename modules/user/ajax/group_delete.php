@@ -33,7 +33,9 @@ class AjaxUserGroupDelete extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_MISSING_PARAMETER, null, true, 'invalid group');
 		}
 
+		$title = $group_obj->title;
 		if ($group_obj->delete()) {
+			SystemHelper::audit(t('Permission group "@title" was deleted', array('@title' => $title)), 'user group');
 			AjaxModul::return_code(AjaxModul::SUCCESS);
 		}
 		AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
