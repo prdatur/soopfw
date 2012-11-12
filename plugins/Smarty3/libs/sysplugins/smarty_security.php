@@ -67,7 +67,7 @@ class Smarty_Security {
 								   'is_int', 'intval',
 								   'true', 'false', 'null',
 								   'stripos', 'strpos',
-								   'substr', 'constant','var_dump', 'is_a');
+								   'substr', 'constant','var_dump', 'is_a', 'explode');
 
     /**
     * This is an array of trusted modifers.
