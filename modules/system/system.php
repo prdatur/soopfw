@@ -669,14 +669,6 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$form->add(new Textfield(self::CONFIG_DEFAULT_PAGE, $this->core->dbconfig("system", self::CONFIG_DEFAULT_PAGE), t("Default page / Startpage")));
 
-		$classes = $this->core->get_classlist();
-		$login_handler = array();
-		foreach ($classes['classes'] AS $classname => &$class) {
-			if (!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
-				$login_handler[$classname] = $classname;
-			}
-		}
-
 		$form->add(new Fieldset('security', t('Security')));
 		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'no'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
 		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
@@ -699,13 +691,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
 
-		$classes = $this->core->get_classlist();
-		$login_handler = array();
-		foreach ($classes['classes'] AS $classname => &$class) {
-			if (!empty($class['implements']) && in_array("LoginHandler", $class['implements'])) {
-				$login_handler[$classname] = $classname;
-			}
-		}
+		$login_handler = ClassTools::get_class_of_instance('LoginHandler');
 
 		$configured_handlers = $this->core->get_dbconfig("system", self::CONFIG_LOGIN_HANDLER, array());
 
