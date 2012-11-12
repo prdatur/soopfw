@@ -11,7 +11,8 @@ class ArrayTools
 {
 
 	/**
-	 * Fill the specific $array with the specific $values
+	 * Fill the specific $array with the specific $values.
+	 *
 	 * @param array $values
 	 *   the values to fill.
 	 * @param array &$array
@@ -55,7 +56,7 @@ class ArrayTools
 	/**
 	 * Sort an array recrusive by asort.
 	 *
-	 * @param array $a
+	 * @param array &$a
 	 *   the array to be sorted
 	 */
 	public static function mulsort(Array &$a) {
@@ -68,4 +69,3 @@ class ArrayTools
 	}
 
 }
-
