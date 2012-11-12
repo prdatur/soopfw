@@ -430,10 +430,13 @@ abstract class AbstractDataManagement extends Object
 	 *   Array with primary keys to be loaded or a database filter which is used for the query
 	 * @param int $return_as
 	 *   determines the return value type  use PDT_OBJ or PDT_ARR (optional, default = PDT_OBJ)
+	 * @param string $array_key
+	 *   If provided it MUST be an existing table field and it needs to be a unique value.
+	 *   This value will be used for the row keys within. (optional, default = NS)
 	 *
 	 * @return array with objects/array as values
 	 */
-	public function &load_multiple($keys, $return_as = PDT_OBJ) {
+	public function &load_multiple($keys, $return_as = PDT_OBJ, $array_key = NS) {
 
 		//initialize the arrayindex counter for return values
 		$return_index_counter = 0;
@@ -478,11 +481,18 @@ abstract class AbstractDataManagement extends Object
 						//Setup the return data
 						switch($return_as) {
 							case PDT_ARR:
-								$return[$return_index_counter++] = $values;
+								$key = ($array_key === NS || !isset($values[$array_key])) ? $return_index_counter++ : $values[$array_key];
+								$return[$key] = $values;
 								break;
 							case PDT_OBJ:
-								$return[$return_index_counter] = new $this();
-								$return[$return_index_counter++]->set_fields_bulk($values);
+								if ($array_key !== NS && isset($values[$array_key])) {
+									$return[$values[$array_key]] = new $this();
+									$return[$values[$array_key]]->set_fields_bulk($values);
+								}
+								else {
+									$return[$return_index_counter] = new $this();
+									$return[$return_index_counter++]->set_fields_bulk($values);
+								}
 								break;
 						}
 						//Remove current key from memcached_keys so if we finished the loop the values which are left within the array we have missed and must be loaded from database
@@ -532,11 +542,18 @@ abstract class AbstractDataManagement extends Object
 			//Setup the return data
 			switch($return_as) {
 				case PDT_ARR:
-					$return[$return_index_counter++] = $values;
+					$key = ($array_key === NS || !isset($values[$array_key])) ? $return_index_counter++ : $values[$array_key];
+					$return[$key] = $values;
 					break;
 				case PDT_OBJ:
-					$return[$return_index_counter] = new $this();
-					$return[$return_index_counter++]->set_fields_bulk($values);
+					if ($array_key !== NS && isset($values[$array_key])) {
+						$return[$values[$array_key]] = new $this();
+						$return[$values[$array_key]]->set_fields_bulk($values);
+					}
+					else {
+						$return[$return_index_counter] = new $this();
+						$return[$return_index_counter++]->set_fields_bulk($values);
+					}
 					break;
 			}
 			$memcached_key = $this->get_memcached_key($values);
