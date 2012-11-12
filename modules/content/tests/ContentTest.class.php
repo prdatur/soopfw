@@ -193,7 +193,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'add' => 'add',
 		));
 		$this->assert_equals('The field "id" is required.
-The field "field type" is required.
+The field "Field type" is required.
 The field "name" is required.
 The field "required" is required.', $this->content['desc'], t('Check for valid missing content create field params'));
 
@@ -215,6 +215,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 		$this->assert_equals('field added', $this->content['desc'], t('Check if field was added'));
 		$this->assert_equals($this->content['data'], array(
 			'content_type' => 'webtest_content_type',
+			'config' => '',
             'id' => 'webtest_textfield',
             'field_group' => 'FieldGroupText',
             'name' => 'Webtest Textfield',
@@ -227,6 +228,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 			$this->do_ajax_post('/admin/content/change_content_type_field/' . $this->content_type, array(
 				'form_content_types_field_groups_submit' => $this->csrf_token,
 				'add' => 'add',
+				'config' => '',
 				'id' => $name['id'],
 				'field_group' => $type,
 				'name' => $name['name'],
@@ -250,7 +252,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 		// Check save field
 		$this->do_get('/admin/content/change_content_type_field/' . $this->content_type . '/webtest_field_group_text.ajax_html');
 		$this->assert_web_regexp('/Save field/', t('Check save form'));
-		$this->assert_web_regexp('/FieldGroupText"\s+selected/', t('Check field type: type'));
+		$this->assert_web_regexp('/Type: FieldGroupText/', t('Check field type: type'));
 		$this->assert_web_regexp('/name="name"\s+value="Web test field text"/', t('Check field type: name'));
 		$this->assert_web_regexp('/name="max_value"\s+value="1"/', t('Check field type: max_value'));
 		$this->assert_web_regexp('/option\s+value="no"\s+selected/', t('Check field type: required'));
