@@ -209,7 +209,7 @@ class Checkboxes extends AbstractHtmlInput
 				}
 				$values[$key] = $value;
 			}
-			
+
 			foreach ($this->fields AS &$field) {
 				if (!isset($values[$field->value])) {
 					$field->config('value', '');
@@ -219,6 +219,15 @@ class Checkboxes extends AbstractHtmlInput
 				}
 			}
 
+		}
+		else if ($key === 'name' && $val !== NS) {
+			// Only set the fields if we have one.
+			if (!empty($this->fields)) {
+				// Change all checkbox elements also.
+				foreach ($this->fields AS &$field) {
+					$field->config('name', $val . '[' . $field->value . ']');
+				}
+			}
 		}
 		//All other actions will be normal
 		return parent::config($key, $val);
