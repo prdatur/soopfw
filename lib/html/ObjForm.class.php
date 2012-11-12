@@ -11,7 +11,6 @@
  */
 class ObjForm extends Form
 {
-
 	/**
 	 * The object to parse
 	 * @var AbstractDataManagement
@@ -37,10 +36,10 @@ class ObjForm extends Form
 	 * @param boolean $force_load_success
 	 *   Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
 	 */
- 	public function __construct(AbstractDataManagement &$obj, $title = "", $element_config = array(), $force_load_success = false) {
+	public function __construct(AbstractDataManagement &$obj, $title = "", $element_config = array(), $force_load_success = false) {
 
 		//Init parent construct and provde the form_{table} as the form name
-		parent::__construct("form_".$obj->get_dbstruct()->get_table(), $title);
+		parent::__construct("form_" . $obj->get_dbstruct()->get_table(), $title);
 		$this->object = $obj;
 
 		//If we did not provide a loaded object (maybe just new Object()) or we want to forced it to be loaded we set the default values
@@ -95,7 +94,7 @@ class ObjForm extends Form
 			 * The fact that only empty title are added as hidden can be used to create an hidden field with a required label (* stared)
 			 */
 			if ($struct->is_hidden_field($field) || empty($field_options['title'])) {
-				$obj = new Hiddeninput($field, $this->object->$field, '', "form_id_".$struct->get_table()."_".$field);
+				$obj = new Hiddeninput($field, $this->object->$field, '', "form_id_" . $struct->get_table() . "_" . $field);
 				continue;
 			}
 
@@ -110,26 +109,26 @@ class ObjForm extends Form
 				case PDT_DECIMAL:
 				case PDT_STRING:
 					//We have only numbers or strings, add a textfield
-					$obj = new Textfield($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Textfield($field, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_BOOL:
-					$obj = new Checkbox($field, 1, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Checkbox($field, 1, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_PASSWORD:
-					$obj = new Passwordfield($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Passwordfield($field, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_FILE:
 					$this->enctype("multipart/form-data");
-					$obj = new Filefield($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Filefield($field, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_TEXT:
-					$obj = new Textarea($field, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Textarea($field, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_DATE:
-					$obj = new Datefield($field, date("d.m.Y", strtotime($this->object->$field)), '', '', 'datepicker', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Datefield($field, date("d.m.Y", strtotime($this->object->$field)), '', '', 'datepicker', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_DATETIME:
-					$obj = new Datefield($field, date("d.m.Y H:i", strtotime($this->object->$field)), '', '', 'datetimepicker', "form_id_".$struct->get_table()."_".$field);
+					$obj = new Datefield($field, date("d.m.Y H:i", strtotime($this->object->$field)), '', '', 'datetimepicker', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 				case PDT_ENUM:
 					$options = array();
@@ -137,19 +136,19 @@ class ObjForm extends Form
 					foreach ($field_options['additional'] AS $val => $title) {
 						$options[$val] = $title;
 					}
-					$select = new Selectfield($field, $options, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$select = new Selectfield($field, $options, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					$obj = $select;
 
 					break;
 				case PDT_LANGUAGE_ENABLED:
 					$only_enabled = true;
 				case PDT_LANGUAGE:
-					if(empty($only_enabled)) {
+					if (empty($only_enabled)) {
 						$only_enabled = false;
 					}
 
-					$this->lng->load_language_list('', array('de','fr','it','en'), $only_enabled);
-					$obj = new Selectfield($field, $this->lng->languages, $this->object->$field, '', '', '', "form_id_".$struct->get_table()."_".$field);
+					$this->lng->load_language_list('', array('de', 'fr', 'it', 'en'), $only_enabled);
+					$obj = new Selectfield($field, $this->lng->languages, $this->object->$field, '', '', '', "form_id_" . $struct->get_table() . "_" . $field);
 					break;
 			}
 
