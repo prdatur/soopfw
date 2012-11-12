@@ -227,7 +227,7 @@ class Form extends AbstractHtmlElement implements Iterator
 				if ($elm->config("key_is_set") !== true && !($elm instanceof Submitbutton)) {
 					$elm->config("value", '');
 				}
-				
+
 			}
 			$messages = array();
 			//If form is also not valid, get all errors from all fields and add the error message
@@ -548,8 +548,10 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *   the AbstractHtmlInput
 	 * @param array &$validators
 	 *   an array with validators (optional, default = array())
+	 * @param boolean $prepend
+	 *   If set to true the element will be placed on top. (optional, false)
 	 */
-	public function add(AbstractHtmlInput &$input, $validators = array()) {
+	public function add(AbstractHtmlInput &$input, $validators = array(), $prepend = false) {
 
 		if (!empty($validators)) {
 			if (!is_array($validators)) {
@@ -590,8 +592,14 @@ class Form extends AbstractHtmlElement implements Iterator
 			$this->enctype("multipart/form-data");
 		}
 
-		//Add the input
-		$this->elements[$type][$input->config("name")] = $input;
+		//Prepend the input
+		if ($prepend === true) {
+			$this->elements[$type] = array_merge(array($input->config("name") => $input), $this->elements[$type]);
+		}
+		//Append the input
+		else {
+			$this->elements[$type][$input->config("name")] = $input;
+		}
 	}
 
 	/**
