@@ -38,6 +38,7 @@ class ContentTypeFieldGroupObj extends AbstractDataManagement
 		$this->db_struct->add_hidden_field("order", t("order"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("max_value", t("max values"), PDT_INT, 1, 'UNSIGNED');
 		$this->db_struct->add_required_field("required", t("required"), PDT_ENUM, 'no', array(self::ACTIVE_YES => t('Yes'), self::ACTIVE_NO => t('No')));
+		$this->db_struct->add_hidden_field("config", t("Specific config"), PDT_TEXT);
 
 		if (!empty($id)) {
 			if (!$this->load(array($id), $force_db)) {

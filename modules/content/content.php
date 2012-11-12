@@ -630,8 +630,6 @@ Notice: You can only select fields which are no multi fields (max value needs to
 
 		$data_array = json_decode($values['serialized_data'], true);
 
-
-
 		$content_smarty = new Smarty();
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$content_smarty->init();
@@ -645,7 +643,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		 *
 		 * The Returning array values are not the direct field values instead
 		 * each array value represents a content type field group which is also an array.
-		 * The key is used as the unique field id.
+		 * The key is used as the unique field id and NEED to be the classname of the field.
 		 *
 		 * The following values are required for a content field group:
 		 *  - template => The full path to the default template file (without SITEPATH).
@@ -694,6 +692,19 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		 */
 		$this->core->hook('content_view_alter_data', array($values['content_type'], &$data_array));
 
+		$field_group_dummy = new ContentTypeFieldGroupObj();
+		$field_group_value_array = $field_group_dummy->load_multiple(array_keys($data_array), PDT_ARR, 'id');
+
+		foreach ($data_array AS $field_group_id => &$field_group_values) {
+			$field_group_values = array(
+				'elements' => $field_group_values
+			);
+			if (!isset($field_group_value_array[$field_group_id])) {
+				continue;
+			}
+			$field_group_values['field_group_config'] = $field_group_value_array[$field_group_id];
+		}
+		
 		$content = "";
 		if (file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
@@ -1272,6 +1283,8 @@ Current language: [b]@language[/b]', array(
 
 			//Load object
 			$obj = new ContentTypeFieldGroupObj($field_group_id);
+
+			// Set not changeable values to hidden ones.
 			$obj->get_dbstruct()->set_field_hidden("id");
 
 			//Add save button
@@ -1281,7 +1294,8 @@ Current language: [b]@language[/b]', array(
 			$message = t("field changed");
 		}
 		else {
-			$this->title(t("add field"));
+			#$this->title(t("Add field"), t('When you add this field, you can <b>not</b> change the field id and type anymore.'));
+			$this->title(t("Add field"), t('Once you add this field you can <b>not</b> change the field id and type anymore.'));
 
 			//Add insert button
 			$submit_button = new Submitbutton("add", t("add"));
@@ -1304,6 +1318,12 @@ Current language: [b]@language[/b]', array(
 
 		//Init objForm
 		$obj_form = new ObjForm($obj, '', array(), $force_loaded);
+		$obj_form->add(new Fieldset('default_values', t('Default field config')), array(), true);
+		// If we are editing this field, we want to provide the field type as a string value for information.
+		if (!empty($field_group_id)) {
+			$element = new HtmlContainerInput(t('Type: @type', array('@type' => $obj->field_group)));
+			$obj_form->add($element, array(), true);
+		}
 
 
 
@@ -1330,9 +1350,45 @@ Current language: [b]@language[/b]', array(
 			}
 		}
 
-		$input = new Selectfield("field_group", $options, $obj->field_group, '', '', '', "form_id_" . $obj->get_dbstruct()->get_table() . "_field_group");
-		$input->add_validator(new RequiredValidator());
-		$input->config('label', t('field type'));
+		// If we are editing the field we have to preload the additional config parameters if the field provides one,
+		if (!empty($field_group_id)) {
+
+			// Generate dummy form.
+			$form = new Form('form_' . ContentTypeFieldGroupObj::TABLE, '', '');
+
+			// Call the config method from the content field to get config parameters.
+			$classname = $obj->field_group;
+			$field_group_obj = new $classname();
+			if (!empty($obj->config)) {
+				$field_group_obj->set_config(json_decode($obj->config, true));
+			}
+			$field_group_obj->config($form);
+
+			if (!empty($form->elements['visible'])) {
+				$obj_form->add(new Fieldset('field_specific_value', t('Field specific config')));
+			}
+			// Get the elements
+			foreach ($form->elements as &$fields) {
+				foreach ($fields as &$element) {
+					// Wrap our config array with an "config" array key, so we can easy get the additional config params.
+					$element->config('name', 'config[' . $element->config('name') . ']');
+
+					// Add the input to our real form.
+					$obj_form->add($element);
+				}
+			}
+
+			$input = new Hiddeninput('field_group', $obj->field_group);
+		}
+		else {
+			$input = new Selectfield("field_group", $options, $obj->field_group, '', '', 'field_group_selector', "form_id_" . $obj->get_dbstruct()->get_table() . "_field_group");
+			$input->add_validator(new RequiredValidator());
+			$input->config('label', t('Field type'));
+
+			$obj_form->add(new HtmlContainerInput('', 'field_group_selector_replace'));
+		}
+
+		$obj_form->add(new Fieldset('operation_buttons'));
 		$obj_form->add($input);
 
 		//Enable ajax
@@ -1359,6 +1415,14 @@ Current language: [b]@language[/b]', array(
 				}
 			}
 
+			// Set the group specific values.
+			if (isset($_POST['config'])) {
+				$obj_form->get_object()->config = json_encode($_POST['config']);
+			}
+			else {
+				$obj_form->get_object()->config = '';
+			}
+
 			//Check if the insert command returned true
 			if ($obj_form->save_or_insert()) {
 				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
@@ -1368,6 +1432,13 @@ Current language: [b]@language[/b]', array(
 				//Setup error message to display
 				$this->core->message(t("Could not save field"), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());
 			}
+		}
+	}
+
+	public function content_type_field_get_config($field) {
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.content.manage")) {
+			die("");
 		}
 	}
 

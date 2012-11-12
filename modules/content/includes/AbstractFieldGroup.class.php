@@ -54,6 +54,13 @@ abstract class AbstractFieldGroup extends Object
 	private $values = array();
 
 	/**
+	 * Holds all group specific config values.
+	 *
+	 * @var array
+	 */
+	protected $config = array();
+
+	/**
 	 * Constructor
 	 *
 	 * @param array $values the prefilled values should be same as _POST after submitting (optional, default = array())
@@ -102,17 +109,19 @@ abstract class AbstractFieldGroup extends Object
 	}
 
 	/**
-	 * Set the label for this element
+	 * Set the label for this element.
 	 *
-	 * @param string $label the label
+	 * @param string $label
+	 *   the label
 	 */
 	public function set_label($label) {
 		$this->label = $label;
 	}
 
 	/**
-	 * Returns the label for this group, if required is set to true it will also append the required star
-	 * @return string
+	 * Returns the label for this group, if required is set to true it will also append the required star.
+	 *
+	 * @return string the label.
 	 */
 	public function get_label() {
 		$label = $this->label;
@@ -123,20 +132,22 @@ abstract class AbstractFieldGroup extends Object
 	}
 
 	/**
-	 * Set if the element is required or not
+	 * Set if the element is required or not.
 	 *
-	 * @param string $value provide 'yes' or 'no' to set the group required or not.
+	 * @param string $value
+	 *   provide 'yes' or 'no' to set the group required or not.
 	 */
 	public function set_required($value) {
 		$this->required = ($value == 'yes') ? true:false;
 	}
 
 	/**
-	 * Set the max values for this element
-	 * provide 0 to have unlimited values
-	 * this will also setup all prefilled data and add posted elements on multi elements.
+	 * Set the max values for this element.
+	 * Provide 0 to have unlimited values this will also setup all prefilled data and
+	 * add posted elements on multi elements.
 	 *
-	 * @param int $value the max values
+	 * @param int $value
+	 *   the max values
 	 */
 	public function set_max_value($value) {
 		$this->max_value = (int)$value;
@@ -229,6 +240,11 @@ abstract class AbstractFieldGroup extends Object
 		}
 	}
 
+	/**
+	 * Returns whether the field group has valid values or not.
+	 *
+	 * @return boolean true if field group is valid, else false.
+	 */
 	public function is_valid() {
 
 		if(!$this->required) {
@@ -366,6 +382,11 @@ abstract class AbstractFieldGroup extends Object
 		return false;
 	}
 
+	/**
+	 * Returns whether this field group was posted or not.
+	 *
+	 * @return boolean Returns true if field group was posted, else false.
+	 */
 	private function check_if_posted() {
 		static $cache = null;
 		if($cache != null) {
@@ -377,15 +398,19 @@ abstract class AbstractFieldGroup extends Object
 				$cache = true;
 				return true;
 			}
-			/*foreach ($this->elements AS &$element) {
-				if(isset($_POST[$this->id])) {
-					$cache = true;
-					return true;
-				}
-			}*/
 		}
 		$cache = false;
 		return false;
+	}
+
+	/**
+	 * Set the group specific config values.
+	 *
+	 * @param array $config
+	 *   The config array-
+	 */
+	public function set_config(Array $config) {
+		$this->config = $config;
 	}
 
 	/**
@@ -395,6 +420,19 @@ abstract class AbstractFieldGroup extends Object
 	 *   The values for this field group id
 	 */
 	public static function parse_value(&$values) {
+
+	}
+
+	/**
+	 * This method will be called to get additional field type configs.
+	 *
+	 * You have to use the provided $form by reference to add field type specific config values.
+	 * This configurated values can be accessed through the database field "config" within the field group table entry.
+	 *
+	 * @param Form $form
+	 *   The form where we need to add our config parameters.
+	 */
+	public function config(Form &$form) {
 
 	}
 
