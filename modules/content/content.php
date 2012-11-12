@@ -624,12 +624,11 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		$page->view_count++;
 		$page->last_access = date(DB_DATETIME, TIME_NOW);
 		$page->save();
-		$values = array_merge($page->get_values(), $page_revision->get_values());
+		$values = $page->get_values()+$page_revision->get_values();
 
 		$this->title($values['title']);
 
 		$data_array = json_decode($values['serialized_data'], true);
-
 		$content_smarty = new Smarty();
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
 		$content_smarty->init();
@@ -704,14 +703,15 @@ Notice: You can only select fields which are no multi fields (max value needs to
 			}
 			$field_group_values['field_group_config'] = $field_group_value_array[$field_group_id];
 		}
-		
+
 		$content = "";
 		if (file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
 			$content = $content_smarty->fetch($content_type_tpl);
 		}
 		else {
-			foreach ($data_array AS $field_group_id => $field_group_values) {
+
+			foreach ($data_array AS $field_group_id => $fld_group_values) {
 				if (file_exists($template_override_field_groups_path . '/' . $field_group_id . ".tpl")) {
 					$field_group_tpl = $template_override_field_groups_path . '/' . $field_group_id . ".tpl";
 				}
@@ -737,8 +737,9 @@ Notice: You can only select fields which are no multi fields (max value needs to
 
 				$content_smarty->clearAllAssign();
 				$class = $group_obj->field_group;
-				$class::parse_value($field_group_values);
-				$content_smarty->assign_by_ref("data", $field_group_values);
+				$class::parse_value($fld_group_values['elements']);
+
+				$content_smarty->assign_by_ref("data", $fld_group_values);
 				$content .= $content_smarty->fetch($field_group_tpl);
 			}
 		}
@@ -1294,8 +1295,7 @@ Current language: [b]@language[/b]', array(
 			$message = t("field changed");
 		}
 		else {
-			#$this->title(t("Add field"), t('When you add this field, you can <b>not</b> change the field id and type anymore.'));
-			$this->title(t("Add field"), t('Once you add this field you can <b>not</b> change the field id and type anymore.'));
+			$this->title(t("Add field"), t('Once you have added this field you <b>can\'t</b> change the field id and type anymore.'));
 
 			//Add insert button
 			$submit_button = new Submitbutton("add", t("add"));
@@ -1360,7 +1360,10 @@ Current language: [b]@language[/b]', array(
 			$classname = $obj->field_group;
 			$field_group_obj = new $classname();
 			if (!empty($obj->config)) {
-				$field_group_obj->set_config(json_decode($obj->config, true));
+				$field_config = json_decode($obj->config, true);
+				if (is_array($field_config)) {
+					$field_group_obj->set_config($field_config);
+				}
 			}
 			$field_group_obj->config($form);
 
