@@ -7,9 +7,9 @@ var first = true;
 Soopfw.behaviors.content_change_content = function() {
 
 	if(first) {
-		$("#form_id_menu_chooser").css("width", "350px")
+		$("#form_id_create_content_form_menu_chooser").css("width", "350px")
 		.after($("<a href='javascript:void(0);' class='form_button'>"+Soopfw.t("clear")+"</a>").click(function() {
-			$("#form_id_menu_chooser").val("");
+			$("#form_id_create_content_form_menu_chooser").val("");
 			$("#form_id_create_content_form_menu_chooser_hidden").val("");
 		}))
 		.after($("<a href='javascript:void(0);' class='form_button'>"+Soopfw.t("select parent")+"</a>").click(function() {
@@ -20,7 +20,7 @@ Soopfw.behaviors.content_change_content = function() {
 	first = false;
 	$(".select_menu").unbind('click');
 	$(".select_menu").click(function() {
-		$("#form_id_menu_chooser").val($(this).attr("menu_id")+":"+$(this).attr("parent")+": "+$(this).html());
+		$("#form_id_create_content_form_menu_chooser").val($(this).attr("menu_id")+":"+$(this).attr("parent")+": "+$(this).html());
 		$("#form_id_create_content_form_menu_chooser_hidden").val($(this).attr("menu_id")+":"+$(this).attr("parent")+": "+$(this).html());
 		$("#"+dlg_id).dialog("destroy");
 		$("#"+dlg_id).remove();

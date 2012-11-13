@@ -1039,10 +1039,12 @@ Current language: [b]@language[/b]', array(
 
 	/**
 	 * Action: create
+	 *
 	 * Creates a page based up on the given content type,
 	 * if content type is empty or not provided it will show up a list with all possible content types
 	 *
-	 * @param string $content_type the content type (optional, default = '')
+	 * @param string $content_type
+	 *   The content type. (optional, default = '')
 	 */
 	public function create($content_type = "") {
 		$this->title(t("create content: @content_type", array("@content_type" => $content_type)), t('Please fill out all required fields to create this content page.
@@ -1067,8 +1069,10 @@ Current language: [b]@language[/b]', array(
 	 * Action: translate
 	 * translate a page, the prefilled data will be taken from the provided language
 	 *
-	 * @param int $page_id the page id
-	 * @param string $language the language from which we want to translate
+	 * @param int $page_id
+	 *   The page id
+	 * @param string $language
+	 *   The language from which we want to translate
 	 */
 	public function translate($page_id, $language) {
 
@@ -1095,8 +1099,15 @@ Current language: [b]@language[/b]', array(
 		$this->change_content($values, true);
 	}
 
+	/**
+	 * Action: list_content_type
+	 *
+	 * List all content types.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
 	public function list_content_types() {
-		$this->title(t("content types"), t('add or change content types'));
+		$this->title(t("Content types"), t('Add or change content types'));
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
 			throw new SoopfwNoPermissionException();
@@ -1107,26 +1118,31 @@ Current language: [b]@language[/b]', array(
 
 	/**
 	 * Action: translate_list
-	 * show a list for translateable options for this page
+	 *
+	 * Show a list for translateable options for this page (the languages in which we could translate).
+	 *
+	 * @param int $page_id
+	 *   The content page id.
 	 */
 	public function translate_list($page_id) {
 		//Need to be logged in
 		$this->session->require_login();
 
-		$this->title(t("translate overview"), t("choose what to translate"));
+		$this->title(t("Translate overview"), t("Choose what to translate"));
 
 		//Check perms
 		if (!$this->right_manager->has_perm(array("admin.content.create", "admin.translate"))) {
 			throw new SoopfwNoPermissionException();
 		}
 
+		// Get already translated entries.
 		$already_translated = $this->db->query_slave_all("
 			SELECT cp.`page_id`,cpt.`title`, cpt.`language`
 			FROM `" . PageObj::TABLE . "` cp
 			JOIN `" . PageRevisionObj::TABLE . "` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
 			WHERE cp.`page_id` = ipage_id", array(
 			'ipage_id' => $page_id
-				), 0, 0, 'language');
+		), 0, 0, 'language');
 		$this->lng->load_language_list('', array(), true);
 
 		$translations = $this->lng->languages;
@@ -1154,10 +1170,12 @@ Current language: [b]@language[/b]', array(
 
 	/**
 	 * Action: manage_content_type
-	 * Insert or add a content type
-	 * if $menu_id is provided, it will change this menu (save), else insert a new menu
 	 *
-	 * @param int $menu_id the menu_id(optional, default = 0)
+	 * Insert or add a content type.
+	 * If $menu_id is provided, it will change this menu (save), else insert a new menu
+	 *
+	 * @param int $menu_id
+	 *   The menu_id. (optional, default = 0)
 	 */
 	public function manage_content_type($content_type = "") {
 		//Check perms
@@ -1247,8 +1265,18 @@ Current language: [b]@language[/b]', array(
 		}
 	}
 
+	/**
+	 * Action: manage_content_type_fields
+	 *
+	 * List all configured content type fields where we can add or change content type fields.
+	 *
+	 * @param string $content_type
+	 *   The content type.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
 	public function manage_content_type_fields($content_type) {
-		$this->title(t('"@content_type" fields', array("@content_type" => $content_type)), t('add or change content type fields'));
+		$this->title(t('"@content_type" fields', array("@content_type" => $content_type)), t('Add or change content type fields'));
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.content.manage")) {
 			throw new SoopfwNoPermissionException();
@@ -1264,13 +1292,14 @@ Current language: [b]@language[/b]', array(
 
 	/**
 	 * Action: change_content_type_field
+	 *
 	 * Insert or add a content type field group
 	 * if $field_group_id is provided, it will change this field group (save), else insert a new field group
 	 *
 	 * @param string $content_type
-	 *   the content type
+	 *   The content type
 	 * @param string $field_group_id
-	 *   the field group id (optional, default = "")
+	 *   The field group id. (optional, default = "")
 	 */
 	public function change_content_type_field($content_type, $field_group_id = "") {
 		//Check perms
@@ -1438,23 +1467,15 @@ Current language: [b]@language[/b]', array(
 		}
 	}
 
-	public function content_type_field_get_config($field) {
-		//Check perms
-		if (!$this->right_manager->has_perm("admin.content.manage")) {
-			die("");
-		}
-	}
-
 	/**
 	 * Returns the alias for a page_id
 	 *
 	 * @param int $page_id
-	 *   the page id.
+	 *   The page id.
 	 * @param string $language
-	 *   The language.
-	 *   (optional, default = '')
+	 *   The language. (optional, default = '')
 	 *
-	 * @return string the alias, or if alias not exist returns false
+	 * @return string|boolean the alias, or if alias not exist returns false.
 	 */
 	public function get_alias_for_page_id($page_id, $language = '') {
 		if (empty($language)) {
@@ -1475,7 +1496,7 @@ Current language: [b]@language[/b]', array(
 	 * @param string $language_key
 	 *   the language key
 	 *
-	 * @return string the translated url
+	 * @return string the translated url.
 	 */
 	public function get_translation_link($language_key) {
 		static $cache = array();
@@ -1539,8 +1560,14 @@ Current language: [b]@language[/b]', array(
 	 * If $values is an array it will think it is within edit mode and therfore a hole page content value array must be present
 	 * else within create mode just provide the content type as a string
 	 *
-	 * @param mixed $values the content type in create mode or the prefilled values within edit mode
-	 * @param boolean $force_create if we want to force the create mode instead of save/insert (optional, default = false)
+	 * @param mixed $values
+	 *   the content type in create mode or the prefilled values within edit mode
+	 * @param boolean $force_create
+	 *   if we want to force the create mode instead of save/insert
+	 *   This is usefull if we have loaded a content page but changed for example the language
+	 *   which does the translate behaviour.
+	 *   So we do not need to copy all values to a new object, we can just use the verified loaded object.
+	 *   It is important that the provided $values provides the primary key which is then unique. (optional, default = false)
 	 */
 	private function change_content($values, $force_create = false) {
 
@@ -1549,15 +1576,18 @@ Current language: [b]@language[/b]', array(
 			throw new SoopfwNoPermissionException();
 		}
 
+		// Setup static template, normal form is not a choice for this complex content form.
 		$this->static_tpl = $this->module_tpl_dir . '/change_content.tpl';
 
-
+		// Add needed JS-Files.
 		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js");
-
 		$this->core->add_js('/js/jquery_plugins/jquery.treeview.js');
-		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');
 		$this->core->add_js('/modules/content/js/change_content.js');
 
+		// Add needed CSS-Files.
+		$this->core->add_css('/css/jquery_soopfw/jquery.treeview.css');
+
+		// Pre-init variables.
 		$title_value = "";
 		$menu_value = "";
 		$old_menu_title = "";
@@ -1567,11 +1597,15 @@ Current language: [b]@language[/b]', array(
 		$create_mode = !is_array($values);
 
 		if (!$create_mode) {
+			// Edit mode.
 			$content_type = $values['content_type'];
 			$fill_values = $values['serialized_data'];
 			$title_value = $values['title'];
 
+			// If we have a menu entry.
 			if (!empty($values['current_menu_entry_id'])) {
+
+				// Try to read out previous menu entry.
 				$menu_entry_obj = new MenuEntryObj($values['current_menu_entry_id']);
 				$menu_entry_translation_obj = new MenuEntryTranslationObj($values['current_menu_entry_id']);
 
@@ -1582,115 +1616,165 @@ Current language: [b]@language[/b]', array(
 					$menu_parent_obj = new MenuEntryTranslationObj($menu_entry_obj->parent_id, $this->core->current_language);
 				}
 
+				// Build our menu entry value.
 				$menu_value = $menu_entry_obj->menu_id . ":" . $menu_entry_obj->parent_id . ": " . $menu_parent_obj->title;
+
+				// Setup variables.
 				$old_menu_entry_id = $menu_entry_obj->entry_id;
 				$old_menu_title = $menu_entry_translation_obj->title;
 			}
 		}
 		else {
+			// Create mode.
+
+			// Within create mode the given $values is the content type which we want to add, so before we clear the values
+			// we need to store the content type in the $content_type variable.
 			$content_type = $values;
 			$values = array();
 		}
 
+		// At this point we have the content type, check that the given content type is a valid one.
 		$content_type_obj = new ContentTypeObj($content_type);
 		if (!$content_type_obj->load_success()) {
 			return $this->wrong_params(t("No such content type"));
 		}
-		$form_content = "";
 
+		// This array holds ALL AbstractHtmlInput-Elements which we want to display.
+		// This special behaviour is needed, because we can not use the default form-object for this complex one.
+		// It has dynamic values, also while creating the content new input can be added through multi value inputs.
+		// Also we can not simple get the HTML for the objects through get_html() or fetch() methods, because we need to
+		// get the HTML AFTER we have checked that the elements are valid to get a correct invalid class if the input is invalid
+		$objects_to_fetch_html = array();
+
+		// Create the dummy form.
 		$form = new Form("create_content_form");
 
+		// Add the content title.
 		$title = new Textfield("title", $title_value, t("title"), t("the page title"));
 		$title->add_validator(new RequiredValidator());
-		$form_content .= $title->fetch();
+		$objects_to_fetch_html[] = &$title;
 		$form->add($title);
 
-
-
+		// Add the menu chooser.
 		$menu_chooser = new Textfield("menu_chooser", $menu_value, t("menu settings"), t("select the parent menu"));
 		$menu_chooser->config('other', 'disabled="disabled"');
-		$form_content .= $menu_chooser->fetch();
+		$objects_to_fetch_html[] = &$menu_chooser;
 		$form->add($menu_chooser);
 
 		$menu_title = new Textfield("menu_title", $old_menu_title, t("menu title"), t("choose a good title for the menu entry, short is always better"));
-		$form_content .= $menu_title->fetch();
+		$objects_to_fetch_html[] = &$menu_title;
 		$form->add($menu_title);
 
+		// Add a hidden input which stores the menu entry value, this value will be really used to setup the menu point.
 		$form->add(new Hiddeninput("menu_chooser_hidden", $menu_value));
+
+		// Setup the force create input to have the value within the form values.
 		$form->add(new Hiddeninput("force_create", $force_create));
+
+		// Store the content type.
 		$form->add(new Hiddeninput("content_type", $content_type));
 
+		// Pre-init field group variable.
 		$field_groups = array();
 
+		// If we are on create mode make sure that we have an array for the fill_array which will be used to prefill
+		// the content type fields.
 		if (empty($fill_values)) {
 			$fill_values = array();
 		}
 
+		// Get all content type fields for this content type.
 		$filter = DatabaseFilter::create(ContentTypeFieldGroupObj::TABLE)
 				->add_where('content_type', $content_type)
 				->order_by('order');
 
+		// Setup all content type fields.
 		foreach ($filter->select_all() AS $field_group) {
 			/* @var $field_object AbstractFieldGroup */
 			$field_object = new $field_group['field_group']($fill_values);
 
+			// Setup dynamic values.
 			$field_object->set_label($field_group['name']);
 			$field_object->set_prefix($field_group['id'], '0', ($field_group['max_value'] == 1) ? true : false);
 			$field_object->set_max_value($field_group['max_value']);
 			$field_object->set_required($field_group['required']);
+
+			// If the content type field group defines configurations, provide the them to the field object.
+			if (!empty($field_group['config'])) {
+				$config = json_decode($field_group['config'], true);
+				if (is_array($config)) {
+					$field_object->set_config($config);
+				}
+			}
+
+			// Add the field to the dummy form.
 			$field_object->add_element_to_form($form);
 			$field_groups[] = $field_object;
-			$form_content .= $field_object->get_html();
+			$objects_to_fetch_html[] = $field_object;
 		}
 
+		// Setup the save/insert button.
 		if ($create_mode) {
-			$submit_button = new Submitbutton("submit", t("create content"));
+			$submit_button = new Submitbutton("submit", t("Create content"));
 		}
 		else {
-			$submit_button = new Submitbutton("submit", t("save content"));
+			$submit_button = new Submitbutton("submit", t("Save content"));
 		}
 		$form->add($submit_button);
 
+		// Add dummy element to get a label for the special options.
+		$objects_to_fetch_html[] = new Hiddeninput('no_value_options', '', t('Options'));
+
+		// Setup publish checkbox.
 		$publish = new Checkbox("publish", 1, ($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
-		$form_content .= '<br />' . $publish->fetch();
-
-		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0, t("create auto alias?"));
-		$form_content .= '<br />' . $create_alias->fetch();
-
-
+		$objects_to_fetch_html[] = &$publish;
 		$form->add($publish);
-		$form->add($create_alias);
-		if (!$create_mode) {
 
+		// Setup alias checkbox.
+		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0, t("create auto alias?"));
+		$create_alias->config('suffix', '<br />');
+		$objects_to_fetch_html[] = &$create_alias;
+		$form->add($create_alias);
+
+		// Add cancel and delete button if we are within edit mode.
+		if (!$create_mode) {
 			$form->add(new Submitbutton("cancel", t("cancel"), 'form_button'));
 			$form->add(new Submitbutton("delete", t("delete"), 'form_button'));
+
+			// If we have the real delete permission add a delete button which will delete really the content page.
+			// (The normal button will just mark it as deleted)
 			if ($this->right_manager->has_perm("admin.content.delete")) {
 				$form->add(new Submitbutton("really_delete", t("delete (really delete)!!!!")));
 			}
 		}
 
-		$this->smarty->assign_by_ref("form_content", $form_content);
+		// Assign the form to smarty.
+		// This will hold all elements except the content type fields and some special one like the menu chooser.
 		$form->assign_smarty();
 
+		// If we pressed cancel
 		if ($form->is_submitted("cancel")) {
+			// Try to get the alias for the current page. if so redirect to it, else redirect to the pure content/view/{id} page.
 			$alias = $this->get_alias_for_page_id($values['page_id']);
 			if (empty($alias)) {
-				$this->core->location("/content/list_content");
+				$this->core->location("/content/view/" . $values['page_id']);
 			}
 			$this->core->location("/" . $alias . ".html");
 		}
+		// If we want to delete the content.
 		else if ($form->is_submitted("delete") || $form->is_submitted("really_delete")) {
 			$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
-
+			// Delete the cotnent, if really_delete was submitted delete the content really.
 			if ($page_obj->delete($form->is_submitted("really_delete"))) {
-				$this->core->message(t("page deleted"), Core::MESSAGE_TYPE_SUCCESS);
+				$this->core->message(t("Page deleted"), Core::MESSAGE_TYPE_SUCCESS);
 				$this->core->location("/content/list_content");
 			}
 			else {
-				$this->core->message(t("page could not be deleted"), Core::MESSAGE_TYPE_ERROR);
+				$this->core->message(t("Page could not be deleted"), Core::MESSAGE_TYPE_ERROR);
 			}
 		}
 
+		// Validate our content type fields.
 		$groups_valid = true;
 		foreach ($field_groups AS &$field_grp) {
 			if (!$field_grp->is_valid()) {
@@ -1698,13 +1782,17 @@ Current language: [b]@language[/b]', array(
 			}
 		}
 
+		// Only do something if we have validated our content type fields AND the form it self.
+		// (Content type fields will be not checked within $form->check_form())
 		if ($groups_valid && $form->check_form()) {
 
-			// Reset variable.
+			// Reset alias variable.
 			$alias = "";
 
+			// Get all posted values.
 			$values = $form->get_array_values(true);
 
+			// Pre-init special values (values which are not content type field values)
 			$title = $values['title'];
 			$new_menu_title = $values['menu_title'];
 			$new_menu = $values['menu_chooser_hidden'];
@@ -1717,6 +1805,7 @@ Current language: [b]@language[/b]', array(
 			if (isset($values['create_alias'])) {
 				$create_alias = $values['create_alias'];
 			}
+			// After we have saved our special values, we unset them, so we can use the $values for the pure content type fields.
 			unset($values['create_content_form_submit']);
 			unset($values['save_content_form_submit']);
 			unset($values['submit']);
@@ -1732,84 +1821,119 @@ Current language: [b]@language[/b]', array(
 			unset($values['menu_title']);
 			unset($values['force_create']);
 
-
+			// This is really needed :P many operations will be executed and if something breaks we should return to the
+			// previous state without changing something.
 			$this->db->transaction_begin();
-			#$this->db->set_debug(true);
+
+			// Pre init if we want to force the page revision.
 			$force_insert_page_translation = false;
+
+			// If we are within create mode initialize page and page revision object.
 			if ($create_mode) {
+
+				// Initialize the page object and store directly the new page id and some static informations.
 				$page_obj = new PageObj();
 				$page_obj->page_id = $page_obj->get_free_id();
 				$page_obj->language = $this->core->current_language;
 				$page_obj->content_type = $content_type;
 
+				// Setup the page revision
 				$page_revision_obj = new PageRevisionObj();
-
 				$page_revision_obj->page_id = $page_obj->page_id;
 				$page_revision_obj->language = $this->core->current_language;
 				$page_revision_obj->created_by = $this->session->current_user()->user_id;
 			}
+			// Edit mode.
 			else {
+
+				// Load the current page object.
 				$page_obj = new PageObj($provided_load_values['page_id'], $provided_load_values['language']);
 
+				// Get the current alias.
 				$alias_string = $this->get_alias_for_page_id($page_obj->page_id);
 
+				// If the current page object is a "marked as deleted" one we need to really insert a new revision no matter
+				// if we did not change something.
 				$force_insert_page_translation = ($page_obj->deleted == 'yes') ? true : false;
+
+				// If not we need to check if we had no alias before and wanted now an alias, if so we also need to force insert it.
 				if ($force_insert_page_translation === false) {
 					$force_insert_page_translation = ($create_alias && $alias_string === false) ? true : false;
 				}
 
+				// Setup the language, this is needed because if we translate the current object it will have the old
+				// language from the original source, but we want the current language for that object.
 				$page_obj->language = $this->core->current_language;
+
+				// Reset delete flag.
 				$page_obj->deleted = 'no';
+
+				// Load the last revision or if provided the provided revision.
 				$page_revision_obj = new PageRevisionObj($provided_load_values['page_id'], $provided_load_values['language'], $provided_load_values['revision']);
+
+				// Also update the language.
 				$page_revision_obj->language = $this->core->current_language;
-
-
-				if ($form->is_submitted("cancel")) {
-					if ($create_alias === false || $alias_string === false) {
-						$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
-					}
-					else {
-						$alias = '/' . $alias_string . '.html';
-					}
-
-					$this->core->location($alias);
-					return;
-				}
 			}
+
+			// Set the current user as the last modified user.
 			$page_obj->last_modified_by = $this->session->current_user()->user_id;
+
+			// Updated last modified date.
 			$page_obj->last_modified = date(DB_DATETIME, TIME_NOW);
+
+			// Update the edit count (how much this object was edited).
 			$page_obj->edit_count++;
 
+			// Set the title of the revision.
 			$page_revision_obj->title = $title;
+
+			// Insert all content type field values as a serialize value, this is usefull within getting the data back,
+			// else we would need to get the values from the content_type_field_group_values table which is slower than
+			// getting just the serialize data and decode it.
 			$page_revision_obj->serialized_data = str_replace("\t", "    ", json_encode($values));
 
+			// Setup publish variable to determine if we need to publish the content.
 			$publish_ct = $content_type;
 			if (empty($publish)) {
-
 				// Set NS to unpublish it from solr if needed.
 				$publish_ct = NS;
 			}
 
+			// Setup check variable if it is currently published.
 			$old_published = !empty($page_obj->last_revision);
+
+			// Setup check variable if revision value was changed.
 			$revision_values_changed = !empty($page_revision_obj->values_changed);
+
+			// Insert the revision.
 			$revision_inserted = $page_revision_obj->insert(false, $force_insert_page_translation, $create_alias, $publish_ct);
 
+			// If revision could be stored set the last_revision for the page_obj.
 			if ($revision_inserted) {
 				$page_obj->last_revision = $page_revision_obj->revision;
 			}
 
+			// If we do not want to publish it, remove the last_revision value.
 			if (empty($publish)) {
 				$page_obj->last_revision = "";
 			}
 
+			// Check if want to publish.
 			$new_published = !empty($page_obj->last_revision);
 
+			// We only need to manually update the solr index here if the revision value was not changed and
+			// we changed the publish state, because if revision is changed it will be updated through the insert
+			// process of the revision object.
 			if ($revision_values_changed === false && $old_published != $new_published) {
 				$page_revision_obj->update_solr($publish_ct);
 			}
 
+			// Pre-init variable.
 			$inserted = false;
+
+			// If the revision could be inserted, insert or save the page object.
 			if ($revision_inserted) {
+				// Insert it if we forced it, if we force it a unique primary key is mandatory.
 				if ($force_create) {
 					$inserted = $page_obj->insert();
 				}
@@ -1817,16 +1941,17 @@ Current language: [b]@language[/b]', array(
 					$inserted = $page_obj->save_or_insert();
 				}
 			}
+
+			// If the page object could be saved or inserted.
 			if ($inserted) {
 
-				if (empty($alias)) {
-					$alias_string = $this->get_alias_for_page_id($page_obj->page_id);
-					if ($create_alias === false || $alias_string === false) {
-						$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
-					}
-					else {
-						$alias = '/' . $alias_string . '.html';
-					}
+				// If we do not want to create an alias or the alias could not be found setup the direct content/view/{id} location.
+				if ($create_alias === false || ($alias_string = $this->get_alias_for_page_id($page_obj->page_id)) === false) {
+					$alias = '/' . $this->core->current_language . '/content/view/' . $page_obj->page_id;
+				}
+				// Setup the alias location.
+				else {
+					$alias = '/' . $alias_string . '.html';
 				}
 
 				//Just insert the content type fields and setup menu entry/alias if we have changed some values
@@ -1863,25 +1988,27 @@ Current language: [b]@language[/b]', array(
 				if ($menu_value != $new_menu || $old_menu_title != $new_menu_title) {
 
 					/**
-					 * If we want to change the menu but let the menu title empty or cleared it we must
-					 * use the page title to have a title to do not get an empty menu entry
+					 * If we want to change the menu but let the menu title empty or cleared it, we must
+					 * use the page title to not have an empty menu entry.
 					 */
 					if (empty($new_menu_title) && !empty($new_menu)) {
 						$new_menu_title = $page_revision_obj->title;
 					}
 
+					// Get the old menu values.
 					$old_menu_values = array();
 					if (!empty($menu_value)) {
 						$old_menu_values = explode(":", $menu_value, 3);
 					}
 
+					// Get the new menu values.
 					$new_menu_values = array();
 					if (!empty($new_menu)) {
 						$new_menu_values = explode(":", $new_menu, 3);
 					}
 
 					$entry_id = "";
-					//Delete old menu entry
+					//Delete old menu entry if old menu was present but new menu is empty.
 					if (!empty($old_menu_values) && empty($new_menu_values)) {
 						$menu_obj = new MenuEntryTranslationObj($old_menu_entry_id, $this->core->current_language);
 						if ($menu_obj->has_childs()) {
@@ -1900,7 +2027,7 @@ Current language: [b]@language[/b]', array(
 
 						$this->core->message($message, $message_type);
 					}
-					//Insert new entry
+					//Insert new entry, because we do not have an old menu entry.
 					else if (empty($old_menu_values) && !empty($new_menu_values)) {
 						$menu_obj = new MenuEntryObj();
 						$menu_obj->menu_id = $new_menu_values[0];
@@ -1981,9 +2108,11 @@ Current language: [b]@language[/b]', array(
 				else {
 					$this->core->message(t("Page saved, new revision created"), Core::MESSAGE_TYPE_SUCCESS);
 				}
+
+				// Yay, all fine. commit all changes :)
 				$this->db->transaction_commit();
 
-				//Go to the created / edited page
+				// Go to the created / edited page.
 				if ($create_alias == true) {
 					$this->core->location($alias);
 				}
@@ -1992,10 +2121,30 @@ Current language: [b]@language[/b]', array(
 				}
 			}
 			else {
+				// Uncool :(
 				$this->core->message(t("Could not store page"), Core::MESSAGE_TYPE_ERROR);
 				$this->db->transaction_rollback();
 			}
 		}
+
+		// Pre init form content which will hold the html code for ALL displayed form elements.
+		$form_content = "";
+
+		// Loop through all elements which we want to display.
+		foreach ($objects_to_fetch_html AS &$element) {
+
+			// If the elment is an instance of AbstractFieldGroup it has no fetch() method as the other AbstractHtmlInputs
+			// instead the method to get the html code is get_gtml().
+			if ($element instanceof AbstractFieldGroup) {
+				$form_content .= $element->get_html();
+			}
+			else {
+				$form_content .= $element->fetch();
+			}
+		}
+
+		// Assign the form content.
+		$this->smarty->assign_by_ref("form_content", $form_content);
 	}
 
 	/**

@@ -365,7 +365,7 @@ abstract class AbstractFieldGroup extends Object
 	 *
 	 * @param AbstractHtmlInput $element the element to be added
 	 */
-	protected function add_field(AbstractHtmlInput $element) {
+	protected function add_field(AbstractHtmlInput &$element) {
 		$this->elements[$element->config('name')] = $element;
 	}
 

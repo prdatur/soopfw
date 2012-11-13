@@ -595,7 +595,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 		// Mark the content as deleted.
 		$this->post_edit_values['delete'] = 'delete';
 		$this->do_post('/admin/content/edit/' . $this->nid, $this->post_edit_values);
-		$this->assert_web_regexp('/<li>page deleted<\/li>/', t('Check page is deleted (mark as deleted)'));
+		$this->assert_web_regexp('/<li>Page deleted<\/li>/', t('Check page is deleted (mark as deleted)'));
 
 		$this->do_get('/user/logout');
 		$this->do_get('/' . UrlAliasObj::get_alias_string('test 2create content') . '.html');
@@ -615,7 +615,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 
 		$this->post_edit_values['really_delete'] = 'delete (really delete)!!!!';
 		$this->do_post('/admin/content/edit/' . $this->nid, $this->post_edit_values);
-		$this->assert_web_regexp('/<li>page deleted<\/li>/', t('Check page is deleted (really)'));
+		$this->assert_web_regexp('/<li>Page deleted<\/li>/', t('Check page is deleted (really)'));
 
 		$this->do_get('/admin/content/view/1');
 		$this->assert_web_not_regexp('/test 2create content/', t('Check if content is really deleted'));
