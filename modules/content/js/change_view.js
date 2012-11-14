@@ -1,8 +1,10 @@
+/**
+ * Enables table sorting for the sortable configuration elements like the field sort order.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ */
 Soopfw.behaviors.content_create_view = function() {
-	enable_tablednd();
-};
-
-function enable_tablednd() {
 	$(".tablednd").tableDnD({
 		dragHandle: 'handle_cell > .tabledrag-handle',
 		enableIndent: false,
@@ -23,4 +25,4 @@ function enable_tablednd() {
 			});
 		}
 	});
-}
+};

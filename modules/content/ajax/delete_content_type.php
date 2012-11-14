@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.Content
+ * @module Content
+ * @category Ajax
  */
 class AjaxContentDeleteContentType extends AjaxModul {
 
@@ -29,6 +30,7 @@ class AjaxContentDeleteContentType extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
 		}
 
+		// Validate that the content type exist.
 		$content_type_obj = new ContentTypeObj($params->content_type);
 		if (!$content_type_obj->load_success()) {
 			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER, null, true, 'no such content type');

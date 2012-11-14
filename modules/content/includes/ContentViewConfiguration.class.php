@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Views
+ * @module Content
+ * @category Configurations
  */
 class ContentViewConfiguration extends Configuration {
 
@@ -58,7 +59,7 @@ class ContentViewConfiguration extends Configuration {
 	 * @return string
 	 */
 	const TEMPLATE = 5;
-	
+
 	/**
 	 * The view to retrieve.
 	 * This configuration is mandatory.

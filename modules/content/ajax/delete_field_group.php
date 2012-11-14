@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.Content
+ * @module Content
+ * @category Ajax
  */
 class AjaxContentDeleteFieldGroup extends AjaxModul {
 
@@ -29,6 +30,7 @@ class AjaxContentDeleteFieldGroup extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
 		}
 
+		// Validate that provided content type field group exist.
 		$obj = new ContentTypeFieldGroupObj($params->id);
 		if (!$obj->load_success()) {
 			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER, null, true, 'no such field');

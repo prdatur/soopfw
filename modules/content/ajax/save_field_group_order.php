@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.Content
+ * @module Content
+ * @category Ajax
  */
 class AjaxContentSaveFieldGroupOrder extends AjaxModul {
 
@@ -29,7 +30,7 @@ class AjaxContentSaveFieldGroupOrder extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
 		}
 
-
+		// Setup new order for each field group and save it.
 		foreach ($params->new_order AS $index => $field_type) {
 			$obj = new ContentTypeFieldGroupObj($field_type);
 			$obj->order = $index;

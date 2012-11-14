@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Content
+ * @category Objects
  */
 class ContentTypeViewObj extends AbstractDataManagement
 {

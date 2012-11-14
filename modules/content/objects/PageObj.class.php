@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Content
+ * @category Objects
  */
 class PageObj extends AbstractDataManagement
 {
@@ -57,7 +58,7 @@ class PageObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save the given Data, also de/re-activate the menu entry if we changed the publish status
+	 * Save the given Data, also de/re-activate the menu entry if we changed the publish status.
 	 *
 	 * @param boolean $save_if_unchanged
 	 *   Save this object even if no changes to it's values were made
@@ -84,9 +85,11 @@ class PageObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Delete the given data
+	 * Delete the given data.
 	 *
-	 * @param boolean $really_delete if we want to really delete the page or just set the delete flag (optional, default=false)
+	 * @param boolean $really_delete
+	 *   if we want to really delete the page or just set the delete flag. (optional, default=false)
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function delete($really_delete = false) {
@@ -257,7 +260,7 @@ class PageObj extends AbstractDataManagement
 
 	/**
 	 * Returns the alias for this page.
-	 * 
+	 *
 	 * @return string the alias, or if alias not exist returns false
 	 */
 	public function get_alias() {

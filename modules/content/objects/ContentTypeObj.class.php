@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Content
+ * @category Objects
  */
 class ContentTypeObj extends AbstractDataManagement
 {
@@ -55,6 +56,7 @@ class ContentTypeObj extends AbstractDataManagement
 				->add_column('page_id')
 				->add_column('language');
 
+			// Delete all revisions with this content type.
 			foreach ($filter->select_all() AS $row) {
 				DatabaseFilter::create(PageRevisionObj::TABLE)
 					->add_where('page_id', $row['page_id'])
@@ -62,13 +64,14 @@ class ContentTypeObj extends AbstractDataManagement
 					->delete();
 			}
 
+			// Delete all pages with this content type.
 			DatabaseFilter::create(PageObj::TABLE)
 					->add_where('content_type', $content_type)
 					->delete();
 
 			$object_ids = array();
 
-			//Get all menu entry ids which are linked with this menu
+			//Get all menu entry id's which are linked with this menu
 			foreach($this->db->query_slave_all("SELECT `id` FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type", array("@content_type" => $content_type)) AS $entry) {
 				$object_ids[] = $entry['id'];
 			}

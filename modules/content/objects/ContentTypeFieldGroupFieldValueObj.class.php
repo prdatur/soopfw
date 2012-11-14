@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Content
+ * @category Objects
  */
 class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagement
 {
@@ -17,19 +18,19 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagement
 	/**
 	 * Construct
 	 *
-	 * @param int $page_id 
+	 * @param int $page_id
 	 *   the page id (optional, default = "")
-	 * @param string $language 
+	 * @param string $language
 	 *   the language (optional, default = "")
-	 * @param int $revision 
+	 * @param int $revision
 	 *   the revision (optional, default = 1)
-	 * @param string $content_type_field_group_id 
+	 * @param string $content_type_field_group_id
 	 *   the id from ContentTypeFieldGroupObj (optional, default = "")
-	 * @param string $field_type 
+	 * @param string $field_type
 	 *   the field type (optional, default = "")
-	 * @param int $index 
+	 * @param int $index
 	 *   the value index for multi fields (optional, default = 0)
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($page_id = "", $language = "", $revision = 1, $content_type_field_group_id = "", $field_type = "", $index = 0, $force_db = false) {
@@ -57,14 +58,15 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagement
 	/**
 	 * Insert the current data and delete all previous revision except the last 20
 	 *
-	 * @param boolean $ignore 
+	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there (optional, default=false)
-	 * 
+	 *
 	 * @return boolean true on success, else false
 	 */
 	public function insert($ignore = false) {
 		if(parent::insert($ignore)) {
 
+			// Will delete all revisions except the last 20.
 			$this->db->query_master("DELETE FROM `".self::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language AND `content_type_field_group_id` = @content_type_field_group_id AND `field_type` = @field_type AND `index` = iindex AND `revision` <= irevision", array(
 				'ipage_id' => $this->values['page_id'],
 				'@language' => $this->values['language'],

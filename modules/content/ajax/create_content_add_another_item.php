@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.Content
+ * @module Content
+ * @category Ajax
  */
 class AjaxContentCreateContentAddAnotherItem extends AjaxModul {
 
@@ -33,6 +34,11 @@ class AjaxContentCreateContentAddAnotherItem extends AjaxModul {
 
 		$field_group = new ContentTypeFieldGroupObj($params->id);
 
+		// Validate the the content type field group exist.
+		if (!$field_group->load_success()) {
+			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER);
+		}
+		
 		$field_object = new $field_group->field_group();
 		$field_object->set_max_value($field_group->max_value);
 		$field_object->set_prefix($field_group->id, $params->index);

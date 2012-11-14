@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Content
+ * @category Objects
  */
 class ContentTypeFieldGroupObj extends AbstractDataManagement
 {
@@ -57,6 +58,7 @@ class ContentTypeFieldGroupObj extends AbstractDataManagement
 		$this->transaction_auto_begin();
 		$id = $this->get_value("id");
 		if(parent::delete()) {
+
 			if(!$this->db->query_master("DELETE FROM `".ContentTypeFieldGroupFieldValueObj::TABLE."` WHERE `content_type_field_group_id` = @id", array("@id" => $id))) {
 				$this->transaction_auto_rollback();
 				return false;
