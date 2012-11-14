@@ -193,6 +193,7 @@ class Menu extends ActionModul
 			}
 			// Merge the data for this entry.
 			$menu_entry = array_merge($menu_entry, $menu_translation);
+			$menu_entry['#link'] = $menu_entry['destination'];
 
 			// Provide the array 2 tree the current entry.
 			$array_2_tree->add_item($menu_entry);
