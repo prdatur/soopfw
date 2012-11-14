@@ -108,7 +108,7 @@ class Array2Tree
 			$entry['#childs'] = $this->sort_menu($this->get_tree($entry['entry_id'], $just_active));
 
 			// If we have currently not an active entry, check if a child is active, if so this entry will also be active.
-			if ($entry['#active'] !== false && $this->check_if_a_child_is_active($entry['#childs'])) {
+			if ((!isset($entry['#active']) || $entry['#active'] !== false) && $this->check_if_a_child_is_active($entry['#childs'])) {
 				$entry['#active'] = true;
 			}
 
