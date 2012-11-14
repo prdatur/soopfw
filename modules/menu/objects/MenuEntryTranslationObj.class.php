@@ -6,7 +6,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Menu
+ * @category Objects
  */
 class MenuEntryTranslationObj extends AbstractDataManagement
 {
@@ -55,29 +56,36 @@ class MenuEntryTranslationObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Insert the current menu entry translation
+	 * Insert the current menu entry translation.
+	 *
 	 * If $menu_id is not provided it will check if we have setup an menu id within current core static cache
 	 * module: menu_entry, key: insert_menu_id
-	 * if this is also it will be not created and returned false.
+	 * If this is also empty it will be not created and return false.
 	 *
 	 * @param string $menu_id
-	 *   the menu id (optional, default='')
+	 *   the menu id. (optional, default='')
 	 * @param boolean $ignore
-	 *   Don't throw an error if data is already there (optional, default=false)
+	 *   Don't throw an error if data is already there. (optional, default=false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function insert($menu_id = "", $ignore = false) {
 		$entry_id = $this->get_value("entry_id");
+
+		// If we have no entry id we need to add a new menu entry too.
 		if(empty($entry_id)) {
+
+			// Try to get the static cached insert menu id key if we did not provided the menu id.
 			if(empty($menu_id)) {
 				$menu_id = $this->core->cache("menu_entry", "insert_menu_id");
 			}
 
+			// If it's still empty return false.
 			if(empty($menu_id)) {
 				return false;
 			}
 
+			// If the menu does not exist return also false.
 			$menu_obj = new MenuObj($menu_id);
 			if(!$menu_obj->load_success()) {
 				return false;
@@ -85,14 +93,21 @@ class MenuEntryTranslationObj extends AbstractDataManagement
 
 			$this->transaction_auto_begin();
 
+			// Create the new menu entry
 			$menu_entry_obj = new MenuEntryObj();
 			$menu_entry_obj->menu_id = $menu_id;
 
+			// Set the entry_id for the translation to the created menu entry if it succeeds.
 			if($menu_entry_obj->insert()) {
 				$this->__set("entry_id", $menu_entry_obj->entry_id);
 			}
 		}
+
+		// Try to insert the menu entry translation.
 		$result = parent::insert($ignore);
+
+		// If we had no entry id we maybe need to rollback or commit based up on if the menu entry translation could be
+		// inserted.
 		if(empty($entry_id)) {
 			if($result == true) {
 				$this->transaction_auto_commit();
@@ -178,15 +193,20 @@ class MenuEntryTranslationObj extends AbstractDataManagement
 		}
 		$language = $this->get_value("language");
 		$menu_entry_obj = new MenuEntryObj($entry_id);
+
+		// Only delete childs if the parent menu entry exist.
 		if($menu_entry_obj->load_success()) {
 			foreach($this->db->query_slave_all("
 				SELECT `".MenuEntryObj::TABLE."`.`entry_id`
 				FROM `".MenuEntryObj::TABLE."`
 				JOIN `".MenuEntryTranslationObj::TABLE."` ON (`".MenuEntryObj::TABLE."`.`entry_id` = `".MenuEntryTranslationObj::TABLE."`.`entry_id`)
 				WHERE `parent_id` = ientry_id AND `language` = @language", array('ientry_id' => $entry_id, '@language' => $language)) AS $child_menu_entry) {
+
+				// Delete Menu entry translation.
 				$obj = new MenuEntryTranslationObj($child_menu_entry['entry_id'], $language);
 				$obj->delete();
 
+				// If we have no menu translation left over delete the menu entry also.
 				if($this->core->db->query_slave_count("SELECT 1 FROM `".MenuEntryTranslationObj::TABLE."` WHERE `entry_id` = ientry_id", array('ientry_id' => $child_menu_entry['entry_id']), 1) <= 0) {
 					$menu_entry_obj = new MenuEntryObj($child_menu_entry['entry_id']);
 					$menu_entry_obj->delete();
