@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Provides a class build up the menu tree.
+ *
+ * @copyright Christian Ackermann (c) 2010 - End of life
+ * @author Christian Ackermann <prdatur@gmail.com>
+ */
 class Array2Tree {
 
 	/**
@@ -27,13 +33,14 @@ class Array2Tree {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->request_uri = preg_replace('/\/[a-z][a-z]\//i', '/', strtolower(current(explode('?', $_SERVER['REQUEST_URI'], 2))));
+		$this->request_uri = preg_replace('/^\/[a-z][a-z]\//i', '/', strtolower(current(explode('?', $_SERVER['REQUEST_URI'], 2))));
 	}
 	/**
 	 * Add an element to the entry.
 	 * Required array keys = parent_id, entry_id, #link and order
 	 *
-	 * @param array $entry  the entry array
+	 * @param array $entry
+	 *   the entry array
 	 */
 	public function add_item(Array $entry) {
 		if(!isset($this->items[$entry['parent_id']])) {
@@ -45,8 +52,11 @@ class Array2Tree {
 	/**
 	 * Returns the tree
 	 *
-	 * @param int $parent_id the starting parent id
-	 * @param boolean $just_active if we just want the active tree in depth provide true, if you want the hole tree provide false  (optional, default = false)
+	 * @param int $parent_id
+	 *   the starting parent id. (optional, default = 0)
+	 * @param boolean $just_active
+	 *   if we just want the active tree in depth provide true, if you want the hole tree provide false. (optional, default = false)
+	 *
 	 * @return array the menu tree
 	 */
 	public function get_tree($parent_id = 0, $just_active = false) {
@@ -57,7 +67,7 @@ class Array2Tree {
 		$this->items[$parent_id] = $this->sort_menu($this->items[$parent_id]);
 		foreach($this->items[$parent_id] AS &$entry) {
 			if($just_active == true) {
-				$regexp = "/(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "(\/?\?.*)?$/i";
+				$regexp = "/^(\/[a-z][a-z]\/)?" . preg_quote($entry['#link'], '/') . "(\/?\?.*)?$/i";
 				if($this->menu_selected === false && preg_match($regexp, $this->request_uri)) {
 					$entry['#active'] = true;
 					if ($this->menu_selected === false) {
@@ -67,7 +77,6 @@ class Array2Tree {
 				}
 			}
 
-
 			$entry['#childs'] = $this->sort_menu($this->get_tree($entry['entry_id'], $just_active));
 
 			if($just_active === true && $this->check_if_a_child_is_active($entry['#childs'])) {
@@ -75,7 +84,6 @@ class Array2Tree {
 			}
 
 			$result[] = $entry;
-
 		}
 
 		if($just_active == true && $parent_id."" === "0") {
@@ -87,8 +95,10 @@ class Array2Tree {
 	/**
 	 * Removes all entries which are inactive
 	 *
-	 * @param array &$array the array which will be processed
-	 * @param boolean $onetime_add_all if set to true it will pass the unset behaviour (optional, default = false)
+	 * @param array &$array
+	 *   the array which will be processed
+	 * @param boolean $onetime_add_all
+	 *   if set to true it will pass the unset behaviour (optional, default = false)
 	 */
 	private function get_only_active(&$array, $onetime_add_all = false) {
 
@@ -104,9 +114,12 @@ class Array2Tree {
 	}
 
 	/**
-	 * Removes all entries which are active
+	 * Removes all entries which are active.
 	 *
-	 * @param array &$array the array which will be processed
+	 * @param array &$array
+	 *   the array which will be processed.
+	 * @param boolean $skip_remove
+	 *   If set to true, active entries will not be removed from the array. (optional, default = false)
 	 */
 	public function get_only_inactive(&$array, $skip_remove = false) {
 
@@ -122,12 +135,12 @@ class Array2Tree {
 	}
 
 	/**
-	 * Checks wether the child array has direct selected links
+	 * Checks wether the child array has direct selected links.
 	 *
 	 * @param array $array
-	 *   the child array
+	 *   the child array.
 	 *
-	 * @return boolean true if selected, else false
+	 * @return boolean true if selected, else false.
 	 */
 	private function check_if_a_child_is_direct_selected(&$array) {
 		static $cache = array();
@@ -148,10 +161,12 @@ class Array2Tree {
 	}
 
 	/**
-	 * Checks wether the child array is active or not
+	 * Checks wether the child array is active or not.
 	 *
-	 * @param array $array the child array
-	 * @return boolean true if active, else false
+	 * @param array $array
+	 *   the child array.
+	 *
+	 * @return boolean true if active, else false.
 	 */
 	private function check_if_a_child_is_active(&$array) {
 		foreach($array AS &$child) {
@@ -163,10 +178,12 @@ class Array2Tree {
 	}
 
 	/**
-	 * Sorts the provided array based up on the value[order] key
+	 * Sorts the provided array based up on the value[order] key.
 	 *
-	 * @param array &$menu the menu to sort
-	 * @return int, 0 if equals, -1 if prev, 1 if next
+	 * @param array &$menu
+	 *   the menu to sort.
+	 *
+	 * @return int, 0 if equals, -1 if prev, 1 if next.
 	 */
 	private function sort_menu($menu) {
 		usort($menu, function($a, $b) {
