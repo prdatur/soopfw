@@ -463,10 +463,10 @@ abstract class AbstractFieldGroup extends Object
 	protected function add_field(AbstractHtmlInput &$element) {
 
 		// Set the field name for "get_template()" default processing.
-		$this->set_field_name = $element->config('name');
+		$this->field_name = $element->config('name');
 
 		// Add the element.
-		$this->elements[$this->set_field_name] = $element;
+		$this->elements[$this->field_name] = $element;
 	}
 
 	/**
@@ -481,7 +481,8 @@ abstract class AbstractFieldGroup extends Object
 		if (isset($this->elements[$fieldname])) {
 			return $this->elements[$fieldname];
 		}
-		return false;
+		$false = false;
+		return $false;
 	}
 
 	/**
@@ -532,8 +533,10 @@ abstract class AbstractFieldGroup extends Object
 	 * @param array &$elements
 	 *   If null provided fresh new input fields will be used, else the provided one will be used.
 	 *   (optional, default = null)
+	 *
+	 * @return string The parsed html, will return an empty string if input field was not found.
 	 */
-	public function get_template(Array &$elements) {
+	public function get_template(Array &$elements = null) {
 		// Get the elements.
 		if ($elements == null) {
 			$input = $this->get_field($this->field_name);
@@ -542,6 +545,10 @@ abstract class AbstractFieldGroup extends Object
 			$input = &$elements[$this->field_name];
 		}
 
+		// Return an empty string because we could not find a valid input field.
+		if (empty($input)) {
+			return '';
+		}
 		// If we have just one value, we need to set the label on the element, else it would be inserted within the
 		// wrapper html.
 		if ($this->max_value == 1) {
