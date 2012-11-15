@@ -7,10 +7,11 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module Translation
+ * @category Module
  */
 class Language extends Object
 {
-
 	/**
 	 * The language items.
 	 *
@@ -69,140 +70,164 @@ class Language extends Object
 	protected $loaded_cats = array();
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @param string $language The language we want to use (optional, default = '')
-	 * @param string &$core the core object (optional, default = null)
+	 * @param string $language
+	 *   The language we want to use. (optional, default = '')
+	 * @param string &$core
+	 *   The core object. (optional, default = null)
 	 */
 	function __construct($language = '', &$core = null) {
 		parent::__construct($core);
 
-		//Setup default language
+		// Setup default language.
 		if (!empty($this->core) && empty($language)) {
 			$language = $this->core->default_language;
 		}
 
-		//Set the language
+		// Set the language.
 		if (!empty($language)) {
 			$this->set_lang($language);
 		}
 	}
 
 	/**
-	 * load the country list if needed
+	 * load the country list if needed.
 	 *
-	 * @param string $language if set we load the list within this language else the current language will be used (optional, default = "")
-	 * @param array $push_countries_to_front Wether to get specified elements at the top of the list
+	 * @param string $language
+	 *   if set we load the list within this language else the current language will be used. (optional, default = '')
+	 * @param array $push_countries_to_front
+	 *   Wether to get specified elements at the top of the list. (optional, default = array())
 	 */
-	public function load_country_list($language = "", $push_countries_to_front = array()) {
-		//Just load the list the first time
+	public function load_country_list($language = '', $push_countries_to_front = array()) {
+		// Just load the list the first time.
 		if (count($this->codes) > 0) {
 			return;
 		}
+
+		// Load current countries.
 		if ($this->load_list("countries", $language)) {
 			$this->codes = array_change_key_case($this->codes, CASE_UPPER);
 		}
 
+		// If we want to push some countries to the top.
 		if (!empty($push_countries_to_front)) {
-			//Get the country codes
+			// Get the country codes.
 			$codes = $this->codes;
 
 			$merge_array = array();
 
-			//Unset "preferred" languages
+			// Unset "preferred" countries within the current result array.
 			foreach ($push_countries_to_front AS $language) {
 				unset($codes[$language]);
 				$merge_array[$language] = $this->codes[$language];
 			}
 
+			// Append a dummy line to indicate top elements are pushed to top, bottom are the normal ones.
 			$merge_array[''] = '----------------------';
 
-			//Add the preferred languages at the top of the list
+			// Add the preferred countries at the top of the list.
 			$this->codes = array_merge($merge_array, $codes);
 			unset($codes);
 		}
 	}
 
 	/**
-	 * load the currencies list if needed
+	 * Load the currencies list if needed.
 	 *
-	 * @param string $language if set we load the list within this language else the current language will be used (optional, default = "")
-	 * @param array $push_countries_to_front Wether to get specified elements at the top of the list
+	 * @param string $language
+	 *   If set we load the list within this language else the current language will be used. (optional, default = '')
+	 * @param array $push_countries_to_front
+	 *   Wether to get specified elements at the top of the list. (optional, default = array())
 	 */
 	public function load_currency_list($language = '', $push_countries_to_front = array()) {
-		//Just load the list the first time
+		// Just load the list the first time.
 		if (count($this->currencies) > 0) {
 			return;
 		}
+
+		// Load current currencies.
 		if ($this->load_list("currencies", $language)) {
 			$this->currencies = array_change_key_case($this->currencies, CASE_UPPER);
 		}
 
+		// If we want to push some currencies to the top.
 		if (!empty($push_countries_to_front)) {
-			//Get the country codes
+			// Get the country codes.
 			$codes = $this->currencies;
 
 			$merge_array = array();
 
-			//Unset "preferred" languages
+			// Unset "preferred" currencies within the current result array.
 			foreach ($push_countries_to_front AS $language) {
 				unset($codes[$language]);
 				$merge_array[$language] = $this->currencies[$language];
 			}
 
+			// Append a dummy line to indicate top elements are pushed to top, bottom are the normal ones.
 			$merge_array[''] = '----------------------';
 
-			//Add the preferred languages at the top of the list
+			// Add the preferred currencies at the top of the list.
 			$this->currencies = array_merge($merge_array, $codes);
 			unset($codes);
 		}
 	}
 
 	/**
-	 * load the language list if needed
+	 * Load the language list if needed.
 	 *
-	 * @param string $language if set we load the list within this language else the current language will be used (optional, default = "")
-	 * @param array $push_countries_to_front Wether to get specified elements at the top of the list
-	 * @param boolean $only_enabled wether we want just enabled languages or all (optional, default = false)
+	 * @param string $language
+	 *   if set we load the list within this language else the current language will be used. (optional, default = '')
+	 * @param array $push_countries_to_front
+	 *   Wether to get specified elements at the top of the list. (optional, default = array())
+	 * @param boolean $only_enabled
+	 *   Wether we want just enabled languages or all. (optional, default = false)
 	 */
 	public function load_language_list($language = '', $push_countries_to_front = array(), $only_enabled = false) {
 
+		// Load current languages.
 		if ($this->load_list("languages", $language)) {
 			$this->languages = array_change_key_case($this->languages, CASE_LOWER);
 		}
 
+		// If we want to push some currencies to the top.
 		if (!empty($push_countries_to_front)) {
-			//Get the country codes
+			// Get the country codes.
 			$codes = $this->languages;
 
 			$merge_array = array();
 
-			//Unset "preferred" languages
+			// Unset "preferred" languages within the current result array.
 			foreach ($push_countries_to_front AS $language) {
 				unset($codes[$language]);
 				$merge_array[$language] = $this->languages[$language];
 			}
 
+			// Append a dummy line to indicate top elements are pushed to top, bottom are the normal ones.
 			$merge_array[''] = '----------------------';
 
-			//Add the preferred languages at the top of the list
+			// Add the preferred languages at the top of the list.
 			$this->languages = array_merge($merge_array, $codes);
 			unset($codes);
 		}
 
-
+		// If we only want enabled languages.
 		if ($only_enabled == true) {
 			$return_array = array();
 
-
+			// Get all enabled languages.
 			foreach ($this->db->query_slave_all("SELECT * FROM `" . LanguagesObj::TABLE . "` WHERE `enabled` = 1") AS $language) {
+
+				// If current language array did not have the database language skip it.
 				if (!isset($this->languages[$language['lang']])) {
 					continue;
 				}
 
+				// Add the language to the returning results.
 				$return_array[$language['lang']] = $this->languages[$language['lang']];
 			}
 
+			// Override the languages.
 			$this->languages = $return_array;
 		}
 	}
@@ -210,7 +235,8 @@ class Language extends Object
 	/**
 	 * Set the language and load system translations for that language
 	 *
-	 * @param string $lang the language key
+	 * @param string $lang
+	 *   The language key.
 	 */
 	public function set_lang($lang) {
 		$this->language = strtolower($lang);
@@ -221,7 +247,7 @@ class Language extends Object
 	/**
 	 * Get the current language
 	 *
-	 * @return string the language key
+	 * @return string The language key.
 	 */
 	public function get_lang() {
 		return $this->language;
@@ -238,9 +264,11 @@ class Language extends Object
 	}
 
 	/**
-	 * Format a currency number
+	 * Format a currency number.
 	 *
-	 * @param int $number the number
+	 * @param int $number
+	 *   The number.
+	 *
 	 * @return string the formated number
 	 */
 	public function format_currency($number) {
@@ -248,18 +276,24 @@ class Language extends Object
 	}
 
 	/**
-	 * Load specific javascript translations
-	 * @param string $catlist the categories to be loaded, mutliple seperated by comma
+	 * Load specific javascript translations.
+	 *
+	 * @param string $catlist
+	 *   The categories to be loaded, mutliple seperated by comma.
 	 */
 	public function load_javascript($catlist) {
 
+		// Get all categories.
 		$cats = explode(",", $catlist);
+
+		// Process all categories.
 		foreach ($cats as $tmp_cat) {
-			//Do not load it twice
+			// Do not load it twice.
 			if (in_array($tmp_cat, $this->loaded_cats)) {
 				continue;
 			}
 
+			// Mark it has loaded.
 			$this->loaded_cats[] = $tmp_cat;
 
 			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . "_js.php")) {
@@ -272,17 +306,24 @@ class Language extends Object
 	}
 
 	/**
-	 * load the language file
+	 * Load the language file.
 	 *
-	 * @param string $catlist as a String seperated by a "," (comma) for multiple
+	 * @param string $catlist
+	 *   The categories to be loaded, multiple seperated by a "," (comma).
 	 */
 	function load($catlist) {
+
+		// Get all categories.
 		$cats = explode(",", $catlist);
+
+		// Process all categories.
 		foreach ($cats as $tmp_cat) {
+			// Do not load it twice.
 			if (in_array($tmp_cat, $this->loaded_cats)) {
 				continue;
 			}
 
+			// Mark it has loaded.
 			$this->loaded_cats[] = $tmp_cat;
 
 			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . ".php")) {
@@ -293,58 +334,64 @@ class Language extends Object
 				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . ".php");
 			}
 		}
+
+		// If no entries exist, return false.
 		if (empty($this->items)) {
 			return false;
 		}
 	}
 
 	/**
-	 * get a language item
+	 * Get a language item.
 	 *
-	 * @param string $itemmane as a String
-	 * @param string $index the index if $itemname == array() (optional, Default = return complete array)
-	 * @param array $replacement replaces the given k with given v from array within lang string
-	 * @return string translation of this keyword
+	 * @param string $item_name
+	 *   The item name.
+	 * @param string $index
+	 *   The index if $itemname == array(), if left empty all entries will be returned. (optional, default = '')
+	 * @param array $replacement
+	 *   Replaces the key-strings with the array value for that key. (optional, default = array())
+	 *
+	 * @return string Translation of this element.
 	 */
-	public function get($itemname, $index = "", $replacement = array()) {
+	public function get($item_name, $index = "", $replacement = array()) {
 
-		//Check if we have this item
-		if (isset($this->items[$itemname])) {
+		// Check if we have this item.
+		if (isset($this->items[$item_name])) {
 
-			//Check if the items are arrays and we got a provided index
-			if (is_array($this->items[$itemname]) && !empty($index)) {
+			// Check if the items are arrays and we got a provided $index.
+			if (is_array($this->items[$item_name]) && !empty($index)) {
 
-				//Check if the array index exist within the translation
-				if (!isset($this->items[$itemname][$index])) {
+				// Check if the array index exist within the translation.
+				if (!isset($this->items[$item_name][$index])) {
 					if ($this->core->get_debug()) {
-						trigger_error("Tried to get language key " . $itemname . " with index " . $index . " which is not set", E_USER_NOTICE);
+						trigger_error("Tried to get language key " . $item_name . " with index " . $index . " which is not set", E_USER_NOTICE);
 					}
 					return "";
 				}
 
-				//Return the translation
-				return $this->items[$itemname][$index];
+				// Return the translation.
+				return $this->items[$item_name][$index];
 			}
 
-			//Check if we should do replacements within the translation
+			// Check if we should do replacements within the translation.
 			if (count($replacement) > 0) {
-				$var = $this->items[$itemname];
+				$var = $this->items[$item_name];
 				foreach ($replacement AS $k => $v) {
 					$var = str_replace($k, $v, $var);
 				}
 				return $var;
 			}
-			return $this->items[$itemname];
+			return $this->items[$item_name];
 		}
 		else if ($this->core->get_debug()) {
-			echo "missing langKey::" . $itemname;
+			echo "missing langKey::" . $item_name;
 		}
 	}
 
 	/**
-	 * Get all language items for javascript
+	 * Get all language items for javascript.
 	 *
-	 * @return array translation of all stored words as key=>val array
+	 * @return array Translation of all stored words as key=>val array.
 	 */
 	public function get_all_js() {
 		return $this->items_js;
@@ -353,48 +400,47 @@ class Language extends Object
 	/**
 	 * Builds the language files or returns the translation keys.
 	 *
-	 * @global array $translation_cache
 	 * @param mixed $modules
-	 *   the modules or a single module as a string which we want to search, if not provided all modules will be used (optional, default = array()
+	 *   The modules or a single module as a string which we want to search, if not provided all modules will be used (optional, default = array()
 	 * @param mixed $language_array
-	 *   the language_array or a single language as a string which we want to read, if not provided all enabled languages will be used (optional, default = array())
+	 *   The language_array or a single language as a string which we want to read, if not provided all enabled languages will be used (optional, default = array())
 	 * @param boolean $return_values
-	 *   wether we want to store the files or we want to return the values (optional, default = false)
+	 *   Wether we want to store the files or we want to return the values (optional, default = false)
 	 * @param boolean $read_translations
-	 *   wether we should read the translation for the current language or not (optional, default = true)
+	 *   Wether we should read the translation for the current language or not (optional, default = true)
 	 * @param array &$errors
-	 *   this array will be filled with all occured errors (optional, default = array())
+	 *   This array will be filled with all occured errors (optional, default = array())
 	 *
 	 * @return array if $return_values is set to true we get the array, else nothing will be returnd
 	 */
 	public function build_language($modules = array(), $language_array = array(), $return_values = false, $read_translations = true, &$errors = array()) {
 		global $translation_cache;
 
-		//Holds all already translated keys (we do not want to translate the same key twice)
+		// Holds all already translated keys (we do not want to translate the same key twice).
 		$already_translated = array();
 
-		//Init our error array
+		// Init our error array.
 		$errors = array();
 
-		//Init the return array
+		// Init the return array.
 		$return_array = array();
 
-		//transform language array to an array if provided but only a single string
+		// Transform language array to an array if provided but only a single string.
 		if (!is_array($language_array) && !empty($language_array)) {
 			$language_array = array($language_array);
 		}
 
-		//Get all enabled languages if we did not provide a language array
+		// Get all enabled languages if we did not provide a language array.
 		if (empty($language_array)) {
 			$language_array = $this->get_enabled_languages();
 		}
 
-		//transform modules array to an array if provided but only a single string
+		// Ttransform modules array to an array if provided but only a single string.
 		if (!is_array($modules) && !empty($modules)) {
 			$modules = array($modules);
 		}
 
-		//Get all modules if we did not provide it
+		// Get all modules if we did not provide it.
 		if (empty($modules)) {
 			$modules = $this->core->modules;
 			$modules['system_core'] = "system_core";
@@ -402,24 +448,24 @@ class Language extends Object
 
 		$php_results = $js_results = $smarty_results = array();
 
-		//loop through all modules to get php, smarty and javascript t calls, php and smarty will be merged couse they call always php t function
+		// Loop through all modules to get php, smarty and javascript t calls, php and smarty will be merged couse they call always php t function.
 		foreach ($modules AS $module) {
 
 			if ($module == "system_core") {
 
-				//If we want to store the file check if path is writeable
+				// If we want to store the file check if path is writeable.
 				if ($return_values != true && !is_writeable(SITEPATH . "/language")) {
 					$errors[] = "Path: " . SITEPATH . "/language not writeable\n";
 					continue;
 				}
 
-				//Scann directories for files php and js files within core dirs
+				// Scan directories for files php and js files within core dirs.
 				$dir = new Dir("/");
 				$dir->dir_regexp("^\/?(\/lib|\/js|\/cli|\/templates)");
 				$dir->skip_dirs("/templates_c");
 			}
 			else {
-				//Create all needed directories for storing files if we want it
+				// Create all needed directories for storing files if we want it.
 				if ($return_values != true && !is_dir(SITEPATH . "/modules/" . $module . "/language")) {
 					if (!is_writeable(SITEPATH . "/modules/" . $module)) {
 						$errors[] = "Path: " . SITEPATH . "/modules/" . $module . " could not create language directory\n";
@@ -428,13 +474,13 @@ class Language extends Object
 					mkdir(SITEPATH . "/modules/" . $module . "/language");
 				}
 
-				//If we want to store the file check if path is writeable
+				// If we want to store the file check if path is writeable.
 				if ($return_values != true && !is_writeable(SITEPATH . "/modules/" . $module . "/language")) {
 					$errors[] = "Path: " . SITEPATH . "/modules/" . $module . "/language not writeable\n";
 					continue;
 				}
 
-				//Scann directories for files php and js files
+				// Scan directories for files php and js files.
 				$dir = new Dir("/modules/" . $module);
 				$dir->skip_dirs_regexp(".*\/language\/.*");
 			}
@@ -451,21 +497,21 @@ class Language extends Object
 			}
 
 			foreach ($dir AS $entry) {
-				//file is javascript so parse it like that
+				// File is javascript so parse it like that.
 				if ($entry->ext == "js") {
 					$js_results = ArrayTools::array_extend($js_results, $this->get_js_strings_by_file($entry->path));
 				}
-				//File is template, parse as smarty but extend it to php couse it calls also the php t function
+				// File is template, parse as smarty but extend it to php couse it calls also the php t function.
 				else if ($entry->ext == "tpl") {
 					$php_results = ArrayTools::array_extend($php_results, $this->get_smarty_strings_by_file($entry->path));
 				}
-				//Parse it as a php file
+				// Parse it as a php file.
 				else {
 					$php_results = ArrayTools::array_extend($php_results, $this->get_strings_by_file($entry->path));
 				}
 			}
 
-			//Stop here couse we do only want to return the values
+			// Stop here because we do only want to return the values.
 			if ($return_values == true) {
 				continue;
 			}
@@ -473,10 +519,10 @@ class Language extends Object
 			$languages = $language_array;
 			$objectsloaded = array();
 
-			//Loop through all wanted languages
+			// Loop through all wanted languages.
 			foreach ($languages AS $language => $language_label) {
 				$language = strtolower($language);
-				//If we build system_core languages we have a different filepath for translation
+				// If we build system_core languages we have a different filepath for translation.
 				if ($module == "system_core") {
 					if (!is_dir(SITEPATH . "/language/" . $language)) {
 						mkdir(SITEPATH . "/language/" . $language);
@@ -492,43 +538,43 @@ class Language extends Object
 
 				$lines = array();
 
-				//Loop through all found javascript translations calls
+				// Loop through all found javascript translations calls
 				foreach ($js_results AS $id => $key) {
-					$key = preg_replace("/\"/", '\"',preg_replace("/\\\\\"/", '"', strtolower($key)));
-					//Add current translation to the translation cache, so that our register shutdown function can add the entries which are not added yet
+					$key = preg_replace("/\"/", '\"', preg_replace("/\\\\\"/", '"', strtolower($key)));
+					// Add current translation to the translation cache, so that our register shutdown function can add the entries which are not added yet.
 					$translation_cache[md5($key)] = $key;
 
-					//Do not try to read the translation if we do not want the translation inclusion
+					// Do not try to read the translation if we do not want the translation inclusion.
 					if ($read_translations == false) {
 						$lines[] = "\$this->items_js[\"" . $key . "\"] = \"\";";
 						continue;
 					}
 
-					//Do not translate same keys twice or more
+					// Do not translate same keys twice or more.
 					if (isset($already_translated[$id . "_" . $language])) {
 						continue;
 					}
 
-					//If we did not load the translation for this id load it
+					// If we did not load the translation for this id load it.
 					if (!isset($objectsloaded[$id])) {
 						$keys = array();
 
-						//Build up the primary keys to load with load multiplie so 4times less mysql queries are send
+						// Build up the primary keys to load with load multiplie so 4times less mysql queries are send.
 						foreach ($languages AS $tmplanguage) {
 							$keys[] = array($id, $tmplanguage);
 						}
 
-						//Load it
+						// Load it.
 						$translation_tmp_obj = new TranslationObj();
 						$objectsloaded[$id] = $translation_tmp_obj->load_multiple($keys, PDT_ARR);
 					}
 
-					//Check if we already have loaded this id with this language
+					// Check if we already have loaded this id with this language.
 					if (isset($objectsloaded[$id][$id . ":" . $language])) {
 						$translation_obj = $objectsloaded[$id][$id . ":" . $language];
 					}
 
-					//If all caches fail we must load it from db or fill it with default values
+					// If all caches fail we must load it from db or fill it with default values.
 					if (empty($translation_obj)) {
 						$translation_tmp_obj = new TranslationObj($id, $language);
 						$translation_obj = $translation_tmp_obj->get_values();
@@ -538,19 +584,19 @@ class Language extends Object
 							$translation_obj = $translation_tmp_obj->get_values();
 						}
 					}
-					//Add loaded object to our cache
+					// Add loaded object to our cache.
 					$already_translated[$id . "_" . $language] = $translation_obj['translation'];
 
-					//Add the line for building
+					// Add the line for building.
 					$lines[] = "\$this->items_js[\"" . $key . "\"] = \"" . $translation_obj['translation'] . "\";";
 				}
-				//Write JS Files
+				// Write JS Files.
 				file_put_contents($save_path_js, "<?php\n" . implode("\n", $lines) . "\n?>");
 
-				//Same as above with php_results
+				// Same as above with php_results.
 				$lines = array();
 				foreach ($php_results AS $id => $key) {
-					$key = preg_replace("/\"/", '\"',preg_replace("/\\\\\"/", '"', strtolower($key)));
+					$key = preg_replace("/\"/", '\"', preg_replace("/\\\\\"/", '"', strtolower($key)));
 					$translation_cache[md5($key)] = $key;
 					if ($read_translations == false) {
 						$lines[] = "\$this->items[\"" . $key . "\"] = \"\";";
@@ -590,35 +636,35 @@ class Language extends Object
 			}
 		}
 
-		//If we only want to return the values
+		// If we only want to return the values.
 		if ($return_values == true) {
-			//merge our php and js values into one array
+			// <merge our php and js values into one array.
 			$php_results = ArrayTools::array_extend($php_results, $js_results);
-			//Unset unneeded values (better to memory)
+			// Unset unneeded values (better to memory).
 			unset($js_results);
 
-			//In return mode we only want one language. so get the first and only value from language
+			// In return mode we only want one language. so get the first and only value from language.
 			reset($language_array);
 			$selected_language = current($language_array);
 
 			$translation_tmp_obj = new TranslationObj();
-			//Loop through our results
+			// Loop through our results.
 			foreach ($php_results AS $id => $key) {
-				$key = preg_replace("/\"/", '\"',preg_replace("/\\\\\"/", '"', strtolower($key)));
+				$key = preg_replace("/\"/", '\"', preg_replace("/\\\\\"/", '"', strtolower($key)));
 				$translation_cache[md5($key)] = $key;
 
-				//Do not try to read the translation if we do not want the translation inclusion
+				// Do not try to read the translation if we do not want the translation inclusion.
 				if ($read_translations == false) {
 					$return_array[$key] = "";
 					continue;
 				}
 
-				//Try to load the translation
+				// Try to load the translation.
 				$translation_tmp_obj->load(array($id, $selected_language));
 				$return_array[$key] = $translation_tmp_obj->translation;
 			}
 
-			//Return values
+			// Return values.
 			return $return_array;
 		}
 	}
@@ -626,7 +672,7 @@ class Language extends Object
 	/**
 	 * Returns all enabled languages
 	 *
-	 * @return array
+	 * @return array The language list with only enabled language.
 	 */
 	public function get_enabled_languages() {
 		$return = array();
@@ -641,8 +687,10 @@ class Language extends Object
 	}
 
 	/**
-	 * Parse the given file for php t function calls
-	 * @param string $file full path to file
+	 * Parse the given file for php t function calls.
+	 *
+	 * @param string $file
+	 *   Full path to file.
 	 */
 	private function get_strings_by_file($file) {
 		/**
@@ -653,45 +701,54 @@ class Language extends Object
 		$translation_strings = array();
 
 		foreach ($matches[1] AS $index => $text) {
-			//if index 2 is not empty, its starts with " else it starts with '
+
+			// If index 2 is not empty, its starts with " else it starts with '.
 			$start_quote = (!empty($matches[2][$index])) ? '"' : "'";
 
-			//our primary quote counter;
+			// Our primary quote counter.
 			$c = 0;
 
-			//The array which we will fill up until we have even count
+			// The array which we will fill up until we have even count.
 			$comma_array = array();
 
-			//Explode our orig string by comma to determine if t function was called with more than 1 parameter
+			// Explode our orig string by comma to determine if t function was called with more than 1 parameter.
 			foreach (explode(",", $text) AS $substr) {
-				//replace all escaped primary quote type chars, so that the primary quotes which are left are the ones which are not escaped
+
+				// replace all escaped primary quote type chars, so that the primary quotes which are left are the ones which are not escaped.
 				$substr_replaced = str_replace("\\" . $start_quote, "", $substr);
-				//Preg match all primary quote types to determine current quote char count
+
+				// Preg match all primary quote types to determine current quote char count
 				preg_match_all("/" . $start_quote . "/is", $substr_replaced, $fl_array);
-				//Add quote count to our comma quote counter
+
+				// Add quote count to our comma quote counter
 				$c += count($fl_array[0]);
 
-				//Add this line to our comma array which will will have all elements which determines the real translation string
+				// Add this line to our comma array which will have all elements which determines the real translation string.
 				$comma_array[] = $substr;
-				//Check if the last step provided us an even comma count, if it is even than break. It must also be greater than 0. we are finish with our "first parameter"  of the t function which is our translation text
+
+				// Check if the last step provided us an even comma count, if it is even than break. It must also be greater than 0. we are finish with our "first parameter"  of the t function which is our translation text.
 				if ($c > 0 && $c % 2 == 0) {
 					break;
 				}
 			}
-			//Implode our comma array to a string back
+
+			// Implode our comma array to a string back.
 			$t_string = implode(",", $comma_array);
 
-			//add the string without starting and ending quotes to the result array.
+			// Add the string without starting and ending quotes to the result array.
 			$string = strtolower(substr($t_string, 1, strlen($t_string) - 2));
 			$translation_strings[md5($string)] = $string;
 		}
-		//Return the strings
+
+		// Return the strings.
 		return $translation_strings;
 	}
 
 	/**
-	 * Parse the given file for smarty t function calls
-	 * @param string $file full path to file
+	 * Parse the given file for smarty t function calls.
+	 *
+	 * @param string $file
+	 *   Full path to file.
 	 */
 	private function get_smarty_strings_by_file($file) {
 		preg_match_all("/<%t\s*key\=(\".*\"|'.*')(\s*args\=(\[.*\]|\".*\"|'.*'))?%>/iUs", file_get_contents($file), $matches);
@@ -705,8 +762,10 @@ class Language extends Object
 	}
 
 	/**
-	 * Parse the given file for javascript t function calls
-	 * @param string $file full path to file
+	 * Parse the given file for javascript t function calls.
+	 *
+	 * @param string $file
+	 *   Full path to file.
 	 */
 	private function get_js_strings_by_file($file) {
 		$translation_strings = array();
@@ -726,8 +785,7 @@ class Language extends Object
 	}
 
 	/**
-	 * Escape quotes in a strings depending on the surrounding
-	 * quote type used.
+	 * Escape quotes in a strings depending on the surrounding quote type used.
 	 *
 	 * @param string $str
 	 *   The strings to escape.
@@ -747,25 +805,28 @@ class Language extends Object
 	}
 
 	/**
-	 * load the given list if called
+	 * Load the given list for the given language.
 	 *
-	 * @param string $type the list type
-	 * @param string $language if set we load the list within this language else the current language will be used (optional, default = "")
+	 * @param string $type
+	 *   Tthe list type.
+	 * @param string $language
+	 *   If set we load the list within this language else the current language will be used. (optional, default = '')
+	 *
 	 * @return boolean if load succeed true, else false
 	 */
 	private function load_list($type, $language = '') {
-		//Get current language if we do provided a specific one
+		// Get current language if we do provided a specific one.
 		if (empty($language)) {
 			$language = $this->get_lang();
 		}
-		//Get the file path
+		// Get the file path.
 		$fn = SITEPATH . '/language/' . $type . '/' . $language . '.php';
 
-		//Check if file exists
+		// Check if file exists.
 		if (@!file_exists($fn)) {
 			return false;
 		}
-		//Load the list
+		// Load the list.
 		require($fn);
 		return true;
 	}

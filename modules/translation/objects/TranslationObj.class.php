@@ -1,10 +1,12 @@
 <?php
+
 /**
  * This object holds the translations for a given key and language
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module Translation
+ * @category Objects
  */
 class TranslationObj extends AbstractDataManagement
 {
@@ -38,12 +40,13 @@ class TranslationObj extends AbstractDataManagement
 		$this->db_struct->add_field("language", t("Language"), PDT_STRING, 'en', 4);
 
 		if (!empty($id) && !empty($language)) {
-			if(!preg_match("/[a-f0-9]{32}/", $id)) {
+			if (!preg_match("/[a-f0-9]{32}/", $id)) {
 				$id = md5($id);
 			}
 
 			return $this->load(array($id, $language), $force_db);
 		}
 	}
+
 }
 
