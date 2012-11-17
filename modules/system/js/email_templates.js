@@ -68,7 +68,7 @@ function system_email_templates_enable_clicks() {
 			ajax_success("/system/delete_email_template.ajax",{
 				id: values
 				},Soopfw.t("Server deleted"), Soopfw.t("delete?"),function() {
-				$("#row_"+values[1]).remove();
+				$("#row_"+values).remove();
 			});
 		});
 	});
