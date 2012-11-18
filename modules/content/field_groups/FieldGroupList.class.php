@@ -5,7 +5,6 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @module Content
  * @category Field groups
  */
 class FieldGroupList extends AbstractFieldGroup
