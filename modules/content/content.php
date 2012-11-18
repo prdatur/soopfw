@@ -131,7 +131,8 @@ class Content extends ActionModul implements Widget
 	public function __init() {
 		parent::__init();
 
-		if ($this->action != 'view') {
+		// The only actions which anonymous users could view are view and views.
+		if ($this->action != 'view' && $this->action != 'views') {
 			//Need to be logged in
 			$this->session->require_login();
 		}
@@ -564,6 +565,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 	 * Action: views
 	 *
 	 * Display a view.
+	 *
 	 * @param string $view_name
 	 *   The view name.
 	 */
@@ -753,7 +755,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 
 		$view_links = array();
 
-		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
+		//Just check the permission whether the use is logged in or not, else we would redirected to login page if user is not logged in
 		if ($this->right_manager->has_perm("admin.content.create", false)) {
 			$view_links[] = array(
 				'href' => '/admin/content/view/' . $page_id,
@@ -769,7 +771,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 			);
 		}
 
-		//Just check the permission wether the use is logged in or not, else we would redirected to login page if user is not logged in
+		//Just check the permission whether the use is logged in or not, else we would redirected to login page if user is not logged in
 		if ($this->right_manager->has_perm("admin.translate", false)) {
 			$view_links[] = array(
 				'href' => '/admin/content/translate_list/' . $page_id,
@@ -1007,8 +1009,10 @@ Notice: You can only select fields which are no multi fields (max value needs to
 	 * Save the page
 	 * If revision is not provided it will use the latest revision.
 	 *
-	 * @param int $page_id the page id
-	 * @param int $revision the revision id (optional, default = '')
+	 * @param int $page_id
+	 *   The page id.
+	 * @param int $revision
+	 *   The revision id. (optional, default = '')
 	 */
 	public function edit($page_id, $revision = '') {
 

@@ -2006,7 +2006,7 @@ $classes = array (
     ),
     'NetTools' =>
     array (
-      'path' => '/lib/net/NetTools.class.php',
+      'path' => '/lib/tools/NetTools.class.php',
       'extends' =>
       array (
       ),

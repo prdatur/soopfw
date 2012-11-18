@@ -6,7 +6,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Form.Inputs
+ * @module System
+ * @category Module
  */
 class EmailTemplateSelectField extends Selectfield {
 
@@ -52,6 +53,8 @@ class EmailTemplateSelectField extends Selectfield {
 		$label = $this->config("label|pure");
 
 		$create_template = $change_template = "";
+
+		// If we have the permission to configurate the email templates, display direct edit buttons.
 		if ($this->right_manager->has_perm('admin.system.config')) {
 			$create_template = '<br/> <div did="' . $this->config("id") . '" class="form_button system_create_email_template">' . t('Create a new template') . '</div>';
 			$change_template = '<div did="' . $this->config("id") . '" class="form_button system_change_email_template">' . t('Change selected template') . '</div>';

@@ -32,7 +32,7 @@ class Checkbox extends AbstractHtmlInput
 	 * @param string $value
 	 *   the input value
 	 * @param string $checkvalue
-	 *   the check value wether to preselect this element or not
+	 *   the check value whether to preselect this element or not
 	 * @param string $label
 	 *   the input label (optional, default='')
 	 * @param string $description

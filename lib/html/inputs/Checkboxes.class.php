@@ -18,7 +18,7 @@ class Checkboxes extends AbstractHtmlInput
 	public $fields = array();
 
 	/**
-	 * Wether to include not checked elements within returning values or not
+	 * Whether to include not checked elements within returning values or not
 	 *
 	 * @var boolean
 	 */

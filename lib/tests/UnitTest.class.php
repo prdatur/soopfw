@@ -412,7 +412,7 @@ class UnitTest extends Object {
 	 * @param string $message
 	 *   the message.
 	 * @param boolean $passed
-	 *   Wether the test passed or not (optional, default = false)
+	 *   Whether the test passed or not (optional, default = false)
 	 */
 	public function add_log($type, $description, $message, $passed = false) {
 
@@ -452,7 +452,7 @@ class UnitTest extends Object {
 	}
 
 	/**
-	 * Returns wether currently a pass failed or not.
+	 * Returns whether currently a pass failed or not.
 	 *
 	 * @return boolean returns true if a pass failed else false
 	 */

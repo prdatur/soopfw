@@ -1,5 +1,5 @@
 <div class="form_button" id="add_email_template"><%t key='Add email template'%></div>
-<%include file='form.tpl' form=$search_form%>
+<%include file='form.tpl'%>
 <br />
 <%$pager|unescape%>
 <table class="ui-widget ui-widget-content " style="margin-top: 10px;" cellspacing="0" cellpadding="0" border="0">

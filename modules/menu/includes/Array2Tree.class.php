@@ -213,7 +213,7 @@ class Array2Tree
 	}
 
 	/**
-	 * Checks wether the child array has direct selected links.
+	 * Checks whether the child array has direct selected links.
 	 *
 	 * @param array $array
 	 *   the child array.
@@ -244,7 +244,7 @@ class Array2Tree
 	}
 
 	/**
-	 * Checks wether the child array is active or not.
+	 * Checks whether the child array is active or not.
 	 *
 	 * @param array $array
 	 *   the child array.

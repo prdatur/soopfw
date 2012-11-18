@@ -40,7 +40,7 @@ abstract class WebSocketHandshake {
 	 * @param mixed $check_origin
 	 *   If left empty, no origin check will be performed, else it will check it (optional, default = false)
 	 *
-	 * @return boolean Wether the handshake succeed or not, false on error
+	 * @return boolean Whether the handshake succeed or not, false on error
 	 */
 	public function handshake($data, $check_origin = false) {
 		WebSocket::log_console('Performing handshake');
@@ -147,7 +147,7 @@ abstract class WebSocketHandshake {
 	 * @param string $type
 	 * 	 The data type (optional, default = 'text')
 	 * @param boolean $masked
-	 * 	 Wether we want to mask it or not (optional, default = true)
+	 * 	 Whether we want to mask it or not (optional, default = true)
 	 *
 	 * @return string If success it returns the encoded string, else false
 	 */

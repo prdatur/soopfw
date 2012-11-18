@@ -57,7 +57,7 @@ class Pager extends Object
 	private $link_template = "";
 
 	/**
-	 * Wether this pager should call ajax requests or navigate to the page link
+	 * Whether this pager should call ajax requests or navigate to the page link
 	 * @var boolean
 	 */
 	private $is_ajax = false;
@@ -202,7 +202,7 @@ class Pager extends Object
 	 * Enables or Disable to use ajax as page callbacks or if no param provied return current value
 	 *
 	 * @param boolean $is_ajax
-	 *   wether to set the is_ajax to true or false (optional, default = NS)
+	 *   Whether to set the is_ajax to true or false (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return boolean
 	 */
@@ -218,7 +218,7 @@ class Pager extends Object
 	 * Set or Get the entries
 	 *
 	 * @param int $entries
-	 *   wether to set the entries (optional, default = NS)
+	 *   Whether to set the entries (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -234,7 +234,7 @@ class Pager extends Object
 	 * Set or Get the current_page
 	 *
 	 * @param int $current_page
-	 *   wether to set or get the current_page (optional, default = NS)
+	 *   Whether to set or get the current_page (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -250,7 +250,7 @@ class Pager extends Object
 	 * Set or Get the max_entries_per_page
 	 *
 	 * @param int $max_entries_per_page
-	 *   wether to set or get the max_entries_per_page (optional, default = NS)
+	 *   Whether to set or get the max_entries_per_page (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -265,8 +265,8 @@ class Pager extends Object
 	/**
 	 * Set or Get the range
 	 *
-	 * @param int $range wether
-	 *   to set or get the range  (optional, default = NS)
+	 * @param int $range
+	 *   Whether to set or get the range  (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -282,7 +282,7 @@ class Pager extends Object
 	 * Set or Get the front_range
 	 *
 	 * @param int $front_range
-	 *   wether to set or get the front_range (optional, default = NS)
+	 *   Whether to set or get the front_range (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -297,8 +297,8 @@ class Pager extends Object
 	/**
 	 * Set or Get the end_range
 	 *
-	 * @param int $end_range wether
-	 *   to set or get the end_range (optional, default = NS)
+	 * @param int $end_range
+	 *   Whether to set or get the end_range (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return int
 	 */
@@ -314,7 +314,7 @@ class Pager extends Object
 	 * Set or Get the link_template
 	 *
 	 * @param string $link_template
-	 *   wether to set or get the link_template (optional, default = NS)
+	 *   whether to set or get the link_template (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
@@ -331,7 +331,7 @@ class Pager extends Object
 	 * the effect after the page content is recieved
 	 *
 	 * @param string $ajax_effect
-	 *   wether to set or get  the ajax_effect (optional, default = NS)
+	 *   whether to set or get  the ajax_effect (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
@@ -348,7 +348,7 @@ class Pager extends Object
 	 * the html replace element
 	 *
 	 * @param string $ajax_replace_element
-	 *   wether to set or get the ajax_replace_element (optional, default = NS)
+	 *   whether to set or get the ajax_replace_element (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */
@@ -364,7 +364,7 @@ class Pager extends Object
 	 * Set or Get the ajax_page_post_variable
 	 * ajax_page_post_variable is the post variable which will be send to the ajax callback
 	 * @param string $ajax_page_post_variable
-	 *   wether to set or get the ajax_page_post_variable (optional, default = NS)
+	 *   whether to set or get the ajax_page_post_variable (optional, default = NS)
 	 *
 	 * @return mixed return null if we are in set mode, else return string
 	 */

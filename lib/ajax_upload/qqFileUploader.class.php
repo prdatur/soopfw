@@ -47,9 +47,12 @@ class qqFileUploader extends Object
 	private $created_fid = 0;
 
 	/**
-	 * Construct
-	 * @param array $allowed_extensions The allowed file extensions (optional, default = array())
-	 * @param int $size_limit The maximum file size in bytes (optional, default = '')
+	 * Construct.
+	 *
+	 * @param array $allowed_extensions
+	 *   The allowed file extensions, (optional, default = array())
+	 * @param int $size_limit
+	 *   The maximum file size in bytes, (optional, default = '')
 	 */
  	public function __construct(array $allowed_extensions = array(), $size_limit = '') {
 		parent::__construct();
@@ -73,9 +76,13 @@ class qqFileUploader extends Object
 	/**
 	 * Handles the upload, initialize the file upload object
 	 *
-	 * @param MainFileObj $destination the complete destination file
-	 * @param boolean $replace_old_file if set to true, existing file will be overriden, if false then a counting number will be appended to destination file (optional, default = false)
-	 * @return int return the status code on of qqFileUploader::STATUS_* on error, on success return Core::GLOBEL_RETURN_CODE_SUCCESS
+	 * @param MainFileObj $destination
+	 *   The complete destination file.
+	 * @param boolean $replace_old_file
+	 *   If set to true, existing file will be overriden,
+	 *   if false then a counting number will be appended to destination file. (optional, default = false)
+	 *
+	 * @return int Return the status code on of qqFileUploader::STATUS_* on error, on success return Core::GLOBEL_RETURN_CODE_SUCCESS
 	 */
 	public function handle_upload(MainFileObj $destination, $replace_old_file = false) {
 		//Get the php ini configuration for post max size
@@ -186,9 +193,11 @@ class qqFileUploader extends Object
 	}
 
 	/**
-	 * Converts a string like 100k to a real integer as bytes
+	 * Converts a string like 100k to a real integer as bytes.
 	 *
-	 * @param string $str the size string
+	 * @param string $str
+	 *   The size string.
+	 *
 	 * @return int the converted bytes
 	 */
 	private function to_bytes($str) {

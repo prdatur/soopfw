@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module System
+ * @category Objects
  */
 class UrlAliasObj extends AbstractDataManagement
 {
@@ -18,9 +19,9 @@ class UrlAliasObj extends AbstractDataManagement
 	 * Constructor
 	 *
 	 * @param int $id
-	 *   the alias id (optional, default = '')
+	 *   the alias id. (optional, default = '')
 	 * @param boolean $force_db
-	 *   if we want to force to load the data from the database (optional, default = false)
+	 *   if we want to force to load the data from the database. (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();
@@ -45,12 +46,12 @@ class UrlAliasObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save the given Data
+	 * Save the given Data.
 	 *
 	 * @param boolean $save_if_unchanged
-	 *   Save this object even if no changes to it's values were made (optional, default = false)
+	 *   Save this object even if no changes to it's values were made. (optional, default = false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function save($save_if_unchanged = false) {
 		$old_alias = $this->get_original_value("alias");
@@ -61,12 +62,12 @@ class UrlAliasObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Insert the current data
+	 * Insert the current data.
 	 *
 	 * @param boolean $ignore
-	 *   Don't throw an error if data is already there (optional, default=false)
+	 *   Don't throw an error if data is already there. (optional, default=false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function insert($ignore = false) {
 		if (parent::insert($ignore)) {
@@ -78,9 +79,9 @@ class UrlAliasObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Delete the given menu, also deletes all menu entries for this menu
+	 * Delete the given menu, also deletes all menu entries for this menu.
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function delete() {
 		$old_alias = $this->get_value("alias");
@@ -90,12 +91,12 @@ class UrlAliasObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Converts a given string in a string which an be used within url's
+	 * Converts a given string in a string which an be used within url's.
 	 *
 	 * @param string $string
-	 *   the string to convert
+	 *   the string to convert.
 	 *
-	 * @return string the converted string
+	 * @return string the converted string.
 	 */
 	public static function get_alias_string($string) {
 		$string = mb_convert_encoding($string, 'UTF-8');
@@ -111,13 +112,14 @@ class UrlAliasObj extends AbstractDataManagement
 	 * Tries to get action call parameter array for the given alias string
 	 *
 	 * @param string $alias
-	 *   the alias to search for
+	 *   the alias to search for.
 	 *
-	 * @return array the array with module, action, and params for the action which is needed to call an action or false if nothing is found
+	 * @return array the array with module, action, and params
+	 *   for the action which is needed to call an action or false if nothing is found.
 	 */
 	public static function get_params_from_alias($alias) {
 		$core = Core::get_instance();
-		
+
 		if ($core->config['db']['use'] !== true) {
 			return false;
 		}
@@ -264,7 +266,7 @@ class UrlAliasObj extends AbstractDataManagement
 	 * @param array $original_override_params
 	 *   The original override param array.
 	 *
-	 * @return array the overriding param array, if we did not override it return false
+	 * @return array the overriding param array, if we did not override it return false.
 	 */
 	public static function get_alias_from_uri($original_override_params) {
 		//Only check for url_aliase if a specific url was provided not just _GET params
@@ -287,13 +289,12 @@ class UrlAliasObj extends AbstractDataManagement
 	}
 
 	/**
-	 * parse the given url into an array which we can use for action calling.
+	 * Parse the given url into an array which we can use for action calling.
 	 *
 	 * @param string $url
-	 *   the url.
-	 *   if not set it will use the current request uri (optional, default = NS)
+	 *   The url. If not set it will use the current request uri. (optional, default = NS)
 	 *
-	 * @return array the params for this url
+	 * @return array the params for this url.
 	 */
 	public static function parse_url_string($url = NS) {
 		if ($url === NS) {
@@ -358,11 +359,16 @@ class UrlAliasObj extends AbstractDataManagement
 		$override_params['additional_function_params'] = $additional_function_params;
 		return $override_params;
 	}
+
 	/**
-	 * Checks wether the given alias string is more precise than the last "best" one.
+	 * Checks whether the given alias string is more precise than the last "best" one.
 	 *
-	 * @global mixed $best_match 0 if not initalized or nothing found, else the best match alias array
-	 * @param string $alias the alias string
+	 * @global mixed $best_match 0
+	 *   if not initalized or nothing found, else the best match alias array
+	 * 
+	 * @param string $alias
+	 *   The alias string.
+	 *
 	 * @return boolean true if it is more precise, else false
 	 */
 	public static function is_alias_preciser($alias) {

@@ -14,7 +14,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 	 * @param string $data
 	 * 	 incoming request data
 	 * @return boolean
-	 * 	 Wether the handshake succeed or not, false on error
+	 * 	 Whether the handshake succeed or not, false on error
 	 */
 	public function handshake($data) {
 
@@ -46,7 +46,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 	 * @param string $type
 	 *	 The data type
 	 * @param boolean $masked
-	 *	 Wether we want to mask it or not
+	 *	 Whether we want to mask it or not
 	 *
 	 * @return string
 	 *	 If success it returns the encoded string, else FALSE

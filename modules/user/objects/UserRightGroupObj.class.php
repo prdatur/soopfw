@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module User
+ * @category Objects
  */
 class UserRightGroupObj extends AbstractDataManagement
 {
@@ -16,9 +17,9 @@ class UserRightGroupObj extends AbstractDataManagement
 	/**
 	 * Constructor
 	 *
-	 * @param int $group_id 
+	 * @param int $group_id
 	 *   the group id (optional, default = "")
-	 * @param boolean $force_db 
+	 * @param boolean $force_db
 	 *   if we want to force to load the data from the database (optional, default = false)
 	 */
 	public function __construct($group_id = "", $force_db = false) {

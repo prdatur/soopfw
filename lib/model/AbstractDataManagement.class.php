@@ -196,7 +196,7 @@ abstract class AbstractDataManagement extends Object
 	 * Get all values
 	 *
 	 * @param boolean $force_all_fields
-	 *   Wether we want to force all fields (including hidden ones) (optional, default = false)
+	 *   Whether we want to force all fields (including hidden ones) (optional, default = false)
 	 * @param array $fields
 	 *   If provided we do only get back the provided fields
 	 *   fields are the values within this array (optional, default = array())
@@ -570,7 +570,7 @@ abstract class AbstractDataManagement extends Object
 	}
 
 	/**
-	 * Returns wether the object was loaded successfully or not
+	 * Returns whether the object was loaded successfully or not
 	 *
 	 * @return boolean true if loaded successfully, else fals
 	 */
@@ -834,7 +834,7 @@ abstract class AbstractDataManagement extends Object
 	 * @param mixed $value
 	 *   the value
 	 * @param boolean $ignore_values_changed
-	 *   wether if we want to ignore that this value is changed (optional, default = false)
+	 *   whether if we want to ignore that this value is changed (optional, default = false)
 	 */
 	protected function set_values_changed($key, &$value, $ignore_values_changed = false) {
 		if (!$ignore_values_changed && (!isset($this->values[$key]) || $this->values[$key] != $value)) {

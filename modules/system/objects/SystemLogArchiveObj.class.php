@@ -5,7 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module System
+ * @category Objects
  */
 class SystemLogArchiveObj extends AbstractDataManagement
 {
@@ -45,7 +46,7 @@ class SystemLogArchiveObj extends AbstractDataManagement
 
 	/**
 	 * Returns the decoded gzip data.
-	 * 
+	 *
 	 * @return null|string|boolean On success returns the decoded string, if object is not loaded or data is not a gzip format returns null, returns false on error.
 	 */
 	public function get_decoded_data() {

@@ -108,7 +108,7 @@ class Filefield extends AbstractHtmlInput
 	 * @param string $id
 	 *   the input id (optional, default = '')
 	 * @param boolean $handle_upload
-	 *   wether this element handles the upload directly or not (optional, default = true)
+	 *   whether this element handles the upload directly or not (optional, default = true)
 	 */
  	public function __construct($name, $value = "", $label = "", $description = "", $class = "", $id = "", $handle_upload = true) {
 		parent::__construct($name, $value, $label, $description, $class, $id);
@@ -178,7 +178,7 @@ class Filefield extends AbstractHtmlInput
 	}
 
 	/**
-	 * Wether to set this field to an ajax upload or not
+	 * Whether to set this field to an ajax upload or not
 	 *
 	 * @param boolean $is_ajax
 	 *   set this filefield to an ajax upload or not

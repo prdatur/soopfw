@@ -5,22 +5,24 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_generate_classlist extends CLICommand
 {
 
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
 	 *
 	 * @var string
 	 */
 	protected $description = "Recreate class list (you needs to do this each time you add a new class)";
 
 	/**
-	 * Execute the command
+	 * Execute the command.
 	 *
-	 * @return boolean return true if no errors occured, else false
+	 * @return boolean return true if no errors occured, else false.
 	 */
 	public function execute() {
 		$this->generate_classlist();
@@ -28,7 +30,8 @@ class cli_generate_classlist extends CLICommand
 	}
 
 	/**
-	 * Overrides CLICommand::on_success
+	 * Overrides CLICommand::on_success.
+	 *
 	 * callback for on_success
 	 */
 	public function on_success() {
@@ -36,7 +39,7 @@ class cli_generate_classlist extends CLICommand
 	}
 
 	/**
-	 * Generate the classlist for spl auto class loader
+	 * Generate the classlist for spl auto class loader.
 	 */
 	public function generate_classlist() {
 		$argv = array(null,

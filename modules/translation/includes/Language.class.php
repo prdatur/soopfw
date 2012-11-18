@@ -97,7 +97,7 @@ class Language extends Object
 	 * @param string $language
 	 *   if set we load the list within this language else the current language will be used. (optional, default = '')
 	 * @param array $push_countries_to_front
-	 *   Wether to get specified elements at the top of the list. (optional, default = array())
+	 *   Whether to get specified elements at the top of the list. (optional, default = array())
 	 */
 	public function load_country_list($language = '', $push_countries_to_front = array()) {
 		// Just load the list the first time.
@@ -138,7 +138,7 @@ class Language extends Object
 	 * @param string $language
 	 *   If set we load the list within this language else the current language will be used. (optional, default = '')
 	 * @param array $push_countries_to_front
-	 *   Wether to get specified elements at the top of the list. (optional, default = array())
+	 *   Whether to get specified elements at the top of the list. (optional, default = array())
 	 */
 	public function load_currency_list($language = '', $push_countries_to_front = array()) {
 		// Just load the list the first time.
@@ -179,9 +179,9 @@ class Language extends Object
 	 * @param string $language
 	 *   if set we load the list within this language else the current language will be used. (optional, default = '')
 	 * @param array $push_countries_to_front
-	 *   Wether to get specified elements at the top of the list. (optional, default = array())
+	 *   Whether to get specified elements at the top of the list. (optional, default = array())
 	 * @param boolean $only_enabled
-	 *   Wether we want just enabled languages or all. (optional, default = false)
+	 *   Whether we want just enabled languages or all. (optional, default = false)
 	 */
 	public function load_language_list($language = '', $push_countries_to_front = array(), $only_enabled = false) {
 
@@ -405,9 +405,9 @@ class Language extends Object
 	 * @param mixed $language_array
 	 *   The language_array or a single language as a string which we want to read, if not provided all enabled languages will be used (optional, default = array())
 	 * @param boolean $return_values
-	 *   Wether we want to store the files or we want to return the values (optional, default = false)
+	 *   Whether we want to store the files or we want to return the values (optional, default = false)
 	 * @param boolean $read_translations
-	 *   Wether we should read the translation for the current language or not (optional, default = true)
+	 *   Whether we should read the translation for the current language or not (optional, default = true)
 	 * @param array &$errors
 	 *   This array will be filled with all occured errors (optional, default = array())
 	 *

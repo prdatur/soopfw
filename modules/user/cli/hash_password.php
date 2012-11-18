@@ -5,6 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module User
+ * @category CLI
  */
 class cli_hash_password extends CLICommand
 {

@@ -100,7 +100,7 @@ class Translation extends ActionModul
 		$this->title(t("Translation Import"), t("Import translation from a PO-File.
 			First select a PO-File which you want to import.
 			Then choose a language, the current language in which you are is pre-selected, the import will write the entries to this language.
-			After that choose wether you want to [b]override[/b] current translation within the selected language."));
+			After that choose whether you want to [b]override[/b] current translation within the selected language."));
 
 		// Add form.
 		$form = new Form("import_translations", t("Import translations"));
@@ -223,7 +223,7 @@ class Translation extends ActionModul
 		$this->title(t("Translation Export"), t("Export translation to a PO-File.
 			First select a module which you want to export, choose [b]all[/b] for all modules.
 			Then choose a language, the current language in which you are is pre-selected.
-			After that you can choose wether you want to [b]include[/b] or [b]exclude[/b] current translation within the selected language."));
+			After that you can choose whether you want to [b]include[/b] or [b]exclude[/b] current translation within the selected language."));
 
 		// Add form.
 		$form = new Form("select_translation_export", t("Select Export options"));

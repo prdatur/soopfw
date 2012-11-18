@@ -379,7 +379,7 @@ class DatabaseFilter extends Object
 	}
 
 	/**
-	 * Returns wether the filter has a where statement or not
+	 * Returns whether the filter has a where statement or not
 	 *
 	 * @return boolean true if not empty, else false
 	 */

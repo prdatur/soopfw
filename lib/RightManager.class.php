@@ -121,7 +121,7 @@ class RightManager extends Object
 	 *   the right.
 	 *   If an array is provided the user needs all permissions (AND condition)
 	 * @param boolean $login_check
-	 *   Wether we want to redirect the user to the login page if not logged in or not (optional, default = false)
+	 *   Whether we want to redirect the user to the login page if not logged in or not (optional, default = false)
 	 * @param UserObj $user
 	 *   the user obj (optional, default = null)
 	 *

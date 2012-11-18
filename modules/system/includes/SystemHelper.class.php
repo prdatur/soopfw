@@ -5,6 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category Module
  */
 class SystemHelper extends Object {
 
@@ -48,31 +50,32 @@ class SystemHelper extends Object {
 				continue;
 			}
 
+			// If the module has no info file it is not a valid one.
 			if (($info = SystemHelper::get_module_info($module)) === false) {
 				continue;
 			}
 
+			// If the module does not depend on modules we can skip it.
 			if (empty($info['depends']) || !is_array($info['depends'])) {
 				continue;
 			}
 
+			// If the module depends the one $module_name.
 			if (in_array($module_name, $info['depends'])) {
 
+				// Only add it to the result if the provided filter matches.
 				if (($filter === self::DEPENDENCY_FILTER_ALL) ||
 					($filter === self::DEPENDENCY_FILTER_ENABLED && $this->core->module_enabled($module)) ||
 					($filter === self::DEPENDENCY_FILTER_DISABLED && !$this->core->module_enabled($module))
 				) {
-					$modules[$module] = $module;
+					$modules[$module] = $info;
 				}
+
+				// If we recrusive want to scan, do it.
 				if ($recrusive === true) {
 					$modules = array_merge($modules, $this->get_dependet_modules($module, $recrusive));
 				}
 			}
-		}
-
-		foreach ($modules AS $mod => &$val) {
-			// Get the info for the current dependency
-			$val = SystemHelper::get_module_info($mod);
 		}
 
 		return $modules;
@@ -236,20 +239,23 @@ class SystemHelper extends Object {
 	 *   the array values are CoreModelObjectObj's.
 	 */
 	public static function get_updateable_objects($module) {
+
+		// Scan all module objects.
 		$dir = new Dir("modules/" . $module . "/objects");
 
 		$objects = array();
 		foreach ($dir AS $entry) {
+
+			// Validate the filename.
 			if (preg_match("/(.*)\.class\.php$/", $entry->filename, $matches)) {
 				$obj = $matches[1];
 
+				// Try to load the object.
 				$model_info = new CoreModelObjectObj($obj);
-				$model_info->classname = $obj;
 
-				if ($model_info->load_success()) {
-					if ($model_info->last_modified == filemtime($entry->path)) {
-						continue;
-					}
+				// If the module exist and modify time has not changed we can skip it.
+				if ($model_info->load_success() && $model_info->last_modified == filemtime($entry->path)) {
+					continue;
 				}
 				$objects[$obj] = $model_info;
 			}
@@ -335,6 +341,39 @@ class SystemHelper extends Object {
 		}
 
 		return $cache[$module . "|" . $just_rights];
+	}
+
+	/**
+	 * Removes all provided permissions from the database.
+	 *
+	 * This will only remove the information that the permission exist, it will not remove it from groups or users
+	 * where the permissions are maybe configured.
+	 * It is not necessary to delete this, because if we can not find the permission within our "exist" permission info
+	 * the maybe "allowed" permission will be invalid at any rate.
+	 *
+	 * @param array $permissions
+	 *   The permission which should be removed.
+	 *
+	 * @return boolean Returns true on success, else false.
+	 */
+	public static function delete_permissions(Array $permissions) {
+		if (empty($permissions)) {
+			return true;
+		}
+
+		// Generate the filter.
+		$filter = DatabaseFilter::create(CoreRightObj::TABLE);
+
+		// Add the conditions.
+		$or = new DatabaseWhereGroup(DatabaseWhereGroup::TYPE_OR);
+		foreach ($permissions AS $perm) {
+			$or->add_where('right', $perm);
+		}
+
+		$filter->add_where($or);
+
+		// Try to delete.
+		return $filter->delete();
 	}
 
 	/**

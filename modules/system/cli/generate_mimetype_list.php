@@ -5,21 +5,23 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_generate_mimetype_list extends CLICommand
 {
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
 	 *
 	 * @var string
 	 */
 	protected $description = "Create or update the mime type info file. this must not be executed to often..";
 
 	/**
-	 * Execute the command
+	 * Execute the command.
 	 *
-	 * @return boolean return true if no errors occured, else false
+	 * @return boolean return true if no errors occured, else false.
 	 */
 	public function execute() {
 		$this->core->message('Try to generate mime type list, if you run this for the first time or you have not enabled memcached, this can take a while.', Core::MESSAGE_TYPE_NOTICE);
@@ -65,7 +67,8 @@ $this->mime_types = ' . preg_replace('/  ([^\'\s]+) => /', '  \'\\1\' => ', var_
 	}
 
 	/**
-	 * Overrides CLICommand::on_success
+	 * Overrides CLICommand::on_success.
+	 *
 	 * callback for on_success
 	 */
 	public function on_success() {

@@ -87,8 +87,10 @@ class Selectfield extends AbstractHtmlInput
 	/**
 	 * Adds an options to the Selectfield and preselect if wanted the $selected option value
 	 *
-	 * @param array $options The option data array
-	 * @param string $selected The preselcted option, this would be the key from the options array (optional, default = '')
+	 * @param array $options
+	 *   The option data array.
+	 * @param string $selected
+	 *   The preselcted option, this would be the key from the options array. (optional, default = '')
 	 */
 	public function add_options(Array $options, $selected = "") {
 		//Loop through all provided options

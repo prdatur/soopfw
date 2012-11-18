@@ -396,7 +396,7 @@ class Session extends Object
 	}
 
 	/**
-	 * Returns wether the user is logged in or not
+	 * Returns whether the user is logged in or not
 	 *
 	 * @return boolean true if the user is logged in, else false
 	 */

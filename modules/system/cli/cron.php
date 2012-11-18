@@ -5,20 +5,24 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_cron extends CLICommand
 {
 
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
+	 *
 	 * @var string
 	 */
 	protected $description = "Run the cron.";
 
 	/**
-	 * Execute the command
-	 * @return boolean return true if no errors occured, else false
+	 * Execute the command.
+	 *
+	 * @return boolean return true if no errors occured, else false.
 	 */
 	public function execute() {
 

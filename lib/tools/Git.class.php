@@ -57,7 +57,7 @@ class Git
 	 * @param boolean $create_new
 	 *   create if not exists? (optional, default = false)
 	 * @param boolean $_init
-	 *   wether we want to init the git repo or not. (optional, default = true)
+	 *   whether we want to init the git repo or not. (optional, default = true)
 	 * @return void
 	 */
 	public function __construct($repo_path = null, $create_new = false, $_init = true) {
@@ -74,7 +74,7 @@ class Git
 	 * @param boolean $create_new
 	 *   create if not exists? (optional, default = false)
 	 * @param boolean $_init
-	 *   wether we want to init the git repo or not. (optional, default = true)
+	 *   whether we want to init the git repo or not. (optional, default = true)
 	 */
 	public function set_repo_path($repo_path, $create_new = false, $_init = true) {
 		if (is_string($repo_path)) {
@@ -243,7 +243,7 @@ class Git
 	 * @param string $branch
 	 *   branch name
 	 * @param boolean $force
-	 *   wether to force or not (optional, default = false).
+	 *   whether to force or not (optional, default = false).
 	 *
 	 * @return string the git returning string.
 	 */

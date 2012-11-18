@@ -144,7 +144,7 @@ abstract class AbstractHtmlInput extends Object
 	 * Disable an element
 	 *
 	 * @param boolean $boolean
-	 *   wether this element is disabled or not
+	 *   whether this element is disabled or not
 	 */
 	public function disabled($boolean = true) {
 		$this->config("disabled", $boolean);

@@ -38,7 +38,7 @@ abstract class AjaxModul extends Object
 	 * @param mixed $data
 	 *   the additional data to be returned (optional, default = null)
 	 * @param boolean $die
-	 *   wether to output the data and die or to return the data (optional, default = true)
+	 *   whether to output the data and die or to return the data (optional, default = true)
 	 * @param string $desc
 	 *   the error description (optional, default = '')
 	 *

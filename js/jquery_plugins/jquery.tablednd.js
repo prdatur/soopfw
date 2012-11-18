@@ -123,9 +123,9 @@ jQuery.tableDnD = {
 				serializeRegexp: /[^\-]*$/, // The regular expression to use to trim row IDs
 				serializeParamName: null, // If you want to specify another parameter name instead of the table ID
 				dragHandle: null, // If you give the name of a class here, then only Cells with this class will be draggable
-				/** wether we want to enable the indent feature or not */
+				/** whether we want to enable the indent feature or not */
 				enableIndent: false,
-				/** wether we want the serialize output as a query param string or the hole object */
+				/** whether we want the serialize output as a query param string or the hole object */
 				indentSerializeAsObject: false
 			}, options || {});
 

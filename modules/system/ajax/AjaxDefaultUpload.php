@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.System
+ * @module System
+ * @category Ajax
  */
 class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 
@@ -13,10 +14,12 @@ class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 	 */
 	public function run() {
 
+		// Check if the user is logged in. Only logged in users can do basic file upload.
 		if (!$this->core->get_session()->is_logged_in()) {
 			AjaxModul::return_code(AjaxModul::ERROR_NOT_LOGGEDIN, NULL, true, t("Not logged in"));
 		}
 
+		// Init params, if the fid param is set we want to delete it.
 		$params = new ParamStruct();
 		$params->add_param("fid", PDT_INT, 0);
 
@@ -27,9 +30,12 @@ class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 
 			$file_obj = new MainFileObj($params->fid);
 
+			// Validate that the file exists.
 			if ($file_obj->load_success() == false) {
 				AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, NULL, true, t("File not found"));
 			}
+
+			// Check if the current file owner is the current logged in user, only then we can delete.
 			if ($file_obj->owner == $this->session->current_user()->username && $file_obj->delete()) {
 				AjaxModul::return_code(AjaxModul::SUCCESS, NULL, true, t("File deleted"));
 			}
@@ -40,7 +46,11 @@ class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 		$uploader = new qqFileUploader();
 
 		$file_obj = new MainFileObj();
+
+		// Upload the file.
 		$result = $uploader->handle_upload($file_obj);
+
+		// Check result.
 		if ($result !== AjaxModul::SUCCESS) {
 			switch ($result) {
 				case qqFileUploader::STATUS_CANCELLED:
@@ -75,6 +85,7 @@ class AjaxSystemAjaxDefaultUpload extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, NULL, true, $message);
 		}
 
+		// If file could uploaded successfully change the file state to a permanent one.
 		$return = array(
 			'fid' => $uploader->get_fid()
 		);

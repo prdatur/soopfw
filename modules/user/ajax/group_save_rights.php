@@ -4,7 +4,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Module.User
+ * @module User
+ * @category Ajax
  */
 class AjaxUserGroupSaveRights extends AjaxModul {
 
@@ -50,6 +51,8 @@ class AjaxUserGroupSaveRights extends AjaxModul {
 			 */
 			$this->core->hook('group_save_rights', array($params->group_id, $params->rights));
 
+			// Generate a diff string which will be used for the audit log to determine which permissions we have removed
+			// or added.
 			$diff = new FineDiff($old_rights, $new_rights, FineDiff::$paragraphGranularity);
 			$diff = $diff->renderDiffToHTML();
 			$diff = preg_replace("/\s*<(\/?)(del|ins)>\s*/s", "<\${1}\${2}>", $diff);

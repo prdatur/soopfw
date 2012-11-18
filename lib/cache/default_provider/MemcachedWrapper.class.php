@@ -144,7 +144,8 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	}
 
 	/**
-	 * Return the result code of the last operation
+	 * Return the result code of the last operation.
+	 * 
 	 * @return int returns one of the CacheProvider::RES_* constants that is the result of the last executed Memcached method.
 	 */
 	public function get_result_code() {
@@ -155,9 +156,12 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	}
 
 	/**
-	 * Retrieve multiple items
-	 * @param array $key The key under which to store the value.
-	 * @return boolean Returns the array of found items or false on error
+	 * Retrieve multiple items.
+	 *
+	 * @param array $key
+	 *   The key under which to store the value.
+	 *
+	 * @return boolean Returns the array of found items or false on error.
 	 */
 	public function get_multi(array $keys) {
 		foreach ($keys AS &$v) {

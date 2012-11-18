@@ -21,7 +21,7 @@ abstract class WebSocket extends Object {
 	const HEADER_RESPONSE_NOT_IMPLEMENTED = 501;
 
 	/**
-	 * Wether we are within debug mode or not.
+	 * Whether we are within debug mode or not.
 	 *
 	 * @var boolean
 	 */

@@ -5,6 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category Module
  */
 class System extends ActionModul
 {
@@ -120,7 +122,7 @@ class System extends ActionModul
 	 */
 	public function hook_cron(Cron &$cron) {
 		// Get the intervall when the solr index actions will be committed
-		$runtime = (int)$this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60);
+		$runtime = (int) $this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60);
 		if (!empty($runtime)) {
 			// Get the day of the year.
 			$day_of_year = (int) date('z', TIME_NOW);
@@ -143,8 +145,8 @@ class System extends ActionModul
 		if ($this->core->get_dbconfig('system', 'core_run', 0) == 0 && $this->right_manager->has_perm('admin.system.config')) {
 			$this->core->message(t('The SoopFw cronjob was never run. In order to enable the cronjob please referer to the INSTALL.txt.
 This message will disappear after the first cronjob runs. If you really do not want to create the cronjob you can click on this !link to deactivate this message', array(
-	'!link' => '<a href="/system/deactivate_cron_message">' . t('link') . '</a>',
-)), Core::MESSAGE_TYPE_NOTICE);
+						'!link' => '<a href="/system/deactivate_cron_message">' . t('link') . '</a>',
+					)), Core::MESSAGE_TYPE_NOTICE);
 		}
 	}
 
@@ -156,9 +158,13 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 * @throws SoopfwNoPermissionException
 	 */
 	public function deactivate_cron_message() {
-		if (!$this->right_manager->has_perm('admin.system.config')) {
+
+		// Check perms.
+		if (!$this->right_manager->has_perm('admin.system.config', true)) {
 			throw new SoopfwNoPermissionException();
 		}
+
+		// Check if the notice was already deactivated.
 		if ($this->core->get_dbconfig('system', 'core_run', 0) == 1) {
 			$this->core->message(t('The cronjob notice is already hidden.'), Core::MESSAGE_TYPE_NOTICE);
 		}
@@ -177,6 +183,8 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 * @throws SoopfwNoPermissionException
 	 */
 	public function run_cron() {
+
+		// Check perms.
 		if (!$this->right_manager->has_perm('admin.system.config')) {
 			throw new SoopfwNoPermissionException();
 		}
@@ -195,7 +203,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 * @throws SoopfwNoPermissionException
 	 */
 	public function audit_reports() {
-		if (!$this->right_manager->has_perm('admin.system.view_audit_reports')) {
+
+		// Check perms.
+		if (!$this->right_manager->has_perm('admin.system.view_audit_reports', true)) {
 			throw new SoopfwNoPermissionException();
 		}
 
@@ -210,20 +220,20 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		// Get the log leven filter.
 		$form->add(new Selectfield("log_level", array(
-			'' => t('All'),
-			SystemLogObj::LEVEL_DEBUG => t('Debug'),
-			SystemLogObj::LEVEL_NOTICE => t('Normal'),
-			SystemLogObj::LEVEL_WARNING => t('Warning'),
-			SystemLogObj::LEVEL_ALERT => t('Alert'),
-			SystemLogObj::LEVEL_CRITICAL => t('Critical'),
-			SystemLogObj::LEVEL_EMERGENCY => t('Emergency'),
-		), '', t('Severity')));
+					'' => t('All'),
+					SystemLogObj::LEVEL_DEBUG => t('Debug'),
+					SystemLogObj::LEVEL_NOTICE => t('Normal'),
+					SystemLogObj::LEVEL_WARNING => t('Warning'),
+					SystemLogObj::LEVEL_ALERT => t('Alert'),
+					SystemLogObj::LEVEL_CRITICAL => t('Critical'),
+					SystemLogObj::LEVEL_EMERGENCY => t('Emergency'),
+						), '', t('Severity')));
 
 		// Get all unique types from database.
 		$type_filter = DatabaseFilter::create(SystemLogObj::TABLE)
-			->add_column('type')
-			->group_by('type')
-			->select_all('type', true);
+				->add_column('type')
+				->group_by('type')
+				->select_all('type', true);
 
 		// Prepend the "all" value.
 		array_unshift($type_filter, t('All'));
@@ -246,11 +256,16 @@ This message will disappear after the first cronjob runs. If you really do not w
 				continue;
 			}
 
+			// If the field is the username, we need to join the user table in order to search for the username.
 			if ($field == 'username') {
+				// We only need to join if the username is not an integer, because the user id we already have within #
+				// the main table.
 				if (is_numeric($val)) {
 					$filter->add_where('uid', $val);
 				}
 				else {
+
+					// Join.
 					$filter->join(UserObj::TABLE, 'u.user_id = `' . SystemLogObj::TABLE . '`.uid', 'u');
 					$filter->add_where('username', $this->db->get_sql_string_search($val, "*.*", false), 'LIKE', 'u');
 				}
@@ -283,12 +298,13 @@ This message will disappear after the first cronjob runs. If you really do not w
 			$entries[] = $entry;
 		}
 
-
 		// Assign the found entries.
 		$this->smarty->assign_by_ref('entries', $entries);
 	}
 
 	/**
+	 * Action: view_webtest_report
+	 *
 	 * Displays information about a web unit test request.
 	 *
 	 * @param string $report_id
@@ -297,19 +313,30 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 *   the count id.
 	 */
 	public function view_webtest_report($report_id, $count_id) {
+
+		// Check perms.
 		if (!$this->right_manager->has_perm("admin.system.config", true)) {
 			throw new SoopfwNoPermissionException();
 		}
 
+		// Set our memcache prefix to test to have access to the current test envoirement.
 		$this->core->mcache_set_prefix('test_' . $this->db->table_prefix());
+
+		// Get the request data for the wanted $report_id and $count_id
 		$data = $this->core->mcache('webtest_report::' . $report_id . '::' . $count_id);
+
+		// Get the maximum number of tests within the report.
 		$max_count_id = (int) $this->core->mcache('webtest_report::' . $report_id . '::max_counter');
+
+		// Reset the table prefix to the original one, we do not need any test envoirement data anymore.
 		$this->core->mcache_set_prefix($this->db->table_prefix());
+
+		// If data is empty we have provided some wrong parameters.
 		if (empty($data)) {
 			throw new SoopfwWrongParameterException();
 		}
 
-
+		// Generate the previous and next links if the exist.
 		$prev_counter_id = $count_id - 1;
 		$header = "<div style='padding: 15px'>";
 		if ($prev_counter_id > 0) {
@@ -318,9 +345,14 @@ This message will disappear after the first cronjob runs. If you really do not w
 		if ($max_count_id > 0 && ($count_id + 1) <= $max_count_id) {
 			$header .= "<a href='/admin/system/view_webtest_report/" . $report_id . "/" . ($count_id + 1) . "' class='form_button'>" . t('Next') . "</a>";
 		}
+
+		// Add the request url to the output.
 		$header .= "<br /><br />Request url: " . $data['url'] . "<br />";
+
+		// Add the type (POST or GET).
 		$header .= "Request type: " . $data['type'] . "<br />";
 
+		// Add the provided arguments.
 		if (!empty($data['args'])) {
 			$args = print_r($data['args'], true);
 			$args = str_replace("\n", "<br>", $args);
@@ -329,11 +361,18 @@ This message will disappear after the first cronjob runs. If you really do not w
 			$header .= "Request arguments: <br />" . $args . "<br />";
 		}
 		$header .= "</div>";
+
+
 		$content = $data['data'];
+
+		// Check if we have a <body> tag within the content, if so we have a normal request,
+		// if not we have an ajax request.
 		if (preg_match('/^(.*<\s*body\s*>)(.*)$/iUs', $content, $matches)) {
+			// Within a normal request just output the data.
 			echo $matches[1] . $header . $matches[2];
 		}
 		else {
+			// Within the ajax request we need to decode the json string and then output it.
 			$header .= "############### RETURN DATA ################### <br />";
 			echo $header;
 			$json_content = json_decode($content, true);
@@ -347,6 +386,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 				echo $content;
 			}
 		}
+		// We can not process normal because we already have all things we want to display and do not want to wrap
+		// the output within our template, if a normal html request was called we already have hole page including the
+		// used template.
 		die();
 	}
 
@@ -364,6 +406,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 *   the module name
 	 */
 	public function precheck_module_state($module) {
+
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.system.modules", true)) {
 			throw new SoopfwNoPermissionException();
@@ -379,20 +422,25 @@ This message will disappear after the first cronjob runs. If you really do not w
 		}
 
 		$system_helper = new SystemHelper();
-
 		$this->smarty->assign_by_ref('moduleinfo', $info);
 
+		// If the module is enabled we want to disable it.
 		if ($this->core->module_enabled($module)) {
 			$this->title(t('Disable module: @module', array('@module' => $module)));
 			$this->static_tpl = $this->module_tpl_dir . '/precheck_module_state_disable.tpl';
 
+			// Get all modules which depends on this module, because they will be also disabled if we disable this module.
 			$dependencies = $system_helper->get_dependet_modules($module, true, SystemHelper::DEPENDENCY_FILTER_ENABLED);
 			$this->core->js_config('system_disable_dependencies', array_keys($dependencies));
 			$this->smarty->assign_by_ref('dependencies', $dependencies);
 		}
+		// Module is not installed or disabled, so we want to install/enable it.
 		else {
 			$this->title(t('Enable module: @module', array('@module' => $module)));
 			$this->static_tpl = $this->module_tpl_dir . '/precheck_module_state_enable.tpl';
+
+			// Get all dependencies for this module, because if we want to enable this module, all needed modules needs
+			// to be enabled too.
 			$dependencies = $system_helper->get_module_dependencies($module, true, true, SystemHelper::DEPENDENCY_FILTER_DISABLED);
 			$this->core->js_config('system_enable_dependencies', array_keys($dependencies));
 			$this->smarty->assign_by_ref('dependencies', $dependencies);
@@ -412,7 +460,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 		}
 
 		//Setup search form
-		$form = new Form("search_email_templates", t("search:"));
+		$form = new SessionForm("search_email_templates", t("search:"));
 		$form->add(new Textfield("id", '', t("template id")));
 		$form->add(new Textfield("subject", '', t("subject")));
 		$form->add(new Textfield("body", '', t("body")));
@@ -423,61 +471,53 @@ This message will disappear after the first cronjob runs. If you really do not w
 		);
 		$options = array_merge($options, $this->lng->languages);
 		$form->add(new Selectfield('language', $options, '', t("Language")));
-
-
-
-		$form->add(new Submitbutton("search", t("Search"), "form_button"));
-		$form->assign_smarty("search_form");
+		$form->set_submit_button_title(t('Search'));
 
 		//Check form and add errors if form is not valid
 		$form->check_form();
-		if ($form->is_submitted()) { //Search was submited
-			//Set session key for server search values so a reload of a page will use the session values
-			$this->session->set("search_system_email_templates", $form->get_values());
-		}
-		else {
-			//Form was not submited so try to load session values
-			$form->set_values($this->session->get("search_system_email_templates", array()));
-		}
 
 		$templates = DatabaseFilter::create(MailTemplateObj::TABLE);
 
 		//Build up where statement
-		foreach ($this->session->get("search_system_email_templates", array()) AS $field => $val) {
+		foreach ($form->get_values() AS $field => $val) {
 			if (empty($val)) {
 				continue;
 			}
 			$templates->add_where($field, $this->db->get_sql_string_search($val, "*.*", false), 'LIKE');
 		}
 
-		$templates = $templates->add_column('id')
-				->group_by('id')
-				->order_by('id')
-				->select_all();
-
-		$this->smarty->assign('templates', $templates);
+		// Assign search results.
+		$this->smarty->assign('templates', $templates
+						->add_column('id')
+						->group_by('id')
+						->order_by('id')
+						->select_all()
+		);
 	}
 
 	/**
 	 * Action: change_email_template
+	 *
 	 * Save or create a email template, if $id is provided update the current one
 	 * if left empty it will create a new template
 	 *
 	 * @param int $id
-	 *   the email template id (optional, default = "")
+	 *   The email template id (optional, default = "")
 	 * @param string $available_variables
 	 *   the available variables which can be provided as a comma seperated string
 	 *   to provide information about the template which variables can be used.
 	 *   (optional, default = "")
 	 */
 	public function change_email_template($id = "", $available_variables = "") {
-		//Need to be logged in
-		$this->session->require_login();
 
-		if (!$this->right_manager->has_perm("admin.system.config")) {
+		// Check perms.
+		if (!$this->right_manager->has_perm("admin.system.config", true)) {
 			throw new SoopfwNoPermissionException();
 		}
 		$description = "";
+
+		// If we have some variables which we can use within the template, provide it with a direct javascript callback
+		// to insert the variable within the text.
 		if (!empty($available_variables)) {
 			$vars = array();
 			foreach (explode(",", $available_variables) AS $var) {
@@ -504,11 +544,15 @@ This message will disappear after the first cronjob runs. If you really do not w
 		$this->title($title, $description);
 		$form->add(new Textfield('id', $id, t('Template id')), $validators);
 
+		// Try to get all already created templates for the given template id's.
 		$values = DatabaseFilter::create(MailTemplateObj::TABLE)
 				->add_where('id', $id)
 				->select_all('language');
 
+		// Setup fields.
 		foreach ($this->lng->languages AS $language => $label) {
+
+			// If the template does not exist within the language, create empty values.
 			if (!isset($values[$language])) {
 				$values[$language] = array('subject' => '', 'body' => '');
 			}
@@ -519,11 +563,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$form->set_ajax(true);
 		$form->add_js_success_callback("save_email_template_success");
-		//Add a save submit button
-		$form->add(new Submitbutton("insert", t("Save")));
-
-		$form->assign_smarty("form");
-
+		$form->set_submit_button_title(t('Save'));
 
 		//Check if form was submitted
 		if ($form->check_form()) {
@@ -531,13 +571,12 @@ This message will disappear after the first cronjob runs. If you really do not w
 			$values = $form->get_array_values();
 
 			$this->db->transaction_begin();
+			$id = (empty($id)) ? $values['id'] : $id;
 			foreach ($this->lng->languages AS $language => $label) {
 				$obj = new MailTemplateObj($id, $language);
-				if (!$obj->load_success()) {
-					$obj->id = $values['id'];
-					$obj->language = $language;
-				}
 
+				// Maybe we have posted a different id so we need to always set it to the posted one.
+				$obj->id = $values['id'];
 				$obj->set_fields($values[$language]);
 				if (!$obj->save_or_insert()) {
 					$this->db->transaction_rollback();
@@ -545,7 +584,6 @@ This message will disappear after the first cronjob runs. If you really do not w
 				}
 			}
 
-			//Setup success message
 			$this->db->transaction_commit();
 			$this->core->message("Email template saved ", Core::MESSAGE_TYPE_SUCCESS, true, $values['id']);
 		}
@@ -554,9 +592,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 	}
 
 	/**
-	 *  Action generate_classlist
+	 * Action: generate_classlist
 	 *
-	 *  Generates the classlist new
+	 * Generates the classlist new
 	 */
 	public function generate_classlist() {
 
@@ -572,9 +610,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 	}
 
 	/**
-	 *  Action generate_smartylist
+	 * Action: generate_smartylist
 	 *
-	 *  Generates the smartylist new
+	 * Generates the smartylist new
 	 */
 	public function generate_smartylist() {
 
@@ -595,9 +633,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 	}
 
 	/**
-	 *  Action: reindex_menu
+	 * Action: reindex_menu
 	 *
-	 *  Reindex the menu alias
+	 * Reindex the menu alias
 	 */
 	public function reindex_menu() {
 
@@ -630,6 +668,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		$form->add(new Fieldset('performance', t('Performance')));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_CSS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_CSS, 'no'), t("Enable css cache?")), array(
+			// If we want to enable it, check that java is available.
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
 					return (shell_exec('which java') !== null);
@@ -638,6 +677,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 			})
 		));
 		$form->add(new YesNoSelectfield(self::CONFIG_CACHE_JS, $this->core->get_dbconfig("system", self::CONFIG_CACHE_JS, 'no'), t("Enable javascript cache?")), array(
+			// If we want to enable it, check that java is available.
 			new FunctionValidator(t('Can not find java, javascript cache can not be enabled, you need to install java first'), function($value) {
 				if ($value == 'yes') {
 					return (shell_exec('which java') !== null);
@@ -645,7 +685,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 				return true;
 			})
 		));
-		$form->add(new Textfield(self::CONFIG_AUDIT_LOG_ROTATE, (int)$this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60), t("Audit log rotate (every X days)"), t('At which period should the audit log be rotated? Value are days')));
+		$form->add(new Textfield(self::CONFIG_AUDIT_LOG_ROTATE, (int) $this->core->get_dbconfig("system", self::CONFIG_AUDIT_LOG_ROTATE, 60), t("Audit log rotate (every X days)"), t('At which period should the audit log be rotated? Value are days')));
 
 		$form->add(new Fieldset('system', t('System')));
 		if (!empty($this->lng)) {
@@ -673,29 +713,40 @@ This message will disappear after the first cronjob runs. If you really do not w
 		$form->add(new YesNoSelectfield(self::CONFIG_SSL_AVAILABLE, $this->core->get_dbconfig("system", self::CONFIG_SSL_AVAILABLE, 'no'), t("Is SSL available?"), t('If enabled the user critical data process will be ssl encrypted, also all admin links will be redirected to ssl domain.')));
 		$form->add(new Textfield(self::CONFIG_SECURE_DOMAIN, $this->core->get_dbconfig("system", self::CONFIG_SECURE_DOMAIN, ''), t("Secure SSL-Domain"), t('If you have a differenct domain for your ssl connection, please provide it here.')));
 
+		// Provide a button which will be handled through javascript, because on a click we get a dialog to configurate the login handler.
 		$form->add(new HtmlContainerInput('<a href="javascript:void(0);" class="change_login_handler_priority form_button">' . t('Configurate login handler') . '</a>'));
 
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PRIVATE_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PRIVATE_KEY), t("Recaptcha private key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_RECAPTCHA_PUPLIC_KEY, $this->core->dbconfig("system", self::CONFIG_RECAPTCHA_PUPLIC_KEY), t("Recaptcha public key"), t('Only use it if you really want your own, an internal key already exists which works on all domains')));
 		$form->add(new Textfield(self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, $this->core->get_dbconfig("system", self::CONFIG_DEFAULT_UPLOAD_MAX_FILE_SIZE, 52428800), t("Default upload max size"), t('Determines the default maximun size of uploaded files')));
 
-		//Execute the settings form
+		// Execute the settings form.
 		$form->execute();
 	}
 
+	/**
+	 * Action: configurate_login_handler
+	 *
+	 * Displays a form where we can configurate the login handler which we want to enable and the priority order.
+	 *
+	 * @throws SoopfwNoPermissionException
+	 */
 	public function configurate_login_handler() {
-		//Check perms
+		// Check perms.
 		if (!$this->right_manager->has_perm('admin.system.config')) {
 			throw new SoopfwNoPermissionException();
 		}
 
 		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
 
+		// Get all classes which implements LoginHandler.
 		$login_handler = ClassTools::get_class_of_instance('LoginHandler');
 
+		// Get all current configuarted login handler.
 		$configured_handlers = $this->core->get_dbconfig("system", self::CONFIG_LOGIN_HANDLER, array());
 
 		$handlers = array();
+		// Place all currently configurated login handler to the top, because they already have a configurated order.
 		foreach ($configured_handlers AS $key => $val) {
 			$handlers[$val] = array(
 				'val' => $val,
@@ -704,6 +755,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 			unset($login_handler[$val]);
 		}
 
+		// All new login handlers will be placed below.
 		foreach ($login_handler AS $key => $val) {
 			$handlers[$key] = array(
 				'val' => $val,
@@ -720,10 +772,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 * Lists all available modules with there status. if a module is not found within database it will be listed but as disabled
 	 */
 	public function modules() {
-		$this->session->require_login();
 
 		//Check perms
-		if (!$this->right_manager->has_perm("admin.system.modules")) {
+		if (!$this->right_manager->has_perm("admin.system.modules", true)) {
 			throw new SoopfwNoPermissionException();
 		}
 
@@ -784,14 +835,12 @@ This message will disappear after the first cronjob runs. If you really do not w
 	 */
 	public function updatedb() {
 
-		$this->session->require_login();
-
-		$this->title(t("Update modules"));
-
-		//Check perms
-		if (!$this->right_manager->has_perm("admin.system.modules")) {
+		// Check perms.
+		if (!$this->right_manager->has_perm("admin.system.modules", true)) {
 			throw new SoopfwNoPermissionException();
 		}
+
+		$this->title(t("Update modules"));
 
 		$form = new Form("Start update");
 		$form->add(new Submitbutton("update", t("Start update")));
@@ -883,6 +932,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 		$module_info['version'] = (int) $module_info['version'];
 
 		$helper = new SystemHelper();
+		// Verify that all dependencies are enabled.
 		$depends = $helper->get_module_dependencies($module);
 		foreach ($depends AS $dependency) {
 			if ($dependency['state'] != SystemHelper::DEPENDENCY_ENABLED) {
@@ -924,7 +974,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 			}
 		}
 
-		//Loop through each results. and check if the creation was success, if not we need to update the current table
+		//Loop through each results. and check if the previous creation was successfully, if not we need to update the current table
 		foreach ($results AS $obj => $result) {
 			$msg = "Created Database table for object: " . $obj;
 			$type = Core::MESSAGE_TYPE_SUCCESS;
@@ -948,7 +998,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 						//These fields must be changed again for auto_increment after wie added the field.
 						$add_fields = array();
 
-						//Get the old database fields to check wether we must rename, modify, delete or add the field
+						//Get the old database fields to check whether we must rename, modify, delete or add the field
 						$db_fields = $this->db->get_table_fields($table);
 
 						//Get the current object fields
@@ -1207,4 +1257,3 @@ This message will disappear after the first cronjob runs. If you really do not w
 	}
 
 }
-

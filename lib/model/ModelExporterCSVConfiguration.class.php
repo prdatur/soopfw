@@ -24,7 +24,7 @@ class ModelExporterCSVConfiguration extends Configuration {
 	const ENTRY_CHAR = 1;
 
 	/**
-	 * Wether to include the header fields or not.
+	 * Whether to include the header fields or not.
 	 *
 	 * @use: enable(), disable(), is_enabled(), is_disabled()
 	 * @return boolean

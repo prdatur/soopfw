@@ -1,9 +1,12 @@
 <?php
 
 /**
+ * Provides the default login handler which checks the username and the password against the user table.
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module User
+ * @category Module
  */
 class DefaultLoginHandler extends Object implements LoginHandler
 {
@@ -80,11 +83,15 @@ class DefaultLoginHandler extends Object implements LoginHandler
 	}
 
 	/**
-	 * Checks if the user is logged in, if not we will redirect him to the login page
+	 * Checks if the user is logged in, if not we will redirect him to the login page.
 	 *
-	 * @param boolean $force_not_loggedin force not logged in that the user will be redirected to the user login page
-	 * @param boolean $need_direct_handler need this login handler as valid
-	 * @return boolean true if normal behaviour should checked (Session::require_login which redirects if the is_logged_in param is set to false), false if the login handler handles this event
+	 * @param boolean $force_not_loggedin
+	 *   Force not logged in that the user will be redirected to the user login page.
+	 * @param boolean $need_direct_handler
+	 *   If we need this login handler as valid.
+	 *
+	 * @return boolean true if normal behaviour should checked (Session::require_login which redirects
+	 *   if the is_logged_in param is set to false), false if the login handler handles this event
 	 */
 	public function require_login($force_not_loggedin = false, $need_direct_handler = false) {
 		return true;

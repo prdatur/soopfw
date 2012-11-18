@@ -923,7 +923,7 @@ class Db
 	 * @param string $table
 	 *   the table
 	 * @param boolean $return_as_array
-	 *   Wether we want to return the primary key as an array or as a comma seperated string (optional, default = false)
+	 *   Whether we want to return the primary key as an array or as a comma seperated string (optional, default = false)
 	 *
 	 * @return mixed the primary key as an array or a string comma seperated
 	 */

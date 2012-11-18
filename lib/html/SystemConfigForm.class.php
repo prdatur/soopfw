@@ -63,7 +63,7 @@ class SystemConfigForm extends Form
 		//Check if form is valid (does not return anything but should always be called manually)
 		$this->check_form();
 
-		//Wether the form is submit and valid
+		//Whether the form is submit and valid
 		if ($this->is_submitted() && $this->is_valid()) {
 			//Save values on valid form
 			foreach ($this->get_values() AS $k => $v) {

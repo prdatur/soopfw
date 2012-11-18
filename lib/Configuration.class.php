@@ -105,7 +105,7 @@ class Configuration {
 	}
 
 	/**
-	 * Returns wether the given configuration $key is set.
+	 * Returns whether the given configuration $key is set.
 	 *
 	 * @param string $key
 	 *   the configuration key.

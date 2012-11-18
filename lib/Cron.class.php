@@ -28,7 +28,7 @@ class Cron
 	const CRON_TIME_DAY_OF_WEEK = 'dow';
 
 	/**
-	 * Wether to output some debug information
+	 * Whether to output some debug information
 	 * @var boolean
 	 */
 	public $debug = false;

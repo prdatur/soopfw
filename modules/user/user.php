@@ -5,6 +5,8 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module User
+ * @category Module
  */
 class User extends ActionModul
 {
@@ -50,7 +52,7 @@ class User extends ActionModul
 	 * The following categories are current supported:
 	 *   style, security, content, structure, authentication, system, other
 	 *
-	 * @return array the menu
+	 * @return array the menu.
 	 */
 	public function hook_admin_menu() {
 		return array(
@@ -81,7 +83,8 @@ class User extends ActionModul
 
 	/**
 	 * Implements menu().
-	 * @return array The alias mappings
+	 *
+	 * @return array The alias mappings.
 	 */
 	public function menu() {
 		if ($this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no') == 'yes') {
@@ -110,6 +113,7 @@ class User extends ActionModul
 
 	/**
 	 * Action: config
+	 *
 	 * Configurate the system main settings.
 	 */
 	public function config() {
@@ -205,17 +209,10 @@ class User extends ActionModul
 					'@value' => t('One time direct access link'),
 				))));
 
-		//Add a submit button
-		$form->add(new Submitbutton("saveconfig", t("Save Config")));
+		$form->set_submit_button_title(t("Save Config"));
 
-		//Assign form to smarty
-		$form->assign_smarty();
-
-		//Check if form is valid (does not return anything but should always be called manually)
-		$form->check_form();
-
-		//Wether the form is submit and valid
-		if ($form->is_submitted() && $form->is_valid()) {
+		//Whether the form is submit and valid
+		if ($form->check_form()) {
 
 			$values = $form->get_values();
 			if ($values[self::CONFIG_LOGIN_ALLOW_EMAIL] == 'yes' && $values[self::CONFIG_SIGNUP_UNIQUE_EMAIL] != 'yes') {
@@ -235,38 +232,52 @@ class User extends ActionModul
 	}
 
 	/**
-	 * Action: list_password
+	 * Action: lost_password
 	 *
 	 * Provides the feature for a customer to recovery his password.
 	 *
 	 * @param string $id
-	 *   the unique one time action key (optional, default = "")
+	 *   the unique one time action key. (optional, default = "")
 	 */
 	public function lost_password($id = "") {
 		$this->core->need_ssl();
+
+		// Only people who are not logged in can recovery the password.
 		if ($this->session->is_logged_in()) {
 			throw new SoopfwWrongParameterException(t('You are logged in, you can not recovery your password'));
 		}
 
+		// If we provided the unique id.
 		if (!empty($id)) {
 
+			// Setup default error message, we do not want to provide the user more as he must know.
 			$err_msg = t('Invalid secret key or key is expired or one time access is disabled');
+
 			$one_time_access = new UserOneTimeActionObj($id);
+			// If we want one time access but have not stored the unique id, we have an invalid key.
 			if (!$one_time_access->load_success() || $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_TYPE, self::LOST_PW_TYPE_ONE_TIME_ACCESS) != self::LOST_PW_TYPE_ONE_TIME_ACCESS) {
 				throw new SoopfwWrongParameterException($err_msg);
 			}
 
+			// Check if it is expired.
 			$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
 			if (TIME_NOW >= strtotime($one_time_access->date) + ((int)$expire_hours * 60)) {
 				throw new SoopfwWrongParameterException($err_msg);
 			}
 
+			// Verify that the user exist.
 			$user = new UserObj($one_time_access->user_id);
 			if (!$user->load_success()) {
 				throw new SoopfwWrongParameterException($err_msg);
 			}
+
+			// Disable feature request with this unique id.
 			$one_time_access->delete();
+
+			// Login the user.
 			$this->session->validate_login($user);
+
+			// Redirect to user profile page.
 			$this->core->location($this->session->get_login_handler()->get_profile_url($user));
 		}
 		else {
@@ -367,7 +378,8 @@ class User extends ActionModul
 	}
 	/**
 	 * Action: signup
-	 * Allow users to self signup
+	 *
+	 * Allow users to self signup.
 	 */
 	public function signup() {
 		if ($this->session->is_logged_in()) {
@@ -488,10 +500,10 @@ class User extends ActionModul
 	/**
 	 * Action: confirm
 	 *
-	 * Confirms a registered user
+	 * Confirms a registered user.
 	 *
 	 * @param string $confirm_key
-	 *   the confirmation key
+	 *   the confirmation key.
 	 */
 	public function confirm($confirm_key) {
 
@@ -528,7 +540,8 @@ class User extends ActionModul
 
 	/**
 	 * Action: overview
-	 * Display and/or search all users
+	 *
+	 * Display and/or search all users.
 	 */
 	public function overview() {
 		//Need to be logged in
@@ -604,7 +617,8 @@ class User extends ActionModul
 
 	/**
 	 * Action: add_user
-	 * Add an user
+	 *
+	 * Add an user.
 	 */
 	public function add_user() {
 		//Need to be logged in
@@ -623,7 +637,6 @@ class User extends ActionModul
 		$form->add($username);
 		$password = new Textfield("password", '', t('password'), '<a href="javascript:void(0);" onclick="generate_password(8, \'#form_id_form_add_user_password\');">' . t("Generate password") . '</a>');
 		$password->add_validator(new RequiredValidator());
-		#$password->config("suffix", );
 
 
 		$form->add($password);
@@ -636,14 +649,12 @@ class User extends ActionModul
 
 		$form->add_js_success_callback("add_user_success");
 
-		$form->assign_smarty("form");
-
 		//Check if form was submitted
-		if ($form->is_submitted() && $form->is_valid(false)) {
+		if ($form->check_form()) {
 			$user_obj = $this->create_user($form);
 			if ($user_obj !== false) {
 				$user_obj->transaction_auto_commit();
-				//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
+				//Setup success message to display and return the user id
 				$this->core->message(t("User added successfully"), Core::MESSAGE_TYPE_SUCCESS, $form->is_ajax(), $user_obj->user_id);
 			}
 			else {
@@ -657,9 +668,11 @@ class User extends ActionModul
 
 	/**
 	 * Action: userdata
-	 * Displays user related information
 	 *
-	 * @param int $user_id the user id
+	 * Displays user related information.
+	 *
+	 * @param int $user_id
+	 *   The user id. (optional, default = 0)
 	 */
 	public function userdata($user_id = 0) {
 		//Need to be logged in
@@ -690,9 +703,11 @@ class User extends ActionModul
 
 	/**
 	 * Action: user_address
-	 * Display the all addresses from given user
 	 *
-	 * @param int $user_id the userid
+	 * Display the all addresses from given user.
+	 *
+	 * @param int $user_id
+	 *   The userid. (optional, default = 0)
 	 */
 	public function user_address($user_id = 0) {
 		//Need to be logged in
@@ -727,11 +742,14 @@ class User extends ActionModul
 
 	/**
 	 * Action: add_address
-	 * Insert or add an address for given user
-	 * if addressID is provided, it will change this address (save), else insert a new address
 	 *
-	 * @param int $user_id the user_id
-	 * @param int $address_id The addressID (optional, default = 0)
+	 * Insert or add an address for given user.
+	 * If addressID is provided, it will change this address (save), else insert a new address.
+	 *
+	 * @param int $user_id
+	 *   The user_id.
+	 * @param int $address_id
+	 *   The addressID. (optional, default = 0)
 	 */
 	public function add_address($user_id, $address_id = 0) {
 		//Need to be logged in
@@ -854,19 +872,22 @@ class User extends ActionModul
 
 	/**
 	 * Action: user_rights
-	 * Configuration of user rights
-	 * @param int $user_id the user id
+	 *
+	 * Configuration of user rights.
+	 *
+	 * @param int $user_id
+	 *   The user id.
 	 */
 	public function user_rights($user_id) {
 		//Need to be logged in
 		$this->session->require_login();
 
 		$this->title(t("Rights"), t("Define rights for this User.
-				If a right is selected at [b]allowed[/b], he will always have this right wether the group is deny the right. To always deny the right, check the last radiobox ([b]Revoked[/b]).
-				[b]Not owned[/b] means that if he is added to a group in future, this right will be automaticly managed by group, but for now the access is denied.
-				If [b]Managed by group[/b] is selected than the allow/deny will be managed by the configuration of this group.
-				If an user has 2 Groups which manage one or more rights both, a [b]deny will be favored[/b].
-				"));
+			If a right is selected at [b]allowed[/b], he will always have this right whether the group is deny the right. To always deny the right, check the last radiobox ([b]Revoked[/b]).
+			[b]Not owned[/b] means that if he is added to a group in future, this right will be automaticly managed by group, but for now the access is denied.
+			If [b]Managed by group[/b] is selected than the allow/deny will be managed by the configuration of this group.
+			If an user has 2 Groups which manage one or more rights both, a [b]deny will be favored[/b].
+		"));
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.rights.change")) {
@@ -902,10 +923,12 @@ class User extends ActionModul
 
 	/**
 	 * Action: edit
+	 *
 	 * Display the user edit page.
 	 * Initilize tabs for given tasks
 	 *
-	 * @param int $user_id the user_id
+	 * @param int $user_id
+	 *   The user_id.
 	 */
 	public function edit($user_id) {
 		//Require login
@@ -947,6 +970,7 @@ class User extends ActionModul
 
 	/**
 	 * Action: user_groups
+	 *
 	 * Display all user groups
 	 */
 	public function user_groups() {
@@ -964,9 +988,11 @@ class User extends ActionModul
 
 	/**
 	 * Action: user_groups_right_change
+	 *
 	 * Ability to change group rights
 	 *
-	 * @param int $group_id the group id
+	 * @param int $group_id
+	 *   The group id.
 	 */
 	public function user_groups_right_change($group_id) {
 		//Need to be logged in
@@ -994,7 +1020,8 @@ class User extends ActionModul
 
 	/**
 	 * Action: login
-	 * Provide the login form
+	 *
+	 * Provide the login form.
 	 */
 	public function login() {
 
@@ -1119,7 +1146,8 @@ class User extends ActionModul
 
 	/**
 	 * Action: logout
-	 * Logout user
+	 *
+	 * Logout the user
 	 */
 	public function logout() {
 		//logout current user
@@ -1127,7 +1155,8 @@ class User extends ActionModul
 	}
 
 	/**
-	 * Install additional data
+	 * Install additional data.
+	 *
 	 * @return boolean if called from wrong method
 	 */
 	public function install() {
@@ -1251,22 +1280,22 @@ Also it expires after {expires} hours";
 			unset($_SESSION['redir_after_login']);
 			$this->core->location($redir);
 		}
-		//No location was found to redirt to /
+		//No location was found so redirect to /
 		else {
-			#$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
 			$this->core->location('/');
 		}
 	}
 
 	/**
-	 * Creates a new user from the form
+	 * Creates a new user from the form.
 	 *
 	 * @param Form $form
-	 *   the Form
+	 *   the Form.
 	 * @param string $password
 	 *   the password for the user, if provided this password will be used
-	 *   for the user (optional, default = "")
-	 * @return UserObj the user object if the user was created, else false
+	 *   for the user. (optional, default = "")
+	 *
+	 * @return UserObj the user object if the user was created, else false.
 	 */
 	private function create_user($form, $password = "") {
 		$user_obj = new UserObj();
@@ -1290,10 +1319,13 @@ Also it expires after {expires} hours";
 		return false;
 	}
 	/**
-	 * Get all right groups
+	 * Get all right groups.
 	 *
-	 * @param boolean $without_rights wether we want to include the rights which the group owns or not (optional, default = false)
-	 * @return array
+	 * @param boolean $without_rights
+	 *   Whether we want to include the rights which the group owns or not. (optional, default = false)
+	 *
+	 * @return array the right groups, if we want also the permissions for the groups we get an array key 'rights' for
+	 *   every group which holds all permissions for that group.
 	 */
 	private function get_right_groups($without_rights = false) {
 		$groups = $this->db->query_slave_all("SELECT * FROM `" . UserRightGroupObj::TABLE . "`", array(), 0, 0, 'group_id');

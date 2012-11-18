@@ -5,20 +5,24 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_reindex_menu extends CLICommand
 {
 
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
+	 *
 	 * @var string
 	 */
 	protected $description = "Reindex the menu url alias, this must be done if you change something within any menu method";
 
 	/**
-	 * Execute the command
-	 * @return boolean return true if no errors occured, else false
+	 * Execute the command.
+	 *
+	 * @return boolean return true if no errors occured, else false.
 	 */
 	public function execute() {
 		$this->core->reindex_menu();
@@ -26,7 +30,8 @@ class cli_reindex_menu extends CLICommand
 	}
 
 	/**
-	 * Overrides CLICommand::on_success
+	 * Overrides CLICommand::on_success.
+	 *
 	 * callback for on_success
 	 */
 	public function on_success() {

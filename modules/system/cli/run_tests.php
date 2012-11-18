@@ -5,22 +5,24 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_run_tests extends CLICommand
 {
 
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
 	 *
 	 * @var string
 	 */
 	protected $description = "Run all or a specific unit test (no parameter will list all available tests, provide 'all' to run all tests.";
 
 	/**
-	 * Execute the command
+	 * Execute the command.
 	 *
-	 * @return boolean return true if no errors occured, else false
+	 * @return boolean return true if no errors occured, else false.
 	 */
 	public function execute() {
 		global $argv;
@@ -100,7 +102,8 @@ class cli_run_tests extends CLICommand
 	}
 
 	/**
-	 * Overrides CLICommand::on_success
+	 * Overrides CLICommand::on_success.
+	 * 
 	 * callback for on_success
 	 */
 	public function on_success() {

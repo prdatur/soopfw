@@ -378,7 +378,8 @@ class DbStruct extends Object
 	/**
 	 * Adds a reference_key to the struct
 	 *
-	 * @param string $key The reference key
+	 * @param string $key
+	 *   The reference key.
 	 */
 	public function add_reference_key($key) {
 		if (!is_array($key)) {
@@ -397,7 +398,7 @@ class DbStruct extends Object
 	}
 
 	/**
-	 * returns wether the $field is a reference key or not
+	 * returns whether the $field is a reference key or not
 	 * @param string $field
 	 *   the DB Field
 	 *

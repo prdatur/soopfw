@@ -18,7 +18,7 @@ class Dir implements Iterator
 	private $path = "";
 
 	/**
-	 * Wether to search recrusive or not
+	 * Whether to search recrusive or not
 	 * @var boolean
 	 */
 	private $recrusive = true;
@@ -60,7 +60,7 @@ class Dir implements Iterator
 	private $just_files = false;
 
 	/**
-	 * Wether we must start the search process or use the previous found array
+	 * Whether we must start the search process or use the previous found array
 	 * @var boolean
 	 */
 	private $init = true;

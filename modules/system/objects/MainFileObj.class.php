@@ -5,6 +5,9 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category Objects
+ *
  */
 class MainFileObj extends AbstractDataManagement
 {
@@ -42,8 +45,10 @@ class MainFileObj extends AbstractDataManagement
 	/**
 	 * Constructor
 	 *
-	 * @param int $id the file id (optional, default = "")
-	 * @param boolean $force_db if we want to force to load the data from the database (optional, default = false)
+	 * @param int $id
+	 *   The file id. (optional, default = "")
+	 * @param boolean $force_db
+	 *   If we want to force to load the data from the database. (optional, default = false)
 	 */
 	public function __construct($id = "", $force_db = false) {
 		parent::__construct();
@@ -61,7 +66,6 @@ class MainFileObj extends AbstractDataManagement
 		$this->db_struct->add_required_field("created", t("Created"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
 		$this->db_struct->add_required_field("status", t("File Status"), PDT_INT, self::STATUS_TEMP, 'UNSIGNED');
 
-		$this->init_mime_types();
 		if (!empty($id)) {
 			if (!$this->load(array($id), $force_db)) {
 				return false;
@@ -70,12 +74,12 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Set or get the status, if you provide a value we are in set mode, else in get mode
+	 * Set or get the status, if you provide a value we are in set mode, else in get mode.
 	 *
 	 * @param int $status
-	 *   the status, use one of MainFileObj::STATUS_* (optional, default = NS)
+	 *   The status, use one of MainFileObj::STATUS_*. (optional, default = NS)
 	 *
-	 * @return int on get mode the status, on set mode always false
+	 * @return int on get mode the status, on set mode always false.
 	 */
 	public function status($status = NS) {
 		if ($status === NS) {
@@ -86,12 +90,12 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * load the given data
+	 * load the given data.
 	 *
 	 * @param mixed $val
-	 *   The reference key value to be selected
+	 *   The reference key value to be selected.
 	 * @param boolean $force_db
-	 *   if we want to force to load the data from the database (optional, default = false)
+	 *   If we want to force to load the data from the database. (optional, default = false)
 	 */
 	public function load($val = "", $force_db = false) {
 		//Load within normal way
@@ -110,13 +114,13 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save or insert the given data and if $tmp_file is not empty move the new uploaded file to the wanted location
-	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location
+	 * Save or insert the given data and if $tmp_file is not empty move the new uploaded file to the wanted location.
+	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location.
 	 *
 	 * @param string $tmp_file
-	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
+	 *   The path to the temp file or MainFileObj::MOVE_FILE. (optional, default = "")
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function save_or_insert($tmp_file = "") {
 		if ($this->load_success()) {
@@ -128,15 +132,15 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save the given data and if $tmp_file is not empty move the new uploaded file to the wanted location
-	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location
+	 * Save the given data and if $tmp_file is not empty move the new uploaded file to the wanted location.
+	 * If you provided MainFileObj::MOVE_FILE as $tmp_file it will try to move the current old file to the new location.
 	 *
 	 * @param string $tmp_file
-	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
+	 *   The path to the temp file or MainFileObj::MOVE_FILE. (optional, default = "")
 	 * @param boolean $save_if_unchanged
-	 *   Save this object even if no changes to it's values were made
+	 *   Save this object even if no changes to it's values were made.
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function save($tmp_file = "", $save_if_unchanged = false) {
 		$this->transaction_auto_begin();
@@ -182,26 +186,26 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * This is a wrapper that we can call the parent insert function
+	 * This is a wrapper that we can call the parent insert function.
 	 *
 	 * @param boolean $ignore
-	 *   Don't throw an error if data is already there (optional, default=false)
+	 *   Don't throw an error if data is already there. (optional, default=false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function insert_parent($ignore = false) {
 		return parent::insert($ignore);
 	}
 
 	/**
-	 * Insert the given data
+	 * Insert the given data.
 	 *
 	 * @param string $tmp_file
-	 *   the path to the temp file or MainFileObj::MOVE_FILE (optional, default = "")
+	 *   The path to the temp file or MainFileObj::MOVE_FILE. (optional, default = "")
 	 * @param boolean $ignore
-	 *   Don't throw an error if data is already there (optional, default=false)
+	 *   Don't throw an error if data is already there. (optional, default=false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function insert($tmp_file = "", $ignore = false) {
 		$this->transaction_auto_begin();
@@ -236,10 +240,10 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Download this file
+	 * Download this file.
 	 *
 	 * @param string $override_src_file
-	 *   here we can setup a absolute file path which file we want to download (optional, default = "")
+	 *   Here we can setup a absolute file path which file we want to download. (optional, default = "")
 	 */
 	public function download($override_src_file = "") {
 		if (!empty($override_src_file)) {
@@ -249,42 +253,23 @@ class MainFileObj extends AbstractDataManagement
 			$file = $this->get_path();
 		}
 
-		//Set http headers
-		header("Expires: " . gmdate("D, d M Y H:i:s", time() + (60 * 60 * 24)) . " GMT+1");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s")." GMT+1");
-		header("Content-Length: " . filesize($file));
-
-		if (!isset($this->plain_text_extensions[$this->extension])) {
-			header("Content-Transfer-Encoding: binary");
-			$content_type = "application/" . $this->extension;
-
-			$obj = new MimeTypeObj($this->extension);
-			if ($obj->load_success()) {
-				$content_type = $obj->mime_type;
-			}
-			header("Content-type: " . $content_type . "\n");
-			header("Content-Disposition: attachment; filename=\"" . $this->filename . "\";\n\n");
-		}
-		else {
-			header("Content-type: " . $this->plain_text_extensions[$this->extension] . "\n");
-		}
-		readfile($file);
-		die();
+		// Download the file.
+		NetTools::download(file_get_contents($file), $this->filename, $this->extension);
 	}
 
 	/**
-	 * Returns the file content
+	 * Returns the file content.
 	 *
-	 * @return string the file contents
+	 * @return string the file contents.
 	 */
 	public function get_contents() {
 		return file_get_contents($this->get_path());
 	}
 
 	/**
-	 * Make all needed directories to storing the file and check if the directory is valid
+	 * Make all needed directories to storing the file and check if the directory is valid.
 	 *
-	 * @return boolean true if directory exist, else false
+	 * @return boolean true if directory exist, else false.
 	 */
 	public function mkdir() {
 		if (preg_match("/(.*)\/[^\/]+$/is", $this->get_path(), $matches) && !is_dir($matches[1])) {
@@ -295,10 +280,10 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Setup our filename to a free one and return this string
-	 * the filename of our model will be set directly
+	 * Setup our filename to a free one and return this string.
+	 * The filename of our model will be set directly.
 	 *
-	 * @return string the free path
+	 * @return string the free path.
 	 */
 	public function get_free_path() {
 
@@ -318,12 +303,12 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Returns the current path to the file
+	 * Returns the current path to the file.
 	 *
 	 * @param boolean $without_sitepath
-	 *   wether we wont not to prepend the SITEPATH or not (optional, default false)
+	 *   Whether we wont not to prepend the SITEPATH or not. (optional, default false)
 	 *
-	 * @return string the path
+	 * @return string the path.
 	 */
 	public function get_path($without_sitepath = false) {
 		$path = "/uploads/" . self::TYPE . "/" . $this->filename;
@@ -336,7 +321,7 @@ class MainFileObj extends AbstractDataManagement
 	/**
 	 * Returns the path where we can "view" or "download" the file.
 	 *
-	 * @return string the path where we can view the file
+	 * @return string the path where we can view the file.
 	 */
 	public function get_view_path() {
 		return $this->get_path(true);
@@ -345,7 +330,7 @@ class MainFileObj extends AbstractDataManagement
 	/**
 	 * Will return the extension for this filename without the dot.
 	 *
-	 * @return string the extension string
+	 * @return string the extension string.
 	 */
 	public function get_extension() {
 		$ext = '';
@@ -356,11 +341,14 @@ class MainFileObj extends AbstractDataManagement
 	}
 
 	/**
+	 * Delete the file.
+	 *
+	 * We can also choose if we want to leave the file physically on the server or delete it also.
 	 *
 	 * @param boolean $leave_on_server
-	 *   if set to true the file will only be deleted from database, the file it self will leave on the server (optional, default = false)
+	 *   if set to true the file will only be deleted from database, the file it self will leave on the server. (optional, default = false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function delete($leave_on_server = false) {
 		if ($leave_on_server == false) {
@@ -369,19 +357,4 @@ class MainFileObj extends AbstractDataManagement
 		}
 		return parent::delete();
 	}
-
-	/**
-	 * Initialize the mime types
-	 */
-	protected function init_mime_types() {
-		$this->plain_text_extensions = array(
-			/*"jpg" => true,
-			"jpeg" => true,
-			"gif" => true,
-			"png" => true,*/
-			"txt" => true,
-		);
-	}
-
 }
-

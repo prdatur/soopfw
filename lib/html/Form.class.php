@@ -257,7 +257,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	}
 
 	/**
-	 * Set wether to self handle ajax submit or not.
+	 * Set whether to self handle ajax submit or not.
 	 *
 	 * @param boolean $self_handle
 	 *   If set to true, no javascript will be added to submit the form via ajax request (optional, default = true)
@@ -358,7 +358,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * Set if the form should be ajax form or not
 	 *
 	 * @param boolean $bool
-	 *   Wether to determine that this form is ajax or not (optional, default = true)
+	 *   Whether to determine that this form is ajax or not (optional, default = true)
 	 */
 	public function set_ajax($bool = true) {
 		$this->is_ajax = $bool;
@@ -665,7 +665,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	 * Get all elements with their values
 	 *
 	 * @param boolean $include_hidden
-	 *   Wether to include hidden and submit values within return values (optional, default=false)
+	 *   Whether to include hidden and submit values within return values (optional, default=false)
 	 *
 	 * @return array the element array format [key] = value
 	 */
@@ -867,10 +867,10 @@ class Form extends AbstractHtmlElement implements Iterator
 	}
 
 	/**
-	 * Returns wether the current entry is valid or not
+	 * Returns whether the current entry is valid or not
 	 *
 	 * @return boolean
-	 *   Wether the current key is valid or not
+	 *   Whether the current key is valid or not
 	 */
 	public function valid() {
 		$fields = $this->current() !== false;

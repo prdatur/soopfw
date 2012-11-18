@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Represents a user
+ * Represents a user.
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category ModelObjects
+ * @module User
+ * @category Objects
  */
 class UserObj extends AbstractDataManagement
 {
@@ -15,13 +16,15 @@ class UserObj extends AbstractDataManagement
 	const TABLE = 'user';
 
 	/**
-	 * Holds the rights for the user
+	 * Holds the rights for the user.
+	 *
 	 * @var array
 	 */
 	private $rights = array();
 
 	/**
-	 * Determines if we have loaded the rights yet or not
+	 * Determines if we have loaded the rights yet or not.
+	 *
 	 * @var boolean
 	 */
 	private $rights_loaded = false;
@@ -30,9 +33,9 @@ class UserObj extends AbstractDataManagement
 	 * constructor
 	 *
 	 * @param int $user_id
-	 *   the userid (optional, default = "")
+	 *   the user id. (optional, default = "")
 	 * @param boolean $force_db
-	 *   if we want to force to load the data from the database (optional, default = false)
+	 *   if we want to force to load the data from the database. (optional, default = false)
 	 */
 	function __construct($user_id = "", $force_db = false) {
 		parent::__construct();
@@ -62,14 +65,14 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save the user
+	 * Save the user.
 	 *
 	 * @param boolean $save_if_unchanged
-	 *   If we want to save the current values also if we do not changed anything (optional, default = false)
+	 *   If we want to save the current values also if we do not changed anything. (optional, default = false)
 	 * @param boolean $crypt_pw
-	 *   Wether we want to crypt the password or not (optional, default = true)
+	 *   Whether we want to crypt the password or not. (optional, default = true)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function save($save_if_unchanged = false, $crypt_pw = true) {
 		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->old_values['password']))) {
@@ -79,14 +82,14 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save or insert the user
+	 * Save or insert the user.
 	 *
 	 * @param boolean $crypt_pw
-	 *   Wether we want to crypt the password or not (optional, default = true)
+	 *   Whether we want to crypt the password or not. (optional, default = true)
 	 * @param boolean $save_if_unchanged
-	 *   If we want to save the current values also if we do not changed anything (optional, default = false)
+	 *   If we want to save the current values also if we do not changed anything. (optional, default = false)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function save_or_insert($crypt_pw = true, $save_if_unchanged = false) {
 		if ($crypt_pw == true && ($save_if_unchanged == true || (isset($this->values_changed['password']) && $this->values_changed['password'] != $this->old_values['password']))) {
@@ -96,14 +99,14 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Save the user
+	 * Save the user.
 	 *
 	 * @param boolean $ignore
-	 *   Don't throw an error if data is already there (optional, default=false)
+	 *   Don't throw an error if data is already there. (optional, default=false)
 	 * @param boolean $crypt_pw
-	 *   Wether we want to crypt the password or not (optional, default = true)
+	 *   Whether we want to crypt the password or not. (optional, default = true)
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function insert($ignore = false, $crypt_pw = true) {
 		if ($crypt_pw == true) {
@@ -111,6 +114,8 @@ class UserObj extends AbstractDataManagement
 		}
 
 		if (parent::insert($ignore)) {
+
+			// Add the user to all default permission groups.
 			foreach($this->core->get_dbconfig("system", User::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
 				$user2group = new User2RightGroupObj();
 				$user2group->user_id = $this->user_id;
@@ -135,26 +140,35 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Deletes the user, also delete all linked elements for a user
+	 * Deletes the user, also delete all linked elements for a user.
 	 *
-	 * @return boolean true on success, else false
+	 * @return boolean true on success, else false.
 	 */
 	public function delete() {
 		$this->transaction_auto_begin();
 		$user_id = $this->user_id;
 		$username = $this->username;
+
+		// Delete all user addresses.
 		$this->db->query_master("DELETE FROM `".UserAddressObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $this->user_id
+			'@user_id' => $user_id
 		));
+
+		// Delete all memberships to permission groups.
 		$this->db->query_master("DELETE FROM `".User2RightGroupObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $this->user_id
+			'@user_id' => $user_id
 		));
+
+		// Delete all individuell permission configs.
 		$this->db->query_master("DELETE FROM `".UserRightObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $this->user_id
+			'@user_id' => $user_id
 		));
+
+		// Remove all session entries.
 		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $this->user_id
+			'@user_id' => $user_id
 		));
+
 		if (parent::delete()) {
 
 			/**
@@ -176,18 +190,24 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * returns the raw user rights
-	 * dont use this to check permissions, disallowed rights are not marked as permission denied.
+	 * Returns the raw user rights.
+	 *
+	 * Don't use this to check permissions, disallowed rights are not marked as permission denied.
 	 *
 	 * @param string $type
-	 *   filter the return rights, use one of RightManager::RIGHT_TYPE_* (optional, default = RightManager::RIGHT_TYPE_USER);
+	 *   filter the return rights, use one of RightManager::RIGHT_TYPE_*. (optional, default = RightManager::RIGHT_TYPE_USER);
 	 *
-	 * @return array with all rights
+	 * @return array with all rights.
 	 */
 	public function get_raw_rights($type = RightManager::RIGHT_TYPE_USER) {
 		return $this->right_manager->get_rights($this->user_id, $type, true);
 	}
 
+	/**
+	 * Returns all permissions for this user.
+	 *
+	 * @return array The permissions for this user.
+	 */
 	public function get_rights() {
 		if(!$this->rights_loaded) {
 			$this->rights = $this->right_manager->get_rights($this->user_id);
@@ -196,12 +216,12 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Checks the user if he has given permission(s)
+	 * Checks the user if he has given permission(s).
 	 *
 	 * @param string $right
-	 *   the right
+	 *   the right.
 	 *
-	 * @return boolean if user has permission return true, else false
+	 * @return boolean if user has permission return true, else false.
 	 */
 	public function has_perm($right) {
 		return $this->right_manager->has_perm($right, false, $this);

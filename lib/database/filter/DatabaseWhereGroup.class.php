@@ -92,7 +92,7 @@ class DatabaseWhereGroup extends Object
 	}
 
 	/**
-	 * Returns wether the database where group is empty or not
+	 * Returns whether the database where group is empty or not
 	 *
 	 * @return boolean
 	 *   true if empty, else false

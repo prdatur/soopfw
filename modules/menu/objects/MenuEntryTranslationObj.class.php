@@ -121,7 +121,7 @@ class MenuEntryTranslationObj extends AbstractDataManagement
 	}
 
 	/**
-	 * Returns wether this menu entry has childs or not.
+	 * Returns whether this menu entry has childs or not.
 	 *
 	 * @return boolean true if menu entry has childs or not
 	 */

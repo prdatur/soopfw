@@ -34,7 +34,7 @@ class ObjForm extends Form
 	 * @param array $element_config
 	 *   A configuration array in form array('field_name' => array('option'  => 'value')) (optional, default = array())
 	 * @param boolean $force_load_success
-	 *   Wether we see the provided object as loaded or use the object load_success state (optional, default = false)
+	 *   Whether we see the provided object as loaded or use the object load_success state (optional, default = false)
 	 */
 	public function __construct(AbstractDataManagement &$obj, $title = "", $element_config = array(), $force_load_success = false) {
 

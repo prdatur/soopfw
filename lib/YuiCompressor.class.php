@@ -43,8 +43,10 @@ class YuiCompressor
 	private $string = '';
 
 	/**
-	 * construct
-	 * @param array $options the options (optional, default = array())
+	 * Construct
+	 *
+	 * @param array $options
+	 *   The options. (optional, default = array())
 	 */
  	public function __construct($options = array()) {
 		foreach ($options as $option => $value) {
@@ -53,17 +55,22 @@ class YuiCompressor
 	}
 
 	/**
-	 * set one of the YUI compressor options
-	 * @param string $option the option key
-	 * @param mixed $value the value
+	 * Set one of the YUI compressor options.
+	 *
+	 * @param string $option
+	 *   The option key.
+	 * @param mixed $value
+	 *   The value.
 	 */
 	public function set_option($option, $value) {
 		$this->options[$option] = $value;
 	}
 
 	/**
-	 * add a file to be compressed
-	 * @param string $file the absolute file path
+	 * Add a file to be compressed.
+	 *
+	 * @param string $file
+	 *   The absolute file path.
 	 */
 	public function add_file($file) {
 		$this->files[] = $file;
@@ -72,7 +79,8 @@ class YuiCompressor
 	/**
 	 * Append a string to the custom string which will be also compressed
 	 *
-	 * @param string $string the string
+	 * @param string $string
+	 *   The string
 	 */
 	public function add_string($string) {
 		$this->string .= ' '.$string;

@@ -1,10 +1,11 @@
-<?
+<?php
 /**
  * Provides an ajax request to print out hello world
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- * @category Example
+ * @module System
+ * @category Ajax
  */
 class AjaxSystemHelloWorld extends AjaxModul {
 

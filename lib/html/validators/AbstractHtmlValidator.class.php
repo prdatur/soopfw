@@ -124,7 +124,7 @@ abstract class AbstractHtmlValidator extends Object
 	}
 
 	/**
-	 * Returns wether the validator should be always valid or not
+	 * Returns whether the validator should be always valid or not
 	 *
 	 * @return boolean if this validator is always valid return true, else false
 	 */
@@ -133,7 +133,7 @@ abstract class AbstractHtmlValidator extends Object
 	}
 
 	/**
-	 * Returns wether the validator is valid or not
+	 * Returns whether the validator is valid or not
 	 *
 	 * @return boolean true on valid, else false
 	 */

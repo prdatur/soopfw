@@ -5,19 +5,23 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
+ * @module System
+ * @category CLI
  */
 class cli_generate_smartylist extends CLICommand
 {
 
 	/**
 	 * Overrides CLICommand::description
-	 * The description for help
+	 * The description for help.
+	 *
 	 * @var string
 	 */
 	protected $description = "Re-create Smarty secure template directory list (It will scan all directories under SITEPATH and add directories which named 'templates')";
 
 	/**
-	 * Execute the command
+	 * Execute the command.
+	 *
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
@@ -28,7 +32,8 @@ class cli_generate_smartylist extends CLICommand
 	}
 
 	/**
-	 * Overrides CLICommand::on_success
+	 * Overrides CLICommand::on_success.
+	 *
 	 * callback for on_success
 	 */
 	public function on_success() {
@@ -36,9 +41,9 @@ class cli_generate_smartylist extends CLICommand
 	}
 
 	/**
-	 * Create the smarty secure directory index, only templates in this directories can be used within smarty
+	 * Create the smarty secure directory index, only templates in this directories can be used within smarty.
 	 *
-	 * @return boolean true if smartylist could be written successfully, else false
+	 * @return boolean true if smartylist could be written successfully, else false.
 	 */
 	public function create_smarty_sdi() {
 		//If the config file is not writeable, return false
@@ -65,9 +70,9 @@ class cli_generate_smartylist extends CLICommand
 	 * Returns all directories which are template directories.
 	 *
 	 * @param string $current_dir
-	 *   current / start directory
+	 *   current / start directory.
 	 *
-	 * @return array a list of all path which has a templates directory
+	 * @return array a list of all path which has a templates directory.
 	 */
 	private function get_template_dirs($current_dir) {
 		$tmp_array = array();

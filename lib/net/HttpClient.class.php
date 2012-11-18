@@ -17,7 +17,7 @@ class HttpClient extends Object {
 	protected $current_content = "";
 
 	/**
-	 * Wether to accept cookies or not
+	 * Whether to accept cookies or not
 	 * @var boolean
 	 */
 	protected $usecookie = true;
