@@ -14,6 +14,9 @@ class User extends ActionModul
 	//Default method
 	protected $default_methode = "overview";
 
+	/**
+	 * Define config variables.
+	 */
 	const CONFIG_DEFAULT_REGISTERED_USER_GROUPS = 'default_registered_user_groups';
 	const CONFIG_ENABLE_REGISTRATION = 'enable_registration';
 	const CONFIG_SIGNUP_ALIAS = 'signup_alias';
@@ -36,10 +39,11 @@ class User extends ActionModul
 	const CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW = 'customer_lost_pw_new_pw';
 	const CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE = 'customer_lost_pw_one_time_access';
 
-
+	// Signup types.
 	const SIGNUP_TYPE_CONFIRM = 'confirm';
 	const SIGNUP_TYPE_RANDOM = 'random';
 
+	// Lost password types.
 	const LOST_PW_TYPE_NONE = 1;
 	const LOST_PW_TYPE_RANDOM = 2;
 	const LOST_PW_TYPE_ONE_TIME_ACCESS = 3;
