@@ -170,13 +170,12 @@ class DefaultLoginHandler extends Object implements LoginHandler
 		else {
 			$user_obj->db_filter->add_where("username", $username);
 		}
+
+		// Just check default users.
+		$user_obj->db_filter->add_where('account_type', 'default');
+
 		//Check if a valid user account exists
 		if (!$user_obj->load()) { //No user found
-			return false;
-		}
-
-		//User must be active and not deleted
-		if($user_obj->active != 'yes' || $user_obj->deleted != 'no') {
 			return false;
 		}
 

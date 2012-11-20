@@ -45,6 +45,7 @@ class UserObj extends AbstractDataManagement
 		$this->db_struct->set_auto_increment("user_id");
 		$this->db_struct->add_field("user_id", t("User ID"), PDT_INT, 0);
 		$this->db_struct->add_field("username", t("username"), PDT_STRING);
+		$this->db_struct->add_field("account_type", t("The account type"), PDT_STRING, 'default');
 		$this->db_struct->add_hidden_field("password", t("password"), PDT_STRING);
 		$this->db_struct->add_field("language", t("Language"), PDT_STRING, 'en');
 		$this->db_struct->add_field("registered", t("Registered"), PDT_DATETIME, '0000-00-00 00:00:00');

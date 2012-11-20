@@ -363,7 +363,16 @@ class Session extends Object
 			return $this->logged_in;
 		}
 
+		// User must be active and not deleted.
+		if($return->active != 'yes' || $return->deleted != 'no') {
+			$this->core->message(t('(@type) This account is suspended.', array('@type' => $return->account_type)), Core::MESSAGE_TYPE_ERROR);
+			SystemHelper::audit(t('Suspended account "@username" tried to login.', array('@username' => $return->username)), 'session', SystemLogObj::LEVEL_NOTICE);
+			return false;
+		}
+
+		// At this point the user is logged in.
 		$this->current_user = $return;
+
 		if (!empty($this->login_handler) && $this->login_handler instanceof LoginHandler) {
 			$this->set('user_login_handler', get_class($this->login_handler));
 		}
