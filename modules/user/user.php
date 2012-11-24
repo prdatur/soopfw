@@ -9,7 +9,6 @@
  */
 class User extends ActionModul
 {
-
 	//Default method
 	protected $default_methode = "overview";
 
@@ -31,7 +30,6 @@ class User extends ActionModul
 	const CONFIG_LOGIN_GLOBAL_FAIL_LOGIN_LOCKTIME = 'login_global_fail_login_locktime';
 	const CONFIG_LOGIN_USERNAME_FAIL_LOGINS = 'login_username_fail_logins';
 	const CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME = 'login_username_fail_login_locktime';
-
 	const CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD = 'admin_change_customer_passsword';
 	const CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP = 'customer_confirm_signup';
 	const CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD = 'customer_signup_send_password';
@@ -107,7 +105,7 @@ class User extends ActionModul
 			if ($this->core->get_dbconfig("user", self::CONFIG_LOGIN_PING, 'no') == 'yes') {
 
 				// Load the ping javascript and setup ping timeout interval to prevent a logout while staying on the page inactive.
-				$logout_time = (int)($this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60) * 0.75);
+				$logout_time = (int) ($this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60) * 0.75);
 				$this->core->js_config('user_ping_time', $logout_time);
 				$this->core->add_js('/modules/user/js/ping.js');
 			}
@@ -134,10 +132,17 @@ class User extends ActionModul
 
 		$form->add(new Fieldset('main_settings', t('Main settings')));
 		$values = array();
-		foreach($this->db->query_slave_all('SELECT * FROM `'. UserRightGroupObj::TABLE .'`') AS $row) {
+		foreach ($this->db->query_slave_all('SELECT * FROM `' . UserRightGroupObj::TABLE . '`') AS $row) {
 			$values[$row['group_id']] = $row['title'];
 		}
-		$form->add(new Checkboxes(self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, $values, $this->core->get_dbconfig("user", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true), t('Default user groups'), t('The above selected groups will be automaticly assigned to newly created / registered users.')));
+
+		$form->add(new Checkboxes(
+			self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS,
+			$values,
+			$this->core->get_dbconfig("user", self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true),
+			t('Default user groups'),
+			t('The above selected groups will be automaticly assigned to newly created / registered users.')
+		));
 
 		$form->add(new YesNoSelectfield(
 			self::CONFIG_LOGIN_PING,
@@ -147,7 +152,7 @@ class User extends ActionModul
 				'@config' => t('Default logout time while inactive'),
 			))
 		));
-		$form->add(new Textfield(self::CONFIG_INACTIVE_LOGOUT_TIME, (int)$this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60), t("Default logout time while inactive"), t('Value is in minutes')));
+		$form->add(new Textfield(self::CONFIG_INACTIVE_LOGOUT_TIME, (int) $this->core->get_dbconfig("user", self::CONFIG_INACTIVE_LOGOUT_TIME, 60), t("Default logout time while inactive"), t('Value is in minutes')));
 		$form->add(new YesNoSelectfield(self::CONFIG_ENABLE_REGISTRATION, $this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no'), t("Enable user signup?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_CAPTCHA, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes'), t("user signups needs captcha?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_UNIQUE_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no'), t("Are the emails unique?")));
@@ -186,31 +191,51 @@ class User extends ActionModul
 		}
 		$form->add(new Fieldset('mail_templates', t('email templates'), $description));
 
-		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, ''),
-				t('Administrator changes password'),
-				t('This email will be send if an administrator changes a customer password')));
+		$form->add(new EmailTemplateSelectField(
+			self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD,
+			array('username', 'password'),
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, ''),
+			t('Administrator changes password'),
+			t('This email will be send if an administrator changes a customer password')
+		));
 
-		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, array('username', 'link'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, ''),
-				t('Customer confirm signup'),
-				t('This email will be send if a customer signup an account and he needs to confirm his account')));
+		$form->add(new EmailTemplateSelectField(
+			self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP,
+			array('username', 'link'),
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_CONFIRM_SIGNUP, ''),
+			t('Customer confirm signup'),
+			t('This email will be send if a customer signup an account and he needs to confirm his account')
+		));
 
-		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, ''),
-				t('Customer signup send password'),
-				t('This email will be send if a customer signup an account and instead of a confirmation link the user get a welcome mail including a random password.')));
+		$form->add(new EmailTemplateSelectField(
+			self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD,
+			array('username', 'password'),
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_SIGNUP_SEND_PASSWORD, ''),
+			t('Customer signup send password'),
+			t('This email will be send if a customer signup an account and instead of a confirmation link the user get a welcome mail including a random password.')
+		));
 
-		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, array('username', 'password'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, ''),
-				t('Lost password mail for sending new password'),
-				t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
-					'@action' => t('Lost password action'),
-					'@value' => t('One time direct access link'),
-				))));
+		$form->add(new EmailTemplateSelectField(
+			self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW,
+			array('username', 'password'),
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_NEW, ''),
+			t('Lost password mail for sending new password'),
+			t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
+				'@action' => t('Lost password action'),
+				'@value' => t('One time direct access link'),
+			))
+		));
 
-		$form->add(new EmailTemplateSelectField(self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, array('link', 'username', 'expires'), $this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''),
-				t('Lost password mail for one time direct access'),
-				t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
-					'@action' => t('Send new random password'),
-					'@value' => t('One time direct access link'),
-				))));
+		$form->add(new EmailTemplateSelectField(
+			self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE,
+			array('link', 'username', 'expires'),
+			$this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''),
+			t('Lost password mail for one time direct access'),
+			t('This email will be send if a customer wants to recover his password. It will only send if "@action" is set to "@value"', array(
+				'@action' => t('Send new random password'),
+				'@value' => t('One time direct access link'),
+			))
+		));
 
 		$form->set_submit_button_title(t("Save Config"));
 
@@ -306,7 +331,7 @@ class User extends ActionModul
 
 			// Check if it is expired.
 			$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
-			if (TIME_NOW >= strtotime($one_time_access->date) + ((int)$expire_hours * 60)) {
+			if (TIME_NOW >= strtotime($one_time_access->date) + ((int) $expire_hours * 60)) {
 				throw new SoopfwWrongParameterException($err_msg);
 			}
 
@@ -349,15 +374,15 @@ class User extends ActionModul
 				$account = $form->get_value('account');
 
 				$acc = DatabaseFilter::create(UserObj::TABLE)
-					->add_column('user_id')
-					->add_where('username', $account)
-					->select_first();
+						->add_column('user_id')
+						->add_where('username', $account)
+						->select_first();
 
 				if (empty($acc) && $this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
 					$acc = DatabaseFilter::create(UserAddressObj::TABLE)
-						->add_column('user_id')
-						->add_where('email', $account)
-						->select_first();
+							->add_column('user_id')
+							->add_where('email', $account)
+							->select_first();
 				}
 
 
@@ -402,7 +427,7 @@ class User extends ActionModul
 					if ($one_time->insert()) {
 
 						if ($mail->send_tpl($this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''), $this->core->current_language, $user_obj, array(
-							'link' => $this->core->get_secure_url().'/user/lost_password/' . $one_time->id,
+							'link' => $this->core->get_secure_url() . '/user/lost_password/' . $one_time->id,
 							'username' => $user_obj->username,
 						))) {
 							$this->db->transaction_commit();
@@ -415,12 +440,10 @@ class User extends ActionModul
 						}
 					}
 				}
-
 			}
 		}
-
-
 	}
+
 	/**
 	 * Action: signup
 	 *
@@ -484,10 +507,10 @@ class User extends ActionModul
 			if ($user_obj !== false) {
 
 				$tpl_vals = array(
-						'username' => $user_obj->username
+					'username' => $user_obj->username
 				);
 
-				switch($signup_type) {
+				switch ($signup_type) {
 					case User::SIGNUP_TYPE_CONFIRM:
 						$user_obj->active = 'no';
 						$user_obj->confirm_key = md5(uniqid());
@@ -514,7 +537,7 @@ class User extends ActionModul
 						//Setup success message to display and return saved or inserted data (force return of hidden value to get insert id by boolean true)
 						$this->core->message(t("Your account was successfully created."), Core::MESSAGE_TYPE_SUCCESS);
 
-						switch($signup_type) {
+						switch ($signup_type) {
 							case User::SIGNUP_TYPE_CONFIRM:
 								$this->core->message(t("We have send you an email with a confirmation link included, please check your inbox."), Core::MESSAGE_TYPE_NOTICE);
 								break;
@@ -723,7 +746,7 @@ class User extends ActionModul
 		//Need to be logged in
 		$this->session->require_login();
 
-		$user_id = (int)$user_id;
+		$user_id = (int) $user_id;
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.view") && $this->session->current_user()->user_id != $user_id) {
 			throw new SoopfwNoPermissionException();
@@ -760,7 +783,7 @@ class User extends ActionModul
 
 		$this->title(t("User address"), t("Manage the address for this user.
 			Please note, a \"[b]default[/b]\" address [b]MUST[/b] exist. All default emails will be delivered to this address"));
-		$user_id = (int)$user_id;
+		$user_id = (int) $user_id;
 
 		//Check perms
 		if (!$this->right_manager->has_perm("admin.user.view") && $this->session->current_user()->user_id != $user_id) {
@@ -776,7 +799,7 @@ class User extends ActionModul
 		$this->core->js_config("user_address", array('user_id' => $user_id));
 
 		//Load the requested user
-		$user_obj = new UserObj((int)$user_id);
+		$user_obj = new UserObj((int) $user_id);
 
 		//Assign user values
 		$this->smarty->assign_by_ref("user", $user_obj->get_values());
@@ -803,8 +826,8 @@ class User extends ActionModul
 		$force_loaded = false;
 
 		//Save variables
-		$user_id = (int)$user_id;
-		$address_id = (int)$address_id;
+		$user_id = (int) $user_id;
+		$address_id = (int) $address_id;
 		if (!empty($address_id)) { //edit mode
 			$this->title(t("Save address"));
 			//Load address
@@ -939,7 +962,7 @@ class User extends ActionModul
 			throw new SoopfwNoPermissionException();
 		}
 
-		$user_id = (int)$user_id;
+		$user_id = (int) $user_id;
 		if (empty($user_id)) {
 			throw new SoopfwWrongParameterException();
 		}
@@ -980,7 +1003,7 @@ class User extends ActionModul
 		$this->session->require_login();
 
 		$user_obj = new UserObj($user_id);
-		if ($user_obj->load_success()){
+		if ($user_obj->load_success()) {
 			$this->title(t("User: @username", array('@username' => $user_obj->username)));
 		}
 		else {
@@ -1004,7 +1027,7 @@ class User extends ActionModul
 		 * @param HtmlTabs $tabs
 		 *   The tabs
 		 */
-	    $this->core->hook('edit_user_tabs', array($user_id, &$tabs));
+		$this->core->hook('edit_user_tabs', array($user_id, &$tabs));
 
 		//Assign to smarty
 		$tabs->assign_smarty("tabs");
@@ -1047,7 +1070,7 @@ class User extends ActionModul
 		if (!$this->right_manager->has_perm("admin.user.group.view")) {
 			throw new SoopfwNoPermissionException();
 		}
-		$group_id = (int)$group_id;
+		$group_id = (int) $group_id;
 
 		//Check if a group_id was provided
 		if (empty($group_id)) {
@@ -1143,11 +1166,7 @@ class User extends ActionModul
 			new FunctionValidator(t('This account has been locked due to too many login attempts, please try again later.'), function($value) use ($security) {
 				$core = Core::get_instance();
 				return $security->check_lock(
-						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'),
-						(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15),
-						'user_login_' . $value,
-						true,
-						'usernamecheck'
+					(int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGINS, '5'), (int) $core->get_dbconfig("user", User::CONFIG_LOGIN_USERNAME_FAIL_LOGIN_LOCKTIME, DateTools::TIME_MINUTE_15), 'user_login_' . $value, true, 'usernamecheck'
 				);
 			})
 		));
@@ -1343,26 +1362,23 @@ Also it expires after {expires} hours";
 	 * @return UserObj the user object if the user was created, else false.
 	 */
 	private function create_user($form, $password = "") {
+
+		$user_address_obj = new UserAddressObj();
+		$user_address_obj->set_fields($form->get_values());
+
 		$user_obj = new UserObj();
 		$user_obj->set_fields($form->get_values());
 
 		if (!empty($password)) {
 			$user_obj->password = $password;
 		}
-		$user_obj->transaction_auto_begin();
-		//Check if the insert command returned true
-		if ($user_obj->insert()) {
-
-			$user_address_obj = new UserAddressObj();
-			$user_address_obj->user_id = $user_obj->user_id;
-			$user_address_obj->set_fields($form->get_values());
-			if ($user_address_obj->insert()) {
-				return $user_obj;
-			}
+		
+		if ($user_obj->create_account($user_address_obj)) {
+			return $user_obj;
 		}
-		$user_obj->transaction_auto_rollback();
 		return false;
 	}
+
 	/**
 	 * Get all right groups.
 	 *

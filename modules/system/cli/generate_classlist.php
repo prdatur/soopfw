@@ -34,7 +34,7 @@ class cli_generate_classlist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Classlists generated', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Classlists generated'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 	/**

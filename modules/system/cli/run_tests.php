@@ -86,8 +86,14 @@ class cli_run_tests extends CLICommand
 			foreach ($logs AS $entry) {
 				/* @var $entry UnitTestLog */
 				if ($entry->passed !== true) {
-					$this->core->message('At file: ' . $entry->file . ', line: ' . $entry->line, Core::MESSAGE_TYPE_ERROR);
-					$this->core->message('Test: ' . $entry->class. '->' . $entry->function . '()', Core::MESSAGE_TYPE_ERROR);
+					$this->core->message(t('At file: @file, line: @line', array(
+						'@file' => $entry->file,
+						'@line' => $entry->line,
+					)), Core::MESSAGE_TYPE_ERROR);
+					$this->core->message(t('Test: @class->@function()', array(
+						'@class' => $entry->class,
+						'@function' => $entry->function,
+					)), Core::MESSAGE_TYPE_ERROR);
 					echo "\n";
 					$this->core->message($entry->description . ': ', Core::MESSAGE_TYPE_ERROR);
 					$this->core->message($entry->message, Core::MESSAGE_TYPE_ERROR);
@@ -102,11 +108,11 @@ class cli_run_tests extends CLICommand
 
 	/**
 	 * Overrides CLICommand::on_success.
-	 * 
+	 *
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Test complete', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Test complete'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }

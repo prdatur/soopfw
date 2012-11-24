@@ -103,7 +103,9 @@ class WebUnitTest extends UnitTest {
 
 		$this->core->mcache('webtest_report::' . $this->report_id . '::max_counter', WebUnitTest::$report_counter[$this->report_id]);
 		if (WebUnitTest::$report_counter[$this->report_id] > 0) {
-			$this->core->message('WebTest request reports viewable at http://' . $this->core->core_config('core', 'domain') . '/admin/system/view_webtest_report/' . $this->report_id. '/1');
+			$this->core->message(t('WebTest request reports viewable at @url', array(
+				'@url' => 'http://' . $this->core->core_config('core', 'domain') . '/admin/system/view_webtest_report/' . $this->report_id. '/1',
+			)));
 		}
 	}
 

@@ -79,9 +79,7 @@ abstract class AbstractLoginHandler extends Object implements LoginHandler
 	 * @return array all urls on which we can not redirect.
 	 */
 	public function get_handler_urls() {
-		return array(
-			$this->get_login_url() => true,
-		);
+		return array();
 	}
 
 	/**

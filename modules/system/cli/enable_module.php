@@ -47,7 +47,7 @@ class cli_enable_module extends CLICommand
 
 		// If we did not provide a module, display error and return.
 		if (empty($module)) {
-			$this->core->message('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user', Core::MESSAGE_TYPE_ERROR);
+			$this->core->message(t('Module not specified, after --enable_module you need to provide the module name like ./clifs --enable_module user'), Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 

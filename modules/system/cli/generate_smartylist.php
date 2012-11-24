@@ -25,7 +25,7 @@ class cli_generate_smartylist extends CLICommand
 	 */
 	public function execute() {
 		if (!$this->create_smarty_sdi()) {
-			$this->core->message("config/smarty.php is not writeable", Core::MESSAGE_TYPE_ERROR);
+			$this->core->message(t("config/smarty.php is not writeable"), Core::MESSAGE_TYPE_ERROR);
 		}
 		return true;
 	}
@@ -36,7 +36,7 @@ class cli_generate_smartylist extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Smartylists generated', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Smartylists generated'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 	/**

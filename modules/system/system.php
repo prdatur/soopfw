@@ -579,12 +579,12 @@ This message will disappear after the first cronjob runs. If you really do not w
 				$obj->set_fields($values[$language]);
 				if (!$obj->save_or_insert()) {
 					$this->db->transaction_rollback();
-					$this->core->message("Error while saving mail template", Core::MESSAGE_TYPE_ERROR, true);
+					$this->core->message(t("Error while saving mail template"), Core::MESSAGE_TYPE_ERROR, true);
 				}
 			}
 
 			$this->db->transaction_commit();
-			$this->core->message("Email template saved ", Core::MESSAGE_TYPE_SUCCESS, true, $values['id']);
+			$this->core->message(t("Email template saved"), Core::MESSAGE_TYPE_SUCCESS, true, $values['id']);
 		}
 
 		$this->static_tpl = 'form.tpl';
@@ -1195,10 +1195,14 @@ This message will disappear after the first cronjob runs. If you really do not w
 				$right_obj->right = $right;
 				$right_obj->description = $description;
 				if ($right_obj->save_or_insert()) {
-					$this->core->message("Right \"" . $right . "\" inserted/updated", Core::MESSAGE_TYPE_SUCCESS);
+					$this->core->message(t('Right "@right" inserted/updated', array(
+						'@right' => $right,
+					)), Core::MESSAGE_TYPE_SUCCESS);
 				}
 				else {
-					$this->core->message("Right \"" . $right . "\" could not be inserted/updated", Core::MESSAGE_TYPE_ERROR);
+					$this->core->message(t('Right "@right" could not be inserted/updated', array(
+						'@right' => $right,
+					)), Core::MESSAGE_TYPE_ERROR);
 				}
 			}
 		}

@@ -34,7 +34,7 @@ class cli_reindex_menu extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Menu reindexed', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Menu reindexed'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }

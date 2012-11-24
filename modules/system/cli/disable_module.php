@@ -20,7 +20,7 @@ class cli_disable_module extends CLICommand
 
 	/**
 	 * Execute the command.
-	 * 
+	 *
 	 * @return boolean return true if no errors occured, else false
 	 */
 	public function execute() {
@@ -39,21 +39,27 @@ class cli_disable_module extends CLICommand
 				}
 
 				// Add the first valid "module" param.
-				$module = $param;
+				$module = strtolower($param);
 				break;
 			}
 		}
 
 		// If we did not provide a module, display error and return.
 		if (empty($module)) {
-			$this->core->message('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user', Core::MESSAGE_TYPE_ERROR);
+			$this->core->message(t('Module not specified, after --disable_module you need to provide the module name like ./clifs --disable_module user'), Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 
+		if ($module == 'system' || $module == 'user') {
+			$this->core->message(t('This is a core module which can not be disabled.'), Core::MESSAGE_TYPE_ERROR);
+			return false;
+		}
 		// Check that the module exist.
 		$module_conf = new ModulConfigObj($module);
 		if (!$module_conf->load_success()) {
-			$this->core->message('Module configuration not found, please install it first with ./clifs --install_module ' . $module, Core::MESSAGE_TYPE_ERROR);
+			$this->core->message(t('Module configuration not found, please install it first with ./clifs --install_module @module'), array(
+				'@module' => $module,
+			), Core::MESSAGE_TYPE_ERROR);
 			return false;
 		}
 
@@ -115,7 +121,7 @@ class cli_disable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Module disabled.', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Module disabled.'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }

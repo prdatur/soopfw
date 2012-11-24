@@ -346,6 +346,62 @@ class UserObj extends AbstractDataManagement
 	}
 
 	/**
+	 * Creates a new account.
+	 *
+	 * This method will directly assign errors, if the creation succeed the success message will NOT be assigned.
+	 *
+	 * @param UserAddressObj &$address_obj
+	 *   The address for this new user. (optional, default = null)
+	 * @param boolean $ignore
+	 *   Don't throw an error if data is already there. (optional, default=false)
+	 * @param boolean $crypt_pw
+	 *   Whether we want to crypt the password or not. (optional, default = true)
+	 *
+	 * @return boolean true on success, else false.
+	 */
+	public function create_account(UserAddressObj &$address_obj = null, $ignore = false, $crypt_pw = true) {
+		$this->db->transaction_begin();
+
+		// Only insert if the current user object is not loaded.
+		if (!$this->load_success()) {
+			if (!$this->insert($ignore, $crypt_pw)) {
+				$this->core->message(t('Could not create the account'), Core::MESSAGE_TYPE_ERROR);
+				$this->db->transaction_rollback();
+				return false;
+			}
+		}
+
+		// Only insert address if we provide some data.
+		if (!empty($address_obj)) {
+			$address_obj->user_id = $this->user_id;
+
+			// Validates the email to be unique if user modul is configured to hold just unique emails per user.
+			if ($this->core->get_dbconfig("user", user::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no') == 'yes') {
+				$filter = DatabaseFilter::create(UserAddressObj::TABLE)
+					->add_where('email', $address_obj->email)
+
+					// Duplicated emails are just allowed within the same user.
+					->add_where('user_id', $this->user_id, '!=');
+
+				if ($filter->select_exists()) {
+					$this->core->message(t('Could not create the account, the provided email address is already taken from another user and the system is configured to accept only unique email addresses'), Core::MESSAGE_TYPE_ERROR);
+					$this->db->transaction_rollback();
+					return false;
+				}
+			}
+
+			if (!$address_obj->insert($ignore)) {
+				$this->core->message(t('Could not create the account address'), Core::MESSAGE_TYPE_ERROR);
+				$this->db->transaction_rollback();
+				return false;
+			}
+		}
+
+		$this->db->transaction_commit();
+		return true;
+	}
+
+	/**
 	 * Crypts a password, also we remove the values_changed password entry if the current password is empty
 	 * else we would set on every user change the password to an empty one.
 	 */

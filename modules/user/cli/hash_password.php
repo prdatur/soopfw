@@ -25,7 +25,9 @@ class cli_hash_password extends CLICommand
 	 */
 	public function execute() {
 		$hash_check = new PasswordHash();
-		$this->core->message('Hash: ' . $hash_check->hash_password(CliHelper::get_string_input('Plaintext:')), Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Hash: @hash', array(
+			'@hash' => $hash_check->hash_password(CliHelper::get_string_input('Plaintext:')),
+		)), Core::MESSAGE_TYPE_SUCCESS);
 		return true;
 	}
 

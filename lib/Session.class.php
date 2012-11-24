@@ -262,12 +262,12 @@ class Session extends Object
 			$unallowed_urls_for_redirect[$handler->get_login_url()] = true;
 			$unallowed_urls_for_redirect[$handler->get_logout_url()] = true;
 			$unallowed_urls_for_redirect = array_merge($unallowed_urls_for_redirect, $handler->get_handler_urls());
-
 		}
-		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the reditAfterLogin session variable
+		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the redir_after_login session variable
 		//This variable will be used to redirect the user to this page after successfully login
-		if (!isset($unallowed_urls_for_redirect[$_SERVER['REQUEST_URI']]) && preg_match("/(\.html|.*\/[^\/]*)$/is", $_SERVER['REQUEST_URI'])) {
-			$this->set("redir_after_login", $_SERVER['REQUEST_URI']);
+
+		if (!isset($unallowed_urls_for_redirect[NetTools::get_request_uri()]) && preg_match("/(\.html|.*\/[^\/]*)$/is", NetTools::get_request_uri())) {
+			$this->set("redir_after_login", NetTools::get_full_request_uri());
 		}
 		$this->logged_in = false;
 

@@ -26,10 +26,14 @@ class AjaxSystemDisableModule extends AjaxModul {
 		if (!$this->core->get_right_manager()->has_perm("admin.system.modules")) {
 			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
 		}
-
+		
+		$module = strtolower($params->module);
+		if ($module == 'system' || $module == 'user') {
+			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER, null, true, t('This is a core module which can not be disabled.'));
+		}
 
 		// Load the module configuration.
-		$module_conf_obj = new ModulConfigObj($params->module);
+		$module_conf_obj = new ModulConfigObj($module);
 		if(!$module_conf_obj->load_success()) {
 			AjaxModul::return_code(AjaxModul::ERROR_INVALID_PARAMETER);
 		}
@@ -47,7 +51,7 @@ class AjaxSystemDisableModule extends AjaxModul {
 				$obj->generate_classlist();
 
 				// Get the classname for the module which we can intialize.
-				$classname_module = WebAction::generate_classname($params->module);
+				$classname_module = WebAction::generate_classname($module);
 				$module_obj = new $classname_module();
 
 				// Check if we have a disable method, if so call it.
@@ -56,7 +60,7 @@ class AjaxSystemDisableModule extends AjaxModul {
 				}
 
 				// Get all provided permissions for the module.
-				$permissions = SystemHelper::get_module_permissions($params->module, true);
+				$permissions = SystemHelper::get_module_permissions($module, true);
 
 				// If we have permissions, try to delete it.
 				if (!empty($permissions) && SystemHelper::delete_permissions($permissions)) {
