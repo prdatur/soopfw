@@ -12,19 +12,6 @@ abstract class AbstractLoginHandler extends Object implements LoginHandler
 {
 
 	/**
-	 * Constructor
-	 *
-	 * @param Core &$core
-	 *   The core object. (optional, default = null)
-	 */
-	public function __construct(Core &$core = null) {
-		parent::__construct($core);
-
-		// Make sure that the session variable is really an empty string.
-		$this->session->set('redir_after_login', $this->session->get('CSRFtoken', ''));
-	}
-
-	/**
 	 * Log the current user out, if $time is higher than 0 than the request_redirection will be used,
 	 * else it will a direct header location event.
 	 *
