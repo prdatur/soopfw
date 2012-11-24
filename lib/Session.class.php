@@ -205,27 +205,19 @@ class Session extends Object
 	}
 
 	/**
-	 * Checks if the user is logged in, if not we will redirect him to the login page
-	 *
-	 * @param boolean $force_not_loggedin
-	 *   force not logged in that the user will be redirected to the user login page (optional, default = false)
-	 * @param boolean $need_direct_handler
-	 *   the can be set to true to tell the handler that we NEED to be logged in through the third-party login handler,
-	 *   normal login is wrong (optional, default = false)
+	 * Checks if the user is logged in, if not we will redirect him to the login page.
 	 */
-	public function require_login($force_not_loggedin = false, $need_direct_handler = false) {
-
-		if(empty($this->login_handler) || $this->login_handler->require_login($force_not_loggedin, $need_direct_handler)) {
-			//If we force to be not logged in or the current_user object is empty redirect the user to the login page
-			if ($force_not_loggedin == true || !$this->is_logged_in()) {
-				$login_url = $this->get_login_url();
-				if($this->core->init_type == Core::INIT_TYPE_AJAXHTML) {
-					$this->smarty->assign("logout_url", $login_url);
-					$this->smarty->display("js_logout.tpl");
-					die();
-				}
-				$this->core->location($login_url);
+	public function require_login() {
+		// If we are not logged in redirect him to the login page, if we are on ajax call we will be redirected
+		// through javascript.
+		if (!$this->is_logged_in()) {
+			$login_url = $this->get_login_url();
+			if($this->core->init_type == Core::INIT_TYPE_AJAXHTML) {
+				$this->smarty->assign("location", $login_url);
+				$this->smarty->display("ajaxhtml_redirect.tpl");
+				die();
 			}
+			$this->core->location($login_url);
 		}
 	}
 
@@ -401,6 +393,14 @@ class Session extends Object
 		//Set the loggedin fast check variable to true
 		$this->logged_in = true;
 
+
+		// Username is really mandatory so if it is empty, redirect the user to a page where he can choose one.
+		if (empty($return->username)) {
+			// Only redirect if we are not currently within the choose username action, else we get a redirect loop.
+			if (!preg_match("/(.*\/(user\/)?choose_username|" . preg_quote($this->get_logout_url(), '/') . ")$/i", $_SERVER['REQUEST_URI'])) {
+				$this->core->location('/user/choose_username');
+			}
+		}
 		return true;
 	}
 
@@ -439,11 +439,11 @@ class Session extends Object
 	 * @param string $value
 	 *   the value to be set
 	 *
-	 * @return boolean static true
+	 * @return Session Self returning.
 	 */
-	public function set($key, $value) {
+	public function &set($key, $value) {
 		$_SESSION[$key] = $value;
-		return true;
+		return $this;
 	}
 
 	/**

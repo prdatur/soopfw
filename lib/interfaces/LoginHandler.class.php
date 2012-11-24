@@ -55,18 +55,6 @@ interface LoginHandler
 	public function get_handler_urls();
 
 	/**
-	 * Checks if the user is logged in, if not we will redirect him to the login page
-	 *
-	 * @param boolean $force_not_loggedin
-	 *   force not logged in that the user will be redirected to the user login page
-	 * @param boolean $need_direct_handler
-	 *   need this login handler as valid
-	 *
-	 * @return boolean true if normal behaviour should checked (Session::require_login which redirects if the is_logged_in param is set to false), false if the login handler handles this event
-	 */
-	public function require_login($force_not_loggedin = false, $need_direct_handler =  false);
-
-	/**
 	 * Check if the user is logged in and log the user in if a post was provided.
 	 *
 	 * @return boolean returns true on successfully login else false

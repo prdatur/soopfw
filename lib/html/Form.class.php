@@ -188,8 +188,8 @@ class Form extends AbstractHtmlElement implements Iterator
 		}
 		else {
 			//Create our unique CSRF-Token hidden field which we use as to determine if the form was submitted or not.
-			$this->add(new Hiddeninput($form_name . '_submit', $_SESSION['CSRFtoken']));
-			if (isset($_POST[$form_name . '_submit']) && $_POST[$form_name . '_submit'] == $_SESSION['CSRFtoken']) {
+			$this->add(new Hiddeninput($form_name . '_submit', $this->session->get('CSRFtoken')));
+			if (isset($_POST[$form_name . '_submit']) && $_POST[$form_name . '_submit'] == $this->session->get('CSRFtoken')) {
 				$this->is_submit = true;
 			}
 		}

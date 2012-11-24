@@ -235,6 +235,48 @@ class User extends ActionModul
 	}
 
 	/**
+	 * Action: choose_username
+	 *
+	 * Displays a form where the logged in user must take a username.
+	 * This is needed if he comes from a third-party login handler which could not set the username.
+	 */
+	public function choose_username() {
+
+		// We need to be logged in.
+		$this->session->require_login();
+
+		// If a username was already defined, redirect the user to the profile page.
+		if (!empty($this->session->current_user()->username)) {
+			$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+		}
+
+		$this->title(t('Choose your username'), t('Welcome, currently we could not determine your username so please choose one.'));
+
+		$form = new Form('user_choose_username');
+		$form->add(new Textfield('username', '', t('New username'), t('Notice: once you have saved your username you can not change it again.')), array(
+			new RequiredValidator(),
+			new NotExistValidator(t('This username is already taken, please choose a different'), array(UserObj::TABLE => 'username')),
+		));
+
+		if ($form->check_form()) {
+
+			// Set the username.
+			$this->session->current_user()->username = $form->get_value('username');
+
+			// Save it.
+			if ($this->session->current_user()->save()) {
+				$this->core->message(t('Your username was successfully saved.'), Core::MESSAGE_TYPE_SUCCESS);
+				$this->core->location($this->session->get_login_handler()->get_profile_url($this->session->current_user()));
+			}
+			else {
+				$this->core->message(t('Could not set your username, please contact an administrator'), Core::MESSAGE_TYPE_ERROR);
+			}
+		}
+
+		$this->static_tpl = 'form.tpl';
+	}
+
+	/**
 	 * Action: lost_password
 	 *
 	 * Provides the feature for a customer to recovery his password.
@@ -1278,10 +1320,10 @@ Also it expires after {expires} hours";
 	 */
 	private function redirect_after_login() {
 		//If a location is found, redirect the user
-		if (!empty($_SESSION['redir_after_login'])) {
-			$redir = $_SESSION['redir_after_login'];
-			unset($_SESSION['redir_after_login']);
-			$this->core->location($redir);
+		$redirect = $this->session->get('redir_after_login', '');
+		$this->session->delete('redir_after_login');
+		if (!empty($redirect)) {
+			$this->core->location($redirect);
 		}
 		//No location was found so redirect to /
 		else {

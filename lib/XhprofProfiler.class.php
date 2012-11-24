@@ -18,7 +18,7 @@ class XhprofProfiler extends Object
 
 	/**
 	 * Construct, will auto enable based up on is_shell constances.
-	 * 
+	 *
 	 * @param Core $core
 	 *   The core object (optional, default = null)
 	 */
@@ -95,5 +95,3 @@ class XhprofProfiler extends Object
 		}
 	}
 }
-
-?>

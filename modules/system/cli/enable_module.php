@@ -16,7 +16,7 @@ class cli_enable_module extends CLICommand
 	 *
 	 * @var string
 	 */
-	protected $description = "Enables a module.";
+	protected $description = "Enables or updates a module.";
 
 	/**
 	 * Execute the command.
@@ -75,7 +75,7 @@ class cli_enable_module extends CLICommand
 		if (!empty($dependencies)) {
 			foreach ($dependencies AS $mod => $val) {
 				$system->install_module($mod);
-				$this->core->message(t('Module "@module" enabled', array("@module" => $val['name'])), Core::MESSAGE_TYPE_SUCCESS);
+				$this->core->message(t('Module "@module" enabled/updated', array("@module" => $val['name'])), Core::MESSAGE_TYPE_SUCCESS);
 			}
 		}
 
@@ -90,7 +90,7 @@ class cli_enable_module extends CLICommand
 	 * callback for on_success
 	 */
 	public function on_success() {
-		$this->core->message('Module enabled.', Core::MESSAGE_TYPE_SUCCESS);
+		$this->core->message(t('Module enabled/updated.'), Core::MESSAGE_TYPE_SUCCESS);
 	}
 
 }

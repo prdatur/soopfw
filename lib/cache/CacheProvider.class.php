@@ -103,5 +103,3 @@ abstract class CacheProvider extends Object
 		return true;
 	}
 }
-
-?>

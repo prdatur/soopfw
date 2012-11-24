@@ -465,12 +465,23 @@ class Core
 	}
 
 	/**
-	 * Regenerates the CSRF-token and return it.
+	 * Generates the CSRF-token and return it.
 	 *
-	 * @return string the token
+	 * If $override_old_one is set to false it will not override an old one if one is present.
+	 *
+	 * @param boolean $override_old_one
+	 *   If set to true it will override the current one,
+	 *   what ever a token is already present. (optional, default = true)
+	 *
+	 * @return string The token.
 	 */
-	public function regenerate_csrf_token() {
-		return $_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
+	public function generate_csrf_token($override_old_one = false) {
+		$token = md5(uniqid(microtime()));
+		if ($override_old_one !== true) {
+			$token = $this->session->get('CSRFtoken', $token);
+		}
+
+		return $this->session->set('CSRFtoken', $token)->get('CSRFtoken');
 	}
 
 	/**
@@ -517,22 +528,14 @@ class Core
 			}
 		}
 
-		//Set the provided $language if it is not empty
-		if (!empty($language)) {
-			$_SESSION['language'] = $language;
-		}
+		//Set the provided $language
+		$this->session->set('language', $language);
 
-		// If we have not setup a language set the current language to the default language.
-		if (empty($_SESSION['language'])) {
-			$_SESSION['language'] = $this->default_language;
-		}
-
-		$_SESSION['language'] = strtolower($_SESSION['language']);
+		// Lower the language and get the default language if the current one is empty.
+		$this->session->set('language', strtolower($this->session->get('language', $this->default_language)));
 
 		// Set our current language
-		$this->current_language = $_SESSION['language'];
-
-
+		$this->current_language = $this->session->get('language');
 
 		// Check if we should redirect.
 		if (!defined('is_shell') && !empty($this->session)) {
@@ -566,9 +569,7 @@ class Core
 			}
 
 			//If CSRF Token is empty create a unique one
-			if (empty($_SESSION['CSRFtoken'])) {
-				$_SESSION['CSRFtoken'] = md5(uniqid(microtime()));
-			}
+			$this->generate_csrf_token();
 
 			// If translation module is activated load the language class.
 			if ($this->module_enabled("translation")) {
@@ -1226,7 +1227,7 @@ class Core
 
 		//Read out all previous setup messages and reset the session message array
 		$messages = array();
-
+		
 		if (!empty($_SESSION['message'])) {
 			$messages = array();
 			if (isset($_SESSION['message']['error'])) {

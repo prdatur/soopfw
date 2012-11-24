@@ -311,7 +311,8 @@ class WebAction extends Object
 			}
 
 			if ($this->current_action_module->action == ActionModul::NO_DEFAULT_METHOD || !method_exists($this->current_action_module, $this->current_action_module->action)) {
-				$this->aborting_loading(self::ABORT_CLEAR_OUTPUT);
+				$this->core->meta->title = t('Page not found');
+				$this->aborting_loading(self::ABORT_CLEAR_OUTPUT, t('Page not found'));
 			}
 
 			// Prevent direct calling a hook method.

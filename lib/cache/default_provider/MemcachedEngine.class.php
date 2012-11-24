@@ -178,5 +178,3 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 		return @$this->client->flush();
 	}
 }
-
-?>

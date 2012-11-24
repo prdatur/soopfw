@@ -122,8 +122,9 @@ class ActionModul extends Object
 		if (empty($default_method)) {
 			trigger_error("NO DEFAULT METHOD DEFINED", E_USER_ERROR);
 		}
-
+		
 		if ($default_method == self::NO_DEFAULT_METHOD) {
+			$this->core->message(t('Page not found'), Core::MESSAGE_TYPE_ERROR);
 			return $this->clear_output();
 		}
 		$this->$default_method();

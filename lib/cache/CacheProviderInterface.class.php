@@ -132,5 +132,3 @@ interface CacheProviderInterface
 	 */
 	public function flush();
 }
-
-?>
