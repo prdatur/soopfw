@@ -11,15 +11,14 @@ class NetTools
 {
 
 	/**
-	 * Returns the request uri.
+	 * Returns the request uri, without GET-Parameters.
 	 *
-	 * @return string the prepared request uri.
+	 * @return string The prepared request uri.
 	 */
 	public static function get_request_uri() {
-		$url = null;
+		static $url = null;
 		if ($url === null) {
-			$_SERVER['REQUEST_URI'] = preg_replace('/^\/+/is', '/', $_SERVER['REQUEST_URI']);
-			list($url) = explode('?', $_SERVER['REQUEST_URI'], 2);
+			list($url) = explode('?', NetTools::get_full_request_uri(), 2);
 		}
 		return $url;
 	}
@@ -27,13 +26,12 @@ class NetTools
 	/**
 	 * Returns the full request uri.
 	 *
-	 * @return string the prepared request uri.
+	 * @return string The prepared request uri.
 	 */
 	public static function get_full_request_uri() {
-		$url = null;
+		static $url = null;
 		if ($url === null) {
-			$_SERVER['REQUEST_URI'] = preg_replace('/^\/+/is', '/', $_SERVER['REQUEST_URI']);
-			$url = $_SERVER['REQUEST_URI'];
+			$url = preg_replace('/^\/+/is', '/', $_SERVER['REQUEST_URI']);
 		}
 		return $url;
 	}
