@@ -350,7 +350,7 @@ class UserObj extends AbstractDataManagement
 	 *
 	 * This method will directly assign errors, if the creation succeed the success message will NOT be assigned.
 	 *
-	 * @param UserAddressObj &$address_obj
+	 * @param UserAddressObj $address_obj
 	 *   The address for this new user. (optional, default = null)
 	 * @param boolean $ignore
 	 *   Don't throw an error if data is already there. (optional, default=false)
@@ -359,7 +359,7 @@ class UserObj extends AbstractDataManagement
 	 *
 	 * @return boolean true on success, else false.
 	 */
-	public function create_account(UserAddressObj &$address_obj = null, $ignore = false, $crypt_pw = true) {
+	public function create_account(UserAddressObj $address_obj = null, $ignore = false, $crypt_pw = true) {
 		$this->db->transaction_begin();
 
 		// Only insert if the current user object is not loaded.
