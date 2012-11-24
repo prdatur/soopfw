@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provides an interface for a login handler.
  *
@@ -6,7 +7,6 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category Security
  */
-
 interface LoginHandler
 {
 
@@ -60,7 +60,6 @@ interface LoginHandler
 	 * @return boolean returns true on successfully login else false
 	 */
 	public function check_login();
-
 
 	/**
 	 * This is called within the login page without posting something and is used for Single Sign On's like openID, shibboleth or Facebook.
