@@ -747,6 +747,12 @@ This message will disappear after the first cronjob runs. If you really do not w
 		$handlers = array();
 		// Place all currently configurated login handler to the top, because they already have a configurated order.
 		foreach ($configured_handlers AS $key => $val) {
+			// List only classes which can be initialized which means we can create an object of this class.
+			// This will filter out abstract classes for example.
+			$class_reflect = new ReflectionClass($val);
+			if (!$class_reflect->isInstantiable()) {
+				continue;
+			}
 			$handlers[$val] = array(
 				'val' => $val,
 				'enabled' => true,
@@ -756,6 +762,12 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		// All new login handlers will be placed below.
 		foreach ($login_handler AS $key => $val) {
+			// List only classes which can be initialized which means we can create an object of this class.
+			// This will filter out abstract classes for example.
+			$class_reflect = new ReflectionClass($val);
+			if (!$class_reflect->isInstantiable()) {
+				continue;
+			}
 			$handlers[$key] = array(
 				'val' => $val,
 				'enabled' => false,
