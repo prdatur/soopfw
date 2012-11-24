@@ -532,7 +532,11 @@ class Core
 		$this->session->set('language', $language);
 
 		// Lower the language and get the default language if the current one is empty.
-		$this->session->set('language', strtolower($this->session->get('language', $this->default_language)));
+		$lang = $this->session->get('language', '');
+		if (empty($lang)) {
+			$lang = $this->default_language;
+		}
+		$this->session->set('language', strtolower($lang));
 
 		// Set our current language
 		$this->current_language = $this->session->get('language');
@@ -1227,7 +1231,7 @@ class Core
 
 		//Read out all previous setup messages and reset the session message array
 		$messages = array();
-		
+
 		if (!empty($_SESSION['message'])) {
 			$messages = array();
 			if (isset($_SESSION['message']['error'])) {
