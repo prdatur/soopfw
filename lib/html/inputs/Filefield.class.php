@@ -80,6 +80,14 @@ class Filefield extends AbstractHtmlInput
 	private $file_type = 'mainfile';
 
 	/**
+	 * Stores the current file object as a MainFileObj.
+	 * This is set if we have already a value and could load a valid file.
+	 *
+	 * @var MainFileObj
+	 */
+	private $current_file = null;
+
+	/**
 	 * This url is used within an ajax request to post the file
 	 * Note:
 	 *   The ajax file must handle the file upload as within the example and default ajax upload file "/system/AjaxDefaultUpload.ajax"
@@ -262,12 +270,35 @@ class Filefield extends AbstractHtmlInput
 	}
 
 	/**
+	 * Returns the current file object.
+	 *
+	 * Will be null if no file could be loaded.
+	 *
+	 * @return MainFileObj The file object or null if it could not be loaded.
+	 */
+	public function get_current_file() {
+		return $this->current_file;
+	}
+	/**
 	 * Returns the HTML-Code string for the element
 	 *
 	 * @return string the HTML code for the element
 	 */
 	public function fetch() {
-
+		if (!$this->is_ajax) {
+			$current_fid = (int)$this->config('value');
+			if (!empty($current_fid)) {
+				$file = new MainFileObj($current_fid);
+				if ($file->load_success()) {
+					$this->current_file = $file;
+					$suffix = '<span>';
+					$suffix .= '<input type="hidden" name="' . $this->config('name') . '" value="' . $current_fid . '"/>';
+					$suffix .= t('Current file: <b>@filename</b>', array('@filename' => $file->filename)) . ' - <a href="javascript:void(0);" class="filefield_delete_file">' . t('Delete') . '</a>';
+					$suffix .= '<br /></span>';
+					$this->config("suffix", $suffix);
+				}
+			}
+		}
 		//Get the normal html-string for the upload field
 		$html = parent::fetch();
 
@@ -289,13 +320,7 @@ class Filefield extends AbstractHtmlInput
 			$return .= $tmp_tpl.$this->get_description();
 			return $return;
 		}
-		else {
-			$current_fid = (int)$this->config('value');
-			if (!empty($current_fid)) {
-				$file = new MainFileObj($current_fid);
-				$html .= '<br /><span>' . t('Current file: <b>@filename</b>', array('@filename' => $file->filename)) . '</span>';
-			}
-		}
+
 		return $html;
 	}
 
@@ -320,7 +345,7 @@ class Filefield extends AbstractHtmlInput
 		//Store the file if we handle the upload and if the file was successfully uploaded
 		if ($this->config("handle_upload") == true) {
 			if (isset($_FILES[$this->config("name")]) && $_FILES[$this->config("name")]['error'] == 0) {
-
+				$this->config("key_is_set", true);
 				if (!empty($this->size_limit) && $this->file_size > $this->size_limit) {
 					$this->core->message(t('The uploaded file is too big, max file size is @max_file_size', array('@max_file_size' => Converter::format_bytes($this->size_limit))));
 				}
@@ -331,7 +356,6 @@ class Filefield extends AbstractHtmlInput
 					)));
 				}
 				else {
-
 					$main_file_obj = new MainFileObj();
 					$main_file_obj->type = $this->file_type;
 

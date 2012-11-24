@@ -271,7 +271,7 @@ $.extend(Soopfw, {
 		}
 
 		url += get_param_string;
-		
+
 		options = $.extend({
 			title: title,
 			modal: true,
@@ -518,6 +518,10 @@ $(document).ready(function() {
 					}
 				});
 			});
+		});
+
+		$('.filefield_delete_file').off('click').on('click', function() {
+			$(this).parent().remove();
 		});
 	};
 

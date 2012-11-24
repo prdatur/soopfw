@@ -105,7 +105,7 @@ abstract class AbstractHtmlInput extends Object
 	public function get_value() {
 		return $this->config('value');
 	}
-	
+
 	/**
 	 * re-init the check if the element was posted.
 	 */

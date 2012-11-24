@@ -70,6 +70,16 @@ class SystemConfigForm extends Form
 				if ($this->elements[self::ELEMENT_SCOPE_VISIBLE][$k] instanceof Fieldset) {
 					continue;
 				}
+
+				if ($this->elements[self::ELEMENT_SCOPE_VISIBLE][$k] instanceof Filefield) {
+					/* @var $filefield Filefield */
+					$filefield = $this->elements[self::ELEMENT_SCOPE_VISIBLE][$k];
+					$file = $filefield->get_current_file();
+					if (!empty($file) && empty($v)) {
+						$file->delete();
+					}
+				}
+
 				$this->core->dbconfig($this->action_module->modulname, $k, $v);
 			}
 
