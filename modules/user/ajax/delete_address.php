@@ -35,6 +35,10 @@ class AjaxUserDeleteAddress extends AjaxModul {
 			AjaxModul::return_code(AjaxModul::ERROR_NO_RIGHTS);
 		}
 
+		if ($address_obj->group == UserAddressObj::USER_ADDRESS_GROUP_DEFAULT) {
+			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT, null, true, t("Default address can not be deleted."));
+		}
+
 		if ($address_obj->delete()) {
 			$user_obj = new UserObj($address_obj->user_id);
 			SystemHelper::audit(t('Address for user "@username" was deleted', array('@username' => $user_obj->username)), 'user');

@@ -811,7 +811,7 @@ class User extends ActionModul
 	/**
 	 * Action: add_address
 	 *
-	 * Insert or add an address for given user.
+	 * Insert or update an address for given user.
 	 * If addressID is provided, it will change this address (save), else insert a new address.
 	 *
 	 * @param int $user_id
@@ -873,15 +873,28 @@ class User extends ActionModul
 		//Add the button
 		$obj_form->add($submit_button);
 
-		//Override address group with a selectbox
-		$options = array(
-			UserAddressObj::USER_ADDRESS_GROUP_DEFAULT => t('Default'),
-			UserAddressObj::USER_ADDRESS_GROUP_DELIVER => t('Deliver'),
-			UserAddressObj::USER_ADDRESS_GROUP_BILL => t('Bill'),
-			UserAddressObj::USER_ADDRESS_GROUP_SUPPORT => t('Support'),
-		);
+		if (empty($address_id) || $address_obj->group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT) {
+			//Override address group with a selectbox
+			$options = array(
+				UserAddressObj::USER_ADDRESS_GROUP_DELIVER => t('Deliver'),
+				UserAddressObj::USER_ADDRESS_GROUP_BILL => t('Bill'),
+				UserAddressObj::USER_ADDRESS_GROUP_SUPPORT => t('Support'),
+			);
 
-		$obj_form->add(new Selectfield("group", $options, $obj_form->get_object()->group, t("Addressgroup"), "", "form_id_" . $obj_form->get_object()->get_dbstruct()->get_table() . "_group"), t("group"));
+			$obj_form->add(new Selectfield("group", $options, $obj_form->get_object()->group, t("Addressgroup"), "", "form_id_" . $obj_form->get_object()->get_dbstruct()->get_table() . "_group"), array(
+				new FunctionValidator(t('You can not change the group of a default address.'), function($value) use ($address_obj, $address_id) {
+					return (empty($address_id) || $address_obj->group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT);
+				}),
+			));
+		}
+		else {
+			$obj_form->remove('group', Form::ELEMENT_SCOPE_VISIBLE);
+			$obj_form->add(new Hiddeninput("group", $obj_form->get_object()->group, '', '', '', "form_id_" . $obj_form->get_object()->get_dbstruct()->get_table() . "_group"), array(
+				new FunctionValidator(t('You can not change the group of a default address.'), function($value) use ($address_obj, $address_id) {
+					return (!empty($address_id) && $address_obj->group == UserAddressObj::USER_ADDRESS_GROUP_DEFAULT);
+				}),
+			));
+		}
 
 		//Add success ajax call to close the dialog
 		$obj_form->add_js_success_callback("close_user_address_dialog");
@@ -1372,7 +1385,7 @@ Also it expires after {expires} hours";
 		if (!empty($password)) {
 			$user_obj->password = $password;
 		}
-		
+
 		if ($user_obj->create_account($user_address_obj)) {
 			return $user_obj;
 		}

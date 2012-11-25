@@ -15,10 +15,12 @@
 			<td>
 				<%$address.company|default:'&nbsp;'%> - <%$address.firstname|default:'&nbsp;'%> <%$address.lastname|default:'&nbsp;'%>, <%$address.nation|default:'&nbsp;'%>-<%$address.zip|default:'&nbsp;'%>, <%$address.city|default:'&nbsp;'%>
 			</td>
-			<td><%t key=$address.group default='&nbsp;'%></td>
+			<td><%$address.group|default:'&nbsp;'%></td>
 			<td style="text-align: right;">
 				<a href="javascript:void(0);" class="editAddress option_links" id="editAddress_<%$address.id%>"><img title="<%t key='Edit'%>" src="/1x1_spacer.gif" class="linkedElement ui-icon-soopfw ui-icon-soopfw-edit"></a>
+				<%if $address.group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT%>
 				<a href="javascript:void(0);" class="deleteAddress option_links" id="deleteAddress_<%$address.id%>"><img title="<%t key='Delete'%>" src="/1x1_spacer.gif" class="linkedElement ui-icon-soopfw ui-icon-soopfw-cancel"></a>
+				<%/if%>
 			</td>
 		</tr>
 		<%/foreach%>
