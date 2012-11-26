@@ -700,22 +700,24 @@ class User extends ActionModul
 		$form = new Form("form_add_user");
 		$form->set_ajax(true);
 
-		$username = new Textfield("username", '', t('username'));
-		$username->add_validator(new RequiredValidator());
-		$form->add($username);
-		$password = new Textfield("password", '', t('password'), '<a href="javascript:void(0);" onclick="generate_password(8, \'#form_id_form_add_user_password\');">' . t("Generate password") . '</a>');
-		$password->add_validator(new RequiredValidator());
+		$form->add(new Textfield("username", '', t('username')), array(
+			new RequiredValidator(),
+		));
 
+		$form->add(new Textfield("password", '', t('password'), '<a href="javascript:void(0);" onclick="generate_password(8, \'#form_id_form_add_user_password\');">' . t("Generate password") . '</a>'), array(
+			new RequiredValidator(),
+		));
 
-		$form->add($password);
-		$email = new Textfield("email", '', t('email'));
-		$email->add_validator(new EmailValidator());
-		$form->add($email);
+		$form->add(new Textfield("email", '', t('email')), array(
+			new EmailValidator(),
+		));
 
 		$form->add(new Submitbutton("btn_add_user", t("Add user")));
-		$form->add(new Button("btn_cancel", t("cancel")));
-
 		$form->add_js_success_callback("add_user_success");
+
+		if ($this->core->init_type != Core::INIT_TYPE_HTML) {
+			$form->add(new CancelButton());
+		}
 
 		//Check if form was submitted
 		if ($form->check_form()) {
@@ -1352,8 +1354,8 @@ Also it expires after {expires} hours";
 	 */
 	private function redirect_after_login() {
 		//If a location is found, redirect the user
-		$redirect = $this->session->get('redir_after_login', '');
-		$this->session->delete('redir_after_login');
+		$redirect = $this->session->get(Session::SESSION_KEY_REDIRECT_AFTER_LOGIN, '');
+		$this->session->delete(Session::SESSION_KEY_REDIRECT_AFTER_LOGIN);
 		if (!empty($redirect)) {
 			$this->core->location($redirect);
 		}
