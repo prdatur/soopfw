@@ -15,6 +15,9 @@ abstract class AjaxModul extends Object
 	 */
 	const SUCCESS = 200;
 	const SUCCESS_NO_CHANGES = 201;
+	const SUCCESS_CANCEL = 205;
+
+	const SUCCESS_REDIRECT = 301;
 
 	const ERROR_INVALID_PARAMETER = 405;
 	const ERROR_MISSING_PARAMETER = 406;

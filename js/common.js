@@ -304,12 +304,9 @@ function popup(URL, width, height, align, valign) {
 	return false;
 }
 
-function parse_ajax_result(result, return_function, additionalParams, parseCodes,error_function)
+function parse_ajax_result(result, return_function, additionalParams, error_function)
 {
-	if(parseCodes == undefined || parseCodes == null)
-	{
-		var parseCodes = [200];
-	}
+
 	if(additionalParams == undefined || additionalParams == null)
 	{
 		var additionalParams = new Object();
@@ -318,46 +315,43 @@ function parse_ajax_result(result, return_function, additionalParams, parseCodes
 	if(return_function == undefined) {
 		return_function = function() {};
 	}
-	for(var i in parseCodes)
-	{
-		if(parseCodes[i] == result.code)
-		{
-			return return_function(result.data, result.code, result.desc, additionalParams);
-		}
-	}
+
 	var code = parseInt(result.code);
 
-	if(code >= 300 && code < 400)
-	{
+	if (code == 205 && !empty(result.data)) {
+		$('#' + result.data).dialog("destroy");
+		return true;
+	}
+
+	if (code == 301 && !empty(result.data)) {
+		Soopfw.location(result.data);
+		return true;
+	}
+
+	if(code >= 200 && code < 400) {
 		return return_function(result.data, result.code, result.desc, additionalParams);
 	}
 
-	if(code == 550)
-	{
+	if(code == 550) {
 		alert(Soopfw.t("You did to much actions in time, please validate that you are human"), Soopfw.t("Error"), function(){location.reload();});
 		return false;
 	}
-	if(code >= 600 && code < 700)
-	{
-		if(error_function != undefined)
-		{
+	if(code >= 600 && code < 700) {
+		if(error_function != undefined) {
 			error_function();
 		}
 		alert(Soopfw.t("No permission")+"\n"+result.desc+" ("+result.code+")");
 		return false;
 	}
 
-	if(code == 406)
-	{
-		if(error_function != undefined)
-		{
+	if(code == 406) {
+		if(error_function != undefined) {
 			error_function();
 		}
 		alert(Soopfw.t("You did not filled out all required fields")+"\n"+result.desc+" ("+result.code+")");
 		return false;
 	}
-	if(error_function != undefined)
-	{
+	if(error_function != undefined) {
 		error_function();
 	}
 	if(result.desc == undefined || result.desc == "") {

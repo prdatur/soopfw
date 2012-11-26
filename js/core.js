@@ -251,10 +251,6 @@ $.extend(Soopfw, {
 			id += action;
 			action = '/'+action;
 		}
-		else if(action === true) {
-			id = this.uuid();
-			action = '';
-		}
 		else {
 			action = '';
 		}
@@ -285,6 +281,7 @@ $.extend(Soopfw, {
 		if(matches != null && matches.length > 0) {
 			url = '/admin' + url;
 		}
+		id = 'jquery_dialog_' + id;
 		wait_dialog();
 		$.ajax({
 			url: url,
