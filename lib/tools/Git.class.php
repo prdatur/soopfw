@@ -35,7 +35,7 @@ class Git
 	 */
 	public static function &create_new($repo_path, $source = null) {
 		if (is_dir($repo_path) && file_exists($repo_path . "/.git") && is_dir($repo_path . "/.git")) {
-			throw new Exception('"$repo_path" is already a git repository');
+			throw new Exception('"' . $repo_path. '" is already a git repository');
 		}
 		else {
 			$repo = new self($repo_path, true, false);
@@ -50,15 +50,14 @@ class Git
 	}
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * @param string $repo_path
-	 *   repository path (optional, default = null)
+	 *   Repository path. (optional, default = null)
 	 * @param boolean $create_new
-	 *   create if not exists? (optional, default = false)
+	 *   Create if not exists? (optional, default = false)
 	 * @param boolean $_init
-	 *   whether we want to init the git repo or not. (optional, default = true)
-	 * @return void
+	 *   Whether we want to init the git repo or not. (optional, default = true)
 	 */
 	public function __construct($repo_path = null, $create_new = false, $_init = true) {
 		if (is_string($repo_path)) {
