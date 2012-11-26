@@ -261,6 +261,14 @@ class Core
 	public static $classes = array();
 
 	/**
+	 * Holds the current webaction object.
+	 * This will be available AFTER the object initialized, so don't use it within the constructer.
+	 *
+	 * @var WebAction
+	 */
+	public $web_action = null;
+
+	/**
 	 * Constructor which reads configs, and setting up Database connection and
 	 * if $install is set to true it will not initialize create objects,
 	 * also no session will be started
@@ -576,22 +584,10 @@ class Core
 			$this->generate_csrf_token();
 
 			// If translation module is activated load the language class.
+			// We cache also the availability for the translation module,
+			// because we can not have heavy load on shutdown function but we need to check for it.
 			if ($this->module_enabled("translation")) {
 				$this->lng = new Language($this->current_language, $this);
-
-				register_shutdown_function(function () {
-					global $translation_cache;
-
-					if (!empty(Core::get_instance()->db) && Core::get_instance()->module_enabled("translation")) {
-						$query = " INSERT IGNORE INTO `" . TranslationKeysObj::TABLE . "` (`id`,`key`) VALUES ";
-						$query_arr = array();
-						foreach ($translation_cache AS $id => $trans) {
-							$query_arr[] = "('" . Db::safe($id) . "', '" . Db::safe($trans) . "')";
-						}
-						$query .= implode(",", $query_arr);
-						Core::get_instance()->db->query_master($query);
-					}
-				});
 			}
 
 			// Initialize the right manager object.
@@ -604,6 +600,44 @@ class Core
 
 		if (!defined('is_shell')) {
 			$this->init_smarty();
+		}
+
+		// Register shutdown function.
+		register_shutdown_function(function () {
+			$core = Core::get_instance();
+			if (!empty($core)) {
+				$core->soopfw_shutdown();
+			}
+		});
+	}
+
+	public function soopfw_shutdown() {
+
+		$core = Core::get_instance();
+
+		// If we can not get a $core object, direct return because we can not do anything then.
+		if (empty($core)) {
+			return;
+		}
+
+		// If translation module is enabled, store currently fetched translation keys.
+		if ($this->module_enabled("translation")) {
+			global $translation_cache;
+
+			if (!empty($core->db) && $core->module_enabled("translation")) {
+				$query = " INSERT IGNORE INTO `" . TranslationKeysObj::TABLE . "` (`id`,`key`) VALUES ";
+				$query_arr = array();
+				foreach ($translation_cache AS $id => $trans) {
+					$query_arr[] = "('" . Db::safe($id) . "', '" . Db::safe($trans) . "')";
+				}
+				$query .= implode(",", $query_arr);
+				$core->db->query_master($query);
+			}
+		}
+
+		// Set the last browsed page if we have a normal page request.
+		if (!empty($core->session) && $core->init_type == Core::INIT_TYPE_HTML) {
+			$core->session->set(Session::SESSION_KEY_LAST_BROWSED_PAGE, NetTools::get_full_request_uri());
 		}
 	}
 

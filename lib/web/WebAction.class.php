@@ -39,6 +39,11 @@ class WebAction extends Object
 		$this->switch_action_type();
 	}
 
+	public static function close_dialog() {
+		$core_web_action = Core::get_instance()->web_action;
+		AjaxModul::return_code(AjaxModul::SUCCESS_CANCEL, 'jquery_dialog_' . $core_web_action->current_action_module->modulname . $core_web_action->current_action_module->action);
+	}
+
 	/**
 	 * Main initializing of an action.
 	 */

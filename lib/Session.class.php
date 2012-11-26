@@ -16,6 +16,9 @@ class Session extends Object
 	const SESSION_KEY_USER_USERNAME = 'username';
 	const SESSION_KEY_USER_PASSWORD = 'password';
 
+	const SESSION_KEY_REDIRECT_AFTER_LOGIN = 'redir_after_login';
+	const SESSION_KEY_LAST_BROWSED_PAGE = 'last_browsed_page';
+
 	/**
 	 * Determines if the user is loggedin or not
 	 * @var boolean
@@ -125,7 +128,7 @@ class Session extends Object
 			$user_session->delete();
 		}
 		//Unset the redirection after login session key couse we do not want to redirect to an secured url
-		$this->session->delete('redir_after_login');
+		$this->session->delete(self::SESSION_KEY_REDIRECT_AFTER_LOGIN);
 
 		if ($this->login_handler !== null) {
 			$this->login_handler->logout($time, $justreturn);
@@ -267,7 +270,7 @@ class Session extends Object
 		//This variable will be used to redirect the user to this page after successfully login
 
 		if (!isset($unallowed_urls_for_redirect[NetTools::get_request_uri()]) && preg_match("/(\.html|.*\/[^\/]*)$/is", NetTools::get_request_uri())) {
-			$this->set("redir_after_login", NetTools::get_full_request_uri());
+			$this->set(self::SESSION_KEY_REDIRECT_AFTER_LOGIN, NetTools::get_full_request_uri());
 		}
 		$this->logged_in = false;
 
@@ -499,4 +502,3 @@ class Session extends Object
 	}
 
 }
-
