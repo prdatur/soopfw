@@ -30,6 +30,9 @@ class NetTools
 	 */
 	public static function get_full_request_uri() {
 		static $url = null;
+		if (!isset($_SERVER['REQUEST_URI'])) {
+			return '';
+		}
 		if ($url === null) {
 			$url = preg_replace('/^\/+/is', '/', $_SERVER['REQUEST_URI']);
 		}
