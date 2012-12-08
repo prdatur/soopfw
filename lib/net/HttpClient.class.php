@@ -37,6 +37,13 @@ class HttpClient extends Object {
 	protected $current_referer = "";
 
 	/**
+	 * Header data.
+	 *
+	 * @var array
+	 */
+	protected $header_data = array();
+
+	/**
 	 * Setup defaults.
 	 */
 	public function __construct() {
@@ -115,6 +122,18 @@ class HttpClient extends Object {
 		if (file_exists($this->cookie_file_path)) {
 			@unlink($this->cookie_file_path);
 		}
+	}
+
+	/**
+	 * Add the given header data.
+	 *
+	 * @param string $key
+	 *   The header key.
+	 * @param string $value
+	 *   The header value.
+	 */
+	public function add_header($key, $value) {
+		$this->header_data[$key] = $value;
 	}
 
 	/**
@@ -212,6 +231,16 @@ class HttpClient extends Object {
 
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
+		if (!empty($this->header_data)) {
+
+			$header = array();
+			foreach ($this->header_data AS $k=>$v) {
+				$header[] = $k.": ".$v;
+			}
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+			$this->header_data = array();
+		}
 		// Prevent a redirect loop.
 		curl_setopt($ch, CURLOPT_MAXREDIRS, 15);
 
