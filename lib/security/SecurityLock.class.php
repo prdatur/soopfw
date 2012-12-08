@@ -19,6 +19,12 @@ class SecurityLock extends Object
 	 */
 	private $lock_identifier = '';
 
+	/**
+	 * Constructor.
+	 *
+	 * @param string $lock_identifier
+	 *   The lock identifier. (optional, default = NS)
+	 */
 	public function __construct($lock_identifier = NS) {
 		parent::__construct();
 
