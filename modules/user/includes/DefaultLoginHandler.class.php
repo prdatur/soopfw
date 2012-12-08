@@ -47,7 +47,7 @@ class DefaultLoginHandler extends AbstractLoginHandler implements LoginHandler
 			// No user found.
 			return false;
 		}
-
+		
 		// Check that the provided password is the correct one.
 		$hash_check = new PasswordHash();
 		if (!$hash_check->check_password(trim($password), $user_obj->password)) {
