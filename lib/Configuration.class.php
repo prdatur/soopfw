@@ -131,5 +131,14 @@ class Configuration {
 		}
 		return $obj;
 	}
+
+	/**
+	 * Returns all currently configurated values.
+	 * 
+	 * @return array The current configuration array.
+	 */
+	public function get_values() {
+		return $this->config;
+	}
 }
 
