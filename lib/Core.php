@@ -536,14 +536,18 @@ class Core
 			}
 		}
 
-		//Set the provided $language
-		$this->session->set('language', $language);
+		$language = trim($language);
+		if (!empty($language)) {
+			$this->session->set('language', strtolower($language));
+		}
 
 		// Lower the language and get the default language if the current one is empty.
-		$lang = $this->session->get('language', '');
+		$lang = $this->session->get('language', $language);
+
 		if (empty($lang)) {
 			$lang = $this->default_language;
 		}
+		//Set the provided $language
 		$this->session->set('language', strtolower($lang));
 
 		// Set our current language
