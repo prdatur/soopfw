@@ -62,6 +62,34 @@ class SecurityLock extends Object
 	}
 
 	/**
+	 * Get the current lock value.
+	 *
+	 * @param string $lock_identifier
+	 *   This is the lock identifer for the action which is monitored.
+	 *   If not provided the global one which was setup within the constructor is used.
+	 *   For example: user_login_count which locks user identified by $user_identifer if the wrong login count exceeds.
+	 *   (optional, default = NS)
+	 * @param string $user_identifer
+	 *   The user identifier.
+	 *   (optional, default = NS)
+	 *
+	 * @return int the current lock count.
+	 */
+	public function get_lock_value($lock_identifier = NS, $user_identifer = NS) {
+		// Get the user identification.
+		if (($user_identifer = $this->get_user_identification($user_identifer)) === false) {
+			return false;
+		}
+		$data = $this->core->memcache_obj->get($this->generate_memcache_key($lock_identifier, $user_identifer));
+		if (!isset($data['count'])) {
+			return 0;
+		}
+
+		return $data['count'];
+	}
+
+
+	/**
 	 * Unlock a user.
 	 *
 	 * @param string $lock_identifier
