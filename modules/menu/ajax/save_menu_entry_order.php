@@ -45,7 +45,6 @@ class AjaxMenuSaveMenuEntryOrder extends AjaxModul
 
 		// Make sure that we start from 0.
 		$this->order_counter = 0;
-
 		// Save new order.
 		if ($this->recrusive_save_new_order($new_order, $params->menu_id)) {
 			$this->db->transaction_commit();
@@ -72,9 +71,12 @@ class AjaxMenuSaveMenuEntryOrder extends AjaxModul
 
 		// Process all values.
 		foreach ($order AS $menu_entry_id => $child_entries) {
-			if (empty($v)) {
+
+			if (empty($child_entries)) {
 				continue;
 			}
+
+			$menu_entry_id = (int)str_replace("+", "", $menu_entry_id);
 			// Increment the order counter.
 			$this->order_counter++;
 
