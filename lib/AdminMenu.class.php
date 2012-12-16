@@ -65,17 +65,17 @@ class AdminMenu extends Object
 					'#childs' => array(),
 				),
 
-				// System.
-				self::CATEGORY_SYSTEM => array(
-					'#id' => 'soopfw_adminmenu_system',
-					'#title' => t("System"),
-					'#childs' => array(),
-				),
-
 				// Other.
 				self::CATEGORY_OTHER => array(
 					'#id' => 'soopfw_adminmenu_other',
 					'#title' => t("Other"),
+					'#childs' => array(),
+				),
+
+				// System.
+				self::CATEGORY_SYSTEM => array(
+					'#id' => 'soopfw_adminmenu_system',
+					'#title' => t("System"),
 					'#childs' => array(),
 				),
 			);
