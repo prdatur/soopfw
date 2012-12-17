@@ -875,6 +875,10 @@ class User extends ActionModul
 		//Add the button
 		$obj_form->add($submit_button);
 
+		$this->lng->load_country_list($this->core->current_language, array('DE', 'FR', 'IT', 'CH'));
+
+		$nation = new Selectfield('nation', $this->lng->codes, $address_obj->nation,t('Nation'));
+		$obj_form->add($nation);
 		if (empty($address_id) || $address_obj->group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT) {
 			//Override address group with a selectbox
 			$options = array(
@@ -950,7 +954,6 @@ class User extends ActionModul
 			}
 		}
 
-		$this->static_tpl = 'form.tpl';
 	}
 
 	/**
