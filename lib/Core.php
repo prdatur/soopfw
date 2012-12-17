@@ -1111,7 +1111,13 @@ class Core
 			if (file_exists($dir)) {
 				//Initialize the module object
 				include_once $dir;
-				$obj = new $module();
+
+				$mod_config = new ModulConfigObj($module);
+				if (!$mod_config->enabled) {
+					continue;
+				}
+				$class = WebAction::generate_classname($module);
+				$obj = new $class();
 
 				//Check if the menu method exist
 				if (method_exists($obj, "menu")) {
