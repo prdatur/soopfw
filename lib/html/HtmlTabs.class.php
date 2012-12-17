@@ -34,7 +34,7 @@ class HtmlTabs extends AbstractHtmlElement
 	/**
 	 * Construct
 	 *
-	 * @param string $id 
+	 * @param string $id
 	 *   The container id
 	 */
  	public function __construct($id) {
@@ -47,7 +47,7 @@ class HtmlTabs extends AbstractHtmlElement
 	 * It will also assign a javascript configuration key that can jquery use
 	 * to laod the tabs (provide the id and effect)
 	 *
-	 * @param string $name 
+	 * @param string $name
 	 *   the smarty variable
 	 */
 	public function assign_smarty($name) {
@@ -61,13 +61,13 @@ class HtmlTabs extends AbstractHtmlElement
 	/**
 	 * Adds a tab to this container
 	 *
-	 * @param string $title 
+	 * @param string $title
 	 *   the title of the tab
-	 * @param string $name 
+	 * @param string $name
 	 *   the internal name
-	 * @param string $link 
+	 * @param string $link
 	 *   the link to navigate
-	 * @param string $right 
+	 * @param string $right
 	 *   the right which is needed to show this tab (optional, default = '')
 	 */
 	public function add($title, $name, $link, $right = "") {
@@ -76,7 +76,6 @@ class HtmlTabs extends AbstractHtmlElement
 		 * If the link ends not with the specified extension we append .ajax_html so that the content is loaded with
 		 * the ajax template
 		 */
-
 		if (!preg_match("/(\.php|\.html|\.htm|\.jpeg|\.jpg|\.gif|\.png|\.js|\.css)$/is", $link, $matches)) {
 			$link .= ".ajax_html";
 		}
@@ -87,11 +86,25 @@ class HtmlTabs extends AbstractHtmlElement
 		}
 
 		//Add the tab
-		$this->tabs[] = array(
+		$this->tabs[$name] = array(
 			'title' => $title,
 			'link' => $link,
 			'name' => $name
 		);
+	}
+
+	/**
+	 * Removes the given tab.
+	 *
+	 * @param string $name
+	 *   The string what was choosen for $name within the add method.
+	 */
+	public function remove($name) {
+		if (!isset($this->tabs[$name])) {
+			return;
+		}
+
+		unset($this->tabs[$name]);
 	}
 
 }
