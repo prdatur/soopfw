@@ -330,6 +330,20 @@ abstract class AbstractDataManagement extends Object
 	 */
 	public function load($val = "", $force_db = false) {
 
+		// Check if we provided a reference key, if so we will transform it to an array if it isn't already one.
+		// After that we check each entry if it is empty, if so we do not proceed further.
+		// But we want this only if we have configurated no db filter, because then we need to pass thru.
+		if (!empty($val) && !$this->db_filter->has_where()) {
+			if (!is_array($val)) {
+				$val = array($val);
+			}
+
+			foreach ($val as $check) {
+				if (empty($check)) {
+					return;
+				}
+			}
+		}
 		//Object not loaded
 		$this->load_success = false;
 
