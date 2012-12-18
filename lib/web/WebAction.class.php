@@ -516,7 +516,7 @@ class WebAction extends Object
 
 
 		//Add default javascript files
-		$this->core->add_js("/js/jquery-1.7.2.min.js", Core::JS_SCOPE_SYSTEM);
+		$this->core->add_js("/js/jquery-1.8.3.min.js", Core::JS_SCOPE_SYSTEM);
 		if (!empty($jquery_ui_js_version)) {
 			$this->core->add_js($jquery_ui_js_version, Core::JS_SCOPE_SYSTEM);
 		}
