@@ -112,11 +112,11 @@ class UserObj extends AbstractDataManagement
 		if ($crypt_pw == true) {
 			$this->crypt_pw();
 		}
-
+		
 		if (parent::insert($ignore)) {
 
 			// Add the user to all default permission groups.
-			foreach($this->core->get_dbconfig("system", User::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
+			foreach($this->core->get_dbconfig("user", User::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array(), false, false, true) AS $group_id) {
 				$user2group = new User2RightGroupObj();
 				$user2group->user_id = $this->user_id;
 				$user2group->group_id = $group_id;

@@ -1255,7 +1255,7 @@ class User extends ActionModul
 		$user_group->permissions = 'admin.user.show_admin_menu';
 		$user_group_id = $user_group->insert();
 
-		$this->core->dbconfig('core', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array($user_group_id => $user_group_id), false, false, true);
+		$this->core->dbconfig('user', self::CONFIG_DEFAULT_REGISTERED_USER_GROUPS, array($user_group_id => $user_group_id), false, false, true);
 
 		/**
 		 * Creating default email templates
