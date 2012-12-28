@@ -35,7 +35,7 @@ function change_user_password_dialog(customer_id) {
 				});
 			});
 		};
-		buttons[Soopfw.t("cancel")] = function() {
+		buttons[Soopfw.t("Cancel")] = function() {
 			$(html).dialog("destroy").remove();
 		};
 
