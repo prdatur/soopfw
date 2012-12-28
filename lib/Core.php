@@ -1276,7 +1276,7 @@ class Core
 		//Read out all previous setup messages and reset the session message array
 		$messages = array();
 
-		if (!empty($_SESSION['message'])) {
+		if (!empty($_SESSION['message']) && is_array($_SESSION['message'])) {
 			$messages = array();
 			if (isset($_SESSION['message']['error'])) {
 				$messages['error'] = $_SESSION['message']['error'];
@@ -1287,7 +1287,15 @@ class Core
 			if (isset($_SESSION['message']['success'])) {
 				$messages['success'] = $_SESSION['message']['success'];
 			}
-			$_SESSION['message'] = array();
+			unset($_SESSION['message']);
+			
+			// If we have configurated some message timeouts, provide js the needed config.
+			if (isset($_SESSION['core_message_timeout']) && is_array($_SESSION['core_message_timeout'])) {
+				foreach ($_SESSION['core_message_timeout'] AS $key => $val) {
+					$this->js_config('core_message_timeout', $val, true, $key);
+				}
+				unset($_SESSION['core_message_timeout']);
+			}
 		}
 		//Assign the messages
 		$this->smarty->assign("main_messages", $messages);
@@ -1379,8 +1387,11 @@ class Core
 	 *   if this is set to true it will be handled as an AjaxReturn (optional, default = false)
 	 * @param mixed $ajax_data
 	 *   if $ajax is set to true we can provide additional data send back to the browser within the current ajax request (optional, default = null)
+	 * @param int $timeout
+	 *   If provided a javascript timeout will try to hide this message after the specific time.
+	 *   The value are in seconds, if 0 is provided the message will stay forever (optional, default = 0)
 	 */
-	public function message($msg, $type = self::MESSAGE_TYPE_SUCCESS, $ajax = false, $ajax_data = null) {
+	public function message($msg, $type = self::MESSAGE_TYPE_SUCCESS, $ajax = false, $ajax_data = null, $timeout = 0) {
 
 		//Check if we are in ajax mode
 		if ($ajax) {
@@ -1428,6 +1439,7 @@ class Core
 				unset($_SESSION['message']['success']);
 			}
 
+				
 			//Set the current message type only if we have not set it previous so the given message type is the most bad one
 			if (empty($most_bad_type)) {
 				$most_bad_type = $type;
@@ -1443,6 +1455,9 @@ class Core
 					break;
 			}
 
+			// Unset session timeout config, because we already displayed the wanted message.
+			unset($_SESSION['core_message_timeout']);
+				
 			//Return the ajax message, this function dies at this moment.
 			AjaxModul::return_code($most_bad_type, $ajax_data, true, $msg);
 		}
@@ -1459,7 +1474,19 @@ class Core
 
 		//Add the message if we are in html mode, on shell mode we call console_log
 		if (!defined('is_shell')) {
-			$_SESSION['message'][$type][] = $msg;
+			
+			// Get the unique identifier for this message.
+			$key = md5($msg);
+			
+			// If we have a timeout, provide the config for it.
+			if ((int)$timeout > 0) {
+				if (!is_array($_SESSION['core_message_timeout'])) {
+					$_SESSION['core_message_timeout'] = array();
+				}
+				$_SESSION['core_message_timeout'][$key] = $timeout;
+			}
+			
+			$_SESSION['message'][$type][$key] = $msg;
 		}
 		else {
 			CliHelper::console_log($msg, $type);
@@ -1639,8 +1666,8 @@ class Core
 	 * @param boolean $as_array
 	 *   If the value should be added as a config array (optional, default = false)
 	 * @param string $array_key
-	 *   if $as_array is set to true this value will be used for the array key.
-	 *   if left empty a numeric array push will be used (optional, default = null)
+	 *   if $as_array is set this value will be used for the array key.
+	 *   if left empty or set to null a numeric array push will be used (optional, default = null)
 	 */
 	public function js_config($var, $value, $as_array = false, $array_key = null) {
 		//Check if we want to just set the value to the config key or if we want

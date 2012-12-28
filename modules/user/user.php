@@ -1118,7 +1118,7 @@ class User extends ActionModul
 		}
 
 		if ($this->session->pre_validate_login() === true) {
-			$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
+			$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS, false, null, 5);
 			$this->redirect_after_login();
 		}
 		$this->title(t('Login'), t('Please enter your username and password'));
@@ -1216,7 +1216,7 @@ class User extends ActionModul
 
 				// We set a static user identifier so the lock is for all people to get more security.
 				$security->unlock('user_login_' . $login_form->get_value("user"), 'usernamecheck');
-				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS);
+				$this->core->message(t('Successfully logged in.'), Core::MESSAGE_TYPE_SUCCESS, false, null, 5);
 				$this->session->set('redirect_from_login', true);
 				$this->redirect_after_login();
 			}

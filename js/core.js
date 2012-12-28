@@ -41,6 +41,22 @@ $.extend(Soopfw, {
 	},
 
 	/**
+	 * Returns the size of the provided object.
+	 * 
+	 * @param object obj
+	 *   The object to be counted.
+	 *   
+	 * @return int The object size.
+	 */
+	obj_size: function(obj) {
+		var size = 0, key;
+		for (key in obj) {
+			if (obj.hasOwnProperty(key)) size++;
+		}
+		return size;
+	},
+
+	/**
 	 * Behavious all js function should implement this instead of Jquery document ready
 	 * Will be reloaded with every ajax_html and normal page request
 	 */
@@ -84,16 +100,20 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * Translation function, key as an english text, args as an object {search => replace}
-	 * @param String key
-	 * @param Object args
+	 * Translation function, key as an english text, args as an object {search => replace}.
+	 * 
+	 * @param string key
+	 *   The english key (text).
+	 * @param object args
+	 *   The arguments which will be replaced within the text.
 	 */
 	t: function(key, args) {
+		
 		var translation = key;
-		if(LANG[key] != undefined && LANG[key] != '') {
+		if(LANG[key] !== undefined && LANG[key] !== '' && LANG.hasOwnProperty(key)) {
 			translation = LANG[key];
 		}
-
+	
 		if(args != undefined) {
 			foreach(args, function(k, v) {
 				translation = str_replace(k, v, translation);
@@ -103,8 +123,10 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * Init a ajax queue with given identifier
-	 * @param String identifier
+	 * Init a ajax queue with given identifier.
+	 * 
+	 * @param string identifier
+	 *   The progress identifier.
 	 */
 	ajax_queue_init: function(identifier) {
 		soopfw_ajax_queue[identifier] = [];
@@ -112,17 +134,21 @@ $.extend(Soopfw, {
 
 	/**
 	 * Adds to the given identifier queue an ajax call with the ajax options see Jquery ajax options for a complete list
-	 * of ajax_options
-	 * @param String identifier
-	 * @param Object ajax_options
+	 * of ajax_options.
+	 * 
+	 * @param string identifier
+	 *   The progress identifier.
+	 * @param object ajax_options
 	 */
 	ajax_queue: function(identifier, ajax_options) {
 		soopfw_ajax_queue[identifier].push(ajax_options);
 	},
 
 	/**
-	 * Start the queue
-	 * @param String identifier
+	 * Start the queue.
+	 * 
+	 * @param string identifier
+	 *   The progress identifier.
 	 */
 	ajax_queue_start: function(identifier) {
 		Soopfw.ajax_queue_worker(identifier);
@@ -132,7 +158,8 @@ $.extend(Soopfw, {
 	 * Should not be called directly, will process the queue and on complete it will fetch next
 	 * queue item and process until queue is empty
 	 *
-	 * @param String identifier
+	 * @param string identifier
+	 *   The progress identifier.
 	 */
 	ajax_queue_worker: function(identifier) {
 		if(!empty(soopfw_ajax_queue[identifier])) {
@@ -152,11 +179,16 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * Append a progress bar to append_element
-	 * @param String identifier
-	 * @param int max_value the max value
-	 * @param String init_text The text which will be displayed while first run is active
-	 * @param Mixed append_element can be an jquery string or element object
+	 * Append a progress bar to append_element.
+	 * 
+	 * @param string identifier
+	 *   The progress identifier.
+	 * @param int max_value
+	 *   the max value.
+	 * @param string init_text
+	 *   The text which will be displayed while first run is active.
+	 * @param mixed append_element
+	 *   Can be an jquery string or element object.
 	 */
 	progress: function(identifier, max_value, init_text, append_element) {
 		$(append_element).append(
@@ -176,10 +208,14 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * Updates the progressbar
-	 * @param String identifier
-	 * @param String init_text the Text to be written
-	 * @param int percent_override Normaly it will self calculate the percent, but on finish it is usefull to override it to 100
+	 * Updates the progressbar.
+	 * 
+	 * @param string identifier
+	 *   The progress identifier.
+	 * @param string init_text 
+	 *   the Text to be written.
+	 * @param int percent_override 
+	 *   Normaly it will self calculate the percent, but on finish it is usefull to override it to 100.
 	 */
 	progress_update: function(identifier, init_text, percent_override) {
 		if(!empty(init_text)) {
@@ -199,10 +235,12 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * Append an ajax load to the given div
+	 * Append an ajax load to the given div.
 	 *
-	 * @param Mixed div can be an jquery string or element object
-	 * @param String id an unique identifier for this ajax_loader
+	 * @param mixed div 
+	 *   Can be an jquery string or element object.
+	 * @param string id 
+	 *   an unique identifier for this ajax_loader.
 	 */
 	ajax_loader: function(div, id) {
 		if(document.getElementById("ajax_loader_"+id) != undefined) {
@@ -218,15 +256,21 @@ $.extend(Soopfw, {
 	},
 
 	/**
-	 * call an ajax_html ajax request to the given module, action with args and display the output html in a dialog
-	 * After successfull load the ajax behaviours will be reloaded
+	 * Call an ajax_html ajax request to the given module, action with args and display the output html in a dialog
+	 * After successfull load the ajax behaviours will be reloaded.
 	 *
-	 * @param String title the title of the dialog
-	 * @param String module The module
-	 * @param String the action to be called
-	 * @param Array args The arguments for the action
-	 * @param Array get_params An array with get params.
-	 *
+	 * @param string title 
+	 *   the title of the dialog.
+	 * @param string module 
+	 *   The module.
+	 * @param string action
+	 *   the action to be called.
+	 * @param array args 
+	 *   The arguments for the action.
+	 * @param array get_params 
+	 *   An array with get params.
+	 *   
+	 * @return string the created dialog id.
 	 */
 	default_action_dialog: function(title, module, action, args, options, get_params) {
 		if(args != undefined && args != null) {
@@ -307,6 +351,14 @@ $.extend(Soopfw, {
 		return id;
 	},
 
+	/**
+	 * Creates a unique random uuid.
+	 * 
+	 * @param int length
+	 *   The length of the string.
+	 *   
+	 * @return string The uuid.
+	 */
 	uuid: function(length) {
 		if(length == undefined) {
 			length = 32;
@@ -314,6 +366,10 @@ $.extend(Soopfw, {
 		return randomID(length);
 	},
 
+	/**
+	 * Redirects the user to the url what was configurated through 
+	 * php within the redirect_url setting.
+	 */
 	redirect: function() {
 
 		var url = Soopfw.config.redirect_url;
@@ -322,6 +378,9 @@ $.extend(Soopfw, {
 		}
 	},
 
+	/**
+	 * Points the browser to the given url.
+	 */
 	location: function(url) {
 		document.location.href = url;
 	}
@@ -469,6 +528,26 @@ $(document).ready(function() {
 					}
 				});
 			}
+		}
+	};
+
+	Soopfw.behaviors.SystemSetup = function() {
+		if (!empty(Soopfw.config.core_message_timeout)) {
+			foreach (Soopfw.config.core_message_timeout, function(message_id, timeout) {
+				window.setTimeout(function() {
+					var message_elm = $('*[data-core-message-mid="' + message_id + '"]');
+					if (!empty(message_elm)) {
+						var timeout_elm = message_elm;
+						var message_container = message_elm.parents('*[data-core-message-container]');
+						if ($('*[data-core-message-mid]', message_container).length <= 1) {
+							timeout_elm = message_container.parents('*[data-core-message-timeout-handler]');
+
+						}
+						$(timeout_elm).fadeOut(400, function() { $(this).remove(); });
+					}
+				}, timeout * 1000);
+			});
+			Soopfw.config.core_message_timeout = [];
 		}
 	};
 
