@@ -520,6 +520,7 @@ class WebAction extends Object
 		if (!empty($jquery_ui_js_version)) {
 			$this->core->add_js($jquery_ui_js_version, Core::JS_SCOPE_SYSTEM);
 		}
+		$this->core->add_js("/js/jquery_plugins/jquery.json-2.4.min.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.ui.i18n.all.min.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.ui.droppable.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery-ui-timepicker-addon.js", Core::JS_SCOPE_SYSTEM);
