@@ -269,7 +269,7 @@ class Session extends Object
 		//If the request_uri is not /, /user/login.html and the uri has a .html or no ending, we will setup the current request uri to the redir_after_login session variable
 		//This variable will be used to redirect the user to this page after successfully login
 
-		if (!isset($unallowed_urls_for_redirect[NetTools::get_request_uri()]) && preg_match("/(\.html|.*\/[^\/]*)$/is", NetTools::get_request_uri())) {
+		if (!isset($unallowed_urls_for_redirect[NetTools::get_request_uri()]) && preg_match("/(\.html|.*\/[^\/]*)$/is", NetTools::get_request_uri()) && !preg_match("/(\.ajax|\.ajax_html)$/is", NetTools::get_request_uri())) {
 			$this->set(self::SESSION_KEY_REDIRECT_AFTER_LOGIN, NetTools::get_full_request_uri());
 		}
 		$this->logged_in = false;
