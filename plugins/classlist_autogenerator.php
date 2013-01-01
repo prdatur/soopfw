@@ -103,7 +103,8 @@
 					}
 					elseif(is_file($path)) {
 						// filtering by extension
-						$extension = end(explode(".", $path));
+						$b = explode(".", $path);
+						$extension = end($b);
 						if($extension != 'php') {
 							continue;
 						}

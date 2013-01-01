@@ -51,6 +51,9 @@ abstract class AjaxModul extends Object
 		switch ((int)$code) {
 			default: $return = array("code" => $code, "desc" => $desc, "data" => $data);
 		}
+		if ($die === null) {
+			$die = true;
+		}
 		if ($die == true) {
 			echo json_encode($return);
 			die();

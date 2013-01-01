@@ -40,7 +40,11 @@ class ExistValidator extends AbstractHtmlValidator
 
 
 		$sql = "SELECT * FROM `:exists_tbl` WHERE `:exists_field` = @checkval";
-		return ($this->db->query_slave_count($sql, array(":exists_tbl" => $exists_tbl, ":exists_field" => $exists_field, "@checkval" => $checkval)) > 0);
+		return ($this->db->query_slave_count($sql, array(
+			":exists_tbl" => $exists_tbl, 
+			":exists_field" => $exists_field, 
+			"@checkval" => $checkval
+		)) > 0);
 	}
 
 }

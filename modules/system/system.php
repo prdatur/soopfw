@@ -831,6 +831,9 @@ This message will disappear after the first cronjob runs. If you really do not w
 				$info['updated_needed'] = !empty($object_updates);
 			}
 
+			if (!$mobj->enabled) {
+				$info['updated_needed'] = false;
+			}
 			//Add the module to the list
 			$modules[] = $info;
 		}

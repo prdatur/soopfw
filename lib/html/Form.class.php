@@ -741,12 +741,12 @@ class Form extends AbstractHtmlElement implements Iterator
 	/**
 	 * Set given values
 	 *
-	 * @param array &$values
+	 * @param array $values
 	 *   the values as elm_name => value
 	 * @param string $scope
 	 *   the input scope , use one of Form::ELEMENT_SCOPE_* (optional, default = Form::ELEMENT_SCOPE_VISIBLE)
 	 */
-	public function set_values(&$values, $scope = self::ELEMENT_SCOPE_VISIBLE) {
+	public function set_values($values, $scope = self::ELEMENT_SCOPE_VISIBLE) {
 		foreach ($values as $key => &$value) {
 			if (!isset($this->elements[$scope][$key])) {
 				continue;

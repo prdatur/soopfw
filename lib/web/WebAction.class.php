@@ -248,7 +248,9 @@ class WebAction extends Object
 	private function request_normal() {
 
 		try {
-
+			if ($this->core->init_type === Core::INIT_TYPE_AJAXHTML) {
+				$this->core->template = "index_ajax_html.tpl";
+			}
 			$used_default_module = false;
 			$original_module = $this->action_params['module'];
 			if (!file_exists(SITEPATH . "/modules/" . $this->action_params['module'] . "/" . $this->action_params['module'] . ".php")) {
@@ -367,7 +369,6 @@ class WebAction extends Object
 			switch ($this->action_params['type']) {
 				case 'ajax_html':
 					$this->core->js_config("is_ajax_html", true);
-					$this->core->template = "index_ajax_html.tpl";
 					break;
 				default:
 					$this->assign_default_js_css();
@@ -383,7 +384,7 @@ class WebAction extends Object
 			$this->aborting_loading(self::ABORT_WRONG_PARAMS, $e->getMessage());
 		}
 		catch (SoopfwNoPermissionException $e) {
-			if ($this->session->get('redirect_from_login') === true) {
+			if ($this->session->get('redirect_from_login') === true && $this->core->init_type !== Core::INIT_TYPE_AJAXHTML) {
 				$this->core->location($this->session->get_login_url());
 			}
 			$this->aborting_loading(self::ABORT_NO_PERMISSION, $e->getMessage());
@@ -451,7 +452,6 @@ class WebAction extends Object
 				$this->current_action_module->wrong_params();
 				break;
 		}
-
 		$this->core->assign_menus();
 		$this->core->smarty_assign_default_vars();
 		$this->core->smarty->display($this->core->template);

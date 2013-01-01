@@ -195,7 +195,7 @@ class Pager extends Object
 	 *   The smarty variable (optional, default = 'pager')
 	 */
 	public function assign_smarty($variable = 'pager') {
-		$this->smarty->assign_by_ref($variable, $this->build_pager());
+		$this->smarty->assign($variable, $this->build_pager());
 	}
 
 	/**

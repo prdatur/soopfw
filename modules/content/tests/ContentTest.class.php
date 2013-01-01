@@ -110,7 +110,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'display_name' => $this->content_type_description,
 			'form_content_types_submit' => $this->csrf_token,
 		));
-
+		
 		$this->assert_equals('The field "Content type" is required.', $this->content['desc'], t('Check for valid missing param: content type'));
 		$this->do_ajax_post('/admin/content/manage_content_type.ajax_html', array(
 			'content_type' => $this->content_type,

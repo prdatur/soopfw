@@ -847,7 +847,8 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		}
 		else {
 			//Form was not submited so try to load session values
-			$form->set_values($this->session->get("search_content_overview", array()));
+			$vals = $this->session->get("search_content_overview", array());
+			$form->set_values($vals);
 		}
 
 
@@ -1067,7 +1068,7 @@ Current language: [b]@language[/b]', array(
 				throw new SoopfwNoPermissionException();
 			}
 
-			$this->smarty->assign_by_ref("list", $this->db->query_slave_all("SELECT `content_type`, `display_name` FROM `" . ContentTypeObj::TABLE . "`"));
+			$this->smarty->assign("list", $this->db->query_slave_all("SELECT `content_type`, `display_name` FROM `" . ContentTypeObj::TABLE . "`"));
 		}
 	}
 
@@ -1119,7 +1120,7 @@ Current language: [b]@language[/b]', array(
 			throw new SoopfwNoPermissionException();
 		}
 		//Get content types and assign it
-		$this->smarty->assign_by_ref("values", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeObj::TABLE . "`"));
+		$this->smarty->assign("values", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeObj::TABLE . "`"));
 	}
 
 	/**
@@ -1288,12 +1289,12 @@ Current language: [b]@language[/b]', array(
 			throw new SoopfwNoPermissionException();
 		}
 
-		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_SYSTEM);
+		$this->core->add_js("/js/jquery_plugins/jquery.tablednd.js", Core::JS_SCOPE_USER);
 
 		$this->core->js_config("content_type", $content_type);
 
 		//Get content type field groups
-		$this->smarty->assign_by_ref("field_groups", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeFieldGroupObj::TABLE . "` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)));
+		$this->smarty->assign("field_groups", $this->db->query_slave_all("SELECT * FROM `" . ContentTypeFieldGroupObj::TABLE . "` WHERE `content_type` = @content_type ORDER BY `order`", array("@content_type" => $content_type)));
 	}
 
 	/**

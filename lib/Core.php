@@ -1211,7 +1211,7 @@ class Core
 			$alter_menus = array_merge_recursive($alter_menus, $alter_menu);
 		}
 
-		$this->smarty->assign_by_ref("main_menu", $menu_obj->get_menu_tree(true, $alter_menus));
+		$this->smarty->assign("main_menu", $menu_obj->get_menu_tree(true, $alter_menus));
 	}
 
 	/**
@@ -1248,7 +1248,7 @@ class Core
 		if (!empty($current_user)) {
 			$this->js_config("current_user_id", $current_user->user_id);
 			$this->smarty->assign("user_id", $current_user->user_id);
-			$this->smarty->assign_by_ref("current_user", $this->session->current_user());
+			$this->smarty->assign("current_user", $this->session->current_user());
 		}
 
 		//If we have a translation object, assign language variables for javascript

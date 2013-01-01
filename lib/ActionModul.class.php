@@ -341,4 +341,8 @@ class ActionModul extends Object
 		$this->static_tpl = NS;
 		return false;
 	}
+	
+	protected function required_admin_theme() {
+		$this->smarty->set_tpl(SITEPATH . "/templates/" . $this->core->get_dbconfig("system", System::CONFIG_ADMIN_THEME, 'standard') . "/");
+	}
 }

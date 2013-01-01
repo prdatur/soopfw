@@ -65,7 +65,7 @@ abstract class AbstractHtmlValidator extends Object
 	 * @param string &$val
 	 *   The error
 	 */
-	public function set_error(&$val) {
+	public function set_error($val) {
 		$this->error = &$val;
 	}
 

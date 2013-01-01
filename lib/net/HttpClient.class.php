@@ -158,7 +158,8 @@ class HttpClient extends Object {
 
 			$url .= http_build_query($args);
 		}
-		return $this->execute($url, $null = null, $use_ssl);
+		$null = null;
+		return $this->execute($url, $null, $use_ssl);
 	}
 
 	/**

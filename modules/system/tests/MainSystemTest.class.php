@@ -642,7 +642,8 @@ class MainSystemTest extends UnitTest implements UnitTestInterface
 		}
 
 		$cron_called = false;
-		$cron->match("*", array('callable_class', 'callable_method'), TIME_NOW);
+		$inst = new callable_class();
+		$cron->match("*", array($inst, 'callable_method'), TIME_NOW);
 		if (!$this->assert_true($cron_called, t('Check callable classmethod'))) {
 			return false;
 		}

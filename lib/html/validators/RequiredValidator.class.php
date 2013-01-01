@@ -24,7 +24,7 @@ class RequiredValidator extends AbstractHtmlValidator
 			return true;
 		}
 		$val = $this->get_value();
-		if($val."" === "0") {
+		if(!is_array($val) && $val."" === "0") {
 			return true;
 		}
 		if ($val === NS) {

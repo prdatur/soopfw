@@ -63,7 +63,7 @@ class Menu extends ActionModul
 		$this->title(t("Overview"));
 
 		// Get menus and assign it.
-		$this->smarty->assign_by_ref("menus", $this->db->query_slave_all("SELECT * FROM `" . MenuObj::TABLE . "`"));
+		$this->smarty->assign("menus", $this->db->query_slave_all("SELECT * FROM `" . MenuObj::TABLE . "`"));
 	}
 
 	/**
@@ -199,7 +199,7 @@ class Menu extends ActionModul
 		}
 
 		// Assign the parsed tree.
-		$this->smarty->assign_by_ref("menus", $array_2_tree->get_tree());
+		$this->smarty->assign("menus", $array_2_tree->get_tree());
 
 		$this->core->js_config("menu_entries_menu_id", $menu_id);
 	}

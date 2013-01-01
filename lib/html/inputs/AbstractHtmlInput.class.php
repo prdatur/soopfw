@@ -161,7 +161,8 @@ abstract class AbstractHtmlInput extends Object
 	public function add_validator(AbstractHtmlValidator &$validator, $is_valid = false) {
 
 		//Set the current value to the validator
-		$validator->set_value($this->config("value"));
+		$val = $this->config("value");
+		$validator->set_value($val);
 
 		$this->set_validator_error_message($validator);
 
@@ -621,9 +622,11 @@ abstract class AbstractHtmlInput extends Object
 	 * Reinitialize all validators, set the current value and the error message txt's
 	 */
 	private function reinit_validators() {
+		$val = $this->config("value");
+		
 		/* @var $validator AbstractHtmlValidator */
 		foreach($this->validators AS &$validator) {
-			$validator->set_value($this->config("value"));
+			$validator->set_value($val);
 			$this->set_validator_error_message($validator);
 		}
 	}
@@ -640,7 +643,8 @@ abstract class AbstractHtmlInput extends Object
 			$validator->set_error(t("The field \"@field\" is not a valid email.", array("@field" => $this->config("label_error"))));
 		}
 		else if ($validator instanceof RequiredValidator) {
-			$validator->set_error(t("The field \"@field\" is required.", array("@field" => $this->config("label_error"))));
+			$err = t("The field \"@field\" is required.", array("@field" => $this->config("label_error")));
+			$validator->set_error($err);
 		}
 		else if ($validator instanceof LengthValidator) {
 			//Get the minimum and maximum length option to provide it within the error message
