@@ -770,6 +770,73 @@ class User extends ActionModul
 
 		$this->smarty->assign_by_ref("user", $user_obj);
 	}
+	
+	/**
+	 * Action: change_password
+	 * 
+	 * Provides a form that allows the user or an admin to change the password.
+	 * 
+	 * @param int $user_id
+	 *   The user id. if not provided current logged in user id will be used (optional, default = 0)
+	 */
+	public function change_password($user_id = 0) {
+		$this->session->require_login();
+		
+		if (empty($user_id)) {
+			$user_id = $this->session->current_user()->user_id;
+		}
+		
+		$this->title(t("Change password"), t("Here you can change your password."));
+		$user_id = (int) $user_id;
+
+		//Check perms
+		if (!$this->right_manager->has_perm("admin.user.change") && $this->session->current_user()->user_id != $user_id) {
+			throw new SoopfwNoPermissionException();
+		}
+		$this->static_tpl = 'form.tpl';
+		//Load the requested user
+		$user_obj = new UserObj($user_id);
+		if (!$user_obj->load_success()) {
+			throw new SoopfwWrongParameterException(t('No such user'));
+		}
+		
+		$form = new Form('user_change_password');
+		$form->set_ajax();
+		
+		$form->add(new Passwordfield('password', '', t('New password')), array(
+			new RequiredValidator(),
+		));
+		$form->add(new Passwordfield('password2', '', t('Re-type password')), array(
+			new EqualsValidator(t('Both passwords needs to be the same.'), $form->get_value('password')),
+		));
+		
+		if ($this->session->current_user()->user_id != $user_id) {
+			$form->add(new Checkbox('inform', '1', '1', t('Inform?')));
+		}
+		$form->set_submit_button_title(t('Change password'));
+		$form->add_js_success_callback('user_change_password_success');
+		if ($form->check_form()) {
+			$values = $form->get_values();
+			$user_obj->password = $values['password'];
+
+			if ($user_obj->save(true, true)) {
+				if (isset($values['inform'])) {
+					// Inform the user if we wanted it.
+					if (!empty($values['inform']) && $this->core->get_right_manager()->has_perm("admin.user.change")) {
+						$tpl_vals['password'] = $values['password'];
+						$tpl_vals['username'] = $user_obj->username;
+						$mail = new Email();
+						$mail->send_tpl( User::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, $user_obj->language, $user_obj->get_address_by_group(UserAddressObj::USER_ADDRESS_GROUP_DEFAULT, "email"), $tpl_vals);
+					}
+
+					// Audit only if we have not changed our own password.
+					SystemHelper::audit(t('Changed password for user "@username"', array('@username' => $user_obj->username)), 'user');
+				}
+				AjaxModul::return_code(AjaxModul::SUCCESS, null, null, t('Password changed'));
+			}
+			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
+		}
+	}
 
 	/**
 	 * Action: user_address
@@ -1029,11 +1096,15 @@ class User extends ActionModul
 		}
 		//Setup tabs
 		$tabs = new HtmlTabs("user_edit");
-
+		
+		$pre = "";
+		if ($this->core->cache('core', 'admin_theme')) {
+			$pre = "/admin";
+		}
 		//Add tabs
-		$tabs->add(t("User data"), "userdata", "/user/userdata/" . $user_id);
-		$tabs->add(t("address"), "user_address", "/user/user_address/" . $user_id);
-		$tabs->add(t("Rights"), "user_rights", "/user/user_rights/" . $user_id, "admin.user.rights.change");
+		$tabs->add(t("User data"), "userdata", $pre . "/user/userdata/" . $user_id);
+		$tabs->add(t("address"), "user_address", $pre . "/user/user_address/" . $user_id);
+		$tabs->add(t("Rights"), "user_rights", $pre . "/user/user_rights/" . $user_id, "admin.user.rights.change");
 
 		/**
 		 * Provides hook: edit_user_tabs

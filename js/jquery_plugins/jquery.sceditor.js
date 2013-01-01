@@ -157,6 +157,11 @@
 						.width($textarea.outerWidth())
 						.height($textarea.outerHeight())
 						.insertAfter($textarea);
+				
+			var zindex = $('.ui-widget-overlay').css('z-index');
+			if (parseInt(zindex) > 0) {
+				$editorContainer.css('z-index', parseInt(zindex)+1);
+			}
 
 			// create the editor 
 			initToolBar();

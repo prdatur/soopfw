@@ -1,4 +1,4 @@
-Soopfw.behaviors.admin_user_rights = function() {
+Soopfw.add_tab_behaviors(function() {
 	var all_rights = Soopfw.config.user_rights.all_rights;
 	var user_rights_user = Soopfw.config.user_rights.user_rights_user;
 	var user_rights_group = Soopfw.config.user_rights.user_rights_group;
@@ -182,4 +182,4 @@ Soopfw.behaviors.admin_user_rights = function() {
 			}
 		});
 	}
-};
+});

@@ -6,12 +6,47 @@ var soopfw_ajax_queue = {};
 $.extend(Soopfw, {
 	behaviors: [],
 	prio_behaviors: [],
+	tab_behaviors: {},
 	late_behaviors: [],
+	current_tab: '',
 	already_loaded_files: {},
 	internal: {
 		progressbars: {}
 	},
 
+	/**
+	 * Holds all bindings for a specified tab.
+	 */
+	tab_bindings: {},
+	
+	/**
+	 * Add a tab 
+	 * 
+	 * @param string
+	 *   The tab id.
+	 */
+	add_tab: function(tab) {
+		if (Soopfw.tab_bindings[tab] === undefined) {
+			Soopfw.tab_bindings[tab] = {};
+		}
+		Soopfw.current_tab = tab;
+	},
+	
+	/**
+	 * Add tab behaviors, it will use the current tab as the id.
+	 */
+	add_tab_behaviors: function(func) {
+		if (empty(Soopfw.current_tab)) {
+			// We need to add the behavior to a normal one because we have no current tab active (maybe called directly without tab).
+			Soopfw.behaviors[Soopfw.uuid()] = func;			
+			return;
+		}
+		if (Soopfw.tab_behaviors[Soopfw.current_tab] === undefined) {
+			Soopfw.tab_behaviors[Soopfw.current_tab] = [];
+		}
+		Soopfw.tab_behaviors[Soopfw.current_tab].push(func);
+	},
+	
 	/**
 	 * Opens a chooser dialog where just the buttons appear to execute a user defined action
 	 *
@@ -76,6 +111,13 @@ $.extend(Soopfw, {
 				}
 			}
 		}
+		
+		foreach (Soopfw.tab_behaviors[Soopfw.current_tab], function(k, behavior) {
+			if(jQuery.isFunction(behavior)) {
+				behavior();
+			}
+		});
+		
 		for(var behavior_y in Soopfw.late_behaviors) {
 			if(Soopfw.late_behaviors.hasOwnProperty(behavior_y)) {
 				if(jQuery.isFunction(Soopfw.late_behaviors[behavior_y])) {
@@ -344,7 +386,7 @@ $.extend(Soopfw, {
 				}
 				$.alerts._hide();
 				$('#'+id).remove();
-				$('body').append(create_element({input: 'div', attr: {id:id,html: result}}) );
+				$('body').append(create_element({input: 'div', attr: {id:id, html: result}}) );
 				$('#'+id).dialog(options);
 			}
 		});
@@ -386,6 +428,32 @@ $.extend(Soopfw, {
 	}
 });
 
+// Create a private scope.
+(function( $, on ){
+	// We are going to be overriding the core on() method in the
+	// jQuery library. But, we do want to have access to the core
+	// version of the on() method for binding. Let's get a reference
+	// to it for later use.
+	var coreOnMethod = $.fn.on;
+	
+	$.fn.on = function( types, selector, data, fn, /*INTERNAL*/ one ){	
+		
+		// Store the current binding in all present tabs.
+		var that = this;
+		foreach (Soopfw.tab_bindings, function(k, v) {
+			if (Soopfw.tab_bindings[k][types] === undefined) {
+				Soopfw.tab_bindings[k][types] = [];
+			}
+			Soopfw.tab_bindings[k][types].push(that);
+		});
+		// Bind the wrapper as the event handler using the core,
+		// underlying on() method.
+		return(coreOnMethod.call( this, types, selector, data, fn, one ));
+
+	};
+
+})( jQuery );
+
 Soopfw.system_footer_behaviour = function() {
 	$(".disabledSelection :not(.enabledSelection)").disableSelection();
 	$.datepicker.setDefaults( $.datepicker.regional[ Soopfw.config.current_language ] );
@@ -407,8 +475,7 @@ Soopfw.system_footer_behaviour = function() {
 	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').sceditorBBCodePlugin({
 		style: editor_styles,
 		height: 300
-	});
-	$('.wysiwyg_bbcode:not(.soopfw-proccessed)').addClass("soopfw-proccessed");
+	}).addClass("soopfw-proccessed");
 
 	$('.Tagfield:not(.soopfw-proccessed)').addClass("soopfw-proccessed").each(function() {
 		var options = {};
@@ -515,13 +582,12 @@ $(document).ready(function() {
 				}
 				var fx = null;
 				if(!empty(row.effect)) {
-					if(row.effect == "fade") {
-						fx = { opacity: 'toggle' };
-					}
+					fx = { effect: row.effect, duration: 200};
 				}
 				tabs_loaded[row.id] = true;
 				$("#"+row.id).tabs({
-					fx: fx,
+					show: fx,
+					hide: fx,
 					before_load: function(ui) {
 						//$(ui.panel).html("");
 						//Soopfw.ajax_loader(ui.panel,"tabs");

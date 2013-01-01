@@ -1,4 +1,4 @@
-Soopfw.behaviors.user_address = function() {
+Soopfw.add_tab_behaviors(function() {
 	$("#add_address").unbind("click");
 	$("#add_address").click(function() {
 		dlg_id = Soopfw.default_action_dialog(Soopfw.t("address"), 'user', 'add_address', [
@@ -6,7 +6,7 @@ Soopfw.behaviors.user_address = function() {
 		]);
 	});
 	enable_icon_clicks();
-};
+});
 
 function enable_icon_clicks() {
 	$(".editAddress").unbind("click");
