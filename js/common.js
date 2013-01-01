@@ -233,6 +233,9 @@ function get_form_by_class(classname, selector, checkboxFalse)
 				formVariables[$(v).prop(selector)] = $(v).prop("value");
 			}
 		}
+		else if($(v).data("sceditor") !== undefined) {
+			formVariables[$(v).prop(selector)] = $(v).data("sceditor").val();
+		}
 		else {
 			formVariables[$(v).prop(selector)] = $(v).prop("value");
 		}
