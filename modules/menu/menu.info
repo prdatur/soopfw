@@ -8,6 +8,6 @@ depends[] = "user"
 depends[] = "translation"
 
 ;Define rights rights[] = "example.right.view"
-rights[] = "admin.menu.manage"
-rights[] = "admin.menu.view_inactive_entries"
+rights["admin.menu.manage"] = "Allows managing menu entries."
+rights["admin.menu.view_inactive_entries"] = "Allows to view inactive entries."
 

@@ -4,5 +4,5 @@ name = "Translation"
 description = "Allows multi language handling"
 
 ;Define rights
-rights[] = "admin.translate"
+rights["admin.translate"] = "Allows to translate strings and manage translation module."
 

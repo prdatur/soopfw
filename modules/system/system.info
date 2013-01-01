@@ -4,9 +4,8 @@ name = "System"
 description = "Main system module"
 
 ;Define rights
-rights[] = "admin.system.view_admin_menu"
-rights[] = "admin.system.modules"
-rights[] = "admin.system.updatedb"
-rights[] = "admin.system.config"
-rights[] = "admin.system.view_audit_reports"
+rights["admin.system.modules"] = "Allows managing modules."
+rights["admin.system.updatedb"] = "Allows updating model objects."
+rights["admin.system.config"] = "Allows configurating main system configurations."
+rights["admin.system.view_audit_reports"] = "Allows viewing audit reports."
 

@@ -9,7 +9,7 @@ depends[] = "user"
 depends[] = "menu"
 
 ;Define rights rights[] = "example.right.view"
-rights[] = "admin.content.manage"
-rights[] = "admin.content.create"
-rights[] = "admin.content.delete"
+rights["admin.content.manage"] = "Allows to manage content/content types."
+rights["admin.content.create"] = "Allows to add/edit content pages."
+rights["admin.content.delete"] = "Allows to delete content pages."
 
