@@ -84,7 +84,7 @@ class Captcha extends AbstractHtmlInput
 	 * Init the captcha filter
 	 */
 	public function init() {
-		$this->config("template", recaptcha_get_html($this->publickey));
+		$this->config("template", recaptcha_get_html($this->publickey, null, $this->core->is_ssl()));
 	}
 
 	/**
