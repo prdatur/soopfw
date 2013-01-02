@@ -714,6 +714,7 @@ class Form extends AbstractHtmlElement implements Iterator
 			//IMPORTANT to use urlencode function because parse_str expects the value as url encoded, if we do not urlencode we have a security issue to allow bad chars.
 			$val = $key . '=' . urlencode($val);
 		});
+		$values = array();
 		parse_str(implode('&', $v), $values);
 		return $values;
 	}

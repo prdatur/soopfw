@@ -80,6 +80,7 @@ abstract class AbstractHtmlInput extends Object
 		 * Parse the name string as parameter, so we can check the value_array against the correct values
 		 * this is needed because we could have with check/radio-boxes name's like field[] or checkfield[key1][kery2]
 		 */
+		$parse_str = array();
 		parse_str($this->config("name")."=1", $parse_str);
 
 		//Check if we have posted this key
@@ -114,6 +115,7 @@ abstract class AbstractHtmlInput extends Object
 		 * Parse the name string as parameter, so we can check the value_array against the correct values
 		 * this is needed because we could have with check/radio-boxes name's like field[] or checkfield[key1][kery2]
 		 */
+		$parse_str = array();
 		parse_str($this->config("name")."=1", $parse_str);
 
 		//Check if we have posted this key
@@ -638,6 +640,9 @@ abstract class AbstractHtmlInput extends Object
 	 *   the validator
 	 */
 	private function set_validator_error_message(AbstractHtmlValidator &$validator) {
+		if ($validator->has_own_error()) {
+			return;
+		}
 		//Add default invalid messages for specific validators
 		if ($validator instanceof EmailValidator) {
 			$validator->set_error(t("The field \"@field\" is not a valid email.", array("@field" => $this->config("label_error"))));
