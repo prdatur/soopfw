@@ -21,6 +21,8 @@ class User extends ActionModul
 	const CONFIG_SIGNUP_NEED_CAPTCHA = 'signup_need_captcha';
 	const CONFIG_SIGNUP_TYPE = 'signup_type';
 	const CONFIG_SIGNUP_UNIQUE_EMAIL = 'signup_unique_email';
+	const CONFIG_SIGNUP_NEED_TERMS = 'signup_need_terms';
+	const CONFIG_SIGNUP_TERMS_LINK = 'signup_terms_link';
 	const CONFIG_LOGIN_PING = 'login_ping';
 	const CONFIG_INACTIVE_LOGOUT_TIME = 'login_default_logout_time';
 	const CONFIG_LOGIN_ALLOW_EMAIL = 'login_allow_email';
@@ -156,6 +158,8 @@ class User extends ActionModul
 		$form->add(new YesNoSelectfield(self::CONFIG_ENABLE_REGISTRATION, $this->core->get_dbconfig("user", self::CONFIG_ENABLE_REGISTRATION, 'no'), t("Enable user signup?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_CAPTCHA, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes'), t("user signups needs captcha?")));
 		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_UNIQUE_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_UNIQUE_EMAIL, 'no'), t("Are the emails unique?")));
+		$form->add(new YesNoSelectfield(self::CONFIG_SIGNUP_NEED_TERMS, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_TERMS, 'no'), t("User needs to accept terms of use within signup?")));
+		$form->add(new Textfield(self::CONFIG_SIGNUP_TERMS_LINK, $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TERMS_LINK, ''), t('Terms of use page'), t('Here you can put a direct http link or just the content page id.')));
 		$form->add(new YesNoSelectfield(self::CONFIG_LOGIN_ALLOW_EMAIL, $this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no'), t("Allow login with email?"), t('In order to allow the email login, unique email must be set to yes')));
 
 		$signup_types = array(
@@ -461,7 +465,7 @@ class User extends ActionModul
 
 		$this->core->need_ssl();
 
-		$this->title(t('signup'));
+		$this->title(t('Signup'));
 		$this->static_tpl = 'form.tpl';
 
 		$signup_type = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TYPE, User::SIGNUP_TYPE_CONFIRM);
@@ -495,6 +499,39 @@ class User extends ActionModul
 
 		if ($this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_CAPTCHA, 'yes') == 'yes') {
 			$form->add(new Captcha(t("I'm human"), t('Please verify that you are a human person.')));
+		}
+		
+		if ($this->core->get_dbconfig("user", self::CONFIG_SIGNUP_NEED_TERMS, 'no') == 'yes') {
+			$term_link = $this->core->get_dbconfig("user", self::CONFIG_SIGNUP_TERMS_LINK, '');
+			if (!empty($term_link)) {
+				if (is_numeric($term_link)) {
+					if ($this->core->module_enabled('content')) {
+						$content = new Content();
+						$alias = $content->get_alias_for_page_id($term_link);
+						if (!empty($alias)) {
+							$term_link = '/' . $alias . '.html';
+						}
+						else {
+							$term_link = '';
+						}
+					}
+					else {
+						$term_link = '';
+					}
+				}
+			}			
+			
+			if (!empty($term_link)) {
+				$terms = t("I accept the !link", array(
+					'!link' => '<a href="' . $term_link . '" target="_blank">' . t('terms of use') . '</a>',
+				));
+			}
+			else {
+				$terms = t("I accept the terms of use");
+			}
+			$form->add(new Checkbox('accept_terms', 1, 0, $terms), array(
+				new RequiredValidator(t('You have to accept the terms of use.')),
+			));
 		}
 
 		if ($form->check_form()) {
