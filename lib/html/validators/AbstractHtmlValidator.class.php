@@ -35,7 +35,12 @@ abstract class AbstractHtmlValidator extends Object
 	 * @var boolean
 	 */
 	protected $is_always_valid = false;
-
+	
+	/**
+	 * Determines if we have provided manually a error message or not.
+	 * @var boolean
+	 */
+	protected $own_error = false;
 	/**
 	 * constructor
 	 *
@@ -48,8 +53,17 @@ abstract class AbstractHtmlValidator extends Object
 		parent::__construct();
 		$this->error = &$error;
 		$this->options = &$options;
+		$this->own_error = !empty($error);
 	}
 
+	/**
+	 * Returns whether we have provided a own error message or not.
+	 * 
+	 * @return boolean true if we have setup our own error message manually, else false.
+	 */
+	public function has_own_error() {
+		return $this->own_error;
+	}
 	/**
 	 * Returns the error message if it's invalid
 	 *
