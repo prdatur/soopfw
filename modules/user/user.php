@@ -320,7 +320,8 @@ class User extends ActionModul
 		if ($this->session->is_logged_in()) {
 			throw new SoopfwWrongParameterException(t('You are logged in, you can not recovery your password'));
 		}
-
+		
+		$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
 		// If we provided the unique id.
 		if (!empty($id)) {
 
@@ -334,7 +335,7 @@ class User extends ActionModul
 			}
 
 			// Check if it is expired.
-			$expire_hours = $this->core->get_dbconfig("user", self::CONFIG_LOST_PW_ONE_TIME_EXPIRE, '24');
+			
 			if (TIME_NOW >= strtotime($one_time_access->date) + ((int) $expire_hours * 60)) {
 				throw new SoopfwWrongParameterException($err_msg);
 			}
@@ -350,7 +351,8 @@ class User extends ActionModul
 
 			// Login the user.
 			$this->session->validate_login($user);
-
+			$this->session->set('one_time_recovery', true);
+			$this->session->set_login_handler(new DefaultLoginHandler());
 			// Redirect to user profile page.
 			$this->core->location($this->session->get_login_handler()->get_profile_url($user));
 		}
@@ -432,6 +434,7 @@ class User extends ActionModul
 
 						if ($mail->send_tpl($this->core->get_dbconfig("user", self::CONFIG_MAIL_TEMPLATE_LOST_PW_TYPE_ONE, ''), $this->core->current_language, $user_obj, array(
 							'link' => $this->core->get_secure_url() . '/user/lost_password/' . $one_time->id,
+							'expires' => $expire_hours,
 							'username' => $user_obj->username,
 						))) {
 							$this->db->transaction_commit();
@@ -840,6 +843,17 @@ class User extends ActionModul
 		$form = new Form('user_change_password');
 		$form->set_ajax();
 		
+		
+		if (!$this->session->get('one_time_recovery', false) && !$this->right_manager->has_perm("admin.user.change")) {
+			$form->add(new Passwordfield('current_password', '', t('Current password')), array(
+				new RequiredValidator(),
+				new FunctionValidator(t('Your current password is incorrect'), function($value) {
+					$default_login_handler = new DefaultLoginHandler();
+					return $default_login_handler->validate_login($default_login_handler->get_session()->current_user()->username, $value);
+				}))
+			);
+		}
+		
 		$form->add(new Passwordfield('password', '', t('New password')), array(
 			new RequiredValidator(),
 		));
@@ -865,10 +879,11 @@ class User extends ActionModul
 						$mail = new Email();
 						$mail->send_tpl( User::CONFIG_MAIL_TEMPLATE_CHANGE_PASSWORD, $user_obj->language, $user_obj->get_address_by_group(UserAddressObj::USER_ADDRESS_GROUP_DEFAULT, "email"), $tpl_vals);
 					}
-
+					
 					// Audit only if we have not changed our own password.
 					SystemHelper::audit(t('Changed password for user "@username"', array('@username' => $user_obj->username)), 'user');
 				}
+				$this->session->delete('one_time_recovery');
 				AjaxModul::return_code(AjaxModul::SUCCESS, null, null, t('Password changed'));
 			}
 			AjaxModul::return_code(AjaxModul::ERROR_DEFAULT);
