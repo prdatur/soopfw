@@ -1957,7 +1957,7 @@
 		// START_COMMAND: Code
 		code: {
 			exec: function () {
-				this.wysiwygEditorInsertHtml('<code>', '<br /></code>');
+				this.wysiwygEditorInsertHtml('<pre>', '<br /></pre>');
 			},
 			tooltip: "Code"
 		},

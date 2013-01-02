@@ -43,7 +43,7 @@ class BBCodeParser
 		'sub' => array('<sub>', '</sub>'),
 		'small' => array('<small>', '</small>'),
 		'big' => array('<big>', '</big>'),
-		'code' => array('<code>', '</code>'),
+		'code' => array('<pre>', '</pre>'),
 		'list' => array('<ul>', '</ul>'),
 		'ul' => array('<ul>', '</ul>'),
 		'li' => array('<li>', '</li>'),
