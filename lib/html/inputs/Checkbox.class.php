@@ -55,9 +55,6 @@ class Checkbox extends AbstractHtmlInput
 		//Setup default element parameters
 		parent::__construct($name, $value, $label, $description, $class, $id);
 
-		//Reset config key because we have our own label and value managment
-		$this->config("label", "");
-
 		//Set our own value and label values
 		$this->value = $value;
 
@@ -96,7 +93,7 @@ class Checkbox extends AbstractHtmlInput
 		//Setup the label for our checkbox if it is not empty
 		$label = "";
 		if (!empty($this->label)) {
-			$label = "<label for=\"{clearId}\">{label_own}</label>";
+			$label = "<label for=\"{clearId}\" class=\"checkbox_label\">{label_own}</label>";
 		}
 		//The hidden input is used as a work around to have also the key within the post array if checkbox was not submitted
 		//This "hack" works within FF (win/linux), IE 9 and Chrome (win/linux) older version of IE are NOT tested.
@@ -130,6 +127,9 @@ class Checkbox extends AbstractHtmlInput
 			$conf['label_own|clear'] = $this->label;
 			$conf['clearId|clear'] = $this->config("id");
 		}
+		
+		//Reset config key because we have our own label and value managment.
+		$this->config("label", "");
 		return $conf;
 	}
 
