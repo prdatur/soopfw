@@ -314,6 +314,16 @@ class Session extends Object
 	public function get_login_handler() {
 		return $this->login_handler;
 	}
+	
+	/**
+	 * Set the current login handler
+	 *
+	 * @param LoginHandler $handler
+	 *   The login handler to set.
+	 */
+	public function set_login_handler(LoginHandler $handler) {
+		$this->login_handler = $handler;
+	}
 
 	/**
 	 * Check if the given credentials are valid and if so setup a new session object
