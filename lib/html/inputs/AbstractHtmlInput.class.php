@@ -175,9 +175,11 @@ abstract class AbstractHtmlInput extends Object
 
 		/*
 		 * Add the validator to our validator list
-		 * There can be only one validator of the same type be set
 		 */
-		$this->validators[$validator->get_type()] = &$validator;
+		if (!isset($this->validators[$validator->get_type()])) {
+			$this->validators[$validator->get_type()] = array();
+		}
+		$this->validators[$validator->get_type()][] = &$validator;
 	}
 
 	/**
@@ -208,14 +210,15 @@ abstract class AbstractHtmlInput extends Object
 		if (is_array($this->validators) && count($this->validators) > 0) {
 			//Loop through all validators
 			/* @var $validator AbstractHtmlValidator */
-			foreach ($this->validators AS $validator) {
-
-				//Get the validation status of that validator
-				$tmp_valid = $validator->is_valid();
-				//If the validator is not valid add the validator error message and return false
-				if ($tmp_valid !== TRUE) {
-					$this->errors[] = $validator->get_error();
-					return false;
+			foreach ($this->validators AS $validators) {
+				foreach ($validators AS $validator) {
+					//Get the validation status of that validator
+					$tmp_valid = $validator->is_valid();
+					//If the validator is not valid add the validator error message and return false
+					if ($tmp_valid !== TRUE) {
+						$this->errors[] = $validator->get_error();
+						return false;
+					}
 				}
 			}
 		}
@@ -458,12 +461,15 @@ abstract class AbstractHtmlInput extends Object
 	 *
 	 * @param string $validator_name
 	 *   the validator name
-	 *
+	 * @param int $index
+	 *   The index, if we have multiple validators of the same type. 
+	 *   If not provided we get the first validator back. (optional, default = 0)
+	 * 
 	 * @return AbstractHtmlValidator the validator or null if validator not exists
 	 */
-	public function &get_validator($validator_name) {
+	public function &get_validator($validator_name, $index = 0) {
 		if($this->has_validator($validator_name)) {
-			return $this->validators[$validator_name];
+			return $this->validators[$validator_name][$index];
 		}
 		return null;
 	}
@@ -627,9 +633,11 @@ abstract class AbstractHtmlInput extends Object
 		$val = $this->config("value");
 		
 		/* @var $validator AbstractHtmlValidator */
-		foreach($this->validators AS &$validator) {
-			$validator->set_value($val);
-			$this->set_validator_error_message($validator);
+		foreach($this->validators AS &$validators) {
+			foreach($validators AS &$validator) {
+				$validator->set_value($val);
+				$this->set_validator_error_message($validator);
+			}
 		}
 	}
 
