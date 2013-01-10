@@ -151,11 +151,14 @@ $.extend(Soopfw, {
 	 */
 	t: function(key, args) {
 		
-		var translation = key;
-		if(LANG[key] !== undefined && LANG[key] !== '' && LANG.hasOwnProperty(key)) {
-			translation = LANG[key];
+		var translation = key.toLowerCase();
+		if(LANG[translation] !== undefined && LANG[translation] !== '' && LANG.hasOwnProperty(translation)) {
+			translation = LANG[translation];
 		}
-	
+		else {
+			translation = key;
+		}
+		
 		if(args != undefined) {
 			foreach(args, function(k, v) {
 				translation = str_replace(k, v, translation);

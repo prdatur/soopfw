@@ -67,6 +67,13 @@ class Language extends Object
 	 * @var array
 	 */
 	protected $loaded_cats = array();
+	
+	/**
+	 * The js categories which are already loaded
+	 *
+	 * @var array
+	 */
+	protected $js_loaded_cats = array();
 
 	/**
 	 * Constructor.
@@ -284,16 +291,16 @@ class Language extends Object
 
 		// Get all categories.
 		$cats = explode(",", $catlist);
-
+		
 		// Process all categories.
 		foreach ($cats as $tmp_cat) {
 			// Do not load it twice.
-			if (in_array($tmp_cat, $this->loaded_cats)) {
+			if (in_array($tmp_cat, $this->js_loaded_cats)) {
 				continue;
 			}
 
 			// Mark it has loaded.
-			$this->loaded_cats[] = $tmp_cat;
+			$this->js_loaded_cats[] = $tmp_cat;
 
 			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . "_js.php")) {
 				include(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . "_js.php");
@@ -326,11 +333,15 @@ class Language extends Object
 			$this->loaded_cats[] = $tmp_cat;
 
 			if (file_exists(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . ".php")) {
+				$tmp = $this->items;
 				include(SITEPATH . "/language/" . $this->language . "/" . $tmp_cat . ".php");
+				$this->items = $tmp + $this->items;
 			}
 
 			if (file_exists(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . ".php")) {
+				$tmp = $this->items;
 				include(SITEPATH . "/modules/" . $tmp_cat . "/language/" . $this->language . ".php");
+				$this->items = $tmp + $this->items;
 			}
 		}
 
@@ -353,7 +364,7 @@ class Language extends Object
 	 * @return string Translation of this element.
 	 */
 	public function get($item_name, $index = "", $replacement = array()) {
-
+		
 		// Check if we have this item.
 		if (isset($this->items[$item_name])) {
 
@@ -417,6 +428,7 @@ class Language extends Object
 
 		// Holds all already translated keys (we do not want to translate the same key twice).
 		$already_translated = array();
+		$already_translated_js = array();
 
 		// Init our error array.
 		$errors = array();
@@ -449,7 +461,8 @@ class Language extends Object
 
 		// Loop through all modules to get php, smarty and javascript t calls, php and smarty will be merged couse they call always php t function.
 		foreach ($modules AS $module) {
-
+			$already_translated = array();
+			$already_translated_js = array();
 			if ($module == "system_core") {
 
 				// If we want to store the file check if path is writeable.
@@ -534,9 +547,9 @@ class Language extends Object
 					$save_path_js = SITEPATH . "/modules/" . $module . "/language/" . $language . "_js.php";
 				}
 
-
+				
 				$lines = array();
-
+				
 				// Loop through all found javascript translations calls
 				foreach ($js_results AS $id => $key) {
 					$key = preg_replace("/\"/", '\"', preg_replace("/\\\\\"/", '"', strtolower($key)));
@@ -550,24 +563,27 @@ class Language extends Object
 					}
 
 					// Do not translate same keys twice or more.
-					if (isset($already_translated[$id . "_" . $language])) {
+					if (isset($already_translated_js[$id . "_" . $language])) {
 						continue;
 					}
 
 					// If we did not load the translation for this id load it.
 					if (!isset($objectsloaded[$id])) {
 						$keys = array();
-
+						
 						// Build up the primary keys to load with load multiplie so 4times less mysql queries are send.
-						foreach ($languages AS $tmplanguage) {
+						foreach ($languages AS $tmplanguage => $label) {
 							$keys[] = array($id, $tmplanguage);
 						}
-
+						
 						// Load it.
+						
 						$translation_tmp_obj = new TranslationObj();
-						$objectsloaded[$id] = $translation_tmp_obj->load_multiple($keys, PDT_ARR);
+						foreach ($translation_tmp_obj->load_multiple($keys, PDT_ARR) AS $row) {
+							$objectsloaded[$id][$row['id'] . ":" . $row['language']] = $row;
+						}						
 					}
-
+					$translation_obj = array();
 					// Check if we already have loaded this id with this language.
 					if (isset($objectsloaded[$id][$id . ":" . $language])) {
 						$translation_obj = $objectsloaded[$id][$id . ":" . $language];
@@ -583,15 +599,19 @@ class Language extends Object
 							$translation_obj = $translation_tmp_obj->get_values();
 						}
 					}
+					// New behaviour will not remove primary key within failed object loadings, so check if we have really found a translation.
+					if (!isset($translation_obj['translation'])) {
+						continue;
+					}
 					// Add loaded object to our cache.
-					$already_translated[$id . "_" . $language] = $translation_obj['translation'];
+					$already_translated_js[$id . "_" . $language] = $translation_obj['translation'];
 
 					// Add the line for building.
 					$lines[] = "\$this->items_js[\"" . $key . "\"] = \"" . $translation_obj['translation'] . "\";";
 				}
 				// Write JS Files.
 				file_put_contents($save_path_js, "<?php\n" . implode("\n", $lines) . "\n?>");
-
+				
 				// Same as above with php_results.
 				$lines = array();
 				foreach ($php_results AS $id => $key) {
@@ -607,26 +627,31 @@ class Language extends Object
 					$translation_obj = array();
 					if (!isset($objectsloaded[$id])) {
 						$keys = array();
-						foreach ($languages AS $tmplanguage) {
+						foreach ($languages AS $tmplanguage => $label) {
 							$keys[] = array($id, $tmplanguage);
 						}
 						$translation_tmp_obj = new TranslationObj();
-						$objectsloaded[$id] = $translation_tmp_obj->load_multiple($keys, PDT_ARR);
+						foreach ($translation_tmp_obj->load_multiple($keys, PDT_ARR) AS $row) {
+							$objectsloaded[$id][$row['id'] . ":" . $row['language']] = $row;
+						}
 					}
-
+					
 					if (isset($objectsloaded[$id][$id . ":" . $language])) {
 						$translation_obj = $objectsloaded[$id][$id . ":" . $language];
 					}
 					if (empty($translation_obj)) {
 						$translation_tmp_obj = new TranslationObj($id, $language);
 						$translation_obj = $translation_tmp_obj->get_values();
-
+						
 						if (empty($translation_obj)) {
 							$translation_tmp_obj->set_default_fields();
 							$translation_obj = $translation_tmp_obj->get_values();
 						}
 					}
-
+					
+					if (!isset($translation_obj['translation'])) {
+						continue;
+					}
 					$already_translated[$id . "_" . $language] = $translation_obj['translation'];
 					$lines[] = "\$this->items[\"" . $key . "\"] = \"" . $translation_obj['translation'] . "\";";
 				}

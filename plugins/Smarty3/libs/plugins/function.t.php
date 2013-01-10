@@ -20,6 +20,7 @@
 * Input:<br>
 *          - key = the key
 *          - args = (optional) the arguments which we want to replace
+ *		   - db = (optional) if provided and set to true the translation will be read direct from the database, use this with caution and only in files directly within the theme.
 * @return string
 */
 function smarty_function_t($params)
@@ -33,7 +34,10 @@ function smarty_function_t($params)
 	if(!isset($params['args'])) {
 		$params['args'] = array();
 	}
-	return htmlspecialchars_decode(t($params['key'], $params['args']), ENT_QUOTES);
+	if(!isset($params['db'])) {
+		$params['db'] = array();
+	}
+	return htmlspecialchars_decode(t($params['key'], $params['args'], $params['db']), ENT_QUOTES);
 }
 
 ?>

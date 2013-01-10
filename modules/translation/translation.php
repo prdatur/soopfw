@@ -383,7 +383,7 @@ class Translation extends ActionModul
 		if (empty($id)) {
 			throw new SoopfwWrongParameterException();
 		}
-
+	
 		// Check if we have such a translation key.
 		$translation = new TranslationKeysObj($id);
 		if (!$translation->load_success()) {
@@ -405,7 +405,8 @@ class Translation extends ActionModul
 
 			$values = $form->get_values();
 			foreach ($translation_objects AS $lang => &$obj) {
-				$obj->set_fields_bulk($translation->get_values(true));
+				$obj->id = $translation->id;
+				$obj->key = $translation->key;
 				$obj->translation = $values[$lang];
 				$obj->language = $lang;
 				$obj->save_or_insert();
