@@ -56,6 +56,7 @@ class BBCodeParser
 		'size' => 'parse_size',
 		'color' => 'parse_color',
 		'mail' => 'parse_mail',
+		'email' => 'parse_mail',
 	);
 
 	/**
@@ -342,7 +343,7 @@ class BBCodeParser
 	 */
 	protected function parse_img($text, Array $parameters = array()) {
 		// Preinit variables.
-		$width = $height = $align = '';
+		$width = $height = $align = $style = '';
 
 		// Check for img parameter (max size).
 		if (isset($parameters['img'])) {
@@ -364,7 +365,7 @@ class BBCodeParser
 
 		// Check if we want to align the image.
 		if (isset($parameters['align']) && ($parameters['align'] == 'left' || $parameters['align'] == 'right')) {
-			$align = ' align=" ' . $parameters['align'] . '"';
+			$align = ' align="' . $parameters['align'] . '"';
 		}
 
 		// Return the html.
@@ -405,10 +406,18 @@ class BBCodeParser
 	 * @return string The parsed html.
 	 */
 	protected function parse_mail($text, Array $parameters = array()) {
-		if (!isset($parameters['mail']) || empty($parameters['mail'])) {
+		if ((!isset($parameters['mail']) || empty($parameters['mail'])) && (!isset($parameters['email']) || empty($parameters['email']))) {
 			return $text;
 		}
-		return '<a href="mailto:' . htmlspecialchars($parameters['mail']) . '">' . $text . '</a>';
+		
+		$mail = "";
+		if (isset($parameters['mail']) && !empty($parameters['mail'])) {
+			$mail = $parameters['mail'];
+		}
+		else {
+			$mail = $parameters['email'];
+		}
+		return '<a href="mailto:' . htmlspecialchars($mail) . '">' . $text . '</a>';
 	}
 
 	/**
