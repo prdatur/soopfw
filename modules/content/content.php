@@ -170,7 +170,7 @@ class Content extends ActionModul implements Widget
 	}
 
 	/**
-	 * Provides hook: sitemap_get_entries
+	 * Implements hook: sitemap_get_entries
 	 *
 	 * All modules which implements hook_sitemap_section() must implement this method.
 	 * Each hook call will provide the array of all sections which we want back, so each
@@ -610,7 +610,29 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		$page_id = $page_data_array[0];
 		$page = new PageObj($page_data_array[0], $page_data_array[1]);
 		if (!$page->load_success()) {
-			throw new SoopfwWrongParameterException(t("No such page"));
+			
+			// Get already translated entries.
+			$already_translated = $this->db->query_slave_all("
+				SELECT cpt.`language`
+				FROM `" . PageObj::TABLE . "` cp
+				JOIN `" . PageRevisionObj::TABLE . "` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
+				WHERE cp.`page_id` = ipage_id", array(
+				'ipage_id' => $page_id
+			),0 ,0 , 'language');
+			
+			// Check if a page with this id and our default language exist.
+			if (isset($already_translated[$this->core->default_language])) {
+				$page = new PageObj($page_id, $this->core->default_language);
+			}
+			// check if we have a translation with this page id.
+			else if (!empty($already_translated)) {
+				$page = new PageObj($page_id, key($already_translated));
+			}
+			
+			// Finally check if we could load the page or could load a fallback of this page.
+			if (!$page->load_success()) {
+				throw new SoopfwWrongParameterException(t("No such page"));
+			}
 		}
 
 		if ($page->deleted == 'yes' && !$this->right_manager->has_perm("admin.content.delete", false)) {
@@ -621,7 +643,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
 
-		$page_revision = new PageRevisionObj($page_data_array[0], $page_data_array[1], $revision);
+		$page_revision = new PageRevisionObj($page_data_array[0], $page->language, $revision);
 		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t("No such page"));
 		}
