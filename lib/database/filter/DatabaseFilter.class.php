@@ -280,17 +280,20 @@ class DatabaseFilter extends Object
 	 *   the table where we find the field
 	 *   if not provided or is null it will get the current table or alias.
 	 *   (optional, default = NS)
+	 * @param boolean $force_string
+	 *   Wether to force the value to be string or not,
+	 *   if set to true no integer parsing will be made (optional, default = false)
 	 *
 	 * @return DatabaseFilter Self returning
 	 */
-	public function &add_where($field, $value = "", $condition_type = "=", $table = NS) {
+	public function &add_where($field, $value = "", $condition_type = "=", $table = NS, $force_string = false) {
 		if ($table === NS) {
 			$table = $this->get_table_or_alias();
 		}
 		else {
 			$table = "`" . Db::safe($table) . "`";
 		}
-		$this->where->add_where($field, $value, $condition_type, $table, true);
+		$this->where->add_where($field, $value, $condition_type, $table, true, $force_string);
 		return $this;
 	}
 

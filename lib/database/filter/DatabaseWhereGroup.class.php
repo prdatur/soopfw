@@ -68,11 +68,14 @@ class DatabaseWhereGroup extends Object
 	 *   if set to false the value will not be escaped
 	 * 	 USE THIS WITH CAUTION, not escaping value can be a security issue and
 	 *   can open SQL-Injections. (optional, default = true)
+	 * @param boolean $force_string
+	 *   Wether to force the value to be string or not,
+	 *   if set to true no integer parsing will be made (optional, default = false)
 	 *
 	 * @return DatabaseWhereGroup
 	 *   The where group
 	 */
-	public function add_where($key, $value = NS, $condition_type = '=', $table = NS, $escape = true) {
+	public function add_where($key, $value = NS, $condition_type = '=', $table = NS, $escape = true, $force_string = false) {
 		//If we just provided a database where group object, add this
 		if ($value === NS && $key instanceof DatabaseWhereGroup) {
 			$this->conditions[] = $key;
@@ -85,6 +88,7 @@ class DatabaseWhereGroup extends Object
 				'value' => $value,
 				'condition_type' => $condition_type,
 				'escape' => $escape,
+				'force_string' => $force_string,
 				'table' => $table,
 			);
 		}
@@ -177,9 +181,12 @@ class DatabaseWhereGroup extends Object
 				// This removal of escape char is required if a % value was provided which was already escaped.
 				$val = preg_replace("/[\\\]+\%/", "\\%", $val);
 				//Check if we have not a number, if so we need to add ''
-				if (((int) $v['value'] !== $v['value']) && ((float) $v['value'] !== $v['value'])) {
+				if ($v['force_string'] || (((int) $v['value'] !== $v['value']) && ((float) $v['value'] !== $v['value']))) {
 					$val = "'" . $val . "'";
 				}
+			}
+			else if($v['force_string']) {
+				$val = "'" . $v['value'] . "'";
 			}
 			else {
 				$val = $v['value'];
