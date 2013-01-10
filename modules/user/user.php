@@ -1133,12 +1133,15 @@ class User extends ActionModul
 	 * Initilize tabs for given tasks
 	 *
 	 * @param int $user_id
-	 *   The user_id.
+	 *   The user_id, if not provided current logged in user id will be used (optional, default = 0).
 	 */
-	public function edit($user_id) {
+	public function edit($user_id = 0) {
 		//Require login
 		$this->session->require_login();
 
+		if (empty($user_id)) {
+			$user_id = $this->session->current_user()->user_id;
+		}
 		$user_obj = new UserObj($user_id);
 		if ($user_obj->load_success()) {
 			$this->title(t("User: @username", array('@username' => $user_obj->username)));
