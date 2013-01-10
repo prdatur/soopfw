@@ -1010,21 +1010,27 @@
 				if(typeof element.attr('data-sceditor-emoticon') !== "undefined")
 					return content;
 
-				var attribs = "=" + $(element).width() + "x" + $(element).height();
+				var align = "";
+				if ($(element).attr('align') !== undefined) {
+					align = " align=" + $(element).attr('align');
+				}
+				var attribs = "=" + $(element).width() + "x" + $(element).height() + align;
 
 				return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 			},
 			html: function(element, attrs, content) {
 				var attribs = "", parts;
-
+				console.log(attrs);
 				// handle [img width=340 height=240]url[/img]
-				if(typeof attrs.width !== "undefined")
+				if(attrs.width !== undefined)
 					attribs += ' width="' + attrs.width + '"';
-				if(typeof attrs.height !== "undefined")
+				if(attrs.height !== undefined)
 					attribs += ' height="' + attrs.height + '"';
+				if(attrs.align !== undefined)
+					attribs += ' align="' + attrs.align + '"';
 
 				// handle [img=340x240]url[/img]
-				if(typeof attrs.defaultattr !== "undefined") {
+				if(attrs.defaultattr !== undefined && attribs === "") {
 					parts = attrs.defaultattr.split(/x/i);
 
 					attribs = ' width="' + parts[0] + '"' +
