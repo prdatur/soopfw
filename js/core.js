@@ -526,7 +526,7 @@ function process_form_buttons() {
 				else if(icons == 1) {
 					options['icons']['secondary'] = class_array[i];
 				}
-
+				$(this).removeClass(class_array[i]);
 				icons++;
 				if(icons == 2) {
 					break;
