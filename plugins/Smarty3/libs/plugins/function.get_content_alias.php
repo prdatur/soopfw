@@ -24,12 +24,19 @@ function smarty_function_get_content_alias($params, $smarty, $template)
 		$page = new Content();
 		try {
 			if (!empty($params['link'])) {
-				return '/' . $page->get_alias_for_page_id($id);
+				$alias = '/' . $page->get_alias_for_page_id($id);
 			}
-			return $page->get_alias_for_page_id($id);
+			else {
+				$alias =$page->get_alias_for_page_id($id);
+			}
 		}
 		catch(Exception $e) {
 		}
+		
+		if (!empty($alias) && $alias != '/') {
+			return $alias;
+		}
+		
 		if (!empty($params['link'])) {
 			return '/content/view/' . $id;
 		}
