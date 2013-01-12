@@ -780,15 +780,15 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		if ($this->right_manager->has_perm("admin.content.create", false)) {
 			$view_links[] = array(
 				'href' => '/admin/content/view/' . $page_id,
-				'title' => t("view")
+				'title' => t("View")
 			);
 			$view_links[] = array(
 				'href' => '/admin/content/edit/' . $page_id,
-				'title' => t("edit")
+				'title' => t("Edit")
 			);
 			$view_links[] = array(
 				'href' => '/admin/content/revision_list/' . $page_id,
-				'title' => t("revisions")
+				'title' => t("Revisions")
 			);
 		}
 
@@ -796,7 +796,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		if ($this->right_manager->has_perm("admin.translate", false)) {
 			$view_links[] = array(
 				'href' => '/admin/content/translate_list/' . $page_id,
-				'title' => t("translate")
+				'title' => t("Translate")
 			);
 		}
 
@@ -840,7 +840,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		}
 
 		//Setup search form
-		$form = new Form("search_content", t("search:"));
+		$form = new Form("search_content", t("Search:"));
 		$form->add(new Textfield("title", '', t("Title")));
 
 		$this->lng->load_language_list('', array(), true);
@@ -940,8 +940,22 @@ Notice: You can only select fields which are no multi fields (max value needs to
 					->add_column('language')
 					->add_where('page_id', $page['page_id'])
 					->add_where($language_filter);
-
-			$page['translated'] = $filter->select_all('language');
+			
+			
+			$translated = $filter->select_all('language');
+			foreach ($this->lng->languages AS $key => $lang) {
+				
+				if (!isset($translated[$key])) {
+					$from_lang = $this->core->current_language;
+					
+					if ($from_lang == $key || !isset($translated[$from_lang])) {
+						$from_lang = key($translated);
+					}
+					
+					$page['from_lang'] = $from_lang;
+				}
+			}
+			$page['translated'] = $translated;
 			$page['title'] = $page['translated'][$language_search]['title'];
 		}
 
@@ -1001,7 +1015,7 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		if (!$page_revision->load_success()) {
 			throw new SoopfwWrongParameterException(t('no such page'));
 		}
-		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("this displays all available revisions for this page"));
+		$this->title(t("revision overview: @title", array("@title" => $page_revision->title)), t("This displays all available revisions for this page"));
 
 		//Check perms
 		if (!$this->right_manager->has_perm(array("admin.content.create", "admin.translate"))) {
@@ -1184,7 +1198,7 @@ Current language: [b]@language[/b]', array(
 			}
 			$language = array(
 				'language' => $language,
-				'title' => t('create translation'),
+				'title' => t('Create translation'),
 				'link' => '/' . $key . '/admin/content/translate/' . $page_id . '/' . $from_lang
 			);
 			if (isset($already_translated[$key])) {
@@ -1221,10 +1235,10 @@ Current language: [b]@language[/b]', array(
 			$obj = new ContentTypeObj($content_type);
 			$obj->get_dbstruct()->set_field_hidden("content_type");
 			//Add save button
-			$submit_button = new Submitbutton("save", t("save"));
+			$submit_button = new Submitbutton("save", t("Save"));
 
 			//Set form title
-			$message = t("content type changed");
+			$message = t("Content type changed");
 
 			$config_array = array(
 				'content_type' => array(
@@ -1236,10 +1250,10 @@ Current language: [b]@language[/b]', array(
 			$this->title(t("add content type"));
 
 			//Add insert button
-			$submit_button = new Submitbutton("add", t("add"));
+			$submit_button = new Submitbutton("add", t("Add"));
 
 			//Set form title
-			$message = t("content type added");
+			$message = t("Content type added");
 
 			//Create empty object
 			$obj = new ContentTypeObj();
@@ -1347,19 +1361,19 @@ Current language: [b]@language[/b]', array(
 			$obj->get_dbstruct()->set_field_hidden("id");
 
 			//Add save button
-			$submit_button = new Submitbutton("save", t("save"));
+			$submit_button = new Submitbutton("save", t("Save"));
 
 			//Set form title
-			$message = t("field changed");
+			$message = t("Field changed");
 		}
 		else {
 			$this->title(t("Add field"), t('Once you have added this field you <b>can\'t</b> change the field id and type anymore.'));
 
 			//Add insert button
-			$submit_button = new Submitbutton("add", t("add"));
+			$submit_button = new Submitbutton("add", t("Add"));
 
 			//Set form title
-			$message = t("field added");
+			$message = t("Field added");
 
 			//Create empty object and prefill with primary key
 			$obj = new ContentTypeFieldGroupObj();
@@ -1679,18 +1693,18 @@ Current language: [b]@language[/b]', array(
 		$form = new Form("create_content_form");
 
 		// Add the content title.
-		$title = new Textfield("title", $title_value, t("title"), t("the page title"));
+		$title = new Textfield("title", $title_value, t("Title"), t("The page title"));
 		$title->add_validator(new RequiredValidator());
 		$objects_to_fetch_html[] = &$title;
 		$form->add($title);
 
 		// Add the menu chooser.
-		$menu_chooser = new Textfield("menu_chooser", $menu_value, t("menu settings"), t("select the parent menu"));
+		$menu_chooser = new Textfield("menu_chooser", $menu_value, t("Menu settings"), t("Select the parent menu"));
 		$menu_chooser->config('other', 'disabled="disabled"');
 		$objects_to_fetch_html[] = &$menu_chooser;
 		$form->add($menu_chooser);
 
-		$menu_title = new Textfield("menu_title", $old_menu_title, t("menu title"), t("choose a good title for the menu entry, short is always better"));
+		$menu_title = new Textfield("menu_title", $old_menu_title, t("Menu title"), t("Choose a good title for the menu entry, short is always better"));
 		$objects_to_fetch_html[] = &$menu_title;
 		$form->add($menu_title);
 
@@ -1755,25 +1769,30 @@ Current language: [b]@language[/b]', array(
 		$objects_to_fetch_html[] = new Hiddeninput('no_value_options', '', t('Options'));
 
 		// Setup publish checkbox.
-		$publish = new Checkbox("publish", 1, ($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("publish"));
+		$publish = new Checkbox("publish", 1, ($create_mode || !empty($values['last_revision'])) ? 1 : 0, t("Publish"));
 		$objects_to_fetch_html[] = &$publish;
 		$form->add($publish);
 
 		// Setup alias checkbox.
-		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0, t("create auto alias?"));
+		$create_alias = new Checkbox("create_alias", 1, ($content_type_obj->create_alias == 'yes') ? 1 : 0, t("Create auto alias?"));
 		$create_alias->config('suffix', '<br />');
 		$objects_to_fetch_html[] = &$create_alias;
 		$form->add($create_alias);
 
 		// Add cancel and delete button if we are within edit mode.
 		if (!$create_mode) {
-			$form->add(new Submitbutton("cancel", t("cancel"), 'form_button'));
-			$form->add(new Submitbutton("delete", t("delete"), 'form_button'));
+			$form->add(new Submitbutton("cancel", t("Cancel / View"), 'form_button'));
+			$form->add(new Submitbutton("delete", t("Delete"), 'form_button'));
+
+			//Just check the permission whether the use is logged in or not, else we would redirected to login page if user is not logged in
+			if ($this->right_manager->has_perm("admin.translate", false)) {
+				$form->add(new Submitbutton("translate", t("Translate")));
+			}
 
 			// If we have the real delete permission add a delete button which will delete really the content page.
 			// (The normal button will just mark it as deleted)
 			if ($this->right_manager->has_perm("admin.content.delete")) {
-				$form->add(new Submitbutton("really_delete", t("delete (really delete)!!!!")));
+				$form->add(new Submitbutton("really_delete", t("Delete (really delete)!!!!")));
 			}
 		}
 
@@ -1789,6 +1808,10 @@ Current language: [b]@language[/b]', array(
 				$this->core->location("/content/view/" . $values['page_id']);
 			}
 			$this->core->location("/" . $alias . ".html");
+		}
+		// If we want to translate it.
+		else if ($form->is_submitted("translate")) {
+			$this->core->location("/admin/content/translate_list/" . $values['page_id']);
 		}
 		// If we want to delete the content.
 		else if ($form->is_submitted("delete") || $form->is_submitted("really_delete")) {

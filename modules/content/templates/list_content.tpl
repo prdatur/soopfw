@@ -15,7 +15,7 @@
 	<%foreach $pages AS $page%>
 		<tr id="row_<%$page.page_id%>">
 			<td style="text-align: left;">
-				<a href="/admin/content/edit/<%$page.page_id%>">
+				<a href="/<%$page.language%>/admin/content/edit/<%$page.page_id%>" target="_blank">
 					<span><%$page.title%>
 						<%if $page.deleted == 'yes'%><span style='font-style: italic'>(<%t key='deleted'%>)</span><%/if%>
 						<%if empty($page.last_revision)%><span style='font-style: italic'>(<%t key='unpublished'%>)</span><%/if%>
@@ -25,7 +25,7 @@
 			<td><%$page.display_name%></td>
 			<td>
 				<%foreach $available_languages AS $key => $val%>
-				<img src='/1x1_spacer.gif' class="ui-icon-soopfw-country ui-icon-soopfw-country-<%$key|lower%><%if !isset($page.translated[$key])%> ui-icon-soopfw-disabled<%/if%>"/>
+				<a href="<%if isset($page.translated[$key])%>/<%$key%>/admin/content/view/<%$page.page_id%><%else%>/<%$key%>/admin/content/translate/<%$page.page_id%>/<%$page.from_lang%><%/if%>" target="_blank"><img src='/1x1_spacer.gif' class="ui-icon-soopfw-country ui-icon-soopfw-country-<%$key|lower%><%if !isset($page.translated[$key])%> ui-icon-soopfw-disabled<%/if%>"/></a>
 				<%/foreach%>
 			</td>
 			<td style="text-align: center"><%$page.last_modified|format_date:'d.m.Y H:i:s'%></td>
