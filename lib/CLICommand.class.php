@@ -4,7 +4,7 @@
  *
  * @copyright Christian Ackermann (c) 2010 - End of life
  * @author Christian Ackermann <prdatur@gmail.com>
- ** @category Cli
+ * @category Cli
  */
 abstract class CLICommand extends Object {
 
