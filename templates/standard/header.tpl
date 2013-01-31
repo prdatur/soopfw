@@ -6,7 +6,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<!-- Add CSS files -->
 	<%foreach from=$additional_css_files item=cssfile%>
-	<link rel="StyleSheet" href="<%$cssfile%>" type="text/css" />
+	<link rel="StyleSheet" href="<%$cssfile.file%>" type="text/css" />
 	<%/foreach%>
 
 
@@ -29,7 +29,7 @@
 			Soopfw.config = $.extend(Soopfw.config, <%$js_variable_config|unescape%>);
 		};
 		<%foreach from=$additional_css_files item=cssfile%>
-		Soopfw.already_loaded_files['<%$cssfile%>'] = true;
+		Soopfw.already_loaded_files['<%$cssfile.hash%>'] = true;
 		<%/foreach%>
 		<%foreach from=$additional_js_files['system'] item=jsfile%>
 		Soopfw.already_loaded_files['<%$jsfile%>'] = true;

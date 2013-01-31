@@ -3,22 +3,22 @@
 	<div id="title">
 		<div>
 			<%if $type == "success"%>
-			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-check" alt="<%t key='Success'%>">
+			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-check" alt="<%t key='Success' db=1%>">
 			<%elseif $type == "error"%>
-			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-cancel" alt="<%t key='Error'%>" />
+			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-cancel" alt="<%t key='Error' db=1%>" />
 			<%elseif $type == "information"%>
-			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-warning" alt="<%t key='Information'%>" />
+			<img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-warning" alt="<%t key='Information' db=1%>" />
 			<%/if%>
 
 		</div>
 		<div class="title-cell">
             <%if !isset($title)%>
                 <%if $type == "success"%>
-					<%t key='Success'%>
+					<%t key='Success' db=1%>
                 <%elseif $type == "error"%>
-                    <%t key='Error'%>
+                    <%t key='Error' db=1%>
                 <%elseif $type == "information"%>
-                    <%t key='Information'%>
+                    <%t key='Information' db=1%>
                 <%/if%>
             <%else%>
             <%$title%>

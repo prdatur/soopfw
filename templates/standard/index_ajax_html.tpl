@@ -3,11 +3,11 @@
 <script type="text/javascript" language="javascript">
 
 	<%foreach from=$additional_css_files item=cssfile%>
-	if(Soopfw.already_loaded_files['<%$cssfile%>'] != true) {
+	if(Soopfw.already_loaded_files['<%$cssfile.hash%>'] != true) {
 		$("head").append(
-			create_element({input: 'link', attr:{rel: 'stylesheet', type: 'text/css', href: '<%$cssfile%>'}})
+			create_element({input: 'link', attr:{rel: 'stylesheet', type: 'text/css', href: '<%$cssfile.file%>'}})
 		);
-		Soopfw.already_loaded_files['<%$cssfile%>'] = true;
+		Soopfw.already_loaded_files['<%$cssfile.hash%>'] = true;
 	}
 	<%/foreach%>
 

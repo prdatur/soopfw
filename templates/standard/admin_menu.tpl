@@ -18,6 +18,7 @@
 	</ul>
 <%/if%>
 <%/function%>
+<div style="height: 30px;"></div>
 <div id="admin_menu" class="jqueryslidemenu clearfix">
 <ul>
 <%$firstentry=true%>
@@ -26,8 +27,8 @@
 <%admin_sub_menu data=$entry['#childs'] id=$entry['#id']%>
 	</li>
 <%/foreach%>
-	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$logout_url%>" style="border:0px;padding: 6px 10px;"><%t key='Logout'%><img src="/1x1_spacer.gif" style="margin-left: 4px;vertical-align: bottom;" class="ui-icon-soopfw ui-icon-soopfw-cancel" /></a></li>
-	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$profile_url%>" style="border:0px;"><%t key='My account'%></a></li>
+	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$logout_url%>" style="border:0px;padding: 6px 10px;"><%t key='Logout' db=1%><img src="/1x1_spacer.gif" style="margin-left: 4px;vertical-align: bottom;" class="ui-icon-soopfw ui-icon-soopfw-cancel" /></a></li>
+	<li style="float:right;" class="menulink last_menu_entry"><a href="<%$profile_url%>" style="border:0px;"><%t key='My account' db=1%></a></li>
 </ul>
 </div>
 <div style="clear:both"></div>
