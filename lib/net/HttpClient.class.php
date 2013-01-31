@@ -163,7 +163,7 @@ class HttpClient extends Object {
 	}
 
 	/**
-	 * Send a GET request to the specified url.
+	 * Send a POST request to the specified url.
 	 *
 	 * @param string $url
 	 *   the url
