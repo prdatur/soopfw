@@ -150,17 +150,19 @@ class SecurityLock extends Object
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
+	 * @param int $check_time
+	 *   The checktime, normally it will check on the current time (optional, default = TIME_NOW)
 	 *
 	 * @return boolean returns true if the user is locked, else false
 	 */
-	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS) {
+	public function check_lock_within_time_range($max_actions = 3, $block_range = DateTools::TIME_DAY, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS, $check_time = TIME_NOW) {
 		// Get the current lock count if available.
 		$current_count = $this->core->memcache_obj->get($this->generate_memcache_key($lock_identifier, $user_identifer));
 
 		// Initialize the lock data if needed.
 		if (empty($current_count) || !is_array($current_count)) {
 			$current_count = array(
-				'time' => TIME_NOW,
+				'time' => $check_time,
 				'count' => 0,
 			);
 		}
@@ -172,7 +174,7 @@ class SecurityLock extends Object
 
 		// Incerement the lock count.
 		$current_count['count']++;
-
+		
 		// Determine if locked, because we need to do different things for the time entry and expire data.
 		$locked = ($current_count['count'] > $max_actions);
 
@@ -187,7 +189,7 @@ class SecurityLock extends Object
 			if ($update_expire_data === true) {
 
 				// We set the time "where the user was blocked" to the current one to increment the lock each time the user call the locked action again.
-				$expires = TIME_NOW;
+				$expires = $check_time;
 			}
 
 			// Add the block time.
@@ -212,7 +214,7 @@ class SecurityLock extends Object
 				$expires = 0;
 				// We need to set the value for 'time' key to the current time else we would set the expire date to the time where the user first call the action
 				// + block time and this is in most cases in the past of the time where we really block the user + block time
-				$current_count['time'] = TIME_NOW;
+				$current_count['time'] = $check_time;
 			}
 			else {
 				// If we are not blocked we need to expire on the block range instead of block time, because we do not want to release a lock instead
@@ -220,7 +222,7 @@ class SecurityLock extends Object
 				$expires += $block_range;
 			}
 		}
-
+		
 		// Set the check values.
 		$this->core->memcache_obj->set($this->generate_memcache_key($lock_identifier, $user_identifer), $current_count, $expires);
 
@@ -257,11 +259,13 @@ class SecurityLock extends Object
 	 * @param string $user_identifer
 	 *   The user identifier.
 	 *   (optional, default = NS)
+	 * @param int $check_time
+	 *   The checktime, normally it will check on the current time (optional, default = TIME_NOW)
 	 *
 	 * @return boolean returns true if the user is locked, else false
 	 */
-	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS) {
-		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifier, $update_expire_data, $user_identifer);
+	public function check_lock($max_actions = 3, $block_time = DateTools::TIME_MINUTE_15, $lock_identifier = NS, $update_expire_data = true, $user_identifer = NS, $check_time = TIME_NOW) {
+		return $this->check_lock_within_time_range($max_actions, 0, $block_time, $lock_identifier, $update_expire_data, $user_identifer, $check_time);
 	}
 
 	/**
