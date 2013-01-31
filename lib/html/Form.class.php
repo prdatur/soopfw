@@ -297,7 +297,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function assign_smarty($name = "form") {
 
 		if (empty($this->submit_buttons)) {
-			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit') : $this->submit_button_title));
+			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit', array(), true) : $this->submit_button_title));
 		}
 
 		if ($this->is_ajax) {
@@ -326,7 +326,7 @@ class Form extends AbstractHtmlElement implements Iterator
 	public function append_smarty($key, $name = "form") {
 
 		if (empty($this->submit_buttons)) {
-			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit') : $this->submit_button_title));
+			$this->add(new Submitbutton('submit', (empty($this->submit_button_title)) ? t('Submit', array(), true) : $this->submit_button_title));
 		}
 
 		if ($this->is_ajax) {
