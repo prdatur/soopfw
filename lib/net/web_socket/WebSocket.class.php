@@ -83,8 +83,8 @@ abstract class WebSocket extends Object {
 			$this->data_buffer = '';
 			$this->waiting_for_data = false;
 		}
-
-		if (!isset($data['type'])) {
+		
+		if (!isset($decoded_data['type'])) {
 			WebSocketListener::send_http_response($client, WebSocket::HEADER_RESPONSE_UNAUTHORIZED);
 			$this->disconnect($client->socket);
 			return false;
@@ -96,11 +96,11 @@ abstract class WebSocket extends Object {
 				if(!empty($data)) {
 					$decoded_data['data'] = $data;
 				}
-				$this->on_data($decoded_data['data'], $client);
+				$this->on_data($decoded_data['data'], $client, $decoded_data['type']);
 				break;
 
 			case 'binary':
-				$client->close(1003);
+				$this->on_data($decoded_data['data'], $client, $decoded_data['type']);
 				break;
 
 			case 'ping':

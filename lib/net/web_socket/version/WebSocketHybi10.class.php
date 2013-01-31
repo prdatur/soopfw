@@ -16,14 +16,14 @@ class WebSocketHybi10 extends WebSocketHandshake {
 	 * @return boolean
 	 * 	 Whether the handshake succeed or not, false on error
 	 */
-	public function handshake($data) {
+	public function handshake($data, $check_origin = false) {
 
 		if (($headers = parent::handshake($data)) === false) {
 			return false;
 		}
 
 		// Do handyshake: (hybi-10).
-		$sec_key = $headers['Sec-WebSocket-Key'];
+		$sec_key = $headers['sec-websocket-key'];
 		$sec_accept = base64_encode(pack('H*', sha1($sec_key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
 		$response = "HTTP/1.1 101 Switching Protocols\r\n";
 		$response.= "Upgrade: websocket\r\n";
@@ -145,7 +145,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 		if ($is_masked === false) {
 			return false;
 		}
-
+		
 		switch ($opcode) {
 			// Text frame.
 			case 1:
@@ -219,7 +219,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 			$payload_offset = $payload_offset - 4;
 			$decoded_data['data'] = substr($data, $payload_offset);
 		}
-
+		
 		return $decoded_data;
 	}
 

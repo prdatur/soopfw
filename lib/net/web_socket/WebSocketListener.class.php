@@ -119,7 +119,7 @@ abstract class WebSocketListener extends WebSocket {
 	 * @param WebSocketUser $client
 	 *   The client from which we recieved the data.
 	 */
-	abstract protected function on_data($data, WebSocketUser &$client);
+	abstract protected function on_data($data, WebSocketUser &$client, $type);
 
 	/**
 	 * Will be called if the user will be disconnected.

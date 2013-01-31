@@ -66,12 +66,12 @@ abstract class WebSocketHandshake {
 		foreach ($lines as $line) {
 			$line = chop($line);
 			if (preg_match('/\A(\S+): (.*)\z/', $line, $matches)) {
-				$headers[$matches[1]] = $matches[2];
+				$headers[strtolower($matches[1])] = $matches[2];
 			}
 		}
 
 		// Check for supported websocket version.
-		if (!isset($headers['Sec-WebSocket-Version']) || $headers['Sec-WebSocket-Version'] < 6) {
+		if (!isset($headers['sec-websocket-version']) || (int)$headers['sec-websocket-version'] < 6) {
 			WebSocket::log_console('Unsupported websocket version.');
 			WebSocket::send_http_response($this->client, WebSocket::HEADER_RESPONSE_NOT_IMPLEMENTED, true);
 			return false;
@@ -79,8 +79,8 @@ abstract class WebSocketHandshake {
 
 		// check origin:
 		if (!empty($check_origin)) {
-			$origin = (isset($headers['Sec-WebSocket-Origin'])) ? $headers['Sec-WebSocket-Origin'] : false;
-			$origin = (isset($headers['Origin'])) ? $headers['Origin'] : $origin;
+			$origin = (isset($headers['sec-websocket-origin'])) ? $headers['sec-websocket-origin'] : false;
+			$origin = (isset($headers['origin'])) ? $headers['origin'] : $origin;
 			if (!$this->check_origin($origin, $check_origin)) {
 				WebSocket::log_console('No, empty or invalid origin provided.');
 				$this->sendHttpResponse($this->client, WebSocket::HEADER_RESPONSE_UNAUTHORIZED);
