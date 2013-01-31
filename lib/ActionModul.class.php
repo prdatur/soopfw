@@ -146,6 +146,7 @@ class ActionModul extends Object
 		));
 		//Override the meta title with the provided
 		$this->core->meta->title = $title;
+		$this->core->meta->description = $description;
 	}
 
 	/**
@@ -161,6 +162,8 @@ class ActionModul extends Object
 			'title' => $oldtitle,
 			'description' => $description
 		));
+		
+		$this->core->meta->description = $description;
 	}
 
 	/**
