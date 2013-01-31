@@ -593,23 +593,21 @@ Notice: You can only select fields which are no multi fields (max value needs to
 	 *   if set to true the content will returned instead of smarty assigned (optional, default = false)
 	 */
 	public function view($page_id, $revision = '', $return_html = false) {
-
+		
 		$page_data_array = explode("|", $page_id, 2);
 		if (!isset($page_data_array[1])) {
 			$page_data_array[1] = '';
 		}
-
+		$page_id = $page_data_array[0];
+		
+		$already_translated = null;
 		// Check if we have called this page with default content/view/{page_id} and if so check if we have an alias which is the better choice.
 		// But only if do show the content, not within return mode.
-		if ($return_html === false && preg_match("/content\/view\/[0-9]+/i", $_SERVER['REQUEST_URI'])) {
+		if ($return_html === false && preg_match("/^\/([a-z]{2}\/)?content\/view\/[0-9]+(\.(ajax_)?html?)?$/i", $_SERVER['REQUEST_URI'])) {
 			$alias = $this->get_alias_for_page_id($page_data_array[0], $page_data_array[1]);
 			if (!empty($alias)) {
 				$this->core->location('/' . $alias . '.html');
 			}
-		}
-		$page_id = $page_data_array[0];
-		$page = new PageObj($page_data_array[0], $page_data_array[1]);
-		if (!$page->load_success()) {
 			
 			// Get already translated entries.
 			$already_translated = $this->db->query_slave_all("
@@ -619,6 +617,39 @@ Notice: You can only select fields which are no multi fields (max value needs to
 				WHERE cp.`page_id` = ipage_id", array(
 				'ipage_id' => $page_id
 			),0 ,0 , 'language');
+			
+			// Check if an alias with this id and our default language exist.
+			if (isset($already_translated[$this->core->default_language])) {
+				
+				$alias = $this->get_alias_for_page_id($page_data_array[0], $this->core->default_language);
+				if (!empty($alias)) {
+					$this->core->location('/' . $this->core->current_language . '/' . $alias . '.html');
+				}
+			}
+			// check if we have a translation with this page id.
+			else if (!empty($already_translated)) {
+				$alias = $this->get_alias_for_page_id($page_data_array[0], key($already_translated));
+				if (!empty($alias)) {
+					$this->core->location('/' . $this->core->current_language . '/' . $alias . '.html');
+				}
+			}
+			
+			
+		}
+		
+		$page = new PageObj($page_data_array[0], $page_data_array[1]);
+		if (!$page->load_success()) {
+			
+			if ($already_translated === null) {
+				// Get already translated entries.
+				$already_translated = $this->db->query_slave_all("
+					SELECT cpt.`language`
+					FROM `" . PageObj::TABLE . "` cp
+					JOIN `" . PageRevisionObj::TABLE . "` cpt ON (cp.`page_id` = cpt.`page_id` AND cp.`language` = cpt.`language` AND cp.`last_revision` = cpt.`revision`)
+					WHERE cp.`page_id` = ipage_id", array(
+					'ipage_id' => $page_id
+				),0 ,0 , 'language');
+			}
 			
 			// Check if a page with this id and our default language exist.
 			if (isset($already_translated[$this->core->default_language])) {
@@ -653,7 +684,11 @@ Notice: You can only select fields which are no multi fields (max value needs to
 		$values = $page->get_values()+$page_revision->get_values();
 
 		$this->title($values['title']);
-
+		$values['description'] = trim($values['description']);
+		if (!empty($values['description'])) {
+			$this->core->meta->description = StringTools::truncate($values['description'], 155, StringTools::TRUNCATE_POLICY_WORD_SAVE);
+		}
+		
 		$data_array = json_decode($values['serialized_data'], true);
 		$content_smarty = new Smarty();
 		$content_smarty->enableSecurity(); //Can not be transformed into underscore couse this comes from original smarty class
@@ -1632,6 +1667,7 @@ Current language: [b]@language[/b]', array(
 
 		// Pre-init variables.
 		$title_value = "";
+		$description_value = "";
 		$menu_value = "";
 		$old_menu_title = "";
 		$old_menu_entry_id = "";
@@ -1644,6 +1680,7 @@ Current language: [b]@language[/b]', array(
 			$content_type = $values['content_type'];
 			$fill_values = $values['serialized_data'];
 			$title_value = $values['title'];
+			$description_value = $values['description'];
 
 			// If we have a menu entry.
 			if (!empty($values['current_menu_entry_id'])) {
@@ -1697,6 +1734,11 @@ Current language: [b]@language[/b]', array(
 		$title->add_validator(new RequiredValidator());
 		$objects_to_fetch_html[] = &$title;
 		$form->add($title);
+		
+		// Add the meta description.
+		$description = new Textarea("description", $description_value, t("Meta description"), t("The description for the meta tags."));
+		$objects_to_fetch_html[] = &$description;
+		$form->add($description);
 
 		// Add the menu chooser.
 		$menu_chooser = new Textfield("menu_chooser", $menu_value, t("Menu settings"), t("Select the parent menu"));
@@ -1846,6 +1888,7 @@ Current language: [b]@language[/b]', array(
 
 			// Pre-init special values (values which are not content type field values)
 			$title = $values['title'];
+			$description = $values['description'];
 			$new_menu_title = $values['menu_title'];
 			$new_menu = $values['menu_chooser_hidden'];
 			$content_type = $values['content_type'];
@@ -1868,6 +1911,7 @@ Current language: [b]@language[/b]', array(
 			unset($values['really_delete']);
 			unset($values['content_type']);
 			unset($values['title']);
+			unset($values['description']);
 			unset($values['menu_chooser']);
 			unset($values['menu_chooser_hidden']);
 			unset($values['menu_title']);
@@ -1938,6 +1982,9 @@ Current language: [b]@language[/b]', array(
 
 			// Set the title of the revision.
 			$page_revision_obj->title = $title;
+			
+			// Set the meta description of the revision.
+			$page_revision_obj->description = $description;
 
 			// Insert all content type field values as a serialize value, this is usefull within getting the data back,
 			// else we would need to get the values from the content_type_field_group_values table which is slower than
