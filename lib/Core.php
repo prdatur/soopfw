@@ -4,6 +4,7 @@ if (!defined('SITEPATH')) {
 }
 
 define("TIME_NOW", time());
+define("TIME_NOW_GMT", strtotime(gmdate("Y-m-d H:i:s", TIME_NOW)));
 define("DB_DATE", "Y-m-d");
 define("DB_DATETIME", "Y-m-d H:i:s");
 define("DB_TIME", "H:i:s");
@@ -102,6 +103,17 @@ class Core
 	const RUN_MODE_DEVELOPEMENT = 'development';
 	const RUN_MODE_PRODUCTION = 'production';
 
+	const CSS_MEDIA_TYPE_ALL = 'all';
+	const CSS_MEDIA_TYPE_AURAL = 'aural';
+	const CSS_MEDIA_TYPE_BRAILLE = 'braille';
+	const CSS_MEDIA_TYPE_EMBOSSED = 'embossed';
+	const CSS_MEDIA_TYPE_HANDHELD = 'handheld';
+	const CSS_MEDIA_TYPE_PRINT = 'print';
+	const CSS_MEDIA_TYPE_PROJECTION = 'projection';
+	const CSS_MEDIA_TYPE_SCREEN = 'screen';
+	const CSS_MEDIA_TYPE_SPEECH = 'speech';
+	const CSS_MEDIA_TYPE_TTY = 'tty';
+	const CSS_MEDIA_TYPE_TV = 'tv';
 	/**
 	 * @var array the core config
 	 */
@@ -1297,8 +1309,10 @@ class Core
 				unset($_SESSION['core_message_timeout']);
 			}
 		}
+				
 		//Assign the messages
 		$this->smarty->assign("main_messages", $messages);
+		$this->smarty->assign("js_check_message", t('You have disabled JavaScript, in order to use this page correctly, please enable it.', array(), true));
 
 		$this->cache_js_css();
 
@@ -1480,7 +1494,7 @@ class Core
 			
 			// If we have a timeout, provide the config for it.
 			if ((int)$timeout > 0) {
-				if (!is_array($_SESSION['core_message_timeout'])) {
+				if (!isset($_SESSION['core_message_timeout']) || !is_array($_SESSION['core_message_timeout'])) {
 					$_SESSION['core_message_timeout'] = array();
 				}
 				$_SESSION['core_message_timeout'][$key] = $timeout;
@@ -1712,11 +1726,29 @@ class Core
 	 * @param boolean $is_full_path
 	 *   if set to true it will not add the current template path to the file.
 	 *   those files can not be overridden (optional, default = false)
+	 * @param string @media_type
+	 *   The media type to be used, use one of Core::MEDIA_TYPE_* (optional, default = '')
+	 * @param string $media_query
+	 *   The media query to be used. (optional, default = '')
 	 */
-	public function add_css($file, $is_full_path = false) {
+	public function add_css($file, $is_full_path = false, $media_type = '', $media_query = '') {
+		static $already_added = array(), $already_hashed = array();
 
 		if ($is_full_path == true) {
-			$this->css_files[] = $file;
+			if (!isset($already_hashed[$file])) {
+				$already_hashed[$file] = md5($file);
+			}
+			
+			if (isset($already_added[$already_hashed[$file]])) {
+				return;
+			}
+			$this->css_files[] = array(
+				'file' => $file,
+				'media_type' => $media_type,
+				'media_query' => $media_query,
+				'hash' => $already_hashed[$file],
+			);
+			$already_added[$already_hashed[$file]] = true;
 			return;
 		}
 
@@ -1731,7 +1763,19 @@ class Core
 		}
 
 		if (file_exists(SITEPATH . $file)) {
-			$this->css_files[] = $file;
+			if (!isset($already_hashed[$file])) {
+				$already_hashed[$file] = md5($file);
+			}
+			if (isset($already_added[$already_hashed[$file]])) {
+				return;
+			}
+			$this->css_files[] = array(
+				'file' => $file,
+				'media_type' => $media_type,
+				'media_query' => $media_query,
+				'hash' => $already_hashed[$file],
+			);
+			$already_added[$already_hashed[$file]] = true;
 		}
 	}
 
