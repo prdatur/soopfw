@@ -35,7 +35,7 @@ function smarty_function_t($params)
 		$params['args'] = array();
 	}
 	if(!isset($params['db'])) {
-		$params['db'] = array();
+		$params['db'] = false;
 	}
 	return htmlspecialchars_decode(t($params['key'], $params['args'], $params['db']), ENT_QUOTES);
 }

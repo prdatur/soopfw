@@ -50,7 +50,9 @@ class BBCodeParser
 		'ol' => array('<ol>', '</ol>'),
 		'bold' => array('<b>', '</b>'),
 		'quote' => array('<blockquote>', '</blockquote>'),
+		'center' => array('<div style="text-align: center;">', '</div>'),
 		// Method parser.
+		'sourcecode' => 'parse_sourcecode',
 		'url' => 'parse_url',
 		'img' => 'parse_img',
 		'size' => 'parse_size',
@@ -66,6 +68,7 @@ class BBCodeParser
 	 */
 	private $plain_text_tags = array(
 		'code' => true,
+		'sourcecode' => true,
 	);
 
 	/**
@@ -103,7 +106,7 @@ class BBCodeParser
 		// Parse our text, back replace our escaped "[" and "]" then return the html.
 		$s = array($this->unique_id_open, $this->unique_id_close);
 		$r = array('[', ']');
-		return str_replace($s, $r, $this->parse_tag("", $text));
+		return str_replace($s, $r, $this->parse_tag("", nl2br($text)));
 	}
 
 	/**
@@ -177,7 +180,7 @@ class BBCodeParser
 				2 => $tag,
 				3 => substr($text, $end_pos + 1),
 			);
-
+			
 			// Found matching end-tag.
 			if (isset($tag[2]{0}) && $tag[2]{0} == '/') {
 
@@ -288,20 +291,42 @@ class BBCodeParser
 	private function get_tag_data($tag) {
 		// If we do not have a equals char no parameter are present,
 		// we can safely direct return the tag with empty parameter.
-		if (strpos($tag, '=') === false) {
+		if (strpos($tag, '=') === false && strpos($tag, '"') === false && strpos($tag, '&quot;') === false && strpos($tag, "'") === false) {
 			return array(
 				'tag' => $tag,
 				'params' => array(),
 			);
 		}
 
+		// Get rid of spaces within escaped quotes strings.
+		while(($start_pos = strpos($tag, '&quot;')) !== false) {
+			$substr = substr($tag, $start_pos + 6);
+			if (($end_pos = strpos($substr, '&quot;')) === false) {
+				$tag = str_replace('&quot;', '', $tag);
+				break;
+			}
+			$sub_o = substr($substr, 0, $end_pos);
+			$tag = str_replace('&quot;' . $sub_o . '&quot;', str_replace(" ", ":space:", $sub_o), $tag);
+		}
+		
+		// Get rid of spaces within unescaped quotes strings.
+		while(($start_pos = strpos($tag, '"')) !== false) {
+			$substr = substr($tag, $start_pos + 6);
+			if (($end_pos = strpos($substr, '"')) === false) {
+				$tag = str_replace('"', '', $tag);
+				break;
+			}
+			$sub_o = substr($substr, 0, $end_pos);
+			$tag = str_replace('"' . $sub_o . '"', str_replace(" ", ":space:", $sub_o), $tag);
+		}
+		
 		// Normalize important tag parts which is needed for parse_str to work correctly.
 		$tag = preg_replace("/\s+=/", "=", preg_replace("/=\s+/", "=", $tag));
-
+		
 		// Little hack, because the parameters are like "url get parameter" which can be parsed by parse_str,
 		// we only need to replace all spaces with ampersands
 		$arr = array();
-		parse_str(str_replace(" ", "&", $tag), $arr);
+		parse_str(str_replace(":space:", " ", str_replace(" ", "&", $tag)), $arr);
 
 		// Return the data.
 		return array(
@@ -343,8 +368,8 @@ class BBCodeParser
 	 */
 	protected function parse_img($text, Array $parameters = array()) {
 		// Preinit variables.
-		$width = $height = $align = $style = '';
-
+		$attrs = "";
+		
 		// Check for img parameter (max size).
 		if (isset($parameters['img'])) {
 			// Get width and height.
@@ -353,23 +378,30 @@ class BBCodeParser
 			// Check if we have height also.
 			if (isset($w_h[1])) {
 				// Setup width AND height.
-				$width = ' width="' . min((int) $w_h[0], self::IMG_MAX_WIDTH) . '"';
-				$height = ' height="' . min((int) $w_h[1], self::IMG_MAX_HEIGHT) . '"';
-				;
+				$attrs .= ' width="' . min((int) $w_h[0], self::IMG_MAX_WIDTH) . '"';
+				$attrs .= ' height="' . min((int) $w_h[1], self::IMG_MAX_HEIGHT) . '"';
 			}
-			else {
+			else if ($w_h[0] != 0) {
 				// Setup just width.
-				$width = ' width="' . min((int) $w_h[0], self::IMG_MAX_WIDTH) . '"';
+				$attrs .= ' width="' . min((int) $w_h[0], self::IMG_MAX_WIDTH) . '"';
 			}
 		}
 
+		if (isset($parameters['alt'])) {
+			$attrs .= ' alt="' . $parameters['alt'] . '"';
+		}
+		
+		if (isset($parameters['title'])) {
+			$attrs .= ' title="' . $parameters['title'] . '"';
+		}
+		
 		// Check if we want to align the image.
 		if (isset($parameters['align']) && ($parameters['align'] == 'left' || $parameters['align'] == 'right')) {
-			$align = ' align="' . $parameters['align'] . '"';
+			$attrs .= ' align="' . $parameters['align'] . '"';
 		}
 
 		// Return the html.
-		return '<img' . $height . $width . $align . ' src="' . htmlspecialchars($text) . '" />';
+		return '<img' . $attrs . ' src="' . htmlspecialchars($text) . '" />';
 	}
 
 	/**
@@ -460,6 +492,25 @@ class BBCodeParser
 			$url = $parameters['url'];
 		}
 		return '<a href="' . $url . '">' . $text . '</a>';
+	}
+	/**
+	 * Parses sourcecode.
+	 *
+	 * @param string $text
+	 *   The text.
+	 * @param array $parameters
+	 *   The parameters for this tag.
+	 *   possible parameters:
+	 * 		- sourcecode: the source code type for geshi
+	 *   (optional, default = array())
+	 *
+	 * @return string The parsed html.
+	 */
+	protected function parse_sourcecode($text, Array $parameters = array()) {
+		/*if (isset($parameters['sourcecode']) && !empty($parameters['sourcecode'])) {
+			$url = $parameters['sourcecode'];
+		}*/
+		return '<pre class="source">' . htmlspecialchars(str_replace("<br />", "" , $text)) . '</pre>';
 	}
 
 }

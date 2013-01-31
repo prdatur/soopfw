@@ -860,7 +860,9 @@
 			
 			// don't apply to code elements
 			if(!overrideCodeBlocking && ($(rangeHelper.parentNode()).is('code') ||
-				$(rangeHelper.parentNode()).parents('code').length !== 0))
+				$(rangeHelper.parentNode()).parents('code').length !== 0 ||
+				$(rangeHelper.parentNode()).parents('sourcecode').length !== 0 || 
+				$(rangeHelper.parentNode()).parents('pre').length !== 0))
 				return;
 			
 			rangeHelper.insertHTML(html, endHtml);
@@ -1349,8 +1351,8 @@
 				$parentNode	= $(rangeHelper.parentNode());
 			base.focus();
 
-			// don't apply any comannds to code elements
-			if($parentNode.is('code') || $parentNode.parents('code').length !== 0)
+			// don't apply any comannds to code and source elements
+			if($parentNode.is('code') || $parentNode.parents('code').length !== 0 || $parentNode.is('sourcecode') || $parentNode.parents('sourcecode').length !== 0 || $parentNode.is('pre') || $parentNode.parents('pre').length !== 0)
 				return;
 
 			if(getWysiwygDoc())
@@ -1381,7 +1383,7 @@
 			// enter is pressed instead of inserting a newline
 			if(e.which === 13)
 			{
-				if($parentNode.is('code, blockquote') || $parentNode.parents('code, blockquote').length !== 0)
+				if($parentNode.is('pre, code, blockquote') || $parentNode.parents('pre, code, blockquote').length !== 0)
 				{
 					lastRange = null;
 					base.wysiwygEditorInsertHtml('<br />', null, true);
@@ -1396,7 +1398,7 @@
 					node.nodeName.toLowerCase() === 'br') {
 					// this is the last text or br node, if its in a code or quote tag
 					// then add a newline after it
-					if($(node).parents('code, blockquote').length > 0)
+					if($(node).parents('pre, code, blockquote').length > 0)
 						$(d.body).append(d.createElement('br'));
 
 					return false;
@@ -1404,7 +1406,7 @@
 			}, true);
 
 			// don't apply to code elements
-			if($parentNode.is('code') || $parentNode.parents('code').length !== 0)
+			if($parentNode.is('code') || $parentNode.parents('code').length !== 0 || $parentNode.is('sourcecode') || $parentNode.parents('sourcecode').length !== 0 || $parentNode.is('pre') || $parentNode.parents('pre').length !== 0)
 				return;
 			
 			var i = keyPressFuncs.length;
@@ -1960,6 +1962,15 @@
 				this.wysiwygEditorInsertHtml('<pre>', '<br /></pre>');
 			},
 			tooltip: "Code"
+		},
+		// END_COMMAND
+// 
+		// START_COMMAND: Sourcecpde
+		sourcecode: {
+			exec: function () {
+				this.wysiwygEditorInsertHtml('<pre class="source">', '<br /></pre>');
+			},
+			tooltip: "Sourcecode"
 		},
 		// END_COMMAND
 
@@ -3228,7 +3239,7 @@
 		// Toolbar buttons order and groups. Should be comma seperated and have a bar | to seperate groups
 		toolbar:	"bold,italic,underline,strike,subscript,superscript|left,center,right,justify|" +
 				"font,size,color,removeformat|cut,copy,paste,pastetext|bulletlist,orderedlist|" +
-				"table|code,quote|horizontalrule,email,link,unlink|youtube|" +
+				"table|sourcecode,quote|horizontalrule,email,link,unlink|youtube|" +
 				"ltr,rtl|source",
 
 		// Stylesheet to include in the WYSIWYG editor. Will style the WYSIWYG elements

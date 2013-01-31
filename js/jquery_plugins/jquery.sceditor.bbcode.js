@@ -74,6 +74,7 @@
 			table: ['tr'],
 			tr: ['td', 'th'],
 			code: ['br', 'p', 'div'],
+			sourcecode: ['br', 'p', 'div'],
 			youtube: []
 		};
 
@@ -157,6 +158,7 @@
 				table: { txtExec: ["[table][tr][td]", "[/td][/tr][/table]"] },
 				horizontalrule: { txtExec: ["[hr]"] },
 				code: { txtExec: ["[code]", "[/code]"] },
+				sourcecode: { txtExec: ["[sourcecode]", "[/sourcecode]"] },
 				image: { txtExec: function(caller, selected) {
 					var url = prompt(this._("Enter the image URL:"), selected);
 					
@@ -455,7 +457,7 @@
 						if(isValidChild)
 						{
 							// code tags should skip most styles
-							if(!$node.is('code'))
+							if(!$node.is('code') && !$node.is('sourcecode') && !$node.is('pre'))
 							{
 								// handle inline bbcodes
 								curTag = handleStyles($node, curTag);
@@ -472,7 +474,7 @@
 					}
 					else if(node.wholeText && (!node.previousSibling || node.previousSibling.nodeType !== 3))
 					{
-						if($(node).parents('code').length === 0)
+						if($(node).parents('code').length === 0 || $(node).parents('sourcecode').length === 0 || $(node).parents('pre').length === 0)
 							ret += node.wholeText.replace(/ +/g, " ");
 						else
 							ret += node.wholeText;
@@ -1010,32 +1012,56 @@
 				if(typeof element.attr('data-sceditor-emoticon') !== "undefined")
 					return content;
 
-				var align = "";
+				
+				var attr = "";
 				if ($(element).attr('align') !== undefined) {
-					align = " align=" + $(element).attr('align');
+					attr += ' align="' + $(element).attr('align') + '"';
 				}
-				var attribs = "=" + $(element).width() + "x" + $(element).height() + align;
+			
+				if ($(element).attr('title') !== undefined) {
+					attr += ' title="' + $(element).attr('title') + '"';
+				}
+			
+				if ($(element).attr('alt') !== undefined) {
+					attr += ' alt="' + $(element).attr('alt') + '"';
+				}
+			
+				if ($(element).attr('width') !== undefined && $(element).attr('height') !== undefined) {
+					attr += "=" + $(element).attr('width') + "x" + $(element).attr('height');
+				}
+				else if ($(element).attr('width') !== undefined ) {
+					attr += ' width="' + $(element).attr('width') + '"';
+				}
+				else if ($(element).attr('height') !== undefined ) {
+					attr += ' height="' + $(element).attr('height') + '"';
+				}
 
-				return '[img' + attribs + ']' + element.attr('src') + '[/img]';
+				return '[img' + attr + ']' + element.attr('src') + '[/img]';
 			},
 			html: function(element, attrs, content) {
 				var attribs = "", parts;
-				console.log(attrs);
 				// handle [img width=340 height=240]url[/img]
+				if(attrs.defaultattr !== undefined) {
+					var size = attrs.defaultattr.split("x", 2);
+					if (size[0] !== undefined) {
+						attribs += ' width="' + size[0] + '"';
+					}
+					if (size[1] !== undefined) {
+						attribs += ' height="' + size[1] + '"';
+					}
+					
+				}
+				
 				if(attrs.width !== undefined)
 					attribs += ' width="' + attrs.width + '"';
+				if(attrs.alt !== undefined)
+					attribs += ' alt="' + attrs.alt + '"';
+				if(attrs.title !== undefined)
+					attribs += ' title="' + attrs.title + '"';
 				if(attrs.height !== undefined)
 					attribs += ' height="' + attrs.height + '"';
 				if(attrs.align !== undefined)
 					attribs += ' align="' + attrs.align + '"';
-
-				// handle [img=340x240]url[/img]
-				if(attrs.defaultattr !== undefined && attribs === "") {
-					parts = attrs.defaultattr.split(/x/i);
-
-					attribs = ' width="' + parts[0] + '"' +
-						' height="' + (parts.length === 2 ? parts[1] : parts[0]) + '"';
-				}
 
 				return '<img ' + attribs + ' src="' + content + '" />';
 			}
@@ -1119,6 +1145,17 @@
 			isBlock: true,
 			format: "[code]{0}[/code]",
 			html: '<code>{0}</code>'
+		},
+		// END_COMMAND
+
+		// START_COMMAND: Sourcecode
+		sourcecode: {
+			tags: {
+				pre: null
+			},
+			isBlock: true,
+			format: "[sourcecode]{0}[/sourcecode]",
+			html: '<pre class="source">{0}</pre>'
 		},
 		// END_COMMAND
 
