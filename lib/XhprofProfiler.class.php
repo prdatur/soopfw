@@ -57,7 +57,7 @@ class XhprofProfiler extends Object
 	 */
 	public function enable() {
 		$this->profiler_enabled = true;
-		xhprof_enable();
+		xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
 	}
 
 	/**
