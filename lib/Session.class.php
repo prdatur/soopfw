@@ -440,7 +440,9 @@ class Session extends Object
 			$this->current_user = $user_obj;
 			return;
 		}
-
+		if (empty($this->current_user)) {
+			$this->current_user = new UserObj();
+		}
 		return $this->current_user;
 	}
 
