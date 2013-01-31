@@ -4,7 +4,9 @@
 	<div class="ui-widget" style="margin-top: 20px; width:400px;">
 		<div class="ui-widget-header "><%t key='User information'%></div>
 		<div class="ui-widget-content">
-			<div><%t key='Last login'%>: <%$user->last_login|date_format:'%d.%m.%Y %H:%M':'-'%></div>
+			<%foreach $account_info AS $identifier => $values%>
+			<div><%$values.label%>: <%$values.value%></div>
+			<%/foreach%>
 		</div>
 	</div>
 

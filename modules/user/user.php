@@ -515,7 +515,7 @@ class User extends ActionModul
 							$term_link = '/' . $alias . '.html';
 						}
 						else {
-							$term_link = '';
+							$term_link = '/content/view/' . $term_link;
 						}
 					}
 					else {
@@ -671,7 +671,8 @@ class User extends ActionModul
 		//Setup search form
 		$form = new Form("search_users", t("Search users:"));
 		$form->add(new Textfield("username"));
-		$form->add(new Submitbutton("searchUsers", t("Search")));
+		// Prdatur
+		#$form->add(new Submitbutton("searchUsers", t("Search")));
 		$form->assign_smarty("search_form");
 
 		//Check form and add errors if form is not valid
@@ -807,8 +808,31 @@ class User extends ActionModul
 
 		//Provide user_id to javascript
 		$this->core->js_config("admin_userdata_user_id", $user_id);
-
+		
+		$current_info = array(
+			'last_login' => array(
+				'label' => t('Last login'),
+				'value' => date('d.m.Y H:i', strtotime($user_obj->last_login))
+			)
+		);
+		/**
+		 * Provides hook: edit_account_information
+		 *
+		 * Allow other modules to add user data tabs
+		 *
+		 * @param array &$current_info
+		 *   The account information.
+		 *   format: 
+		 *		array(
+		 *			'identifier' => array(
+		 *				'label' => 'the label',
+		 *				'value' => 'the value',
+		 *			)
+		 *		);
+		 */
+		$this->core->hook('edit_account_information', array(&$current_info));
 		$this->smarty->assign_by_ref("user", $user_obj);
+		$this->smarty->assign_by_ref("account_info", $current_info);
 	}
 	
 	/**
@@ -926,7 +950,7 @@ class User extends ActionModul
 		$this->smarty->assign_by_ref("user", $user_obj->get_values());
 
 		//Assign addresses from requested user
-		$this->smarty->assign_by_ref("addresses", $user_obj->get_addresses());
+		$this->smarty->assign("addresses", $user_obj->get_addresses());
 	}
 
 	/**

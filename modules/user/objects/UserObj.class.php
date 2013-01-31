@@ -57,11 +57,7 @@ class UserObj extends AbstractDataManagement
 		$this->db_struct->add_index(MysqlTable::INDEX_TYPE_INDEX, array('username'));
 
 		$this->set_default_fields();
-		if (!empty($user_id)) {
-			if (!$this->load($user_id, $force_db)) {
-				return false;
-			}
-		}
+		$this->load($user_id, $force_db);
 	}
 
 	/**
