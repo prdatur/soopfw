@@ -522,7 +522,7 @@ class Language extends Object
 					$php_results = ArrayTools::array_extend($php_results, $this->get_strings_by_file($entry->path));
 				}
 			}
-
+			
 			// Stop here because we do only want to return the values.
 			if ($return_values == true) {
 				continue;
@@ -760,7 +760,7 @@ class Language extends Object
 			$t_string = implode(",", $comma_array);
 
 			// Add the string without starting and ending quotes to the result array.
-			$string = strtolower(substr($t_string, 1, strlen($t_string) - 2));
+			$string = str_replace("\\'", "'", strtolower(substr($t_string, 1, strlen($t_string) - 2)));
 			$translation_strings[md5($string)] = $string;
 		}
 
@@ -778,10 +778,9 @@ class Language extends Object
 		preg_match_all("/<%t\s*key\=(\".*\"|'.*')(\s*args\=(\[.*\]|\".*\"|'.*'))?%>/iUs", file_get_contents($file), $matches);
 		$translation_strings = array();
 		foreach ($matches[1] AS $trans) {
-			$string = strtolower(substr($trans, 1, strlen($trans) - 2));
+			$string = str_replace("\\'", "'", strtolower(substr($trans, 1, strlen($trans) - 2)));
 			$translation_strings[md5($string)] = $string;
 		}
-
 		return $translation_strings;
 	}
 
