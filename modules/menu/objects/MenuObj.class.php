@@ -195,6 +195,7 @@ class MenuObj extends AbstractDataManagement
 				}
 				$menu_entry['#link'] = $translations['destination']; // The main link
 				$menu_entry['#always_open'] = $menu_translation->always_open;
+				$menu_entry['#blank'] = $menu_translation->blank;
 			}
 			// Provide the array 2 tree the current entry.
 			$array_2_tree->add_item($menu_entry);

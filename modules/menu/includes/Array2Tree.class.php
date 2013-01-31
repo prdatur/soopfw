@@ -37,6 +37,7 @@ class Array2Tree
 
 		// Save performance and only get the request uri once.
 		$this->request_uri = preg_replace('/^\/[a-z][a-z]\//i', '/', strtolower(current(explode('?', $_SERVER['REQUEST_URI'], 2))));
+		$this->request_uri_full = strtolower(current(explode('?', $_SERVER['REQUEST_URI'], 2)));
 	}
 
 	/**
@@ -94,7 +95,7 @@ class Array2Tree
 
 			// Only the first menu entry which is found for the request uri will be direct active.
 			// Further matches will be skipped.
-			if ($this->menu_selected === false && preg_match($regexp, $this->request_uri)) {
+			if ($this->menu_selected === false && (preg_match($regexp, $this->request_uri) || preg_match($regexp, $this->request_uri_full))) {
 				// We will set this entry to an active and direct active one.
 				$entry['#active'] = true;
 				$entry['#active_direct'] = true;

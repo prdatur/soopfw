@@ -45,6 +45,7 @@ class MenuEntryTranslationObj extends AbstractDataManagement
 		$this->db_struct->add_field("perm", t("permission"), PDT_STRING, '');
 		$this->db_struct->add_field("always_open", t("always open?"), PDT_ENUM, self::ALWAYS_OPEN_NO, array(self::ALWAYS_OPEN_YES => t('Yes'), self::ALWAYS_OPEN_NO => t('No')));
 		$this->db_struct->add_required_field("destination", t("destination"), PDT_STRING);
+		$this->db_struct->add_required_field("blank", t("_blank"), PDT_ENUM, self::ACTIVE_NO, array(self::ACTIVE_YES => t('Yes'), self::ACTIVE_NO => t('No')));
 		$this->db_struct->add_required_field("active", t("active"), PDT_ENUM, self::ACTIVE_YES, array(self::ACTIVE_YES => t('Yes'), self::ACTIVE_NO => t('No')));
 
 		if (!empty($entry_id) && !empty($language)) {
