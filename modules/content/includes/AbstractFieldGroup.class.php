@@ -232,7 +232,9 @@ abstract class AbstractFieldGroup extends Object
 							$element->config("id", $this->id . "_" . $original_id . "_" . $index);
 							$element->config("name", $this->id . "[" . $index . "][" . $original_id . "]");
 							$element->reinit();
-							$element->config("value", $fill_values[$this->id][$i][$original_id]);
+							if (isset($fill_values[$this->id][$i][$original_id])) {
+								$element->config("value", $fill_values[$this->id][$i][$original_id]);
+							}
 							$elements[$k] = $element;
 						}
 

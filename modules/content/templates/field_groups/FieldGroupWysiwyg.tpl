@@ -1,3 +1,3 @@
 <%foreach $data.elements AS $link_data%>
-<p><%$link_data.text|bbcode|nl2br|unescape%></p>
+<div><%$link_data.text|bbcode|unescape%></div>
 <%/foreach%>

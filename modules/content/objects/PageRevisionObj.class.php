@@ -40,6 +40,7 @@ class PageRevisionObj extends AbstractDataManagement {
 		$this->db_struct->add_field("language", t("language"), PDT_STRING, '', 4);
 		$this->db_struct->add_field("revision", t("revision"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("title", t("title"), PDT_STRING);
+		$this->db_struct->add_field("description", t("Meta description"), PDT_TEXT);
 		$this->db_struct->add_field("created", t("created"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
 		$this->db_struct->add_field("created_by", t("created by"), PDT_INT, 0, 'UNSIGNED');
 		$this->db_struct->add_field("serialized_data", t("data"), PDT_TEXT);
