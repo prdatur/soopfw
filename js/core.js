@@ -459,7 +459,12 @@ $.extend(Soopfw, {
 
 Soopfw.system_footer_behaviour = function() {
 	$(".disabledSelection :not(.enabledSelection)").disableSelection();
-	$.datepicker.setDefaults( $.datepicker.regional[ Soopfw.config.current_language ] );
+	var lang = Soopfw.config.current_language;
+	if (lang == 'en') {
+		lang = 'en-GB';
+	}
+
+	$.datepicker.setDefaults( $.datepicker.regional[ lang ] );
 	$('input[type="text"].datepicker').datepicker();
 	$('input[type="text"].datetimepicker').datetimepicker();
 
