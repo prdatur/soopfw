@@ -9,6 +9,7 @@
 			<td style="width: 25px;text-align: center;"><img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-lock" title="<%t key='active'%>" alt="<%t key='active'%>"></td>
 			<td style="width: 20px;">&nbsp;</td>
 			<td style="text-align: left;"><%t key='username'%></td>
+			<td style="width: 120px;text-align: center;"><%t key='Registered'%></td>
 			<td style="width: 120px;text-align: center;"><%t key='Last login'%></td>
 			<td style="width: 25px;text-align: center;"></td>
 			<td style="width: 25px;text-align: center;"></td>
@@ -32,6 +33,7 @@
 				<%t key='fax'%>: <%$user.default_address.fax%><br />
 				</div>
 			</td>
+			<td style="text-align: center;"><%$user.registered|date_format:''%></td>
 			<td style="text-align: center;"><%$user.last_login|date_format:''%></td>
 			<td style="text-align: center;" class="linkedElement dmyChangePassword" id="changePassword_<%$user.user_id%>"><img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-key" title="<%t key='Change password'%>"></td>
 			<td style="text-align: center;" class="linkedElement dmyDeleteUser" id="deleteUser_<%$user.user_id%>"><img src="/1x1_spacer.gif" class="ui-icon-soopfw ui-icon-soopfw-cancel" title="<%t key='delete?'%>" alt="<%t key='delete?'%>"></td>
