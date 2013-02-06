@@ -48,7 +48,7 @@ class UserObj extends AbstractDataManagement
 		$this->db_struct->add_field("account_type", t("The account type"), PDT_STRING, 'default');
 		$this->db_struct->add_hidden_field("password", t("password"), PDT_STRING);
 		$this->db_struct->add_field("language", t("Language"), PDT_STRING, 'en');
-		$this->db_struct->add_field("registered", t("Registered"), PDT_DATETIME, '0000-00-00 00:00:00');
+		$this->db_struct->add_field("registered", t("Registered"), PDT_DATETIME, date(DB_DATETIME, TIME_NOW));
 		$this->db_struct->add_field("last_login", t("Last login"), PDT_DATETIME, '0000-00-00 00:00:00');
 		$this->db_struct->add_field("active", t("active"), PDT_ENUM, 'yes', array('yes' => t('Yes'), 'no' => t('No')));
 		$this->db_struct->add_field("confirm_key", t("confirm_key"), PDT_STRING);
