@@ -1960,9 +1960,8 @@ class Core
 
 			$original_css_files = $this->css_files;
 			foreach ($this->css_files AS $file) {
-
 				//Get just the filename without get params
-				$file = preg_replace("/\?.+$/", "", $file);
+				$file = preg_replace("/\?.+$/", "", $file['file']);
 
 				//Get the current absolute filepath to the javascript file
 				$file_path = SITEPATH . $file;
@@ -2018,15 +2017,15 @@ class Core
 				foreach ($original_css_files AS $file) {
 					$search_replace = array();
 
-					if (!file_exists(SITEPATH . $file)) {
+					if (!file_exists(SITEPATH . $file['file'])) {
 						continue;
 					}
 
-					$src = file_get_contents(SITEPATH . $file);
+					$src = file_get_contents(SITEPATH . $file['file']);
 					preg_match_all('~\bbackground(-image)?\s*:(.*?)url\(\s*(\'|")?(?<image>.*?)\3?\s*\)~i', $src, $matches);
 
 					if (!empty($matches['image'])) {
-						$path = dirname($file);
+						$path = dirname($file['file']);
 						foreach ($matches['image'] AS $image_url) {
 							$search_replace[$image_url] = str_replace('//', '/', $path . '/' . $image_url);
 						}
