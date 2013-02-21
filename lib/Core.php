@@ -1990,6 +1990,8 @@ class Core
 					$scope_latest_modified_file = $modified_time;
 				}
 			}
+			
+			$this->css_files = array();
 
 			//Get the md5 sum of the file loads
 			$md5_check = md5($md5_check);
@@ -2006,11 +2008,11 @@ class Core
 
 				//If the modified file times equals the cached file is up to date, so we can skip this scope
 				if ($scope_latest_modified_file == $cache_last_modified) {
-					$this->css_files = array($cache_file_path . '?' . $cache_last_modified);
+					$this->add_css($cache_file_path . '?' . $cache_last_modified, true);
 					$cache_css_file = false;
 				}
 			}
-
+			
 			if ($cache_css_file == true) {
 				//At this point we need to generate the cache file
 
@@ -2034,7 +2036,6 @@ class Core
 							$src = preg_replace("/\((\"|')?" . preg_quote($s, "/") . "(\"|')?\)/", "(\$1" . $r . "\$2)", $src);
 						}
 					}
-
 					$yui->add_string($src);
 				}
 
@@ -2055,7 +2056,7 @@ class Core
 				touch(SITEPATH . $cache_file_path, $scope_latest_modified_file);
 
 				//set the cache file to be loaded instead of the original not compressed one.
-				$this->css_files = array($cache_file_path . '?' . $scope_latest_modified_file);
+				$this->add_css($cache_file_path . '?' . $scope_latest_modified_file, true);
 			}
 		}
 
