@@ -1384,6 +1384,7 @@ class User extends ActionModul
 	public function logout() {
 		//logout current user
 		$this->session->logout();
+		$this->core->location('/');
 	}
 
 	/**
