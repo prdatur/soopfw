@@ -264,7 +264,19 @@ class Translation extends ActionModul
 
 		if ($form->is_submitted() && $form->is_valid()) {
 			$values = $form->get_values();
-			$result = array();
+			$result = array(
+				'msgid ""',
+'msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"',
+'',
+			);
 			$orig_module = $values['module'];
 
 			// If module == 'all' clear the module to prevent build_language behaviour.
