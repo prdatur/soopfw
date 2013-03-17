@@ -577,9 +577,12 @@ $.widget( "ui.tabs", {
 		}
 
 		if ( toShow.length ) {
-			this.load( this.tabs.index( tab ), event );
+			this.load( this.tabs.index( tab ), event, eventData);
 		}
-		this._toggle( event, eventData );
+		else {
+			this._toggle( event, eventData );
+		}
+	
 	},
 
 	// handles show/hide for selecting tabs
@@ -589,7 +592,7 @@ $.widget( "ui.tabs", {
 			toHide = eventData.oldPanel;
 
 		this.running = true;
-
+		
 		function complete() {
 			that.running = false;
 			that._trigger( "activate", event, eventData );
@@ -779,7 +782,7 @@ $.widget( "ui.tabs", {
 		this._setupDisabled( disabled );
 	},
 
-	load: function( index, event ) {
+	load: function( index, event, eventDataOriginal ) {
 
 		if (Soopfw.tab_bindings[this.current_tab] !== undefined) {
 			// Unbind all current events for this tab before loading new one.
@@ -804,6 +807,7 @@ $.widget( "ui.tabs", {
 
 		// not remote
 		if ( isLocal( anchor[ 0 ] ) ) {
+			this._toggle( event, eventDataOriginal );
 			return;
 		}
 
@@ -815,7 +819,11 @@ $.widget( "ui.tabs", {
 		if ( this.xhr && this.xhr.statusText !== "canceled" ) {
 			tab.addClass( "ui-tabs-loading" );
 			panel.attr( "aria-busy", "true" );
-
+			var wait_dialog_timeout = setTimeout(function() {
+				if (eventDataOriginal !==undefined) {
+					wait_dialog(Soopfw.t("Loading page..."));
+				}
+			}, 300 );
 			this.xhr
 				.success(function( response ) {
 			
@@ -848,6 +856,11 @@ $.widget( "ui.tabs", {
 							delete that.xhr;
 						}
 					}, 1 );
+					$.alerts._hide();
+					clearTimeout(wait_dialog_timeout);
+					if (eventDataOriginal !== undefined) {
+						that._toggle( event, eventDataOriginal );
+					}
 				});
 		}
 	},

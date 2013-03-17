@@ -596,10 +596,6 @@ $(document).ready(function() {
 				$("#"+row.id).tabs({
 					show: fx,
 					hide: fx,
-					before_load: function(ui) {
-						//$(ui.panel).html("");
-						//Soopfw.ajax_loader(ui.panel,"tabs");
-					}
 				});
 			}
 		}
