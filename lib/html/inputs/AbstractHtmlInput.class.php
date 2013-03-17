@@ -394,6 +394,7 @@ abstract class AbstractHtmlInput extends Object
 
 			//Append the required-star if present
 			if (!empty($required)) {
+				
 				return $this->config[$k].$required;
 			}
 
@@ -659,16 +660,23 @@ abstract class AbstractHtmlInput extends Object
 			$err = t("The field \"@field\" is required.", array("@field" => $this->config("label_error")));
 			$validator->set_error($err);
 		}
+		else if ($validator instanceof PasswordValidator) {
+			$err = t("The password for field \"@field\" is not correct.", array("@field" => $this->config("label_error")));
+			$validator->set_error($err);
+		}
 		else if ($validator instanceof LengthValidator) {
 			//Get the minimum and maximum length option to provide it within the error message
 			$options = $validator->get_options();
-			if (!isset($options['min'])) {
-				$options['min'] = 0;
+			if (isset($options['max']) && !isset($options['min'])) {
+				$validator->set_error(t("The field \"@field\" must have a maximum of @max chars.", array("@field" => $this->config("label_error"), '@max' => $options['max'])));
 			}
-			if (!isset($options['max'])) {
-				$options['max'] = strlen($validator->get_value());
+			else if (isset($options['min']) && !isset($options['max'])) {
+				$validator->set_error(t("The field \"@field\" must have a minimum of @min.", array("@field" => $this->config("label_error"), '@min' => $options['min'])));
 			}
-			$validator->set_error(t("The field \"@field\" must have a minimum of @min and a maximum of @max chars.", array("@field" => $this->config("label_error"), '@min' => $options['min'], '@max' => $options['max'])));
+			else {
+				$validator->set_error(t("The field \"@field\" must have a minimum of @min and a maximum of @max chars.", array("@field" => $this->config("label_error"), '@min' => $options['min'], '@max' => $options['max'])));
+			}
+			
 		}
 		else if ($validator instanceof IsNumberValidator) {
 			$validator->set_error(t("The field \"@field\" contains illegal characters, only numbers allowed.", array("@field" => $this->config("label_error"))));

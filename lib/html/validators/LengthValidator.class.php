@@ -26,15 +26,16 @@ class LengthValidator extends AbstractHtmlValidator
 			return true;
 		}
 		$options = $this->get_options();
+		$val = $this->get_value();
 		if (!isset($options['min'])) {
 			$options['min'] = 0;
 		}
 		if (!isset($options['max'])) {
-			$options['max'] = strlen($this->get_value());
+			$options['max'] = strlen($val);
 		}
-		if (strlen($this->get_value()) >= $options['min'] && strlen($this->get_value()) <= $options['max']) {
+		if (empty($val) || (strlen($val) >= $options['min'] && strlen($val) <= $options['max'])) {
 			return true;
-		}
+		} 
 		return false;
 	}
 
