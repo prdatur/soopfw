@@ -132,7 +132,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
-		$this->assert_equals('content type added', $this->content['desc'], t('Check if content was successfully added'));
+		$this->assert_equals('Content type added', $this->content['desc'], t('Check if content was successfully added'));
 	}
 
 	/**
@@ -147,7 +147,7 @@ class ContentTest extends WebUnitTest implements UnitTestInterface
 			'form_content_types_submit' => $this->csrf_token,
 		));
 
-		$this->assert_equals('content type changed', $this->content['desc'], t('Check if content was successfully saved'));
+		$this->assert_equals('Content type changed', $this->content['desc'], t('Check if content was successfully saved'));
 	}
 
 	/**
@@ -212,7 +212,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 			'max_value' => 1,
 			'required' => 'no',
 		));
-		$this->assert_equals('field added', $this->content['desc'], t('Check if field was added'));
+		$this->assert_equals('Field added', $this->content['desc'], t('Check if field was added'));
 		$this->assert_equals($this->content['data'], array(
 			'content_type' => 'webtest_content_type',
 			'config' => '',
@@ -267,7 +267,7 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 			'required' => 'no',
 			'max_value' => '1',
 		));
-		$this->assert_equals('field changed', $this->content['desc'], t('Check if field was saved'));
+		$this->assert_equals('Field changed', $this->content['desc'], t('Check if field was saved'));
 
 		// Check again all default fields with changed field "webtest_field_group_text".
 		$this->do_get('/admin/content/manage_content_type_fields/' . $this->content_type);
@@ -473,7 +473,8 @@ The field "required" is required.', $this->content['desc'], t('Check for valid m
 		$this->do_post('/admin/content/create/webtest_content_type', array(
 			'create_content_form_submit' => $this->csrf_token,
 		));
-		$this->assert_web_regexp('/The field "title" is required./', t('Check if title is required'));
+		
+		$this->assert_web_regexp('/The field "Title" is required./', t('Check if title is required'));
 		$this->do_post('/admin/content/create/webtest_content_type', $this->post_values);
 		$this->assert_web_regexp('/<li>Page created<\/li>/', t('Check if page was created'));
 

@@ -168,6 +168,7 @@ The field \"title\" is required.", t('Check if menu id is required'));
 		$this->assert_ajax_description('The field "Language" is required.
 The field "title" is required.
 The field "destination" is required.
+The field "_blank" is required.
 The field "active" is required.', t('Check for missing create menu entry params'));
 
 		// Check if menu is created.
@@ -176,6 +177,7 @@ The field "active" is required.', t('Check for missing create menu entry params'
 			'title' => 'Menu entry 1',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 		$this->assert_ajax_code(AjaxModul::SUCCESS, t('Check if create menu entry result code is success'));
@@ -213,6 +215,7 @@ The field "active" is required.', t('Check for missing create menu entry params'
 		$this->assert_ajax_description('The field "Language" is required.
 The field "title" is required.
 The field "destination" is required.
+The field "_blank" is required.
 The field "active" is required.', t('Check for missing param error messages: menu entry change'));
 
 		// Check if menu entry is created.
@@ -221,6 +224,7 @@ The field "active" is required.', t('Check for missing param error messages: men
 			'title' => 'Menu entry 1 changed',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 		$this->assert_ajax_code(AjaxModul::SUCCESS, t('Check if change menu entry result code is success'));
@@ -238,6 +242,7 @@ The field "active" is required.', t('Check for missing param error messages: men
 			'title' => 'Menu entry 1 delete',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 		$this->assert_ajax_code(AjaxModul::SUCCESS, t('Check if create menu entry result code is success'));
@@ -260,6 +265,7 @@ The field "active" is required.', t('Check for missing param error messages: men
 			'title' => 'Not translated',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 		$entry_id = $this->content['data']['entry_id'];
@@ -271,6 +277,7 @@ The field "active" is required.', t('Check for missing param error messages: men
 			'title' => 'is translated',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 
@@ -282,6 +289,7 @@ The field "active" is required.', t('Check for missing param error messages: men
 			'title' => 'is translated',
 			'destination' => '/',
 			'active' => 'yes',
+			'blank' => 'yes',
 			'form_menu_entry_translation_submit' => $this->csrf_token,
 		));
 
