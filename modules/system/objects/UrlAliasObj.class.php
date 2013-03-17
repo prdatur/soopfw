@@ -133,7 +133,7 @@ class UrlAliasObj extends AbstractDataManagement
 		$alias_url_check = $alias;
 
 		//Remove ending file-endings if it is a regular file ending (just the most used one) and also removes the starting /
-		if (preg_match('/^\/?(.*)\.(html|ajaxhtml|ajax|htm|direct)$/is', $alias_url_check, $matches)) {
+		if (preg_match('/^\/?(.*)\.(html|ajax_html|ajax|htm|direct)$/is', $alias_url_check, $matches)) {
 			$alias_url_check = $matches[1];
 		}
 
