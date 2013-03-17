@@ -334,7 +334,10 @@ class WebAction extends Object
 			if ($method->getNumberOfRequiredParameters() > count($this->action_params['action_params'])) {
 				throw new SoopfwWrongParameterException();
 			}
-
+			
+			foreach ($this->action_params['action_params'] AS &$act_params) {
+				$act_params = urldecode($act_params);
+			}
 			//Call the wanted module action
 			call_user_func_array(array($this->current_action_module, $action), $this->action_params['action_params']);
 
