@@ -74,6 +74,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 */
 	public function set($key, $value, $expiration = 0) {
 		parent::set($key, $value, $expiration);
+		$key = urlencode($key);
 		return @$this->client->set($key, $value, $expiration);
 	}
 
@@ -88,6 +89,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @return boolean true on success, else false.
 	 */
 	public function increment($key, $offset = 1) {
+		$key = urlencode($key);
 		return @$this->client->increment($key, $offset);
 	}
 
@@ -102,6 +104,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @return boolean true on success, else false.
 	 */
 	public function decrement($key, $offset = 1) {
+		$key = urlencode($key);
 		return @$this->client->decrement($key, $offset);
 	}
 
@@ -114,7 +117,8 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @return mixed Returns the value of the item or false on error
 	 */
 	public function get($key, $cache_db = null, &$cas_token = '') {
-		return @$this->client->get($key, $cache_cb, $cas_token);
+		$key = urlencode($key);
+		return @$this->client->get($key, $cache_db, $cas_token);
 	}
 
 	/**
@@ -135,6 +139,9 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 * @return array Returns the array of found items or false on error
 	 */
 	public function get_multi(array $keys) {
+		foreach ($keys AS &$key) {
+			$key = urlencode($key);
+		}
 		return @$this->client->getMulti($keys);
 	}
 
@@ -150,7 +157,10 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 */
 	public function set_multi(array $values, $expiration = 0) {
 		parent::set_multi($values, $expiration);
-		return @$this->client->setMulti($items, $expiration);
+		foreach ($keys AS &$key) {
+			$key = urlencode($key);
+		}
+		return @$this->client->setMulti($values, $expiration);
 	}
 
 	/**
@@ -165,6 +175,7 @@ class MemcachedEngine extends CacheProvider implements CacheProviderInterface
 	 */
 	public function delete($key) {
 		parent::delete($key);
+		$key = urlencode($key);
 		return @$this->client->delete($key);
 	}
 

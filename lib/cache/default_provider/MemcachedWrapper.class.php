@@ -96,6 +96,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 */
 	public function set($key, $value, $expiration = 0) {
 		parent::set($key, $value, $expiration);
+		$key = urlencode($key);
 		$this->last_result_code = @$this->client->replace($this->prefix_key . $key, $value, $this->compress, $expiration);
 		if ($this->last_result_code == false) {
 			$this->last_result_code = @$this->client->set($this->prefix_key . $key, $value, $this->compress, $expiration);
@@ -114,6 +115,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 * @return boolean true on success, else false.
 	 */
 	public function increment($key, $offset = 1) {
+		$key = urlencode($key);
 		return @$this->client->increment($key, $offset);
 	}
 
@@ -128,6 +130,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 * @return boolean true on success, else false.
 	 */
 	public function decrement($key, $offset = 1) {
+		$key = urlencode($key);
 		return @$this->client->decrement($key, $offset);
 	}
 
@@ -140,6 +143,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 * @return mixed Returns the value of the item or false on error
 	 */
 	public function get($key, $cache_db = null, &$cas_token = '') {
+		$key = urlencode($key);
 		return @$this->client->get($this->prefix_key . $key);
 	}
 
@@ -165,6 +169,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 */
 	public function get_multi(array $keys) {
 		foreach ($keys AS &$v) {
+			$v = urlencode($v);
 			$v = $this->prefix_key . $v;
 		}
 		return @$this->client->get($keys);
@@ -183,6 +188,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	public function set_multi(array $items, $expiration = 0) {
 		parent::set_multi($values, $expiration);
 		foreach ($items AS $key => $value) {
+			$key = urlencode($key);
 			if ($this->set($key, $value) != true) {
 				return false;
 			}
@@ -202,6 +208,7 @@ class MemcachedWrapper extends CacheProvider implements CacheProviderInterface
 	 */
 	public function delete($key, $time = 0) {
 		parent::delete($key);
+		$key = urlencode($key);
 		return @$this->client->delete($this->prefix_key . $key, $time);
 	}
 
