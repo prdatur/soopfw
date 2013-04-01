@@ -26,7 +26,7 @@ class Label extends AbstractHtmlInput
 		$this->config("label", "");
 		$returnArr = parent::getTplVars();
 		unset($returnArr['value']);
-		$returnArr['value|clear'] = $this->config("value");
+		$returnArr['value|clear'] = htmlspecialchars($this->config("value"));
 		return $returnArr;
 	}
 }

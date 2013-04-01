@@ -49,7 +49,7 @@ class Submitbutton extends AbstractHtmlInput
 	 */
 	public function get_tpl_vars() {
 		$conf = parent::get_tpl_vars();
-		$conf['value_button|clear'] = $this->config("value");
+		$conf['value_button|clear'] = htmlspecialchars($this->config("value"));
 		return $conf;
 	}
 

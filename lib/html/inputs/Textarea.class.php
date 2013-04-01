@@ -26,7 +26,7 @@ class Textarea extends AbstractHtmlInput
 		$return_arr = parent::get_tpl_vars();
 		unset($return_arr['value']);
 		//We want the value to be cleared so we have not the "value=" tag within the textarea value
-		$return_arr['value|clear'] = $this->config("value");
+		$return_arr['value|clear'] = htmlspecialchars($this->config("value"));
 		return $return_arr;
 	}
 

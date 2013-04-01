@@ -124,7 +124,7 @@ class Checkbox extends AbstractHtmlInput
 
 		//If label is not empty we provide the label information
 		if (!empty($this->label)) {
-			$conf['label_own|clear'] = $this->label;
+			$conf['label_own|clear'] = htmlspecialchars($this->label);
 			$conf['clearId|clear'] = $this->config("id");
 		}
 		

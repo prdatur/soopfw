@@ -32,6 +32,7 @@ class DefaultWebAction extends ActionModul
 		if (!file_exists($template)) {
 			throw new SoopfwErrorException(t('Frontpage can not be determined'));
 		}
+		$this->smarty->assign('is_front', 1);
 		$this->static_tpl = $template;
 	}
 }
