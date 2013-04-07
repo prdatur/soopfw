@@ -514,8 +514,8 @@ class DatabaseFilter extends Object
 	/**
 	 * Joins a table
 	 *
-	 * @param string $table
-	 *   the table
+	 * @param string|DatabaseFilter $table
+	 *   the table or a database filter
 	 * @param string $on
 	 *   the on statement
 	 * @param string $alias
@@ -524,7 +524,13 @@ class DatabaseFilter extends Object
 	 * @return DatabaseFilter Self returning
 	 */
 	public function &left_join($table, $on, $alias = '') {
-		$table = "`" . Db::safe($table) . "`";
+		if ($table instanceof DatabaseFilter) {
+			$table = '(' . $table->get_select_sql() . ')';
+		}
+		else {
+			$table = "`" . Db::safe($table) . "`";
+		}
+		
 		if (!empty($alias)) {
 			$table .= ' AS ' . Db::safe($alias);
 		}
