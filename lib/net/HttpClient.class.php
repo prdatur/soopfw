@@ -131,8 +131,13 @@ class HttpClient extends Object {
 	 *   The header key.
 	 * @param string $value
 	 *   The header value.
+	 * @param boolean $urlencode
+	 *   If set to true the value will be url encoded. (optional, default = false)
 	 */
-	public function add_header($key, $value) {
+	public function add_header($key, $value, $urlencode = false) {
+		if ($urlencode) {
+			$value = urlencode($value);
+		}
 		$this->header_data[$key] = $value;
 	}
 
