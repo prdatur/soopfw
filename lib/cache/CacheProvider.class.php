@@ -74,7 +74,7 @@ abstract class CacheProvider extends Object
 	 * @param int $expiration
 	 *   The expiration time, defaults to 0. See Expiration Times for more info.  (optional, default = 0)
 	 */
-	public function set_multi($values, $expiration = 0) {
+	public function set_multi(array $values, $expiration = 0) {
 
 	}
 
