@@ -1,10 +1,11 @@
 var used_uuids = {};
 var Soopfw = {
 
-}
+};
 var soopfw_ajax_queue = {};
 $.extend(Soopfw, {
 	behaviors: [],
+	system_prio_behaviors: [],
 	prio_behaviors: [],
 	tab_behaviors: {},
 	late_behaviors: [],
@@ -22,7 +23,7 @@ $.extend(Soopfw, {
 	/**
 	 * Add a tab 
 	 * 
-	 * @param string
+	 * @param {string} tab
 	 *   The tab id.
 	 */
 	add_tab: function(tab) {
@@ -34,6 +35,9 @@ $.extend(Soopfw, {
 	
 	/**
 	 * Add tab behaviors, it will use the current tab as the id.
+	 * 
+	 * @param {function} func 
+	 *   The callback function.
 	 */
 	add_tab_behaviors: function(func) {
 		if (empty(Soopfw.current_tab)) {
@@ -50,9 +54,9 @@ $.extend(Soopfw, {
 	/**
 	 * Opens a chooser dialog where just the buttons appear to execute a user defined action
 	 *
-	 * @param string $title
+	 * @param {string} $title
 	 *   the title
-	 * @param array $buttons
+	 * @param {array} $buttons
 	 *   the buttons
 	 */
 	chooser_dialog: function($title, $buttons) {
@@ -62,7 +66,7 @@ $.extend(Soopfw, {
 			$buttons[k] = function() {
 				v();
 				$(html).dialog("destroy");
-			}
+			};
 		});
 		$(html).dialog({
 			dialogClass: 'chooser_dialog',
@@ -78,7 +82,7 @@ $.extend(Soopfw, {
 	/**
 	 * Returns the size of the provided object.
 	 * 
-	 * @param object obj
+	 * @param {object} obj
 	 *   The object to be counted.
 	 *   
 	 * @return int The object size.
@@ -97,6 +101,14 @@ $.extend(Soopfw, {
 	 */
 	reload_behaviors: function() {
 		//Priority behaviours will be loaded first
+		for(var behavior_a in Soopfw.system_prio_behaviors) {
+			if(Soopfw.system_prio_behaviors.hasOwnProperty(behavior_a)) {
+				if(jQuery.isFunction(Soopfw.system_prio_behaviors[behavior_a])) {
+					Soopfw.system_prio_behaviors[behavior_a]();
+				}
+			}
+		}
+		//Priority behaviours will be loaded first
 		for(var behavior_x in Soopfw.prio_behaviors) {
 			if(Soopfw.prio_behaviors.hasOwnProperty(behavior_x)) {
 				if(jQuery.isFunction(Soopfw.prio_behaviors[behavior_x])) {
@@ -111,13 +123,12 @@ $.extend(Soopfw, {
 				}
 			}
 		}
-		
 		foreach (Soopfw.tab_behaviors[Soopfw.current_tab], function(k, behavior) {
 			if(jQuery.isFunction(behavior)) {
 				behavior();
 			}
 		});
-		
+	
 		for(var behavior_y in Soopfw.late_behaviors) {
 			if(Soopfw.late_behaviors.hasOwnProperty(behavior_y)) {
 				if(jQuery.isFunction(Soopfw.late_behaviors[behavior_y])) {
@@ -131,22 +142,22 @@ $.extend(Soopfw, {
 	/**
 	 * MUST BE IMPLEMENTED
 	 * Makes a table sortable (desc asc)
-	 * @param Object table the jquery table object
+	 * @param {Object} table the jquery table object
 	 */
 	table_sort: function (table) {
 
 		$(table).find("thead > tr > td").each(function() {
 
-		})
+		});
 
 	},
 
 	/**
 	 * Translation function, key as an english text, args as an object {search => replace}.
 	 * 
-	 * @param string key
+	 * @param {string} key
 	 *   The english key (text).
-	 * @param object args
+	 * @param {object} args
 	 *   The arguments which will be replaced within the text.
 	 */
 	t: function(key, args) {
@@ -159,7 +170,7 @@ $.extend(Soopfw, {
 			translation = key;
 		}
 		
-		if(args != undefined) {
+		if(args !== undefined) {
 			foreach(args, function(k, v) {
 				translation = str_replace(k, v, translation);
 			});
@@ -170,7 +181,7 @@ $.extend(Soopfw, {
 	/**
 	 * Init a ajax queue with given identifier.
 	 * 
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
 	 */
 	ajax_queue_init: function(identifier) {
@@ -181,9 +192,9 @@ $.extend(Soopfw, {
 	 * Adds to the given identifier queue an ajax call with the ajax options see Jquery ajax options for a complete list
 	 * of ajax_options.
 	 * 
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
-	 * @param object ajax_options
+	 * @param {object} ajax_options
 	 */
 	ajax_queue: function(identifier, ajax_options) {
 		soopfw_ajax_queue[identifier].push(ajax_options);
@@ -192,7 +203,7 @@ $.extend(Soopfw, {
 	/**
 	 * Start the queue.
 	 * 
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
 	 */
 	ajax_queue_start: function(identifier) {
@@ -203,22 +214,22 @@ $.extend(Soopfw, {
 	 * Should not be called directly, will process the queue and on complete it will fetch next
 	 * queue item and process until queue is empty
 	 *
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
 	 */
 	ajax_queue_worker: function(identifier) {
 		if(!empty(soopfw_ajax_queue[identifier])) {
 			var o = soopfw_ajax_queue[identifier].shift();
-			if(o == undefined) {
+			if(o === undefined) {
 				return;
 			}
 			var old_complete = o.complete;
 			o.complete = function() {
-				if(old_complete != undefined) {
+				if(old_complete !== undefined) {
 					old_complete();
 				}
 				Soopfw.ajax_queue_worker(identifier);
-			}
+			};
 			$.ajax(o);
 		}
 	},
@@ -226,13 +237,13 @@ $.extend(Soopfw, {
 	/**
 	 * Append a progress bar to append_element.
 	 * 
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
-	 * @param int max_value
+	 * @param {int} max_value
 	 *   the max value.
-	 * @param string init_text
+	 * @param {string} init_text
 	 *   The text which will be displayed while first run is active.
-	 * @param mixed append_element
+	 * @param {mixed} append_element
 	 *   Can be an jquery string or element object.
 	 */
 	progress: function(identifier, max_value, init_text, append_element) {
@@ -255,11 +266,11 @@ $.extend(Soopfw, {
 	/**
 	 * Updates the progressbar.
 	 * 
-	 * @param string identifier
+	 * @param {string} identifier
 	 *   The progress identifier.
-	 * @param string init_text 
+	 * @param {string} init_text 
 	 *   the Text to be written.
-	 * @param int percent_override 
+	 * @param {int} percent_override 
 	 *   Normaly it will self calculate the percent, but on finish it is usefull to override it to 100.
 	 */
 	progress_update: function(identifier, init_text, percent_override) {
@@ -282,13 +293,13 @@ $.extend(Soopfw, {
 	/**
 	 * Append an ajax load to the given div.
 	 *
-	 * @param mixed div 
+	 * @param {mixed} div 
 	 *   Can be an jquery string or element object.
-	 * @param string id 
+	 * @param {string} id 
 	 *   an unique identifier for this ajax_loader.
 	 */
 	ajax_loader: function(div, id) {
-		if(document.getElementById("ajax_loader_"+id) != undefined) {
+		if(document.getElementById("ajax_loader_"+id) !== undefined) {
 			$("#ajax_loader_"+id).remove();
 			return;
 		}
@@ -304,21 +315,23 @@ $.extend(Soopfw, {
 	 * Call an ajax_html ajax request to the given module, action with args and display the output html in a dialog
 	 * After successfull load the ajax behaviours will be reloaded.
 	 *
-	 * @param string title 
+	 * @param {string} title 
 	 *   the title of the dialog.
-	 * @param string module 
+	 * @param {string} module 
 	 *   The module.
-	 * @param string action
+	 * @param {string} action
 	 *   the action to be called.
-	 * @param array args 
+	 * @param {array} args 
 	 *   The arguments for the action.
-	 * @param array get_params 
+	 * @param {object} options 
+	 *   Options which are used for the dialog.
+	 * @param {array} get_params 
 	 *   An array with get params.
 	 *   
 	 * @return string the created dialog id.
 	 */
 	default_action_dialog: function(title, module, action, args, options, get_params) {
-		if(args != undefined && args != null) {
+		if(args !== undefined && args !== null) {
 			args = '/'+implode('/', args);
 		}
 		else {
@@ -336,7 +349,7 @@ $.extend(Soopfw, {
 
 
 		var id = module;
-		if(action != undefined && action !== true) {
+		if(action !== undefined && action !== true) {
 			id += action;
 			action = '/'+action;
 		}
@@ -367,7 +380,7 @@ $.extend(Soopfw, {
 		}, options);
 
 		var matches = window.location.pathname.match(/^\/admin\/.*/g);
-		if(matches != null && matches.length > 0) {
+		if(matches !== null && matches.length > 0) {
 			url = '/admin' + url;
 		}
 		id = 'jquery_dialog_' + id;
@@ -381,7 +394,7 @@ $.extend(Soopfw, {
 			success: function(result) {
 
 				var matches = result.match(/<title>(.*)<\/title>/g);
-				if(matches != null && matches.length > 0) {
+				if(matches !== null && matches.length > 0) {
 					matches = matches[0].replace("<title>","").replace("</title>","");
 					if(!empty(matches)) {
 						options['title'] = matches;
@@ -399,13 +412,13 @@ $.extend(Soopfw, {
 	/**
 	 * Creates a unique random uuid.
 	 * 
-	 * @param int length
+	 * @param {int} length
 	 *   The length of the string.
 	 *   
 	 * @return string The uuid.
 	 */
 	uuid: function(length) {
-		if(length == undefined) {
+		if(length === undefined) {
 			length = 32;
 		}
 		return randomID(length);
@@ -422,45 +435,26 @@ $.extend(Soopfw, {
 			Soopfw.location(url);
 		}
 	},
+	
+	reload: function() {
+		document.location.reload();
+	},
 
 	/**
 	 * Points the browser to the given url.
+	 * 
+	 * @param {string} url
+	 *   The url
 	 */
 	location: function(url) {
 		document.location.href = url;
 	}
 });
 
-// Create a private scope.
-(function( $, on ){
-	// We are going to be overriding the core on() method in the
-	// jQuery library. But, we do want to have access to the core
-	// version of the on() method for binding. Let's get a reference
-	// to it for later use.
-	var coreOnMethod = $.fn.on;
-	
-	$.fn.on = function( types, selector, data, fn, /*INTERNAL*/ one ){	
-		
-		// Store the current binding in all present tabs.
-		var that = this;
-		foreach (Soopfw.tab_bindings, function(k, v) {
-			if (Soopfw.tab_bindings[k][types] === undefined) {
-				Soopfw.tab_bindings[k][types] = [];
-			}
-			Soopfw.tab_bindings[k][types].push(that);
-		});
-		// Bind the wrapper as the event handler using the core,
-		// underlying on() method.
-		return(coreOnMethod.call( this, types, selector, data, fn, one ));
-
-	};
-
-})( jQuery );
-
 Soopfw.system_footer_behaviour = function() {
 	$(".disabledSelection :not(.enabledSelection)").disableSelection();
 	var lang = Soopfw.config.current_language;
-	if (lang == 'en') {
+	if (lang === 'en') {
 		lang = 'en-GB';
 	}
 
@@ -493,7 +487,7 @@ Soopfw.system_footer_behaviour = function() {
 		if (!empty(src)) {
 			options['tagSource'] = src;
 		}
-		else if (Soopfw.config['taginput_source_' + $(this).attr('source_id')] != undefined) {
+		else if (Soopfw.config['taginput_source_' + $(this).attr('source_id')] !== undefined) {
 			options['tagSource'] = Soopfw.config['taginput_source_' + $(this).attr('source_id')];
 		}
 
@@ -511,10 +505,10 @@ Soopfw.system_footer_behaviour = function() {
 
 function process_form_buttons() {
 	$('.form_button:not(.soopfw-proccessed),.button:not(.soopfw-proccessed)').each(function() {
-		var options = {}
+		var options = {};
 		var class_array = $(this).prop("class").split(" ");
 		var icons = 0;
-		if($(this).attr("text") == "false") {
+		if($(this).attr("text") === "false") {
 			options['text'] = false;
 		}
 		for(var i in class_array) {
@@ -522,18 +516,18 @@ function process_form_buttons() {
 				continue;
 			}
 
-			if(class_array[i].substr(0, 8) == "ui-icon-") {
-				if(icons == 0) {
+			if(class_array[i].substr(0, 8) === "ui-icon-") {
+				if(icons === 0) {
 					options['icons'] = {
 						'primary': class_array[i]
 					};
 				}
-				else if(icons == 1) {
+				else if(icons === 1) {
 					options['icons']['secondary'] = class_array[i];
 				}
 				$(this).removeClass(class_array[i]);
 				icons++;
-				if(icons == 2) {
+				if(icons === 2) {
 					break;
 				}
 			}
@@ -561,7 +555,7 @@ function randomID(size)
 	{
 		str += getRandomChar();
 	}
-	while(used_uuids[str] != undefined) {
+	while(used_uuids[str] !== undefined) {
 		str = "";
 		for(var x = 0; x < size; x++)
 		{
@@ -582,7 +576,7 @@ $(document).ready(function() {
 	});
 
 	Soopfw.behaviors.system_setup_tabs = function() {
-		if(Soopfw.config.load_tabs != undefined) {
+		if(Soopfw.config.load_tabs !== undefined) {
 			for(var i = 0; i < Soopfw.config.load_tabs.length; i++) {
 				var row = Soopfw.config.load_tabs[i];
 				if(!empty(tabs_loaded[row.id])) {
@@ -595,7 +589,7 @@ $(document).ready(function() {
 				tabs_loaded[row.id] = true;
 				$("#"+row.id).tabs({
 					show: fx,
-					hide: fx,
+					hide: fx
 				});
 			}
 		}
@@ -606,12 +600,12 @@ $(document).ready(function() {
 			foreach (Soopfw.config.core_message_timeout, function(message_id, timeout) {
 				window.setTimeout(function() {
 					var message_elm = $('*[data-core-message-mid="' + message_id + '"]');
-					if (!empty(message_elm)) {
+					if (message_elm.length !== 0) {
 						var timeout_elm = message_elm;
 						var message_container = message_elm.parents('*[data-core-message-container]');
 						if ($('*[data-core-message-mid]', message_container).length <= 1) {
 							timeout_elm = message_container.parents('*[data-core-message-timeout-handler]');
-
+							
 						}
 						$(timeout_elm).fadeOut(400, function() { $(this).remove(); });
 					}
@@ -634,8 +628,8 @@ $(document).ready(function() {
 					success: function(result) {
 
 						var form_name =  $(_form).attr('id');
-						if($(_form).attr('ajax_return_type') == 'html') {
-							if (Soopfw.config['system_ajax_form_return_type_handler'] != undefined && Soopfw.config['system_ajax_form_return_type_handler'][form_name] != undefined) {
+						if($(_form).attr('ajax_return_type') === 'html') {
+							if (Soopfw.config['system_ajax_form_return_type_handler'] !== undefined && Soopfw.config['system_ajax_form_return_type_handler'][form_name] !== undefined) {
 								var function_name = Soopfw.config['system_ajax_form_return_type_handler'][form_name];
 								if(/^[a-zA-Z0-9_.]+$/g.test(function_name)) {
 									eval(function_name + "(result);");
@@ -646,7 +640,7 @@ $(document).ready(function() {
 
 						parse_ajax_result(result, function(result,code,desc) {
 							success_alert('Data successfully saved\n'+desc, function() {
-								if(Soopfw.config['js_function_callback_' + form_name] != undefined) {
+								if(Soopfw.config['js_function_callback_' + form_name] !== undefined) {
 									for(var i in Soopfw.config['js_function_callback_' + form_name]) {
 										if(!Soopfw.config['js_function_callback_' + form_name].hasOwnProperty(i)) {
 											continue;

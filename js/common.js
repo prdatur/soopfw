@@ -7,7 +7,90 @@ jQuery.fn.eachClick = function(callFunction) {
 			callFunction(this, event);
 		});
 	});
-}
+};
+
+function soopfw_extend(original, new_elements) {
+	if (original === undefined) {
+		return {};
+	}
+
+	if (new_elements === undefined) {
+		return original;
+	}
+
+	foreach (new_elements, function(k, v) {
+		if (v === undefined) {
+			return;
+		}
+		if (v === null) {
+			original[k] = v;
+		} 
+		else if (typeof v === 'object' || typeof v === 'array') {
+			if (original[k] === undefined) {
+				if (typeof v === 'array') {
+					original[k] = {};
+				}
+				else {
+					original[k] = [];
+				}
+			}
+			original[k] = soopfw_extend(original[k], v);
+		}
+		else {
+			original[k] = v;
+		}
+	});
+	return original;
+};
+
+/**
+ * JQuery :data selector.
+ */
+(function(){
+
+	// original one.
+    //var matcher = /\s*(?:((?:(?:\\\.|[^.,])+\.?)+)\s*([!~><=]=|[><])\s*("|')?((?:\\\3|.)*?)\3|(.+?))\s*(?:,|$)/g;
+    var matcher = /\s*([a-zA-Z][a-zA-Z0-9_-]+)([=<>!]=?)([A-Z0-9a-z_-]+)(,\s*|$)/g;
+
+    function resolve(element, data) {
+        data = data.match(/(?:\\\.|[^.])+(?=\.|$)/g);
+        var cur = $(element).data(data.shift());
+
+        while (cur && data[0]) {
+            cur = cur[data.shift()];
+        }
+	
+		if (cur === 0) {
+			return 0;
+		}
+        return cur || undefined;
+    }
+
+    jQuery.expr[':'].data = function(el, i, match) {
+
+        matcher.lastIndex = 0;
+
+        var expr = match[3], m, check, val, allMatch = null, foundMatch = false;
+        while (m = matcher.exec(expr)) {
+
+            check = m[3];
+            val = $(el).data(m[1]);
+			
+            switch (m[2]) {
+                case '==': foundMatch = val == check; break;
+                case '!=': foundMatch = val != check; break;
+                case '<=': foundMatch = val <= check; break;
+                case '>=': foundMatch = val >= check; break;
+                case '~=': foundMatch = RegExp(check).test(val); break;
+                case '>': foundMatch = val > check; break;
+                case '<': foundMatch = val < check; break;
+            }
+            allMatch = allMatch === null ? foundMatch : allMatch && foundMatch;
+        }
+	
+        return allMatch;
+    };
+}());
 
 String.prototype.br2nl =
   function() {
@@ -687,48 +770,6 @@ function nl2br (str, is_xhtml) {
     return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
 }
 
-//function str_replace (search, replace, subject, count) {
-    // Replaces all occurrences of search in haystack with replace
-    //
-    // version: 909.322
-    // discuss at: http://phpjs.org/functions/str_replace    // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // +   improved by: Gabriel Paderni
-    // +   improved by: Philip Peterson
-    // +   improved by: Simon Willison (http://simonwillison.net)
-    // +    revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)    // +   bugfixed by: Anton Ongson
-    // +      input by: Onno Marsman
-    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // +    tweaked by: Onno Marsman
-    // +      input by: Brett Zamir (http://brett-zamir.me)    // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // +   input by: Oleg Eremeev
-    // +   improved by: Brett Zamir (http://brett-zamir.me)
-    // +   bugfixed by: Oleg Eremeev
-    // %          note 1: The count parameter must be passed as a string in order    // %          note 1:  to find a global variable in which the result will be given
-    // *     example 1: str_replace(' ', '.', 'Kevin van Zonneveld');
-    // *     returns 1: 'Kevin.van.Zonneveld'
-    // *     example 2: str_replace(['{name}', 'l'], ['hello', 'm'], '{name}, lars');
-    // *     returns 2: 'hemmo, mars'    var i = 0, j = 0, temp = '', repl = '', sl = 0, fl = 0,
- /*           f = [].concat(search),
-            r = [].concat(replace),
-            s = subject,
-            ra = r instanceof Array, sa = s instanceof Array;    s = [].concat(s);
-    if (count) {
-        this.window[count] = 0;
-    }
-     for (i=0, sl=s.length; i < sl; i++) {
-        if (s[i] === '') {
-            continue;
-        }
-        for (j=0, fl=f.length; j < fl; j++) {            temp = s[i]+'';
-            repl = ra ? (r[j] !== undefined ? r[j] : '') : r[0];
-            s[i] = (temp).split(f[j]).join(repl);
-            if (count && s[i] !== temp) {
-                this.window[count] += (temp.length-s[i].length)/f[j].length;}        }
-    }
-    return sa ? s : s[0];
-}
-*/
-
 function str_replace(search, replace, subject) {
 	return subject.split(search).join(replace);
 }
@@ -999,132 +1040,6 @@ function createDialog(options) {
 		}
 	}
 }
-
-/*
- * Date Format 1.2.3
- * (c) 2007-2009 Steven Levithan <stevenlevithan.com>
- * MIT license
- *
- * Includes enhancements by Scott Trenda <scott.trenda.net>
- * and Kris Kowal <cixar.com/~kris.kowal/>
- *
- * Accepts a date, a mask, or a date and a mask.
- * Returns a formatted version of the given date.
- * The date defaults to the current date/time.
- * The mask defaults to dateFormat.masks.default.
- */
-
-var dateFormat = function () {
-	var	token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-		timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
-		timezoneClip = /[^-+\dA-Z]/g,
-		pad = function (val, len) {
-			val = String(val);
-			len = len || 2;
-			while (val.length < len) val = "0" + val;
-			return val;
-		};
-
-	// Regexes and supporting functions are cached through closure
-	return function (date, mask, utc) {
-		var dF = dateFormat;
-
-		// You can't provide utc if you skip other args (use the "UTC:" mask prefix)
-		if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !/\d/.test(date)) {
-			mask = date;
-			date = undefined;
-		}
-
-		// Passing date through Date applies Date.parse, if necessary
-		date = date ? new Date(date) : new Date;
-		if (isNaN(date)) throw SyntaxError("invalid date");
-
-		mask = String(dF.masks[mask] || mask || dF.masks["default"]);
-
-		// Allow setting the utc argument via the mask
-		if (mask.slice(0, 4) == "UTC:") {
-			mask = mask.slice(4);
-			utc = true;
-		}
-
-		var	_ = utc ? "getUTC" : "get",
-			d = date[_ + "Date"](),
-			D = date[_ + "Day"](),
-			m = date[_ + "Month"](),
-			y = date[_ + "FullYear"](),
-			H = date[_ + "Hours"](),
-			M = date[_ + "Minutes"](),
-			s = date[_ + "Seconds"](),
-			L = date[_ + "Milliseconds"](),
-			o = utc ? 0 : date.getTimezoneOffset(),
-			flags = {
-				d:    d,
-				dd:   pad(d),
-				ddd:  dF.i18n.dayNames[D],
-				dddd: dF.i18n.dayNames[D + 7],
-				m:    m + 1,
-				mm:   pad(m + 1),
-				mmm:  dF.i18n.monthNames[m],
-				mmmm: dF.i18n.monthNames[m + 12],
-				yy:   String(y).slice(2),
-				yyyy: y,
-				h:    H % 12 || 12,
-				hh:   pad(H % 12 || 12),
-				H:    H,
-				HH:   pad(H),
-				M:    M,
-				MM:   pad(M),
-				s:    s,
-				ss:   pad(s),
-				l:    pad(L, 3),
-				L:    pad(L > 99 ? Math.round(L / 10) : L),
-				t:    H < 12 ? "a"  : "p",
-				tt:   H < 12 ? "am" : "pm",
-				T:    H < 12 ? "A"  : "P",
-				TT:   H < 12 ? "AM" : "PM",
-				Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
-				o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
-				S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
-			};
-
-		return mask.replace(token, function ($0) {
-			return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
-		});
-	};
-}();
-
-// Some common format strings
-dateFormat.masks = {
-	"default":      "ddd mmm dd yyyy HH:MM:ss",
-	shortDate:      "m/d/yy",
-	mediumDate:     "mmm d, yyyy",
-	longDate:       "mmmm d, yyyy",
-	fullDate:       "dddd, mmmm d, yyyy",
-	shortTime:      "h:MM TT",
-	mediumTime:     "h:MM:ss TT",
-	longTime:       "h:MM:ss TT Z",
-	isoDate:        "yyyy-mm-dd",
-	isoTime:        "HH:MM:ss",
-	isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
-	isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
-};
-
-// Internationalization strings
-dateFormat.i18n = {
-	dayNames: [
-		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-		"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-	],
-	monthNames: [
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-	]
-};
-
-// For convenience...
-Date.prototype.format = function (mask, utc) {
-	return dateFormat(this, mask, utc);
-};
 
 // mredkj.com
 function NumberFormat(num, inputDecimal)
@@ -1490,8 +1405,6 @@ newVal = this.moveDecimalLeft(newVal, 2);
 return newVal;
 }
 
-
-
 function money_format(value, currency)
 {
 	var num = new NumberFormat();
@@ -1825,7 +1738,7 @@ var comboboxArray = new Object();
 		horizontalOffset: 0,                // horizontal offset of the dialog from center screen, in pixels/
 		repositionOnResize: true,           // re-centers the dialog on window resize
 		overlayOpacity: .71,                // transparency level of overlay
-		overlayColor: '#686868',               // base color of overlay
+		overlayColor: 'rgba(82, 101, 114, 0.45);',               // base color of overlay
 		draggable: true,                    // make the dialogs draggable (requires UI Draggables plugin)
 		okButton: '&nbsp;OK&nbsp;',         // text for the OK button
 		cancelButton: '&nbsp;Cancel&nbsp;', // text for the Cancel button
@@ -1836,7 +1749,7 @@ var comboboxArray = new Object();
 		// Public methods
 
 		alert: function(message, title, callback) {
-			if( title == null ) title = 'Alert';
+			if( title == null ) title = Soopfw.t('Alert');
 			var alert = $.alerts._show(title, message, null, 'alert', function(result) {
 				if( callback ) callback(result);
 			});
@@ -1851,7 +1764,7 @@ var comboboxArray = new Object();
 		},
 
 		question: function(html, title, callback) {
-			if( title == null ) title = 'Choose';
+			if( title == null ) title = Soopfw.t('Choose');
 
 			$.alerts._show(title, html, null, 'question', function(result,html) {
 				if( callback ) callback(result,html);
@@ -1859,7 +1772,7 @@ var comboboxArray = new Object();
 		},
 
 		confirm: function(message, title, callback) {
-			if( title == null ) title = 'Confirm';
+			if( title == null ) title = Soopfw.t('Confirm');
 
 			var alert = $.alerts._show(title, message, null, 'confirm', function(result) {
 				if( callback ) return callback(result);
@@ -1869,7 +1782,7 @@ var comboboxArray = new Object();
 		},
 
 		prompt: function(message, value, title, callback) {
-			if( title == null ) title = 'Prompt';
+			if( title == null ) title = Soopfw.t('Prompt');
 			$.alerts._show(title, message, value, 'prompt', function(result) {
 				if( callback ) callback(result);
 			});
@@ -1897,7 +1810,7 @@ var comboboxArray = new Object();
 			if( $.alerts.dialogClass ) $("#popup_container").addClass($.alerts.dialogClass);
 
 			// IE6 Fix
-			var pos = ($.browser.msie) ? 'absolute' : 'fixed';
+			var pos = 'fixed';
 
 			$("#popup_container").css({
 				position: pos,
@@ -1941,7 +1854,7 @@ var comboboxArray = new Object();
 			//$("#popup_corner_cancel").click(function(){$("#popup_container").expose({api: true}).close();$.alerts._hide();});
 			switch( type ) {
 				case 'alert':
-					$("#popup_message").after('<div id="popup_panel"><input type="button" value="' + $.alerts.okButton + '" id="popup_ok" class="form_button" /></div>');
+					$("#popup_message").after('<div id="popup_panel"><button id="popup_ok" class="form_button taom_button btnBrown">' + $.alerts.okButton + '</button></div>');
 					$("#popup_ok").click( function() {
 						//$("#popup_container").expose({api: true}).close();
 						$.alerts._hide();
@@ -1958,7 +1871,7 @@ var comboboxArray = new Object();
 				case 'question':
 
 					//msg['html'] = msg['html'].html();
-					$("#popup_message").after('<div id="popup_panel"><input type="button" value="' + $.alerts.okButton + '" id="popup_ok"  class="form_button"/> <input type="button" value="' + $.alerts.cancelButton + '" id="popup_cancel"  class="form_button"/></div>');
+					$("#popup_message").after('<div id="popup_panel"><button id="popup_ok" style="margin-right: 10px;" class="form_button taom_button btnGreen">' + $.alerts.okButton + '</button> <button id="popup_cancel"  class="taom_button btnRed">' + $.alerts.cancelButton + '</button></div>');
 					msg['html'].css("margin-bottom","10px");
 
 					$("#popup_panel").prepend(msg['html']);
@@ -2028,7 +1941,7 @@ var comboboxArray = new Object();
 					});
 				break;
 				case 'confirm':
-					$("#popup_message").after('<div id="popup_panel"><input type="button" value="' + $.alerts.okButton + '" id="popup_ok"  class="form_button"/> <input type="button" value="' + $.alerts.cancelButton + '" id="popup_cancel"  class="form_button"/></div>');
+					$("#popup_message").after('<div id="popup_panel"><button id="popup_ok" style="margin-right: 10px;" class="form_button taom_button btnGreen">' + $.alerts.okButton + '</button> <button id="popup_cancel" class="form_button taom_button btnRed">' + $.alerts.cancelButton + '</button></div>');
 					$("#popup_ok").click( function() {
 						//$("#popup_container").expose({api: true}).close();
 						$.alerts._hide();
@@ -2049,7 +1962,7 @@ var comboboxArray = new Object();
 					});
 				break;
 				case 'prompt':
-					$("#popup_message").append('<br /><input type="text" size="30" id="popup_prompt" />').after('<div id="popup_panel"><input type="button" value="' + $.alerts.okButton + '" id="popup_ok" style="margin-right: 10px;" class="form_button"/> <input  style="margin-left: 10px;" type="button" value="' + $.alerts.cancelButton + '" id="popup_cancel" /></div>');
+					$("#popup_message").append('<br /><input type="text" size="30" id="popup_prompt" />').after('<div id="popup_panel"><button id="popup_ok" style="margin-right: 10px;" class="form_button taom_button btnGreen">' + $.alerts.okButton + '</button> <button  style="margin-left: 10px;" id="popup_cancel" class="taom_button btnRed">' + $.alerts.cancelButton + '</button></div>');
 					$("#popup_prompt").width( $("#popup_message").width() );
 					$("#popup_ok").click( function() {
 						//$("#popup_container").expose({api: true}).close();
@@ -2074,7 +1987,7 @@ var comboboxArray = new Object();
 			}
 			process_form_buttons();
 			// Make draggable
-			if( $.alerts.draggable && !$.browser.chrome ) {
+			if( $.alerts.draggable ) {
 				try {
 					$("#popup_container").draggable({ handle: $("#popup_title") });
 					$("#popup_title").css({ cursor: 'move' });
@@ -2093,6 +2006,7 @@ var comboboxArray = new Object();
 
 			}
 			$.alerts.timeout = -1;
+			$('#popup_container').animate({opacity: 1}, 400);
 		//	$("#popup_container").expose({api: true}).load();
 		},
 
@@ -2108,7 +2022,7 @@ var comboboxArray = new Object();
 			switch( status ) {
 				case 'show':
 					$.alerts._overlay('hide');
-					$("BODY").append('<div class="popup_overlay"></div>');
+					$("BODY").append('<div class="popup_overlay" style="display: none;"></div>');
 					$(".popup_overlay").css({
 						position: 'absolute',
 						zIndex: 99997,
@@ -2118,10 +2032,12 @@ var comboboxArray = new Object();
 						height: $(document).height(),
 						"background-color": $.alerts.overlayColor,
 						opacity: $.alerts.overlayOpacity
-					});
+					}).fadeIn(400);
 				break;
 				case 'hide':
-					$(".popup_overlay").remove();
+					$(".popup_overlay").fadeOut(300, function() {
+						$(this).remove();
+					});
 				break;
 			}
 		},
@@ -2131,9 +2047,6 @@ var comboboxArray = new Object();
 			var left = (($(window).width() / 2) - ($("#popup_container").outerWidth() / 2)) + $.alerts.horizontalOffset;
 			if( top < 0 ) top = 0;
 			if( left < 0 ) left = 0;
-
-			// IE6 fix
-			if( $.browser.msie && parseInt($.browser.version) <= 6 ) top = top + $(window).scrollTop();
 
 			$("#popup_container").css({
 				top: top + 'px',
@@ -2179,958 +2092,6 @@ var comboboxArray = new Object();
 	jPrompt = function(message, value, title, callback) {
 		$.alerts.prompt(message, value, title, callback);
 	};
-
-})(jQuery);
-
-/*
- * Auto Expanding Text Area (1.2.2)
- * by Chrys Bader (www.chrysbader.com)
- * chrysb@gmail.com
- *
- * Version 1.2.3 update
- * by Richard Vallee
- * richardvallee@gmail.com
- *
- * Special thanks to:
- * Jake Chapa - jake@hybridstudio.com
- * John Resig - jeresig@gmail.com
- *
- * Copyright (c) 2008 Chrys Bader (www.chrysbader.com)
- * Licensed under the GPL (GPL-LICENSE.txt) license.
- *
- *
- * NOTE: This script requires jQuery to work.  Download jQuery at www.jquery.com
- *
- */
-
-(function(jQuery) {
-
-	var self = null;
-
-	jQuery.fn.autogrow = function(o)
-	{
-		return this.each(function() {
-			new jQuery.autogrow(this, o);
-		});
-	};
-
-
-    /**
-     * The autogrow object.
-     *
-     * @constructor
-     * @name jQuery.autogrow
-     * @param Object e The textarea to create the autogrow for.
-     * @param Hash o A set of key/value pairs to set as configuration properties.
-     * @cat Plugins/autogrow
-     */
-
-	jQuery.autogrow = function (e, o)
-	{
-		this.options		  	= o || {};
-		this.dummy			  	= null;
-		this.interval	 	  	= null;
-		this.line_height	  	= this.options.lineHeight || parseInt(jQuery(e).css('line-height'));
-		this.min_height		  	= this.options.minHeight || parseInt(jQuery(e).css('min-height'));
-		this.max_height		  	= this.options.maxHeight || parseInt(jQuery(e).css('max-height'));;
-		this.textarea		  	= jQuery(e);
-		this.expand_tolerance	= (!isNaN(this.options.expandTolerance) && this.options.expandTolerance > 0) ? this.options.expandTolerance : 4;
-
-		if(isNaN(this.line_height))
-		  this.line_height = 0;
-
-		// Only one textarea activated at a time, the one being used
-		this.init();
-	};
-
-	jQuery.autogrow.fn = jQuery.autogrow.prototype = {
-    	autogrow: '1.2.3'
-  	};
-
- 	jQuery.autogrow.fn.extend = jQuery.autogrow.extend = jQuery.extend;
-
-	jQuery.autogrow.fn.extend({
-		init: function() {
-			var self = this;
-			this.textarea.css({overflow: 'hidden', display: 'block'});
-			this.textarea.bind('focus', function() { self.startExpand() } ).bind('blur', function() { self.stopExpand() });
-			this.checkExpand();
-		},
-
-		startExpand: function() {
-		  var self = this;
-			this.interval = window.setInterval(function() {self.checkExpand()}, 400);
-		},
-
-		stopExpand: function() {
-			clearInterval(this.interval);
-		},
-
-		checkExpand: function() {
-			if (this.dummy == null) {
-				this.dummy = jQuery('<div></div>');
-				this.dummy.css({
-					'font-size'  : this.textarea.css('font-size'),
-					'font-family': this.textarea.css('font-family'),
-					'width'      : this.textarea.css('width'),
-					'padding'    : this.textarea.css('padding'),
-					'line-height': this.line_height + 'px',
-					'overflow-x' : 'hidden',
-					'position'   : 'absolute',
-					'top'        : 0,
-					'left'		 : -9999
-					}).appendTo('body');
-			} else {
-				// If the dummy was already created, show it as it is hidden after expansion
-				this.dummy.show();
-			}
-
-			// Strip HTML tags
-			var html = this.textarea.val().replace(/(<|>)/g, '');
-
-			// IE is different, as per usual
-			if (jQuery.browser.msie) {
-				html = html.replace(/\n/g, '<BR/>new');
-			}
-			else {
-				html = html.replace(/\n/g, '<br/>new');
-			}
-
-			if (this.dummy.html() != html) {
-				this.dummy.html(html);
-				if (this.max_height > 0 && (this.dummy.height() + (this.expand_tolerance*this.line_height) > this.max_height)) {
-					this.textarea.css('overflow-y', 'auto');
-					if (this.textarea.height() < this.max_height) {
-						this.textarea.animate({height: (this.max_height + (this.expand_tolerance*this.line_height)) + 'px'}, 100);
-					}
-				}
-				else {
-					this.textarea.css('overflow-y', 'hidden');
-					if (this.textarea.height() < this.dummy.height() + (this.expand_tolerance*this.line_height) || (this.dummy.height() < this.textarea.height())) {
-						if (this.dummy.height() < this.min_height) {
-							this.textarea.animate({height: (this.min_height + (this.expand_tolerance*this.line_height)) + 'px'}, 100);
-						} else {
-							this.textarea.animate({height: (this.dummy.height() + (this.expand_tolerance*this.line_height)) + 'px'}, 100);
-						}
-					}
-				}
-			}
-
-			// Hide the dummy, as otherwise it overflows the body when the content is long
-			this.dummy.hide();
-		}
-
-	 });
-})(jQuery);
-
-/*
- * jQuery delegate plug-in v1.0
- *
- * Copyright (c) 2007 Jörn Zaefferer
- *
- * $Id: jquery.delegate.js 4786 2008-02-19 20:02:34Z joern.zaefferer $
- *
- * Dual licensed under the MIT and GPL licenses:
- *   http://www.opensource.org/licenses/mit-license.php
- *   http://www.gnu.org/licenses/gpl.html
- */
-
-// provides cross-browser focusin and focusout events
-// IE has native support, in other browsers, use event caputuring (neither bubbles)
-
-// provides delegate(type: String, delegate: Selector, handler: Callback) plugin for easier event delegation
-// handler is only called when $(event.target).is(delegate), in the scope of the jQuery-object for event.target
-
-// provides triggerEvent(type: String, target: Element) to trigger delegated events
-;(function($) {
-	$.each({
-		focus: 'focusin',
-		blur: 'focusout'
-	}, function( original, fix ){
-		$.event.special[fix] = {
-			setup:function() {
-				if ( $.browser.msie ) return false;
-				this.addEventListener( original, $.event.special[fix].handler, true );
-			},
-			teardown:function() {
-				if ( $.browser.msie ) return false;
-				this.removeEventListener( original,
-				$.event.special[fix].handler, true );
-			},
-			handler: function(e) {
-				arguments[0] = $.event.fix(e);
-				arguments[0].type = fix;
-				return $.event.handle.apply(this, arguments);
-			}
-		};
-	});
-
-	$.extend($.fn, {
-		delegate: function(type, delegate, handler) {
-			return this.bind(type, function(event) {
-				var target = $(event.target);
-				if (target.is(delegate)) {
-					return handler.apply(target, arguments);
-				}
-			});
-		},
-		triggerEvent: function(type, target) {
-			return this.triggerHandler(type, [jQuery.event.fix({ type: type, target: target })]);
-		}
-	})
-})(jQuery);
-
-/*
- * Jeditable - jQuery in place edit plugin
- *
- * Copyright (c) 2006-2009 Mika Tuupola, Dylan Verheul
- *
- * Licensed under the MIT license:
- *   http://www.opensource.org/licenses/mit-license.php
- *
- * Project home:
- *   http://www.appelsiini.net/projects/jeditable
- *
- * Based on editable by Dylan Verheul <dylan_at_dyve.net>:
- *    http://www.dyve.net/jquery/?editable
- *
- */
-
-/**
-  * Version 1.7.1
-  *
-  * ** means there is basic unit tests for this parameter.
-  *
-  * @name  Jeditable
-  * @type  jQuery
-  * @param String  target             (POST) URL or function to send edited content to **
-  * @param Hash    options            additional options
-  * @param String  options[method]    method to use to send edited content (POST or PUT) **
-  * @param Function options[callback] Function to run after submitting edited content **
-  * @param String  options[name]      POST parameter name of edited content
-  * @param String  options[id]        POST parameter name of edited div id
-  * @param Hash    options[submitdata] Extra parameters to send when submitting edited content.
-  * @param String  options[type]      text, textarea or select (or any 3rd party input type) **
-  * @param Integer options[rows]      number of rows if using textarea **
-  * @param Integer options[cols]      number of columns if using textarea **
-  * @param Mixed   options[height]    'auto', 'none' or height in pixels **
-  * @param Mixed   options[width]     'auto', 'none' or width in pixels **
-  * @param String  options[loadurl]   URL to fetch input content before editing **
-  * @param String  options[loadtype]  Request type for load url. Should be GET or POST.
-  * @param String  options[loadtext]  Text to display while loading external content.
-  * @param Mixed   options[loaddata]  Extra parameters to pass when fetching content before editing.
-  * @param Mixed   options[data]      Or content given as paramameter. String or function.**
-  * @param String  options[indicator] indicator html to show when saving
-  * @param String  options[tooltip]   optional tooltip text via title attribute **
-  * @param String  options[event]     jQuery event such as 'click' of 'dblclick' **
-  * @param String  options[submit]    submit button value, empty means no button **
-  * @param String  options[cancel]    cancel button value, empty means no button **
-  * @param String  options[cssclass]  CSS class to apply to input form. 'inherit' to copy from parent. **
-  * @param String  options[style]     Style to apply to input form 'inherit' to copy from parent. **
-  * @param String  options[select]    true or false, when true text is highlighted ??
-  * @param String  options[placeholder] Placeholder text or html to insert when element is empty. **
-  * @param String  options[onblur]    'cancel', 'submit', 'ignore' or function ??
-  *
-  * @param Function options[onsubmit] function(settings, original) { ... } called before submit
-  * @param Function options[onreset]  function(settings, original) { ... } called before reset
-  * @param Function options[onerror]  function(settings, original, xhr) { ... } called on error
-  *
-  * @param Hash    options[ajaxoptions]  jQuery Ajax options. See docs.jquery.com.
-  *
-  */
-
-(function($) {
-
-    $.fn.editable = function(target, options) {
-
-        if ('disable' == target) {
-            $(this).data('disabled.editable', true);
-            return;
-        }
-        if ('enable' == target) {
-            $(this).data('disabled.editable', false);
-            return;
-        }
-        if ('destroy' == target) {
-            $(this)
-                .unbind($(this).data('event.editable'))
-                .removeData('disabled.editable')
-                .removeData('event.editable');
-            return;
-        }
-
-        var settings = $.extend({}, $.fn.editable.defaults, {target:target}, options);
-
-        /* setup some functions */
-        var plugin   = $.editable.types[settings.type].plugin || function() { };
-        var submit   = $.editable.types[settings.type].submit || function() { };
-        var buttons  = $.editable.types[settings.type].buttons
-                    || $.editable.types['defaults'].buttons;
-        var content  = $.editable.types[settings.type].content
-                    || $.editable.types['defaults'].content;
-        var element  = $.editable.types[settings.type].element
-                    || $.editable.types['defaults'].element;
-        var reset    = $.editable.types[settings.type].reset
-                    || $.editable.types['defaults'].reset;
-        var callback = settings.callback || function() { };
-        var onedit   = settings.onedit   || function() { };
-        var onsubmit = settings.onsubmit || function() { };
-        var onreset  = settings.onreset  || function() { };
-        var onerror  = settings.onerror  || reset;
-
-        /* show tooltip */
-        if (settings.tooltip) {
-            $(this).prop('title', settings.tooltip);
-        }
-
-        settings.autowidth  = 'auto' == settings.width;
-        settings.autoheight = 'auto' == settings.height;
-
-        return this.each(function() {
-
-            /* save this to self because this changes when scope changes */
-            var self = this;
-
-            /* inlined block elements lose their width and height after first edit */
-            /* save them for later use as workaround */
-            var savedwidth  = $(self).width();
-            var savedheight = $(self).height();
-
-            /* save so it can be later used by $.editable('destroy') */
-            $(this).data('event.editable', settings.event);
-
-            /* if element is empty add something clickable (if requested) */
-            if (!$.trim($(this).html())) {
-                $(this).html(settings.placeholder);
-            }
-
-            $(this).bind(settings.event, function(e) {
-
-                /* abort if disabled for this element */
-                if (true === $(this).data('disabled.editable')) {
-                    return;
-                }
-
-                /* prevent throwing an exeption if edit field is clicked again */
-                if (self.editing) {
-                    return;
-                }
-
-                /* abort if onedit hook returns false */
-                if (false === onedit.apply(this, [settings, self])) {
-                   return;
-                }
-
-                /* prevent default action and bubbling */
-                e.preventDefault();
-                e.stopPropagation();
-
-                /* remove tooltip */
-                if (settings.tooltip) {
-                    $(self).removeAttr('title');
-                }
-
-                /* figure out how wide and tall we are, saved width and height */
-                /* are workaround for http://dev.jquery.com/ticket/2190 */
-                if (0 == $(self).width()) {
-                    //$(self).css('visibility', 'hidden');
-                    settings.width  = savedwidth;
-                    settings.height = savedheight;
-                } else {
-                    if (settings.width != 'none') {
-                        settings.width =
-                            settings.autowidth ? $(self).width()  : settings.width;
-                    }
-                    if (settings.height != 'none') {
-                        settings.height =
-                            settings.autoheight ? $(self).height() : settings.height;
-                    }
-                }
-                //$(this).css('visibility', '');
-
-                /* remove placeholder text, replace is here because of IE */
-                if ($(this).html().toLowerCase().replace(/(;|")/g, '') ==
-                    settings.placeholder.toLowerCase().replace(/(;|")/g, '')) {
-                        $(this).html('');
-                }
-
-                self.editing    = true;
-                self.revert     = $(self).html();
-                $(self).html('');
-
-                /* create the form object */
-                var form = $('<form />');
-
-                /* apply css or style or both */
-                if (settings.cssclass) {
-                    if ('inherit' == settings.cssclass) {
-                        form.prop('class', $(self).prop('class'));
-                    } else {
-                        form.prop('class', settings.cssclass);
-                    }
-                }
-
-                if (settings.style) {
-                    if ('inherit' == settings.style) {
-                        form.prop('style', $(self).prop('style'));
-                        /* IE needs the second line or display wont be inherited */
-                        form.css('display', $(self).css('display'));
-                    } else {
-                        form.prop('style', settings.style);
-                    }
-                }
-
-                /* add main input element to form and store it in input */
-                var input = element.apply(form, [settings, self]);
-
-                /* set input content via POST, GET, given data or existing value */
-                var input_content;
-
-                if (settings.loadurl) {
-                    var t = setTimeout(function() {
-                        input.disabled = true;
-                        content.apply(form, [settings.loadtext, settings, self]);
-                    }, 100);
-
-                    var loaddata = {};
-                    loaddata[settings.id] = self.id;
-                    if ($.isFunction(settings.loaddata)) {
-                        $.extend(loaddata, settings.loaddata.apply(self, [self.revert, settings]));
-                    } else {
-                        $.extend(loaddata, settings.loaddata);
-                    }
-                    $.ajax({
-                       type : settings.loadtype,
-                       url  : settings.loadurl,
-                       data : loaddata,
-                       async : false,
-                       success: function(result) {
-                          window.clearTimeout(t);
-                          input_content = result;
-                          input.disabled = false;
-                       }
-                    });
-                } else if (settings.data) {
-                    input_content = settings.data;
-                    if ($.isFunction(settings.data)) {
-                        input_content = settings.data.apply(self, [self.revert, settings]);
-                    }
-                } else {
-                    input_content = self.revert;
-                }
-                content.apply(form, [input_content, settings, self]);
-
-                input.prop('name', settings.name);
-
-                /* add buttons to the form */
-                buttons.apply(form, [settings, self]);
-
-                /* add created form to self */
-                $(self).append(form);
-
-                /* attach 3rd party plugin if requested */
-                plugin.apply(form, [settings, self]);
-
-                /* focus to first visible form element */
-                $(':input:visible:enabled:first', form).focus();
-
-                /* highlight input contents when requested */
-                if (settings.select)
-				{
-					if (settings.selectOnlyFirst)
-					{
-						settings.select = false;
-					}
-                    input.select();
-                }
-				/* highlight input contents when requested, but only at the first time*/
-                if (settings.selectOnlyFirst)
-				{
-					if (settings.selectOnlyFirst)
-					{
-						settings.selectOnlyFirst = false;
-					}
-                    input.select();
-                }
-
-                /* discard changes if pressing esc */
-                input.keydown(function(e) {
-                    if (e.keyCode == 27) {
-                        e.preventDefault();
-                        //self.reset();
-                        reset.apply(form, [settings, self]);
-                    }
-                });
-
-                /* discard, submit or nothing with changes when clicking outside */
-                /* do nothing is usable when navigating with tab */
-                var t;
-                if ('cancel' == settings.onblur) {
-                    input.blur(function(e) {
-                        /* prevent canceling if submit was clicked */
-                        t = setTimeout(function() {
-                            reset.apply(form, [settings, self]);
-                        }, 500);
-                    });
-                } else if ('submit' == settings.onblur) {
-                    input.blur(function(e) {
-                        /* prevent double submit if submit was clicked */
-                        t = setTimeout(function() {
-                            form.submit();
-                        }, 200);
-                    });
-                } else if ($.isFunction(settings.onblur)) {
-                    input.blur(function(e) {
-                        settings.onblur.apply(self, [input.val(), settings]);
-                    });
-                } else {
-                    input.blur(function(e) {
-                      /* TODO: maybe something here */
-                    });
-                }
-
-                form.submit(function(e) {
-
-                    if (t) {
-                        clearTimeout(t);
-                    }
-
-                    /* do no submit */
-                    e.preventDefault();
-
-                    /* call before submit hook. */
-                    /* if it returns false abort submitting */
-                    if (false !== onsubmit.apply(form, [settings, self])) {
-                        /* custom inputs call before submit hook. */
-                        /* if it returns false abort submitting */
-                        if (false !== submit.apply(form, [settings, self])) {
-
-                          /* check if given target is function */
-                          if ($.isFunction(settings.target)) {
-                              var str = settings.target.apply(self, [input.val(), settings]);
-                              $(self).html(str);
-                              self.editing = false;
-                              callback.apply(self, [self.innerHTML, settings]);
-                              /* TODO: this is not dry */
-                              if (!$.trim($(self).html())) {
-                                  $(self).html(settings.placeholder);
-                              }
-                          } else {
-                              /* add edited content and id of edited element to POST */
-                              var submitdata = {};
-                              submitdata[settings.name] = input.val();
-                              submitdata[settings.id] = self.id;
-                              /* add extra data to be POST:ed */
-                              if ($.isFunction(settings.submitdata)) {
-                                  $.extend(submitdata, settings.submitdata.apply(self, [self.revert, settings]));
-                              } else {
-                                  $.extend(submitdata, settings.submitdata);
-                              }
-
-                              /* quick and dirty PUT support */
-                              if ('PUT' == settings.method) {
-                                  submitdata['_method'] = 'put';
-                              }
-
-                              /* show the saving indicator */
-                              $(self).html(settings.indicator);
-
-                              /* defaults for ajaxoptions */
-                              var ajaxoptions = {
-                                  type    : 'POST',
-                                  data    : submitdata,
-                                  dataType: 'html',
-                                  url     : settings.target,
-                                  success : function(result, status) {
-                                      if (ajaxoptions.dataType == 'html') {
-                                        $(self).html(result);
-                                      }
-                                      self.editing = false;
-                                      callback.apply(self, [result, settings]);
-                                      if (!$.trim($(self).html())) {
-                                          $(self).html(settings.placeholder);
-                                      }
-                                  },
-                                  error   : function(xhr, status, error) {
-                                      onerror.apply(form, [settings, self, xhr]);
-                                  }
-                              };
-
-                              /* override with what is given in settings.ajaxoptions */
-                              $.extend(ajaxoptions, settings.ajaxoptions);
-                              $.ajax(ajaxoptions);
-
-                            }
-                        }
-                    }
-
-                    /* show tooltip again */
-                    $(self).prop('title', settings.tooltip);
-
-                    return false;
-                });
-            });
-
-            /* privileged methods */
-            this.reset = function(form) {
-                /* prevent calling reset twice when blurring */
-                if (this.editing) {
-                    /* before reset hook, if it returns false abort reseting */
-                    if (false !== onreset.apply(form, [settings, self])) {
-                        $(self).html(self.revert);
-                        self.editing   = false;
-                        if (!$.trim($(self).html())) {
-                            $(self).html(settings.placeholder);
-                        }
-                        /* show tooltip again */
-                        if (settings.tooltip) {
-                            $(self).prop('title', settings.tooltip);
-                        }
-                    }
-                }
-            };
-        });
-
-    };
-
-
-    $.editable = {
-        types: {
-            defaults: {
-                element : function(settings, original) {
-                    var input = $('<input type="hidden"></input>');
-                    $(this).append(input);
-                    return(input);
-                },
-                content : function(string, settings, original) {
-                    $(':input:first', this).val(string);
-                },
-                reset : function(settings, original) {
-                  original.reset(this);
-                },
-                buttons : function(settings, original) {
-                    var form = this;
-                    if (settings.submit) {
-                        /* if given html string use that */
-                        if (settings.submit.match(/>$/)) {
-                            var submit = $(settings.submit).click(function() {
-                                if (submit.prop("type") != "submit") {
-                                    form.submit();
-                                }
-                            });
-                        /* otherwise use button with given string as text */
-                        } else {
-                            var submit = $('<button type="submit" />');
-                            submit.html(settings.submit);
-                        }
-                        $(this).append(submit);
-                    }
-                    if (settings.cancel) {
-                        /* if given html string use that */
-                        if (settings.cancel.match(/>$/)) {
-                            var cancel = $(settings.cancel);
-                        /* otherwise use button with given string as text */
-                        } else {
-                            var cancel = $('<button type="cancel" />');
-                            cancel.html(settings.cancel);
-                        }
-                        $(this).append(cancel);
-
-                        $(cancel).click(function(event) {
-                            //original.reset();
-                            if ($.isFunction($.editable.types[settings.type].reset)) {
-                                var reset = $.editable.types[settings.type].reset;
-                            } else {
-                                var reset = $.editable.types['defaults'].reset;
-                            }
-                            reset.apply(form, [settings, original]);
-                            return false;
-                        });
-                    }
-                }
-            },
-            text: {
-                element : function(settings, original) {
-                    var input = $('<input />');
-                    if (settings.width  != 'none') { input.width(settings.width);  }
-                    if (settings.height != 'none') { input.height(settings.height); }
-                    /* https://bugzilla.mozilla.org/show_bug.cgi?id=236791 */
-                    //input[0].setAttribute('autocomplete','off');
-                    input.prop('autocomplete','off');
-                    $(this).append(input);
-                    return(input);
-                }
-            },
-            textarea: {
-                element : function(settings, original) {
-                    var textarea = $('<textarea />');
-                    if (settings.rows) {
-                        textarea.prop('rows', settings.rows);
-                    } else if (settings.height != "none") {
-                        textarea.height(settings.height);
-                    }
-                    if (settings.cols) {
-                        textarea.prop('cols', settings.cols);
-                    } else if (settings.width != "none") {
-                        textarea.width(settings.width);
-                    }
-                    $(this).append(textarea);
-                    return(textarea);
-                }
-            },
-            select: {
-               element : function(settings, original) {
-                    var select = $('<select />');
-                    $(this).append(select);
-                    return(select);
-                },
-                content : function(data, settings, original) {
-                    /* If it is string assume it is json. */
-                    if (String == data.constructor) {
-                        eval ('var json = ' + data);
-                    } else {
-                    /* Otherwise assume it is a hash already. */
-                        var json = data;
-                    }
-                    for (var key in json) {
-                        if (!json.hasOwnProperty(key)) {
-                            continue;
-                        }
-                        if ('selected' == key) {
-                            continue;
-                        }
-                        var option = $('<option />').val(key).append(json[key]);
-                        $('select', this).append(option);
-                    }
-                    /* Loop option again to set selected. IE needed this... */
-                    $('select', this).children().each(function() {
-                        if ($(this).val() == json['selected'] ||
-                            $(this).text() == $.trim(original.revert)) {
-                                $(this).prop('selected', 'selected');
-                        }
-                    });
-                }
-            }
-        },
-
-        /* Add new input type */
-        addInputType: function(name, input) {
-            $.editable.types[name] = input;
-        }
-    };
-
-    // publicly accessible defaults
-    $.fn.editable.defaults = {
-        name       : 'value',
-        id         : 'id',
-        type       : 'text',
-        width      : 'auto',
-        height     : 'auto',
-        event      : 'click.editable',
-        onblur     : 'cancel',
-        loadtype   : 'GET',
-        loadtext   : 'Loading...',
-        placeholder: 'Click to edit',
-        loaddata   : {},
-        submitdata : {},
-        ajaxoptions: {}
-    };
-
-})(jQuery);
-
-/*
-* jQuery.splitter.js - animated splitter plugin
-*
-* version 1.1 (2010/11/18)
-*
-* Dual licensed under the MIT and GPL licenses:
-*   http://www.opensource.org/licenses/mit-license.php
-*   http://www.gnu.org/licenses/gpl.html
-*/
-
-/**
-* jQuery.splitter() plugin implements a two-pane resizable animated window, using existing DIV elements for layout.
-* For more details and demo visit: http://krikus.com/js/splitter
-*
-* @example $("#splitterContainer").splitter({splitVertical:true,A:$('#leftPane'),B:$('#rightPane'),closeableto:0});
-* @desc Create a vertical splitter with toggle button
-*
-* @example $("#splitterContainer").splitter({minAsize:100,maxAsize:300,splitVertical:true,A:$('#leftPane'),B:$('#rightPane'),slave:$("#rightSplitterContainer"),closeableto:0});
-* @desc Create a vertical splitter with toggle button, with minimum and maximum width for plane A and bind resize event to the slave element
-*
-* @name splitter
-* @type jQuery
-* @param Object options Options for the splitter ( required)
-* @cat Plugins/Splitter
-* @return jQuery
-* @author Kristaps Kukurs (contact@krikus.com)
-*/
-
-
-
-;(function($){
-
-	$.fn.splitter = function(args){
-		args = args || {};
-		return this.each(function() {
-			var _ghost;		//splitbar  ghosted element
-			var splitPos;	 // current splitting position
-			var _splitPos;	 // saved splitting position
-			var _initPos;	//initial mouse position
-			var _ismovingNow=false;	// animaton state flag
-
-			// Default opts
-			var direction = (args.splitHorizontal? 'h':'v');
-			var opts = $.extend({
-			minAsize:0, //minimum width/height in PX of the first (A) div.
-			maxAsize:0, //maximum width/height  in PX of the first (A) div.
-			minBsize:0, //minimum width/height in PX of the second (B) div.
-			maxBsize:0, //maximum width/height  in PX of the second (B) div.
-			ghostClass: 'working',// class name for _ghosted splitter and hovered button
-			invertClass: 'invert',//class name for invert splitter button
-			animSpeed: 250 //animation speed in ms
-			},{
-			v:{ // Vertical
-				moving:"left",sizing: "width", eventPos: "pageX",splitbarClass:"splitbarV",buttonClass: "splitbuttonV", cursor: "e-resize"
-			},
-			h: { // Horizontal
-				moving:"top",sizing: "height", eventPos: "pageY",splitbarClass:"splitbarH",buttonClass: "splitbuttonH",  cursor: "n-resize"
-			}
-			}[direction], args);
-
-			//setup elements
-			var splitter = $(this);
-			var mychilds =splitter.children(); //$(">*", splitter[0]);
-			var A = args.A;	// left/top frame
-			var B = args.B;// right/bottom frame
-			var slave=args.slave;//optional, elemt forced to receive resize event
-
-			//Create splitbar
-			var C=$('<div><span></span></div>');
-			A.after(C);
-			C.prop({"class": opts.splitbarClass,unselectable:"on"}).css({"cursor":opts.cursor,"user-select": "none", "-webkit-user-select": "none","-khtml-user-select": "none", "-moz-user-select": "none"})
-			.bind("mousedown", startDrag);
-
-			if(opts.closeableto!=undefined){
-				var Bt=$('<div></div>').css("cursor",'pointer');
-				C.append(Bt);
-				Bt.prop({"class": opts.buttonClass, unselectable: "on"});
-				Bt.hover(function(){$(this).addClass(opts.ghostClass);},function(){$(this).removeClass(opts.ghostClass);});
-				Bt.mousedown(function(e){if(e.target != this)return;Bt.toggleClass(opts.invertClass).hide();splitTo((splitPos==opts.closeableto)?_splitPos:opts.closeableto,true);return false;});
-			}
-//reset size to default.
-var perc=(((C.position()[opts.moving]-splitter.offset()[opts.moving])/splitter[opts.sizing]())*100).toFixed(1);
-splitTo(perc,false,true);
-// resize  event handlers;
-splitter.bind("resize",function(e, size){if(e.target!=this)return;splitTo(splitPos,false,true);});
-$(window).bind("resize",function(){splitTo(splitPos,false,true);});
-
-//C.onmousedown=startDrag
-			function startDrag(e) {
-			if(e.target != this)return;
-		 _ghost = _ghost || C.clone(false).insertAfter(A);
-				splitter._initPos=C.position();
-				splitter._initPos[opts.moving]-=C[opts.sizing]();
-_ghost.addClass(opts.ghostClass).css('position','absolute').css('z-index','250').css("-webkit-user-select", "none").width(C.width()).height(C.height()).css(opts.moving,splitter._initPos[opts.moving]);
-mychilds.css("-webkit-user-select", "none");	// Safari selects A/B text on a move
-A._posSplit = e[opts.eventPos];
-
-$(document).bind("mousemove", performDrag).bind("mouseup", endDrag);
-			}
-//document.onmousemove=performDrag
-			function performDrag(e) {
-			if (!_ghost||!A) return;
-				var incr = e[opts.eventPos]-A._posSplit;
-				_ghost.css(opts.moving, splitter._initPos[opts.moving]+incr);
-			}
-//C.onmouseup=endDrag
-			function endDrag(e){
-				var p=_ghost.position();
-				_ghost.remove(); _ghost = null;
-				mychilds.css("-webkit-user-select", "text");// let Safari select text again
-				$(document).unbind("mousemove", performDrag).unbind("mouseup", endDrag);
-				var perc=(((p[opts.moving]-splitter.offset()[opts.moving])/splitter[opts.sizing]())*100).toFixed(1);
-				splitTo(perc,(splitter._initPos[opts.moving]>p[opts.moving]),false);
-				splitter._initPos=0;
-			}
-//Perform actual splitting and animate it;
-	function splitTo(perc,reversedorder,fast) {
-if(_ismovingNow||perc==undefined)return;//generally MSIE problem
-_ismovingNow=true;
-if(splitPos&&splitPos>10&&splitPos<90)//do not save accidental events
-		_splitPos=splitPos;
-splitPos=perc;
-
-var barsize=C[opts.sizing]()+(2*parseInt(C.css('border-'+opts.moving+'-width')));//+ border. cehap&dirty
-var splitsize=splitter[opts.sizing]();
-if(opts.closeableto!=perc){
-var percpx=Math.max(parseInt((splitsize/100)*perc),opts.minAsize);
-if(opts.maxAsize)percpx=Math.min(percpx,opts.maxAsize);
-
-}else{
-var percpx=parseInt((splitsize/100)*perc,0);
-}
-if(opts.maxBsize){
-if((splitsize-percpx)>opts.maxBsize)
-percpx=splitsize-opts.maxBsize;
-}
-if(opts.minBsize){
-if((splitsize-percpx)<opts.minBsize)
-percpx=splitsize-opts.minBsize;
-}
-var sizeA=Math.max(0,(percpx-barsize));
-var sizeB=Math.max(0,(splitsize-percpx));
-splitsize=(splitsize-barsize);
-
-//A.prop('title','- '+sizeA);  B.prop('title','- '+sizeB);
- if(fast){
-					A.show().css(opts.sizing,sizeA+'px');
-					B.show().css(opts.sizing,sizeB+'px');
-					Bt.show();
-					if (!$.browser.msie ){
-					mychilds.trigger("resize");if(slave)slave.trigger("resize");
-					}
-				_ismovingNow=false;
-				if(opts.onResize){
-					opts.onResize(sizeA, sizeB);
-				}
-				return true;
-				}
-	if(reversedorder){//reduces flickering if total percentage becomes more  than 100 (possible while animating)
-					var anob={};
-					anob[opts.sizing]=sizeA+'px';
-					A.show().animate(anob,opts.animSpeed,function(){Bt.fadeIn('fast');if($(this)[opts.sizing]()<2){this.style.display='none';B.stop(true,true);B[opts.sizing](splitsize+'px');}});
-					var anob2={};
-					anob2[opts.sizing]=sizeB+'px';
-					B.show().animate(anob2,opts.animSpeed,function(){Bt.fadeIn('fast');if($(this)[opts.sizing]()<2){this.style.display='none';A.stop(true,true);A[opts.sizing](splitsize+'px')}});
-	}else{
-					var anob={};
-					anob[opts.sizing]=sizeB+'px';
-					B.show().animate(anob,opts.animSpeed,function(){Bt.fadeIn('fast');if($(this)[opts.sizing]()<2){this.style.display='none';A.stop(true,true);A[opts.sizing](splitsize+'px')}});
-					var anob={};
-					anob[opts.sizing]=sizeA+'px';
-					A.show().animate(anob,opts.animSpeed,function(){Bt.fadeIn('fast');if($(this)[opts.sizing]()<2){this.style.display='none';B.stop(true,true);B[opts.sizing](splitsize+'px');}});
-}
-//trigger resize evt
-splitter.queue(function(){
-setTimeout(function(){
-splitter.dequeue();
-_ismovingNow=false;
-if(opts.onResize){
-	opts.onResize(sizeA, sizeB);
-}
-mychilds.trigger("resize");if(slave)slave.trigger("resize");
-}, opts.animSpeed+5);
-});
-
- }//end splitTo()
-
-
-
-
-
-});//end each
-	};//end splitter
 
 })(jQuery);
 

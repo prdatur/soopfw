@@ -355,6 +355,11 @@ class Core
 			set_error_handler(array('SoopfwErrorHandler', 'cc_error_handler'), error_reporting());
 		}
 	}
+	
+	public function recover_database() {
+		require SITEPATH . "/config/core.php";
+		$this->init_database(true);
+	}
 
 	/**
 	 * Creates a singleton Core instance.
@@ -395,12 +400,20 @@ class Core
 
 	/**
 	 * Initialize the database.
+	 * 
+	 * @param boolean $force
+	 *   Force new connection. (optional, default = false).
 	 */
-	public function init_database() {
+	public function init_database($force = false) {
 		require_once SITEPATH . "/lib/database/Db.class.php";
 		//If we want to use a database connection initialize the database object
 		if ($this->config['db']['use'] == true) {
-			$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database']);
+			if (empty($this->db)) {
+				$this->db = new Db($this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database']);
+			}
+			else {
+				$this->db->add_server('default', $this->config['db']['host'], $this->config['db']['user'], $this->config['db']['pass'], $this->config['db']['database'], $force);
+			}
 
 			// Set the table prefix if configured.
 			if (!empty($this->config['db']['table_prefix'])) {
@@ -1300,7 +1313,7 @@ class Core
 				$messages['success'] = $_SESSION['message']['success'];
 			}
 			unset($_SESSION['message']);
-			
+		
 			// If we have configurated some message timeouts, provide js the needed config.
 			if (isset($_SESSION['core_message_timeout']) && is_array($_SESSION['core_message_timeout'])) {
 				foreach ($_SESSION['core_message_timeout'] AS $key => $val) {
@@ -1308,6 +1321,15 @@ class Core
 				}
 				unset($_SESSION['core_message_timeout']);
 			}
+		}
+		
+		$current_module = $this->cache("core", "current_module");
+		if (!empty($current_module)) {
+			$this->js_config('current_module', $current_module);
+		}
+		$current_action = $this->cache("core", "current_action");
+		if (!empty($current_action)) {
+			$this->js_config('current_action', $current_action);
 		}
 				
 		//Assign the messages
