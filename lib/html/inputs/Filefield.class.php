@@ -282,9 +282,15 @@ class Filefield extends AbstractHtmlInput
 	/**
 	 * Returns the HTML-Code string for the element
 	 *
-	 * @return string the HTML code for the element
+	 * @param boolean $include_label
+	 *   If the label should be included within the output. (Optional, default = true)
+	 * @param boolean $include_description
+	 *   If the description should be included within the output. (Optional, default = true)
+	 * 
+	 * @return string 
+	 *   the HTML code for the element
 	 */
-	public function fetch() {
+	public function fetch($include_label = true, $include_description = true) {
 		if (!$this->is_ajax) {
 			$current_fid = (int)$this->config('value');
 			if (!empty($current_fid)) {
@@ -300,7 +306,7 @@ class Filefield extends AbstractHtmlInput
 			}
 		}
 		//Get the normal html-string for the upload field
-		$html = parent::fetch();
+		$html = parent::fetch($include_label, $include_description);
 
 		//If we are on the ajax mode we need to add the ajax file upload handler so javascript can work.
 		if ($this->is_ajax) {

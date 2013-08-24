@@ -9,8 +9,7 @@
  * @author Christian Ackermann <prdatur@gmail.com>
  * @category Core
  */
-class Object
-{
+class Object {
 
 	/**
 	 * The database object
@@ -60,7 +59,7 @@ class Object
 	 * @param Core &$core
 	 *   The core object (optional, default = null)
 	 */
- 	public function __construct(&$core = null) {
+	public function __construct(&$core = null) {
 		if (!is_null($core)) {
 			$this->core = &$core;
 		}
@@ -128,7 +127,7 @@ class Object
 	 * @return string the classname
 	 */
 	function __tostring() {
-		return "Class: ".get_parent_class($this).":".get_class($this);
+		return "Class: " . get_parent_class($this) . ":" . get_class($this);
 	}
 
 	/**
@@ -144,9 +143,9 @@ class Object
 	 * print all the definied class vars
 	 */
 	public function print_class_vars() {
-		echo __tostring()."\n";
+		echo __tostring() . "\n";
 		foreach ($this->get_class_vars() AS $var => $val) {
-			echo $var.":".$val."\n";
+			echo $var . ":" . $val . "\n";
 		}
 	}
 
@@ -172,6 +171,33 @@ class Object
 				echo "<br>\n";
 			}
 		}
+	}
+
+	/**
+	 * Cast this object to another class, keeping the properties, but changing the methods
+	 *
+	 * @param string $class
+	 *   The new class name.
+	 * 
+	 * @return object
+	 */
+	function cast_to($class) {
+		return unserialize(preg_replace('/^O:\d+:"[^"]++"/', 'O:' . strlen($class) . ':"' . $class . '"', serialize($this)));
+	}
+	
+	/**
+	 * Get a singleton for this object.
+	 * 
+	 * @return mixed
+	 *   The object reference.
+	 */
+	public static function &get_instance() {
+		static $instance = array();
+		$classname = get_called_class();
+		if ($instance[$classname] === null) {
+			$instance[$classname] = new $classname();
+		}
+		return $instance[$classname];
 	}
 
 }

@@ -1,5 +1,5 @@
 <?php
-
+require_once dirname(__FILE__) . '/../DesCrypt.class.php';
 /**
  * Provides Database connection to an MySQL-Database
  *
@@ -113,7 +113,28 @@ class Db
 	 * @var string
 	 */
 	private $table_prefix = "";
+	
+	/**
+	 * Holds all added server credentials des encrypted.
+	 * 
+	 * @var array
+	 */
+	private $secured = array();
+	
+	/**
+	 * The current encryption key.
+	 * 
+	 * @var string
+	 */
+	private $sec = "";
 
+	/**
+	 * The reconnect count, we only try to reconnect for 3 times.
+	 * 
+	 * @var int
+	 */
+	private $reconnect_count = 0;
+	
 	/**
 	 * Constructor from class DB,
 	 * configurating mysql server,
@@ -133,6 +154,7 @@ class Db
 	 *   Servername (optional, default = 'default')
 	 */
 	public function __construct($server, $user, $password, $database, $debug = false, $servername = "default") {
+		$this->sec = md5(uniqid());
 		$this->add_server($servername, $server, $user, $password, $database);
 		$this->set_server();
 
@@ -178,13 +200,21 @@ class Db
 	 *   Mysql Password
 	 * @param string $database
 	 *   Mysql Database
+	 * @param boolean $force
+	 *   Force a reconnect. (Optional, default = false)
 	 */
-	public function add_server($servername, $server, $username, $password, $database) {
-		$this->dbserver[$servername] = @mysql_connect($server, $username, $password);
+	public function add_server($servername, $server, $username, $password, $database, $force = false) {
+		$this->dbserver[$servername] = @mysql_connect($server, $username, $password, $force);
 		$this->link_id = $this->dbserver[$servername];
 		@mysql_select_db($database, $this->dbserver[$servername]);
 
-
+		$this->secured[$servername] = DesCrypt::des_encode(json_encode(array(
+			'server' => $server,
+			'username' => $username,
+			'password' => $password,
+			'database' => $database,
+		)), $this->sec);
+		
 		$this->query("SET NAMES 'utf8'");
 		$this->query("SET time_zone = '+0:00';");
 	}
@@ -200,6 +230,7 @@ class Db
 			$this->transaction_rollback();
 		}
 		$this->link_id = $this->get_server($var);
+		$this->server = $var;
 	}
 
 	/**
@@ -223,6 +254,7 @@ class Db
 	public function set_default_server($var) {
 		$this->dbserver["default"] = $this->dbserver[$var];
 		$this->link_id = $this->dbserver["default"];
+		$this->server = 'default';
 	}
 
 	/**
@@ -248,6 +280,9 @@ class Db
 	 * @return resource mysql link id
 	 */
 	public function get_link_id() {
+		if (empty($this->link_id)) {
+			Core::get_instance()->recover_database();
+		}
 		return $this->link_id;
 	}
 
@@ -430,7 +465,7 @@ class Db
 
 		$this->query($query_string, $args, $limit, $offset);
 		while ($row = $this->fetch_array($this->query_id, $type)) {
-
+			
 			if (!empty($array_key) && isset($row[$array_key])) {
 				$return[$row[$array_key]] = $row;
 				continue;
@@ -457,7 +492,7 @@ class Db
 	protected function query($query_string, $args = array(), $limit = 0, $offset = 0) {
 
 		$this->final_transform_query($query_string);
-
+		
 		// Sort the arg array descending by strlen.
 		if (!empty($args)) {
 			uksort($args, function($a, $b) {
@@ -508,10 +543,10 @@ class Db
 				echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
 			}
 			else {
-				$this->core->message($query_string);
+				Core::get_instance()->message($query_string);
 			}
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
-				$sql = @mysql_query("EXPLAIN " . $query_string, $this->link_id);
+				$sql = @mysql_query("EXPLAIN " . $query_string, $this->get_link_id());
 				$res = @mysql_fetch_assoc($sql);
 				if (!empty($res)) {
 					foreach ($res AS $key => $val) {
@@ -526,11 +561,29 @@ class Db
 					echo "</div>";
 				}
 				else {
-					$this->core->message($res);
+					Core::get_instance()->message($res);
 				}
 			}
 		}
-		$this->query_id = mysql_query($query_string, $this->link_id);
+		#echo "##########\n";
+		$this->query_id = @mysql_query($query_string, $this->get_link_id());
+		if (mysql_errno() === 2006) {
+			while($this->reconnect_count++ < 3) {
+				usleep(500 * $this->reconnect_count);
+				$credentials = json_decode(DesCrypt::des_decode($this->secured[$this->server], $this->sec), true);
+				$this->add_server($this->server, $credentials['server'], $credentials['username'], $credentials['password'], $credentials['database'], true);
+				$this->query_id = mysql_query($query_string, $this->get_link_id());
+				if (mysql_errno() === 2006) {
+					continue;
+				}
+				break;
+			}
+			if ($this->reconnect_count > 3) {
+				return false;
+			}
+			$this->reconnect_count = 0;
+			
+		}
 		return $this->query_id;
 	}
 
@@ -582,7 +635,7 @@ class Db
 	 * @return int the inserted id
 	 */
 	public function insert_id() {
-		return mysql_insert_id($this->link_id);
+		return mysql_insert_id($this->get_link_id());
 	}
 
 	/**
@@ -596,7 +649,7 @@ class Db
 			$mode = "0";
 		}
 
-		mysql_query("SET AUTOCOMMIT=" . $mode, $this->link_id);
+		mysql_query("SET AUTOCOMMIT=" . $mode, $this->get_link_id());
 	}
 
 	/**
@@ -929,7 +982,7 @@ class Db
 	 */
 	public function get_primary_key($table, $return_as_array = false) {
 		$sql = "SHOW COLUMNS FROM `" . Db::safe($this->table_prefix) . $table . "`";
-		$this->query_id = mysql_query($sql, $this->link_id);
+		$this->query_id = mysql_query($sql, $this->get_link_id());
 		$primarykeys = array();
 		if (mysql_num_rows($this->query_id) > 0) {
 			while ($row = mysql_fetch_assoc($this->query_id)) {
@@ -963,7 +1016,7 @@ class Db
 		}
 		$sql .= '  ORDER BY `SEQ_IN_INDEX`';
 
-		$this->query_id = mysql_query($sql, $this->link_id);
+		$this->query_id = mysql_query($sql, $this->get_link_id());
 		$indexe = array();
 		if (mysql_num_rows($this->query_id) > 0) {
 			while ($row = mysql_fetch_assoc($this->query_id)) {

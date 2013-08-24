@@ -45,6 +45,18 @@ class WebSocketUser {
 	public function send($payload, $type = 'text', $masked = false) {
 		return WebSocket::write_buffer($this->socket, WebSocketHybi10::encode($payload, $type, $masked));
 	}
+	
+	/**
+	 * Sends raw data to the user.
+	 *
+	 * @param string $payload
+	 *	 The data to be send
+	 *
+	 * @return boolean Whether the send succed or not
+	 */
+	public function send_raw($payload) {
+		return WebSocket::write_buffer($this->socket, $payload);
+	}
 
 	/**
 	 * Closes the connection to the client.

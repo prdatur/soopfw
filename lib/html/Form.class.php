@@ -552,7 +552,17 @@ class Form extends AbstractHtmlElement implements Iterator
 	 *   If set to true the element will be placed on top. (optional, false)
 	 */
 	public function add(AbstractHtmlInput &$input, $validators = array(), $prepend = false) {
-
+		
+		/**
+		 * Provides hook: change_form_element
+		 *
+		 * Allow other modules to change form elements
+		 *
+		 * @param AbstractHtmlInput &$input
+		 *   The form element.
+		 */
+	    $this->core->hook('change_form_element', array(&$input));
+		
 		if (!empty($validators)) {
 			if (!is_array($validators)) {
 				$validators = array($validators);

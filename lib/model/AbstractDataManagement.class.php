@@ -719,11 +719,18 @@ abstract class AbstractDataManagement extends Object
 	}
 
 	/**
-	 * Reverts the object to the state where it was loaded
+	 * Reverts the object to the state where it was loaded.
+	 * 
+	 * @param boolean $save
+	 *   if set to true, the object will be saved after reverting, else just the
+	 *   old values for the current object will be restored without saving to database/cache.
 	 */
-	public function revert() {
+	public function revert($save = true) {
 		$this->values = $this->old_values;
-		$this->save(true);
+		
+		if ($save === true) {
+			$this->save(true);
+		}
 	}
 
 	/**

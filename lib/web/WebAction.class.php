@@ -191,6 +191,15 @@ class WebAction extends Object
 				break;
 		}
 	}
+	
+	private function init_hook() {
+		/**
+		 * Provides hook: init
+		 *
+		 * Allow other modules to do things on init
+		 */
+		$this->core->hook('init');
+	}
 
 	/**
 	 * Request an ajax call.
@@ -224,6 +233,7 @@ class WebAction extends Object
 				}
 
 				$ajax_run = new $class();
+				$this->init_hook();
 				$ajax_run->run();
 			}
 
@@ -311,6 +321,7 @@ class WebAction extends Object
 			}
 
 			$this->core->cache("core", "current_module", $this->current_action_module->modulname);
+			$this->core->cache("core", "current_action", $this->current_action_module->action);
 
 			$parent = get_parent_class($load_class);
 			if ($parent != "ActionModul" && get_parent_class($parent) != "ActionModul") {
@@ -338,6 +349,9 @@ class WebAction extends Object
 			foreach ($this->action_params['action_params'] AS &$act_params) {
 				$act_params = urldecode($act_params);
 			}
+			
+			$this->init_hook();
+			
 			//Call the wanted module action
 			call_user_func_array(array($this->current_action_module, $action), $this->action_params['action_params']);
 
@@ -440,7 +454,9 @@ class WebAction extends Object
 		}
 
 		$this->assign_default_js_css();
-
+		if (empty($this->current_action_module)) {
+			$this->current_action_module = new ActionModul();
+		}
 		switch($type) {
 			case self::ABORT_CLEAR_OUTPUT:
 				$this->current_action_module->clear_output();
@@ -519,7 +535,7 @@ class WebAction extends Object
 
 
 		//Add default javascript files
-		$this->core->add_js("/js/jquery-1.8.3.min.js", Core::JS_SCOPE_SYSTEM);
+		$this->core->add_js("/js/jquery-1.10.1.min.js", Core::JS_SCOPE_SYSTEM);
 		if (!empty($jquery_ui_js_version)) {
 			$this->core->add_js($jquery_ui_js_version, Core::JS_SCOPE_SYSTEM);
 		}
@@ -538,6 +554,7 @@ class WebAction extends Object
 		$this->core->add_js("/js/jquery_plugins/jquery.sceditor.bbcode.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery-fieldselection.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/jquery_plugins/jquery.endless-scroll.js", Core::JS_SCOPE_SYSTEM);
+		$this->core->add_js("/js/jquery_plugins/jquery.alterclass.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/adminmenu.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/common.js", Core::JS_SCOPE_SYSTEM);
 		$this->core->add_js("/js/core.js", Core::JS_SCOPE_SYSTEM);

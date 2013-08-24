@@ -136,6 +136,21 @@ class Selectfield extends AbstractHtmlInput
 
 		return $conf;
 	}
+	
+	/**
+	 * Checks if all validators are valid.
+	 * Overrides previous one to verify that the value is one of the added options.
+	 *
+	 * @return boolean 
+	 *   on success true, else false
+	 */
+	public function is_valid() {
+		if (!isset($this->options[$this->get_value()])) {
+			$this->add_error(t('Invalid option provided'));
+			return false;
+		}
+		return parent::is_valid();
+	}
 
 }
 

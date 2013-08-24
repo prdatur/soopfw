@@ -20,7 +20,7 @@ class AjaxUserGroupSaveRights extends AjaxModul {
 		//Setup needed params
 		$params = new ParamStruct();
 		$params->add_required_param("group_id", PDT_INT);
-		$params->add_isset_param("rights", PDT_ARR);
+		$params->add_param("rights", PDT_ARR, array());
 		$params->fill();
 
 		//Check params

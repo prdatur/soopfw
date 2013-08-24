@@ -363,18 +363,20 @@ class User extends ActionModul
 				$this->core->message(t('Password recovery currently disabled'), Core::MESSAGE_TYPE_NOTICE);
 				return $this->clear_output();
 			}
-			$this->title(t("Recovery password"), t('We will send you an email with additional information'));
+			$this->title(t("Password recovery"), t('We will send you an email with additional information'));
 
 			$form = new Form('lost_password');
 			if ($this->core->get_dbconfig("user", self::CONFIG_LOGIN_ALLOW_EMAIL, 'no') == 'yes') {
-				$title = t('Please enter your username or email address');
+				$description = t('Please enter your username or email address');
+				$error = t("You must provide your username or your used email address.");
 			}
 			else {
-				$title = t('Please enter your username');
+				$description = t('Please enter your username');
+				$error = t("You must provide your username.");
 			}
-			$form->add(new Textfield('account', '', $title), new RequiredValidator());
+			$form->add(new Textfield('account', '', '', $description), new RequiredValidator($error));
 
-			$form->add(new Submitbutton('submit', t('Recovery password.')));
+			$form->add(new Submitbutton('submit', t('Recover password')));
 
 			if ($form->check_form()) {
 				$account = $form->get_value('account');
@@ -1289,6 +1291,8 @@ class User extends ActionModul
 		 *
 		 * @param Form &$form
 		 *   The login form
+		 * @param User $user
+		 *   The module instance, so you have the abillity to change the template.
 		 *
 		 * @return array the new input fields.
 		 *   the array must have the following format:
@@ -1298,7 +1302,7 @@ class User extends ActionModul
 		 *     'bottom' => array(elements),
 		 *   )
 		 */
-		$hook_results = $this->core->hook('alter_user_login_form', array(&$login_form));
+		$hook_results = $this->core->hook('alter_user_login_form', array(&$login_form, &$this));
 		$new_elements = array(
 			'top' => array(),
 			'middle' => array(),

@@ -13,6 +13,7 @@
 
 	Soopfw.prio_behaviors['system_add_js_config_from_ajax_<%$module_tpl%>'] = function() {
 		Soopfw.config = $.extend(Soopfw.config, <%$js_variable_config|unescape%>);
+		delete Soopfw.prio_behaviors['system_add_js_config_from_ajax_<%$module_tpl%>'];
 	};
 
 	<%foreach from=$additional_js_files['system'] item=jsfile%>

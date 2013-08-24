@@ -25,7 +25,7 @@
 
 		//Javascript config variables
 		Soopfw['config'] = {};
-		Soopfw.behaviors.system_add_js_config = function() {
+		Soopfw.system_prio_behaviors.system_add_js_config = function() {
 			Soopfw.config = $.extend(Soopfw.config, <%$js_variable_config|unescape%>);
 		};
 		<%foreach from=$additional_css_files item=cssfile%>

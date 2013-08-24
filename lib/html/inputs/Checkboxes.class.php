@@ -143,9 +143,15 @@ class Checkboxes extends AbstractHtmlInput
 	 * Returns the HTML-Code string for the element
 	 * It will get all checkbox elements and concate the elements
 	 *
-	 * @return string the HTML code for the element
+	 * @param boolean $include_label
+	 *   If the label should be included within the output. (Optional, default = true)
+	 * @param boolean $include_description
+	 *   If the description should be included within the output. (Optional, default = true)
+	 * 
+	 * @return string 
+	 *   the HTML code for the element
 	 */
-	public function fetch() {
+	public function fetch($include_label = true, $include_description = true) {
 		//first the the label string if not empty
 		$output = $this->get_label();
 
@@ -158,7 +164,7 @@ class Checkboxes extends AbstractHtmlInput
 		//Loop through all inputs and append the fetched element html string to our returning string
 		foreach ($this->fields as &$field) {
 			$this->init();
-			$output .= "<div class='" . $this->config('type') . "'>".$field->fetch()."</div>";
+			$output .= "<div class='" . $this->config('type') . "'>".$field->fetch($include_label, $include_description)."</div>";
 		}
 
 		//Append the main input template string and the followed description

@@ -216,7 +216,7 @@ abstract class AbstractHtmlInput extends Object
 					$tmp_valid = $validator->is_valid();
 					//If the validator is not valid add the validator error message and return false
 					if ($tmp_valid !== TRUE) {
-						$this->errors[] = $validator->get_error();
+						$this->add_error($validator->get_error());
 						return false;
 					}
 				}
@@ -225,6 +225,16 @@ abstract class AbstractHtmlInput extends Object
 		return true;
 	}
 
+	/**
+	 * Adds a error message.
+	 * 
+	 * @param string $error_message
+	 *   The message.
+	 */
+	protected function add_error($error_message) {
+		$this->errors[] = $error_message;
+	}
+	
 	/**
 	 * Get all errors
 	 * The errors will be set after checking all validators
@@ -277,9 +287,15 @@ abstract class AbstractHtmlInput extends Object
 	/**
 	 * Returns the HTML-Code string for the element
 	 *
+	 * @param boolean $include_label
+	 *   If the label should be included within the output. (Optional, default = true)
+	 * @param boolean $include_description
+	 *   If the description should be included within the output. (Optional, default = true)
+	 * 
 	 * @return string the HTML code for the element
+	 * 
 	 */
-	public function fetch() {
+	public function fetch($include_label = true, $include_description = true) {
 
 		//Get the main template for the element
 		$tmp_tpl = $this->config("template");
@@ -348,16 +364,24 @@ abstract class AbstractHtmlInput extends Object
 
 		//Return the HTML-Input string.
 
-		//first the the label string if not empty
-		$return = $this->get_label();
+		//first the the label string if not empty and we want to include it.
+		$return = "";
+		if ($include_label == true) {
+			$return .= $this->get_label();
+		}
 		//Provide a suffix which we can configurate
 		$suffix = $this->config("suffix");
 		if(!empty($suffix)) {
 			$return .= $suffix;
 		}
-
-		//Append the main input template string and the followed description
-		$return .= $tmp_tpl.$this->get_description();
+		
+		//Append the main input template string .
+		$return .= $tmp_tpl;
+		
+		//Append the description if we want it..
+		if ($include_description == true) {
+			$return .= $this->get_description();
+		}
 		return $return;
 	}
 

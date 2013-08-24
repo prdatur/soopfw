@@ -21,7 +21,7 @@ class WebSocketHybi10 extends WebSocketHandshake {
 		if (($headers = parent::handshake($data)) === false) {
 			return false;
 		}
-
+		
 		// Do handyshake: (hybi-10).
 		$sec_key = $headers['sec-websocket-key'];
 		$sec_accept = base64_encode(pack('H*', sha1($sec_key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
@@ -29,7 +29,11 @@ class WebSocketHybi10 extends WebSocketHandshake {
 		$response.= "Upgrade: websocket\r\n";
 		$response.= "Connection: Upgrade\r\n";
 		$response.= "Sec-WebSocket-Accept: " . $sec_accept . "\r\n";
-		$response.= "Sec-WebSocket-Protocol: " . substr($headers['path'], 1) . "\r\n\r\n";
+		if (!empty($headers['sec-websocket-protocol'])) {
+			$response.= "Sec-WebSocket-Protocol: " . $headers['sec-websocket-protocol'] . "\r\n";
+		}
+		$response.= "\r\n";
+		
 		if (WebSocket::write_buffer($this->client->socket, $response) === false) {
 			return false;
 		}

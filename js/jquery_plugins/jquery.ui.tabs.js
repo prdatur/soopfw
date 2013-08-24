@@ -56,7 +56,7 @@ $.widget( "ui.tabs", {
 			locationHash = location.hash.substring( 1 );
 
 		this.running = false;
-
+		
 		this.element
 			.addClass( "ui-tabs ui-widget ui-widget-content ui-corner-all" )
 			.toggleClass( "ui-tabs-collapsible", options.collapsible )
@@ -90,12 +90,12 @@ $.widget( "ui.tabs", {
 					}
 				});
 			}
-
+			
 			// check for a tab marked active via a class
 			if ( active === null ) {
 				active = this.tabs.index( this.tabs.filter( ".ui-tabs-active" ) );
 			}
-
+		
 			// no active tab, set to false
 			if ( active === null || active === -1 ) {
 				active = this.tabs.length ? 0 : false;
@@ -788,11 +788,13 @@ $.widget( "ui.tabs", {
 			// Unbind all current events for this tab before loading new one.
 			foreach (Soopfw.tab_bindings[this.current_tab], function(type, elements) {
 				foreach (elements, function(i, elm) {
-					$(elm).unbind(type);
+					//console.log(type);
+					//console.log(elm);
+					//$(elm).unbind(type);
 				});
 			});
 			// Remove internal binding stack.
-			Soopfw.tab_bindings[this.current_tab] = {}
+			Soopfw.tab_bindings[this.current_tab] = {};
 		}
 
 		index = this._getIndex( index );
@@ -807,6 +809,15 @@ $.widget( "ui.tabs", {
 
 		// not remote
 		if ( isLocal( anchor[ 0 ] ) ) {
+			if (eventDataOriginal === undefined) {
+				that.current_tab = eventData.panel.attr('id');
+				eventDataOriginal = {
+					oldTab: $(),
+					oldPanel: $(),
+					newTab: eventData.tab,
+					newPanel: eventData.panel
+				};
+			}
 			this._toggle( event, eventDataOriginal );
 			return;
 		}
@@ -1351,6 +1362,9 @@ if ( $.uiBackCompat !== false ) {
 		},
 
 		_toggle: function( event, eventData ) {
+			if (!eventData) {
+				return;
+			}
 			var that = this,
 				toShow = eventData.newPanel,
 				toHide = eventData.oldPanel,

@@ -38,7 +38,10 @@ abstract class WebSocketServer extends WebSocketListener {
 		error_reporting(E_ALL);
 		ob_implicit_flush(true);
 
-		$this->master = stream_socket_server('tcp://'.$address . ':' . $port, $errno, $err, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, stream_context_create()) or die("socket_create() failed");
+		
+		$context = stream_context_create();
+		$this->master = stream_socket_server('tcp://'.$address . ':' . $port, $errno, $err, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $context) or die("socket_create() failed");
+		
 		$this->sockets[] = $this->master;
 		WebSocket::log_console("Server Started : ".date('Y-m-d H:i:s'));
 		WebSocket::log_console("Listening on   : ".$address." port ".$port);
@@ -63,9 +66,11 @@ abstract class WebSocketServer extends WebSocketListener {
 					$this->connect($client_socket);
 				}
 				else {
+					
+					
 					$data = $this->read_buffer($socket);
 					$bytes = strlen($data);
-
+					
 					if ($bytes === 0 || $data === false) {
 						$this->disconnect($socket);
 						continue;
@@ -76,6 +81,7 @@ abstract class WebSocketServer extends WebSocketListener {
 					if(!$user->handshake) {
 						$hybi10 = new WebSocketHybi10($user);
 						if(!$hybi10->handshake($data, $this->allowed_origins)) {
+							WebSocket::log_console('Websocket Handshake error or flash policy request.');
 							$this->disconnect($user->socket);
 							continue;
 						}

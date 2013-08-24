@@ -174,6 +174,7 @@ class PageObj extends AbstractDataManagement
 
 		$page = new PageObj($page_data_array[0], $page_data_array[1]);
 		if(!$page->load_success()) {
+			
 			return $content;
 		}
 
@@ -204,7 +205,6 @@ class PageObj extends AbstractDataManagement
 		$content_smarty->init();
 		$content_smarty->set_tpl($module_tpl_dir.'/field_groups/');
 
-		$content = "";
 		if(file_exists($content_type_tpl)) {
 			$content_smarty->assign_by_ref("data", $data_array);
 			$content = $content_smarty->fetch($content_type_tpl);
@@ -217,12 +217,11 @@ class PageObj extends AbstractDataManagement
 					$field_group_tpl = $module_tpl_dir.'/field_groups/'.$group_obj->field_group.".tpl";
 				}
 				$content_smarty->clearAllAssign();
-				$content_smarty->assign_by_ref("data", $field_group_values);
+				$content_smarty->assign("data", array('elements' => $field_group_values));
 				$content .= $content_smarty->fetch($field_group_tpl);
 			}
 		}
-
-		return nl2br($content);
+		return $content;
 	}
 
 	/**
