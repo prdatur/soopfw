@@ -194,7 +194,7 @@ class Object {
 	public static function &get_instance() {
 		static $instance = array();
 		$classname = get_called_class();
-		if ($instance[$classname] === null) {
+		if (!isset($instance[$classname])) {
 			$instance[$classname] = new $classname();
 		}
 		return $instance[$classname];

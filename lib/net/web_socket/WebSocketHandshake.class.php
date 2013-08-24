@@ -137,7 +137,9 @@ abstract class WebSocketHandshake {
 	 *
 	 * @return mixed The data on success, else false
 	 */
-	abstract public static function decode($data);
+	public static function decode($data) {
+		return $data;
+	}
 
 	/**
 	 * Encodes the incoming data for the given version.
@@ -151,7 +153,9 @@ abstract class WebSocketHandshake {
 	 *
 	 * @return string If success it returns the encoded string, else false
 	 */
-	abstract public static function encode($data, $type = 'text', $masked = true);
+	public static function encode($data, $type = 'text', $masked = true) {
+		return $data;
+	}
 
 }
 
