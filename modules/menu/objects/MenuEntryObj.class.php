@@ -54,7 +54,7 @@ class MenuEntryObj extends AbstractDataManagement
 			$object_ids = array();
 
 			//Get all translated language menu entry which are linked with this menu entry
-			foreach($this->db->query_slave_all("SELECT `language` FROM `".MenuEntryTranslationObj::TABLE."` WHERE `entry_id` = @entry_id", array("@entry_id" => $entry_id)) AS $menu_entry_translation) {
+			foreach($this->db->query_slave_all("SELECT `language` FROM `".MenuEntryTranslationObj::TABLE."` WHERE `entry_id` = :entry_id", array(':entry_id' => $entry_id)) AS $menu_entry_translation) {
 				$object_ids[] = array($entry_id, $menu_entry_translation['language']);
 			}
 
@@ -126,8 +126,8 @@ class MenuEntryObj extends AbstractDataManagement
 			SELECT *
 			FROM `".MenuEntryObj::TABLE."` me
 			JOIN `".MenuEntryTranslationObj::TABLE."` met ON (me.`entry_id` = met.`entry_id`)
-			WHERE `language` = @language
-			", array('@language' => $this->core->current_language)) as $entry) {
+			WHERE `language` = :language
+			", array(':language' => $this->core->current_language)) as $entry) {
 			$entry['#link'] = "";
 			$entry['#active'] = ($entry['active'] === "yes") ? true: false;
 			$tree->add_item($entry);

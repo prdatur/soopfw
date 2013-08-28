@@ -85,9 +85,9 @@ class DefaultWebSystemTest extends WebUnitTest implements UnitTestInterface
 					$this->assert_true(($obj instanceof ActionModul), t('Check if "@class" class extends ActionModul', array('@class' => $web_action_class)));
 
 					// Check if the run method was implemented, so an action call can be executed.
-					$this->assert_true(method_exists($obj, 'run'), t('Check if "@class" class implements the "@action" method', array(
+					$this->assert_true(method_exists($obj, $action), t('Check if "@class" class implements the "@action" method', array(
 						'@class' => $web_action_class,
-						'@action' => $web_action_entry->filename,
+						'@action' => $action,
 					)));
 				}
 			}

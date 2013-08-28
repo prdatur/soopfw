@@ -145,11 +145,14 @@ class Selectfield extends AbstractHtmlInput
 	 *   on success true, else false
 	 */
 	public function is_valid() {
-		if (!isset($this->options[$this->get_value()])) {
+		if (!parent::is_valid()) {
+			return false;
+		}
+		if ($this->get_value() !== '' && !isset($this->options[$this->get_value()])) {
 			$this->add_error(t('Invalid option provided'));
 			return false;
 		}
-		return parent::is_valid();
+		return true;
 	}
 
 }

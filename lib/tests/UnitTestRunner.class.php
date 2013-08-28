@@ -43,14 +43,12 @@ class UnitTestRunner extends Object {
 			$this->core->message(t('Removing database test envoirement.'), Core::MESSAGE_TYPE_NOTICE);
 			$this->db->table_prefix('');
 			$i = 0;
-			$args = array();
 			$tables = array();
 			foreach ($this->database_test_envoirements_tables AS $table_name) {
-				$tables[] = '`:' . ++$i . 'table_name`';
-				$args[':' . $i . 'table_name'] = $table_name;
+				$tables[] = '`' . $table_name . '`';
 			}
 
-			$this->db->query_master('DROP TABLE ' . implode(',', $tables), $args);
+			$this->db->query_master('DROP TABLE ' . implode(', ', $tables));
 			$this->core->message(t('Test envoirement removed.'), Core::MESSAGE_TYPE_SUCCESS);
 		}
 

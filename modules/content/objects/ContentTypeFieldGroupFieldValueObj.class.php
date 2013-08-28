@@ -66,11 +66,11 @@ class ContentTypeFieldGroupFieldValueObj extends AbstractDataManagement
 		if(parent::insert($ignore)) {
 
 			// Will delete all revisions except the last 20.
-			$this->db->query_master("DELETE FROM `".self::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language AND `content_type_field_group_id` = @content_type_field_group_id AND `field_type` = @field_type AND `index` = iindex AND `revision` <= irevision", array(
+			$this->db->query_master("DELETE FROM `".self::TABLE."` WHERE `page_id` = ipage_id AND `language` = :language AND `content_type_field_group_id` = :content_type_field_group_id AND `field_type` = :field_type AND `index` = iindex AND `revision` <= irevision", array(
 				'ipage_id' => $this->values['page_id'],
-				'@language' => $this->values['language'],
-				'@content_type_field_group_id' => $this->values['content_type_field_group_id'],
-				'@field_type' => $this->values['field_type'],
+				':language' => $this->values['language'],
+				':content_type_field_group_id' => $this->values['content_type_field_group_id'],
+				':field_type' => $this->values['field_type'],
 				'iindex' => $this->values['index'],
 				'irevision' => $this->values['revision']-20,
 			));

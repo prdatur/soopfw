@@ -58,12 +58,12 @@ class ContentTypeFieldGroupObj extends AbstractDataManagement
 		$id = $this->get_value("id");
 		if(parent::delete()) {
 
-			if(!$this->db->query_master("DELETE FROM `".ContentTypeFieldGroupFieldValueObj::TABLE."` WHERE `content_type_field_group_id` = @id", array("@id" => $id))) {
+			if(!$this->db->query_master("DELETE FROM `".ContentTypeFieldGroupFieldValueObj::TABLE."` WHERE `content_type_field_group_id` = :id", array(':id' => $id))) {
 				$this->transaction_auto_rollback();
 				return false;
 			}
 
-			foreach($this->db->query_slave_all("SELECT `serialized_data` , `page_id`, `language`, `revision` FROM `".PageObj::TABLE."` WHERE `serialized_data` LIKE '%\"search_string\":%'", array("search_string" => $id)) AS $page) {
+			foreach($this->db->query_slave_all("SELECT `serialized_data` , `page_id`, `language`, `revision` FROM `".PageObj::TABLE."` WHERE `serialized_data` LIKE :search_string", array(":search_string" => '%\"' . $id . '\":%')) AS $page) {
 				$page['serialized_data'] = json_decode($page['serialized_data'], true);
 				unset($page['serialized_data'][$id]);
 				$page['serialized_data'] = json_encode($page['serialized_data']);

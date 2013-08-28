@@ -96,16 +96,14 @@ class PageObj extends AbstractDataManagement
 		$language = $this->values['language'];
 		$current_menu_entry_id = $this->values['current_menu_entry_id'];
 		if($really_delete == false || parent::delete()) {
-			$alias = $this->db->query_slave_first("SELECT `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array(
-				"ipage_id" => $page_id,
-				'current_language' => $language,
+			$alias = $this->db->query_slave_first("SELECT `alias` FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = :params", array(
+				":params" => intval($page_id) . '|' . $language,
 			));
 			if(!empty($alias)) {
 				$this->core->mcache('url_alias_match_'.md5($alias['alias']), "", 1);
 			}
-			$this->db->query_master("DELETE FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array(
-				"ipage_id" => $page_id,
-				'current_language' => $language,
+			$this->db->query_master("DELETE FROM `".UrlAliasObj::TABLE."` WHERE `module` = 'content' AND `action` = 'view' AND `params` = :params", array(
+				":params" => intval($page_id) . '|' . $language,
 			));
 
 			$menu_entry_obj = new MenuEntryTranslationObj($current_menu_entry_id, $language);
@@ -124,14 +122,14 @@ class PageObj extends AbstractDataManagement
 			}
 
 
-			$this->db->query_master("DELETE FROM `".ContentTypeFieldGroupFieldValueObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language", array(
+			$this->db->query_master("DELETE FROM `".ContentTypeFieldGroupFieldValueObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = :language", array(
 				'ipage_id' => $this->values['page_id'],
-				'@language' => $this->values['language']
+				':language' => $this->values['language']
 			));
 
-			$return = $this->db->query_master("DELETE FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = @language", array(
+			$return = $this->db->query_master("DELETE FROM `".PageRevisionObj::TABLE."` WHERE `page_id` = ipage_id AND `language` = :language", array(
 				'ipage_id' => $this->values['page_id'],
-				'@language' => $this->values['language']
+				':language' => $this->values['language']
 			));
 
 			if ($return !== false) {
@@ -262,9 +260,8 @@ class PageObj extends AbstractDataManagement
 	 * @return string the alias, or if alias not exist returns false
 	 */
 	public function get_alias() {
-		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array(
-			"ipage_id" => $this->page_id,
-			'current_language' => $this->language
+		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = :params", array(
+			":params" => intval($this->page_id) . '|' . $this->language,
 		));
 		if (!empty($alias_entry)) {
 			return $alias_entry['alias'];

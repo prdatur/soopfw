@@ -1010,10 +1010,8 @@ class Core
 			//Get mode
 			if ($key === NS) {
 				//Hole module config will be returned
-				$where = " WHERE `modul` = '" . Db::safe($modul) . "'";
-
 				$return = array();
-				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "`" . $where) AS $v) {
+				foreach ($this->db->query_slave_all("SELECT `value`, `key` FROM `" . CoreModulConfigObj::TABLE . "` WHERE `modul` = :modul", array(':modul' => $modul)) AS $v) {
 
 					$json_test = json_decode($v['value'], true);
 					if ($serialize === true || $json_test !== null) {
@@ -1083,8 +1081,11 @@ class Core
 		}
 
 		//Insert mode
-		$return = $this->db->query_master("INSERT INTO `" . CoreModulConfigObj::TABLE . "` (`modul`, `key`, `value`) VALUES (@modul,@key,@value)
-				ON DUPLICATE KEY UPDATE `value` = @value", array("@modul" => $modul, "@key" => $key, "@value" => $value));
+		$return = $this->db->query_master("INSERT INTO `" . CoreModulConfigObj::TABLE . "` (`modul`, `key`, `value`) VALUES (:modul, :key, :value) ON DUPLICATE KEY UPDATE `value` = :value", array(
+			':modul' => $modul, 
+			':key' => $key, 
+			':value' => $value)
+		);
 		if ($return && $use_cache === true) {
 			$this->cache($modul, $key, $value);
 		}

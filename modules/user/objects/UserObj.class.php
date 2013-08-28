@@ -146,23 +146,23 @@ class UserObj extends AbstractDataManagement
 		$username = $this->username;
 
 		// Delete all user addresses.
-		$this->db->query_master("DELETE FROM `".UserAddressObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $user_id
+		$this->db->query_master("DELETE FROM `".UserAddressObj::TABLE."` WHERE `user_id` = :user_id", array(
+			':user_id' => $user_id
 		));
 
 		// Delete all memberships to permission groups.
-		$this->db->query_master("DELETE FROM `".User2RightGroupObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $user_id
+		$this->db->query_master("DELETE FROM `".User2RightGroupObj::TABLE."` WHERE `user_id` = :user_id", array(
+			':user_id' => $user_id
 		));
 
 		// Delete all individuell permission configs.
-		$this->db->query_master("DELETE FROM `".UserRightObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $user_id
+		$this->db->query_master("DELETE FROM `".UserRightObj::TABLE."` WHERE `user_id` = :user_id", array(
+			':user_id' => $user_id
 		));
 
 		// Remove all session entries.
-		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE `user_id` = @user_id", array(
-			'@user_id' => $user_id
+		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE `user_id` = :user_id", array(
+			':user_id' => $user_id
 		));
 
 		if (parent::delete()) {
@@ -281,8 +281,8 @@ class UserObj extends AbstractDataManagement
 	 * @return array returns an array with all the address information
 	 */
 	public function get_addresses() {
-		return $this->db->query_slave_all("SELECT * FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id", array(
-			'@user_id' => $this->user_id
+		return $this->db->query_slave_all("SELECT * FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = :user_id", array(
+			':user_id' => $this->user_id
 		));
 	}
 
@@ -307,20 +307,20 @@ class UserObj extends AbstractDataManagement
 		else {
 			$db_field = "*";
 		}
-		$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = @group", array(
-			'@user_id' => $this->user_id,
-			'@group' => $group
+		$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = :user_id AND `group` = :group", array(
+			':user_id' => $this->user_id,
+			':group' => $group
 		));
 
 		if (empty($result) && $group != UserAddressObj::USER_ADDRESS_GROUP_DEFAULT) {
-			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id AND `group` = '".UserAddressObj::USER_ADDRESS_GROUP_DEFAULT."'", array(
-				'@user_id' => $this->user_id
+			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = :user_id AND `group` = '".UserAddressObj::USER_ADDRESS_GROUP_DEFAULT."'", array(
+				':user_id' => $this->user_id
 			));
 		}
 
 		if (empty($result)) {
-			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = @user_id", array(
-				'@user_id' => $this->user_id
+			$result = $this->db->query_slave_first("SELECT ".$db_field." FROM `".UserAddressObj::TABLE."` WHERE IF(`user_id` != '0', `user_id`, `parent_id`) = :user_id", array(
+				':user_id' => $this->user_id
 			));
 		}
 

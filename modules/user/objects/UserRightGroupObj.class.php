@@ -43,7 +43,7 @@ class UserRightGroupObj extends AbstractDataManagement
 	 * @return boolean true on success, else false
 	 */
 	public function delete() {
-		foreach ($this->db->query_slave_all("SELECT `id` FROM `".User2RightGroupObj::TABLE."` WHERE `group_id` = @group_id", array("@group_id" => $this->group_id)) AS $grouo_2_user_assignment) {
+		foreach ($this->db->query_slave_all("SELECT `id` FROM `".User2RightGroupObj::TABLE."` WHERE `group_id` = :group_id", array(':group_id' => $this->group_id)) AS $grouo_2_user_assignment) {
 			$tmp_obj = new User2RightGroupObj($grouo_2_user_assignment['id']);
 			if (!$tmp_obj->delete()) {
 				return false;

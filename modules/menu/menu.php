@@ -176,7 +176,7 @@ class Menu extends ActionModul
 		$array_2_tree = new Array2Tree();
 
 		// Read all entries for this menu.
-		foreach ($this->db->query_slave_all("SELECT `entry_id`, `parent_id`, `order` FROM `" . MenuEntryObj::TABLE . "` WHERE menu_id = @menu_id", array('@menu_id' => $menu_id)) AS $menu_entry) {
+		foreach ($this->db->query_slave_all("SELECT `entry_id`, `parent_id`, `order` FROM `" . MenuEntryObj::TABLE . "` WHERE menu_id = :menu_id", array(':menu_id' => $menu_id)) AS $menu_entry) {
 
 			// Get the translation for this menu entry.
 			$translations = $this->db->query_slave_all("SELECT * FROM `" . MenuEntryTranslationObj::TABLE . "` WHERE entry_id = ientry_id", array('ientry_id' => $menu_entry['entry_id']), 0, 0, 'language');
@@ -289,10 +289,10 @@ class Menu extends ActionModul
 			$pure_alias = preg_replace("/\.[^\.]+$/", "", $pure_alias);
 
 			$additional_sql_check = "";
-			$sql_args = array('@alias' => $pure_alias, '@destination' => $obj_form->get("destination"));
+			$sql_args = array(':alias' => $pure_alias, ':destination' => $obj_form->get("destination"));
 			if ($loaded) {
-				$additional_sql_check = ' AND et.entry_id != @self_entry_id';
-				$sql_args['@self_entry_id'] = $entry_id;
+				$additional_sql_check = ' AND et.entry_id != :self_entry_id';
+				$sql_args[':self_entry_id'] = $entry_id;
 			}
 
 			// Return an error if the content page already exists within the menu structure (all menus will be checked).
@@ -300,8 +300,8 @@ class Menu extends ActionModul
 				SELECT 1
 				FROM `" . MenuEntryObj::TABLE . "` e
 				JOIN `" . MenuEntryTranslationObj::TABLE . "` et ON (et.entry_id = e.entry_id)
-				JOIN `" . UrlAliasObj::TABLE . "` al ON (al.alias = @alias)
-				WHERE et.destination = @destination AND al.module = 'content' AND al.action = 'view'" . $additional_sql_check, $sql_args);
+				JOIN `" . UrlAliasObj::TABLE . "` al ON (al.alias = :alias)
+				WHERE et.destination = :destination AND al.module = 'content' AND al.action = 'view'" . $additional_sql_check, $sql_args);
 			if (!empty($entry_exists)) {
 				// Setup error message to display.
 				$this->core->message(t("Could not save menu, this content page is already linked within a menu."), Core::MESSAGE_TYPE_ERROR, $obj_form->is_ajax());

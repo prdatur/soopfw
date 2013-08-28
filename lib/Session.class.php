@@ -191,7 +191,9 @@ class Session extends Object
 				$cache = &$this->login_handler;
 			}
 		}
-
+		if (!is_object($cache)) {
+			throw new Exception();
+		}
 		return $cache;
 	}
 
@@ -213,7 +215,7 @@ class Session extends Object
 	public function require_login() {
 		// If we are not logged in redirect him to the login page, if we are on ajax call we will be redirected
 		// through javascript.
-		if (!$this->is_logged_in()) {
+		if (!$this->is_logged_in() && !defined('is_shell')) {
 			$login_url = $this->get_login_url();
 			if($this->core->init_type == Core::INIT_TYPE_AJAXHTML) {
 				$this->smarty->assign("location", $login_url);
@@ -253,8 +255,8 @@ class Session extends Object
 
 		$timeout_value = $this->core->get_dbconfig("user", User::CONFIG_INACTIVE_LOGOUT_TIME, 60);
 		//Remove all old session entries which are not available anymore
-		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE DATE_ADD(`date`, INTERVAL iminutes MINUTE) <= @data", array(
-			"@data" => date(DB_DATETIME, TIME_NOW),
+		$this->db->query_master("DELETE FROM `".UserSessionObj::TABLE."` WHERE DATE_ADD(`date`, INTERVAL iminutes MINUTE) <= :data", array(
+			':data' => date(DB_DATETIME, TIME_NOW),
 			'iminutes' => $timeout_value,
 		));
 

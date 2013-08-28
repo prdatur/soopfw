@@ -1057,10 +1057,10 @@ Notice: You can only select fields which are no multi fields (max value needs to
 			throw new SoopfwNoPermissionException();
 		}
 
-		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `" . PageRevisionObj::TABLE . "` WHERE `page_id` = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
+		$revisions = $this->db->query_slave_all("SELECT `page_id`,`title`, `revision`, `created`, `created_by` FROM `" . PageRevisionObj::TABLE . "` WHERE `page_id` = ipage_id AND `language` = :language ORDER BY `revision` DESC", array(
 			'ipage_id' => $page_id,
-			'@language' => $this->core->current_language
-				));
+			':language' => $this->core->current_language
+		));
 
 		foreach ($revisions AS &$revision) {
 			$user_obj = new UserObj($revision['created_by']);
@@ -1317,12 +1317,9 @@ Current language: [b]@language[/b]', array(
 			$obj_form->add_js_success_callback("replace_new_content_type_row");
 		}
 
-		//Assign form to smarty
-		$obj_form->assign_smarty("form");
-
 		//Check if form was submitted
 		if ($obj_form->check_form()) {
-
+			
 			//If we are within insert mode, check if the entry already exists, if yes display the error
 			if (empty($content_type)) {
 				$obj_test = new ContentTypeObj($obj_form->get_value("content_type"));

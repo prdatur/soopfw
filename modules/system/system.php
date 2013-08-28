@@ -337,7 +337,7 @@ This message will disappear after the first cronjob runs. If you really do not w
 
 		// Generate the previous and next links if the exist.
 		$prev_counter_id = $count_id - 1;
-		$header = "<div style='padding: 15px'>";
+		$header = "<div style='padding: 45px'>";
 		if ($prev_counter_id > 0) {
 			$header .= "<a href='/admin/system/view_webtest_report/" . $report_id . "/" . $prev_counter_id . "' class='form_button' style='margin-right: 20px;'>" . t('Previous') . "</a>";
 		}

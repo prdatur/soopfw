@@ -144,7 +144,7 @@ class DBMemcached extends CacheProvider implements CacheProviderInterface
 		$this->last_result_code = CacheProvider::RES_FAILURE;
 
 		//try to get the value
-		$res = $this->db->query_slave_first("SELECT * FROM `__memcached` WHERE `key` = '" . Db::safe($this->prefix_key . $key) . "'");
+		$res = $this->db->query_slave_first("SELECT * FROM `__memcached` WHERE `key` = :key", array(':key' => $this->prefix_key . $key));
 		if (!$res) {
 			return null;
 		}

@@ -64,7 +64,7 @@ class RightManager extends Object
 
 		//Get the groups
 		$groups = array();
-		foreach ($this->db->query_slave_all("SELECT * FROM `" . User2RightGroupObj::TABLE . "` WHERE user_id = iuser_id", array('iuser_id' => $user_id)) AS $group) {
+		foreach ($this->db->query_slave_all("SELECT * FROM `" . User2RightGroupObj::TABLE . "` WHERE user_id = :user_id", array(':user_id' => $user_id)) AS $group) {
 			$groups[$group['group_id']] = $group['group_id'];
 		}
 		return $groups;
@@ -88,7 +88,7 @@ class RightManager extends Object
 	 * @return array the parsed rights
 	 */
 	public function get_group_rights($group_id) {
-		$row = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightGroupObj::TABLE . "` WHERE `group_id` = @group_id", array("@group_id" => $group_id));
+		$row = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightGroupObj::TABLE . "` WHERE `group_id` = :group_id", array(":group_id" => $group_id));
 
 		if (empty($row)) {
 			return array();
@@ -153,7 +153,7 @@ class RightManager extends Object
 		if (!isset(RightManager::$rights_loaded[$user->user_id])) {
 			RightManager::$rights_loaded[$user->user_id] = $user->get_rights();
 		}
-
+		
 		//Return if the user has the right
 		if (!is_array($right)) {
 			$right = array($right);
@@ -257,23 +257,23 @@ class RightManager extends Object
 	public function get_rights($userid, $filter = self::RIGHT_TYPE_ALL, $raw = false) {
 
 		$row = array();
-
+		
 		//Get the rights which are owned from groups
 		if ($filter == self::RIGHT_TYPE_ALL || $filter == self::RIGHT_TYPE_GROUP) {
-			$sql = "SELECT urg.`permissions` FROM `" . User2RightGroupObj::TABLE . "` uu2rg JOIN `" . UserRightGroupObj::TABLE . "` urg ON (urg.`group_id` = uu2rg.`group_id` AND uu2rg.`user_id` = '" . $userid . "')";
-			foreach ($this->db->query_slave_all($sql) AS $right) {
+			$sql = "SELECT urg.`permissions` FROM `" . User2RightGroupObj::TABLE . "` uu2rg JOIN `" . UserRightGroupObj::TABLE . "` urg ON (urg.`group_id` = uu2rg.`group_id` AND uu2rg.`user_id` = :user_id)";
+			foreach ($this->db->query_slave_all($sql, array(':user_id' => $userid)) AS $right) {
 				$row = array_merge($row, $this->parse_rights($right['permissions'], $raw));
 			}
 		}
 
 		//Get the direct user rights
 		if ($filter == self::RIGHT_TYPE_ALL || $filter == self::RIGHT_TYPE_USER) {
-			$right = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightObj::TABLE . "` WHERE `user_id` = 'iuserid'", array("iuserid" => $userid));
+			$right = $this->db->query_slave_first("SELECT `permissions` FROM `" . UserRightObj::TABLE . "` WHERE `user_id` = :userid", array(":userid" => $userid));
 			if(!empty($right)) {
 				$row = array_merge($row, $this->parse_rights($right['permissions'], $raw));
 			}
 		}
-
+		
 		return $row;
 	}
 

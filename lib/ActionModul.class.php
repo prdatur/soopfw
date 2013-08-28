@@ -274,8 +274,8 @@ class ActionModul extends Object
 	 *   If we want to assign the config to smarty (optional, default = false)
 	 */
 	public function load_config($assign = false) {
-		$sql = $this->db->query_slave_all("SELECT `key`, `value` FROM `".CoreModulConfigObj::TABLE."` WHERE `modul` = @modul", array(
-			"@modul" => $this->modulname
+		$sql = $this->db->query_slave_all("SELECT `key`, `value` FROM `".CoreModulConfigObj::TABLE."` WHERE `modul` = :modul", array(
+			":modul" => $this->modulname
 		));
 		foreach ($sql AS $data) {
 			$this->config[$data['key']] = $data['value'];

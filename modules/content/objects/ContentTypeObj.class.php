@@ -71,7 +71,7 @@ class ContentTypeObj extends AbstractDataManagement
 			$object_ids = array();
 
 			//Get all menu entry id's which are linked with this menu
-			foreach($this->db->query_slave_all("SELECT `id` FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = @content_type", array("@content_type" => $content_type)) AS $entry) {
+			foreach($this->db->query_slave_all("SELECT `id` FROM `".ContentTypeFieldGroupObj::TABLE."` WHERE `content_type` = :content_type", array(':content_type' => $content_type)) AS $entry) {
 				$object_ids[] = $entry['id'];
 			}
 			if(count($object_ids) > 0) {

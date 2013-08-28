@@ -17,11 +17,11 @@ class Db
 	public $mysql_table = null;
 
 	/**
-	 * the link id
+	 * The pdo database object
 	 *
-	 * @var int
+	 * @var PDO
 	 */
-	protected $link_id = 0;
+	protected $db = null;
 
 	/**
 	 * the databases
@@ -29,13 +29,6 @@ class Db
 	 * @var array
 	 */
 	protected $dbserver = array();
-
-	/**
-	 * the query id
-	 *
-	 * @var int
-	 */
-	protected $query_id = 0;
 
 	/**
 	 * record
@@ -136,6 +129,13 @@ class Db
 	private $reconnect_count = 0;
 	
 	/**
+	 * Holds the last pdo statement.
+	 * 
+	 * @var PDOStatement
+	 */
+	private $stmt = null;
+	
+	/**
 	 * Constructor from class DB,
 	 * configurating mysql server,
 	 * and connecting to database
@@ -204,10 +204,8 @@ class Db
 	 *   Force a reconnect. (Optional, default = false)
 	 */
 	public function add_server($servername, $server, $username, $password, $database, $force = false) {
-		$this->dbserver[$servername] = @mysql_connect($server, $username, $password, $force);
-		$this->link_id = $this->dbserver[$servername];
-		@mysql_select_db($database, $this->dbserver[$servername]);
-
+		$this->dbserver[$servername] = new PDO('mysql:host=' . $server . ';dbname=' . $database . ';charset=utf8', $username, $password);
+		$this->db = $this->dbserver[$servername];
 		$this->secured[$servername] = DesCrypt::des_encode(json_encode(array(
 			'server' => $server,
 			'username' => $username,
@@ -229,7 +227,7 @@ class Db
 		if ($this->transaction_is_active()) {
 			$this->transaction_rollback();
 		}
-		$this->link_id = $this->get_server($var);
+		$this->db = $this->get_server($var);
 		$this->server = $var;
 	}
 
@@ -253,7 +251,7 @@ class Db
 	 */
 	public function set_default_server($var) {
 		$this->dbserver["default"] = $this->dbserver[$var];
-		$this->link_id = $this->dbserver["default"];
+		$this->db = $this->dbserver["default"];
 		$this->server = 'default';
 	}
 
@@ -271,19 +269,14 @@ class Db
 	 *   True or false, debug or not
 	 */
 	public function set_debug($var) {
-		$this->_debug = $var;
-	}
-
-	/**
-	 * Get Link-ID
-	 *
-	 * @return resource mysql link id
-	 */
-	public function get_link_id() {
-		if (empty($this->link_id)) {
-			Core::get_instance()->recover_database();
+		if ($var) {
+			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 		}
-		return $this->link_id;
+		else {
+			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+		}
+		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->_debug = $var;
 	}
 
 	/**
@@ -361,7 +354,7 @@ class Db
 	 */
 	public function query_field($query_string, $args = array()) {
 		$this->query($query_string, $args, 1);
-		$return_array = $this->fetch_array($this->query_id, MYSQL_NUM);
+		$return_array = $this->fetch_array($this->stmt, PDO::FETCH_NUM);
 		if (empty($return_array)) {
 			return null;
 		}
@@ -419,12 +412,13 @@ class Db
 	 * @param int $offset
 	 *   The offset (optional, default = 0)
 	 * @param int $type
-	 *   Type (optional ,default = MYSQL_ASSOC)
+	 *   Type (optional ,default = PDO::FETCH_ASSOC)
 	 *
 	 * @return mixed the first result row
 	 */
-	public function query_slave_first($query_string, $args = array(), $offset = 0, $type = MYSQL_ASSOC) {
-		return $this->fetch_array($this->query_slave($query_string, $args, 1, $offset), $type);
+	public function query_slave_first($query_string, $args = array(), $offset = 0, $type = PDO::FETCH_ASSOC) {
+		$this->query_slave($query_string, $args, 1, $offset);
+		return $this->fetch_array($this->stmt, $type);
 	}
 
 	/**
@@ -438,7 +432,8 @@ class Db
 	 * @return boolean returns true if the query is not empty, else false
 	 */
 	public function query_slave_exists($query_string, $args = array()) {
-		$data = $this->fetch_array($this->query_slave($query_string, $args, 1));
+		$this->query_slave($query_string, $args, 1);
+		$data = $this->fetch_array($this->stmt);
 		return !empty($data);
 	}
 
@@ -456,15 +451,15 @@ class Db
 	 * @param int $array_key
 	 *   returned array key as a table field (optional, default=0)
 	 * @param int $type
-	 *   The result type (use one of MYSQL_*)
-	 * 	 (optional, default = MYSQL_ASSOC)
+	 *   The result type (use one of PDO::FETCH_*)
+	 * 	 (optional, default = PDO::FETCH_ASSOC)
 	 * @return array The Results
 	 */
-	public function query_slave_all($query_string, $args = array(), $limit = 0, $offset = 0, $array_key = 0, $type = MYSQL_ASSOC) {
+	public function query_slave_all($query_string, $args = array(), $limit = 0, $offset = 0, $array_key = 0, $type = PDO::FETCH_ASSOC) {
 		$return = array();
 
 		$this->query($query_string, $args, $limit, $offset);
-		while ($row = $this->fetch_array($this->query_id, $type)) {
+		while ($row = $this->fetch_array($this->stmt, $type)) {
 			
 			if (!empty($array_key) && isset($row[$array_key])) {
 				$return[$row[$array_key]] = $row;
@@ -487,7 +482,8 @@ class Db
 	 * @param int $offset
 	 *   The offset (optional, default = 0)
 	 *
-	 * @return resource Mysql queryid
+	 * @return boolean
+	 *  True if execute was succesfully, else false.
 	 */
 	protected function query($query_string, $args = array(), $limit = 0, $offset = 0) {
 
@@ -509,25 +505,6 @@ class Db
 			});
 		}
 
-		//Escape all arguments with the prefix
-		foreach ($args AS $key => $value) {
-			switch (substr($key, 0, 1)) {
-				case 'i':
-					$value = (int) $value;
-					break;
-				case 'f':
-					$value = (float) $value;
-					break;
-				case '@':
-					$value = "'" . Db::safe($value) . "'";
-					break;
-				default:
-					$value = Db::safe($value);
-					break;
-			}
-
-			$query_string = str_replace($key, $value, $query_string);
-		}
 		$limit = (int) $limit;
 		if ($limit > 0) {
 			$query_string .= " LIMIT " . $limit;
@@ -537,17 +514,29 @@ class Db
 		if ($offset > 0) {
 			$query_string .= " OFFSET " . $offset;
 		}
+			
+		$execute_args = array();
+		//Escape all arguments with the prefix
+		foreach ($args AS $key => $value) {
 
+			$query_string = str_replace($key, ':' . substr($key, 1), $query_string);
+			$execute_args[':' . substr($key, 1)] = $value;
+		}
+		
 		if ($this->_debug) {
 			if (!defined('is_shell')) {
 				echo "<div style=\"width:100%;background-color:white;color:black;\"><div style=\"width:100%;background-color:white;color:blue;\">" . $query_string . "</div>\n";
+				print_r($execute_args);
 			}
 			else {
 				Core::get_instance()->message($query_string);
 			}
 			if (preg_match("/^\s*SELECT\s/iUs", $query_string)) {
-				$sql = @mysql_query("EXPLAIN " . $query_string, $this->get_link_id());
-				$res = @mysql_fetch_assoc($sql);
+				
+				$stmt = $this->db->prepare("EXPLAIN " . $query_string);
+				
+				$stmt->execute($execute_args);
+				$res = $stmt->fetch(PDO::FETCH_ASSOC);
 				if (!empty($res)) {
 					foreach ($res AS $key => $val) {
 						if (is_numeric($key)) {
@@ -565,9 +554,10 @@ class Db
 				}
 			}
 		}
-		#echo "##########\n";
-		$this->query_id = @mysql_query($query_string, $this->get_link_id());
-		if (mysql_errno() === 2006) {
+		
+		$this->stmt = $this->db->prepare($query_string);
+		return $this->stmt->execute($execute_args);
+		/*if (mysql_errno() === 2006) {
 			while($this->reconnect_count++ < 3) {
 				usleep(500 * $this->reconnect_count);
 				$credentials = json_decode(DesCrypt::des_decode($this->secured[$this->server], $this->sec), true);
@@ -583,8 +573,7 @@ class Db
 			}
 			$this->reconnect_count = 0;
 			
-		}
-		return $this->query_id;
+		}*/
 	}
 
 	/**
@@ -592,22 +581,25 @@ class Db
 	 * If Queryid was not set, it will get the
 	 * results of the last query
 	 *
-	 * @param string $query_id
-	 *   Queryid (optional ,default=-1)
+	 * @param PDOStatement $stmt
+	 *   pdo statement, if not provided it uses the last one. (optional ,default = null)
 	 * @param int $type
-	 *   type (optional, default = MYSQL_ASSOC)
+	 *   type (optional, default = PDO::FETCH_ASSOC)
 	 *
 	 * @return array Mysql result as an array only with numeric index
 	 */
-	public function &fetch_array($query_id = -1, $type = MYSQL_ASSOC) {
-		if ($query_id != -1) {
-			$this->query_id = $query_id;
+	public function &fetch_array($stmt = null, $type = PDO::FETCH_ASSOC) {
+		if ($stmt != null) {
+			$this->stmt = $stmt;
 		}
-		if (empty($this->query_id)) {
+		if (empty($this->stmt)) {
 			$return = array();
 			return $return;
 		}
-		$this->record = mysql_fetch_array($this->query_id, $type);
+		if (!is_object($this->stmt)) {
+			throw new Exception();
+		}
+		$this->record = $this->stmt->fetch($type);
 		return $this->record;
 	}
 
@@ -617,25 +609,27 @@ class Db
 	 * If the Queryid is not set, it will
 	 * get the results from the last query
 	 *
-	 * @param int $query_id
-	 *   Queryid (optional) Default=-1
+	 * @param PDOStatement $stmt
+	 *   The pdo statement, if not provided it uses the last one. (optional, default = null)
 	 *
-	 * @return int the count
+	 * @return int
+	 *   the count.
 	 */
-	public function num_rows($query_id = -1) {
-		if ($query_id != -1) {
-			$this->query_id = $query_id;
+	public function num_rows($stmt = null) {
+		if ($stmt != null) {
+			$this->stmt = $stmt;
 		}
-		return @mysql_num_rows($this->query_id);
+		return $this->stmt->rowCount();
 	}
 
 	/**
-	 * Return the last inserted id from autoincrement
+	 * Return the last inserted id from autoincrement.
 	 *
-	 * @return int the inserted id
+	 * @return int 
+	 *   the inserted id.
 	 */
 	public function insert_id() {
-		return mysql_insert_id($this->get_link_id());
+		return $this->db->lastInsertId();
 	}
 
 	/**
@@ -648,8 +642,7 @@ class Db
 		if ($mode != TRUE) {
 			$mode = "0";
 		}
-
-		mysql_query("SET AUTOCOMMIT=" . $mode, $this->get_link_id());
+		$this->db->query("SET AUTOCOMMIT=" . $mode);
 	}
 
 	/**
@@ -686,7 +679,8 @@ class Db
 	 * @return resource the mysql resource or false on error
 	 */
 	public function transaction_begin() {
-		if ($qry_result = $this->query_master('BEGIN')) {
+		
+		if ($qry_result = $this->db->beginTransaction()) {
 			$this->transaction_active = true;
 			$this->changed_memcached_keys = array();
 		}
@@ -699,7 +693,7 @@ class Db
 	 * @return resource the mysql resource or false on error
 	 */
 	public function transaction_commit() {
-		if ($qry_result = $this->query_master('COMMIT')) {
+		if ($qry_result = $this->db->commit()) {
 			$this->transaction_active = false;
 			$this->changed_memcached_keys = array();
 		}
@@ -730,7 +724,7 @@ class Db
 		}
 
 		//Rollback the mysql queries
-		return $this->query_master('ROLLBACK');
+		return $this->db->rollBack();
 	}
 
 	/**
@@ -964,7 +958,7 @@ class Db
 	 */
 	public function get_table_fields($table) {
 		$fields = array();
-		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . Db::sql_escape($table) . "' ORDER BY ORDINAL_POSITION") AS $row) {
+		foreach ($this->query_slave_all("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table ORDER BY ORDINAL_POSITION", array(':table' => $table)) AS $row) {
 			$fields[$row['COLUMN_NAME']] = $row;
 		}
 		return $fields;
@@ -982,10 +976,10 @@ class Db
 	 */
 	public function get_primary_key($table, $return_as_array = false) {
 		$sql = "SHOW COLUMNS FROM `" . Db::safe($this->table_prefix) . $table . "`";
-		$this->query_id = mysql_query($sql, $this->get_link_id());
+		$this->stmt = $this->db->query($sql);
 		$primarykeys = array();
-		if (mysql_num_rows($this->query_id) > 0) {
-			while ($row = mysql_fetch_assoc($this->query_id)) {
+		if ($this->stmt->rowCount() > 0) {
+			while ($row = $this->stmt->fetch(PDO::FETCH_ASSOC)) {
 				if ($row['Key'] == "PRI") {
 					$primarykeys[] = $row['Field'];
 				}
@@ -1016,10 +1010,10 @@ class Db
 		}
 		$sql .= '  ORDER BY `SEQ_IN_INDEX`';
 
-		$this->query_id = mysql_query($sql, $this->get_link_id());
+		$this->stmt = $this->query($sql);
 		$indexe = array();
-		if (mysql_num_rows($this->query_id) > 0) {
-			while ($row = mysql_fetch_assoc($this->query_id)) {
+		if ($this->stmt->rowCount() > 0) {
+			while ($row = $this->stmt->fetch(PDO::FETCH_ASSOC)) {
 
 				$type = ($row['NON_UNIQUE'] == '1') ? 'INDEX' : 'UNIQUE';
 				if (!isset($indexe[$type][$row['INDEX_NAME']])) {

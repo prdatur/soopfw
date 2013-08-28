@@ -80,15 +80,14 @@ class PageRevisionObj extends AbstractDataManagement {
 		if (parent::insert($ignore)) {
 			$this->db->query_master("DELETE FROM `" . self::TABLE . "` WHERE `page_id` = ipage_id AND `language` = @language AND  `revision` <= irevision", array(
 				'ipage_id' => $this->values['page_id'],
-				'@language' => $this->values['language'],
-				'@revision' => $this->values['revision'] - 20
+				':language' => $this->values['language'],
+				'irevision' => $this->values['revision'] - 20
 			));
 
 			if ($create_alias) {
 				$alias_title = UrlAliasObj::get_alias_string($this->values['title']);
-				$alias_match = $this->db->query_slave_first("SELECT `id`, `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipid|:cl'", array(
-					"ipid" => $this->values['page_id'],
-					":cl" => $this->values['language']
+				$alias_match = $this->db->query_slave_first("SELECT `id`, `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = :params", array(
+					":params" => intval($this->values['page_id']) . '|' . $this->values['language'],
 				));
 
 				if (empty($alias_match) || $alias_match['alias'] != $alias_title) {
@@ -186,9 +185,9 @@ class PageRevisionObj extends AbstractDataManagement {
 			return 0;
 		}
 
-		$row = $this->db->query_slave_first("SELECT `revision` FROM `" . self::TABLE . "` WHERE `page_id`  = ipage_id AND `language` = @language ORDER BY `revision` DESC", array(
-			"ipage_id" => $page_id,
-			"@language" => $language,
+		$row = $this->db->query_slave_first("SELECT `revision` FROM `" . self::TABLE . "` WHERE `page_id`  = ipage_id AND `language` = :language ORDER BY `revision` DESC", array(
+			'ipage_id' => $page_id,
+			':language' => $language,
 		));
 
 		//No revision created yet, return 1
@@ -204,9 +203,8 @@ class PageRevisionObj extends AbstractDataManagement {
 	 * @return string the alias, or if alias not exist returns false
 	 */
 	public function get_alias() {
-		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = 'ipage_id|current_language'", array(
-			"ipage_id" => $this->page_id,
-			'current_language' => $this->language
+		$alias_entry = $this->db->query_slave_first("SELECT `alias` FROM `" . UrlAliasObj::TABLE . "` WHERE `module` = 'content' AND `action` = 'view' AND `params` = :params", array(
+			":params" => intval($this->page_id) . '|' . $this->language,
 		));
 		if (!empty($alias_entry)) {
 			return $alias_entry['alias'];

@@ -1139,7 +1139,7 @@ class User extends ActionModul
 		}
 
 		$group_member = array();
-		foreach ($this->db->query_slave_all("SELECT `group_id` FROM `" . User2RightGroupObj::TABLE . "` WHERE `user_id` = @user_id", array('@user_id' => $user_id)) AS $group) {
+		foreach ($this->db->query_slave_all("SELECT `group_id` FROM `" . User2RightGroupObj::TABLE . "` WHERE `user_id` = :user_id", array(':user_id' => $user_id)) AS $group) {
 			$group_member[$group['group_id']] = true;
 		}
 		$this->core->js_config("user_rights", array(

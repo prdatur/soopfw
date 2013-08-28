@@ -106,7 +106,7 @@ class AdminMenu extends Object
 
 				}
 			}
-
+			
 			// Unset all entries where we do not have permission.
 			$this->unset_disallowed_entries($menu);
 

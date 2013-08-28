@@ -795,7 +795,7 @@ abstract class AbstractDataManagement extends Object
 	 *   else return the auto increment value as an int
 	 */
 	public function get_next_id() {
-		$row = $this->db->query_slave_first("SHOW TABLE STATUS WHERE `Name` = @table", array("@table" => $this->db_struct->get_table()));
+		$row = $this->db->query_slave_first("SHOW TABLE STATUS WHERE `Name` = :table", array(":table" => $this->db_struct->get_table()));
 		if (empty($row)) {
 			return 1;
 		}

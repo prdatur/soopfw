@@ -164,11 +164,11 @@ class UrlAliasObj extends AbstractDataManagement
 
 				$alias_priority = ((!empty($matches) && ($matches[2] == "html" || $matches[2] == "htm")));
 
-				$rows = $core->db->query_slave_first("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` = @alias", array("@alias" => $alias_url_check));
-
+				$rows = $core->db->query_slave_first("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` = :alias", array('@alias' => $alias_url_check));
+				
 				if (empty($rows)) {
 					list($alias_start) = explode("/", $alias, 2);
-					$rows = $core->db->query_slave_all("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` LIKE 'alias_start%'", array("alias_start" => $alias_start));
+					$rows = $core->db->query_slave_all("SELECT * FROM `" . UrlAliasObj::TABLE . "` WHERE `alias` LIKE :alias_start", array(":alias_start" => $alias_start . '%'));
 				}
 				else {
 					$rows = array($rows);

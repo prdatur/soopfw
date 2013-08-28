@@ -66,8 +66,8 @@ class IPLockObj extends AbstractDataManagement
 	 * Remove all expired locks
 	 */
 	public function clean() {
-		$this->db->query_master("DELETE FROM `".IPLockObj::TABLE."` WHERE DATE_ADD(`time`, INTERVAL ".$this->locktime." MINUTE) > @date", array(
-			"@date" => date(DB_DATE, TIME_NOW
+		$this->db->query_master("DELETE FROM `".IPLockObj::TABLE."` WHERE DATE_ADD(`time`, INTERVAL ". $this->locktime . " MINUTE) > :date", array(
+			':date' => date(DB_DATE, TIME_NOW
 		)));
 	}
 

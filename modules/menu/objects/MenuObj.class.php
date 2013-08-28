@@ -57,9 +57,9 @@ class MenuObj extends AbstractDataManagement
 				$this->clear_menu_tree_cache($this->values['menu_id'], $old_menu_id);
 
 				// Replacing the old menu within menu entries.
-				if ($this->db->query_master("UPDATE `" . MenuEntryObj::TABLE . "` SET `menu_id` = @new_menu WHERE `menu_id` = @old_menu", array(
-							'@new_menu' => $this->values['menu_id'],
-							'@old_menu' => $old_menu_id
+				if ($this->db->query_master("UPDATE `" . MenuEntryObj::TABLE . "` SET `menu_id` = :new_menu WHERE `menu_id` = :old_menu", array(
+							':new_menu' => $this->values['menu_id'],
+							':old_menu' => $old_menu_id
 						))) {
 					$this->transaction_auto_commit();
 					return true;
@@ -104,7 +104,7 @@ class MenuObj extends AbstractDataManagement
 			$object_ids = array();
 
 			// Get all menu entry ids which are linked with this menu.
-			foreach ($this->db->query_slave_all("SELECT `entry_id` FROM `" . MenuEntryObj::TABLE . "` WHERE `menu_id` = @menu_id", array("@menu_id" => $menu_id)) AS $menu_entry) {
+			foreach ($this->db->query_slave_all("SELECT `entry_id` FROM `" . MenuEntryObj::TABLE . "` WHERE `menu_id` = :menu_id", array(':menu_id' => $menu_id)) AS $menu_entry) {
 				$object_ids[] = $menu_entry['entry_id'];
 			}
 
@@ -152,7 +152,7 @@ class MenuObj extends AbstractDataManagement
 		// Get the cached menu tree entries, if not found get fresh one from array and store it within the cache.
 		$menu_entries = $this->core->mcache('MenuObj:get_menu_tree:' . $this->values['menu_id']);
 		if (empty($menu_entries) || !is_array($menu_entries)) {
-			$menu_entries = $this->db->query_slave_all("SELECT * FROM `" . MenuEntryObj::TABLE . "` WHERE `menu_id` = @menu_id ORDER BY `order` ASC", array("@menu_id" => $this->values['menu_id']));
+			$menu_entries = $this->db->query_slave_all("SELECT * FROM `" . MenuEntryObj::TABLE . "` WHERE `menu_id` = :menu_id ORDER BY `order` ASC", array(':menu_id' => $this->values['menu_id']));
 			$this->core->mcache('MenuObj:get_menu_tree:' . $this->values['menu_id'], $menu_entries);
 		}
 
